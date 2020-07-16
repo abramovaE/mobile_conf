@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="100px"
+    android:background="#FFFFFF"
+    >
+
+    <ImageView
+        android:id="@+id/login_img"
+        android:layout_width="500px"
+        android:layout_height="500px"
+        android:src="@drawable/logo"
+        android:layout_gravity="center"
+        android:layout_marginTop="200px"
+        android:scaleType="fitStart"
+        />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/login_txt_label"
+        android:textSize="@dimen/login_txt"
+        android:layout_marginBottom="400px"
+        android:gravity="center"
+
+        />
+
+    <EditText
+        android:id="@+id/login_txt_login"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/login_txt"
+        android:hint="@string/login_txt_login_hint"
+        />
+
+    <EditText
+        android:id="@+id/login_txt_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/login_txt"
+        android:hint="@string/login_txt_password_hint"
+        />
+
+    <Button
+        android:id="@+id/login_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/login_txt"
+        android:text="@string/login_btn"
+
+
+        />
+
+</LinearLayout>

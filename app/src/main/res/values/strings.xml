@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">MobileConfigurator</string>
+    <string name="login_txt_login_hint">Login</string>
+    <string name="login_txt_password_hint">Password</string>
+    <string name="login_btn">Sign in</string>
+    <string name="login_txt_label">Service</string>
+    <string name="about_main_label">About a program</string>
+</resources>
