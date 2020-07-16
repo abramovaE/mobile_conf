@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="100px">
+
+
+    <Button
+        android:id="@+id/main_basic_scanner_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/main_basic_scanner_btn"
+        android:textSize="@dimen/main_menu_btn"
+        android:layout_marginBottom="20px"/>
+
+
+    <Button
+        android:id="@+id/main_ble_scanner_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/main_ble_scanner_btn"
+        android:textSize="@dimen/main_menu_btn"
+        android:layout_marginBottom="20px"/>
+
+    <Button
+        android:id="@+id/main_update_os_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/main_update_os_btn"
+        android:textSize="@dimen/main_menu_btn"
+        android:layout_marginBottom="20px"/>
+
+    <Button
+        android:id="@+id/main_update_stm_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/main_update_stm_btn"
+        android:textSize="@dimen/main_menu_btn"
+        android:layout_marginBottom="20px"/>
+
+    <Button
+        android:id="@+id/main_update_content_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/main_update_content_btn"
+        android:textSize="@dimen/main_menu_btn"
+        android:layout_marginBottom="20px"/>
+
+    <Button
+        android:id="@+id/main_config_transport_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/main_config_transport_btn"
+        android:textSize="@dimen/main_menu_btn"
+        android:layout_marginBottom="20px"/>
+
+    <Button
+        android:id="@+id/main_config_station_btn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/main_config_station_btn"
+        android:textSize="@dimen/main_menu_btn"
+        android:layout_marginBottom="20px"/>
+
+
+
+</LinearLayout>
