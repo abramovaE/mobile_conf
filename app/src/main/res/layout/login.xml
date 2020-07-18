@@ -12,7 +12,6 @@
         android:layout_height="500px"
         android:src="@drawable/logo"
         android:layout_gravity="center"
-        android:layout_marginTop="200px"
         android:scaleType="fitStart"
         />
 
@@ -21,7 +20,7 @@
         android:layout_height="wrap_content"
         android:text="@string/login_txt_label"
         android:textSize="@dimen/login_txt"
-        android:layout_marginBottom="400px"
+        android:layout_marginBottom="200px"
         android:gravity="center"
 
         />

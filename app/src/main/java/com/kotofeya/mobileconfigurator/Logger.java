@@ -8,7 +8,11 @@ public class Logger {
     private static final String TAG = "MobileConfigurator";
 
     public static final int MAIN_LOG = 0;
-//    public static final int SC_LOG = 1;
+    public static final int BASIC_SCANNER_LOG = 1;
+    public static final int BLE_SCANNER_LOG = 2;
+
+
+
 //    public static final int BT_LOG = 2;
 //    public static final int WIFI_LOG = 3;
 //    public static final int DOWNLOAD_LOG = 4;

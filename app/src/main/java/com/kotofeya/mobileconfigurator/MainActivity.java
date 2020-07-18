@@ -1,8 +1,11 @@
 package com.kotofeya.mobileconfigurator;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
@@ -15,6 +18,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PatternMatcher;
+import android.view.View;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.Toast;
 
 import com.jcraft.jsch.ChannelExec;
@@ -35,8 +41,11 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
-public class MainActivity extends AppCompatActivity implements SshCompleted {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
+    private EditText loginTxt;
+    private EditText passwordTxt;
+    private Button signInBtn;
 
     private WifiManager.LocalOnlyHotspotReservation mReservation;
 
@@ -45,62 +54,35 @@ public class MainActivity extends AppCompatActivity implements SshCompleted {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.login);
 
+        loginTxt = findViewById(R.id.login_txt_login);
+        passwordTxt = findViewById(R.id.login_txt_password);
+        signInBtn = findViewById(R.id.login_btn);
 
-        connectedTransivers = new ArrayList<>();
-        getClientList();
-        Logger.d(Logger.MAIN_LOG, connectedTransivers.toString());
-
-        for(String s: connectedTransivers){
-           Logger.d(Logger.MAIN_LOG, "connecting to: " + s);
-
-           SshConnection connection = new SshConnection(this);
-           connection.execute(s);
-
-//           connection.doInBackground(s);
-
-        }
-
-
-    }
-
-    public int getClientList() {
-        int macCount = 0;
-        BufferedReader br = null;
-        String flushCmd = "sh ip -s -s neigh flush all";
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            runtime.exec(flushCmd, null, new File("/proc/net"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        try {
-            br = new BufferedReader(new FileReader("/proc/net/arp"));
-            String line;
-            while ((line = br.readLine()) != null) {
-                String[] splitted = line.split(" +");
-                if (splitted != null) {
-                    String mac = splitted[3];
-                    if (mac.matches("..:..:..:..:..:..")) {
-                        macCount++;
-
-               connectedTransivers.add(splitted[0]);
-                    }
-
-
-                }
-            }
-        } catch (Exception e) {
-
-        }
-        return macCount;
+        signInBtn.setOnClickListener(this);
     }
 
 
     @Override
-    public void onTaskCompleted() {
+    public void onAttachFragment(Fragment fragment) {
+        super.onAttachFragment(fragment);
 
+
+    }
+
+
+
+    @Override
+    public void onClick(View v) {
+        String login = loginTxt.getText().toString();
+        String password = passwordTxt.getText().toString();
+
+        // TODO: 16.07.20 validate login and password with observer
+        if(true){
+            App.get().setContext(this);
+            Intent intent = new Intent(this, MainMenu.class);
+            startActivity(intent);
+        }
     }
 }

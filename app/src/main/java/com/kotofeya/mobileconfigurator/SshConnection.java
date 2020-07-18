@@ -9,7 +9,10 @@ import com.jcraft.jsch.Session;
 import java.io.ByteArrayOutputStream;
 import java.util.Properties;
 
-public class SshConnection extends AsyncTask<String, Object, Object> {
+public class SshConnection extends AsyncTask<String, Object, String> {
+
+
+    public static final String UPTIME_COMMAND = "uptime";
 
     private SshCompleted listener;
 
@@ -18,13 +21,15 @@ public class SshConnection extends AsyncTask<String, Object, Object> {
             this.listener=listener;
         }
 
-
-    protected Object doInBackground(String... ip) {
+        // req[0] - ip
+        //req[1] - command
+    protected String doInBackground(String...req) {
+        ByteArrayOutputStream baos = null;
 
         try
         {
             JSch jsch = new JSch();
-            Session session = jsch.getSession("staff", ip[0], 22);
+            Session session = jsch.getSession("staff", req[0], 22);
             session.setPassword("staff");
 
             // Avoid asking for key confirmation
@@ -34,26 +39,20 @@ public class SshConnection extends AsyncTask<String, Object, Object> {
 
             session.connect();
 
-            Logger.d(Logger.MAIN_LOG, ip[0] + " isConnected: " + session.isConnected());
+            Logger.d(Logger.MAIN_LOG, req[0] + " isConnected: " + session.isConnected());
 
 
             // SSH Channel
             ChannelExec channelssh = (ChannelExec) session.openChannel("exec");
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            baos = new ByteArrayOutputStream();
             channelssh.setOutputStream(baos);
 
-            channelssh.setCommand("uptime");
+            channelssh.setCommand((String)req[1]);
             channelssh.connect();
             try{Thread.sleep(1000);}catch(Exception ee){}
+
             Logger.d(Logger.MAIN_LOG, "result: " + baos.toString());
             channelssh.disconnect();
-
-
-
-
-
-
-
         }
         catch (Exception e)
         {
@@ -61,11 +60,12 @@ public class SshConnection extends AsyncTask<String, Object, Object> {
 
         }
 
-        return null;
+        return baos.toString();
     }
 
-    protected void onPostExecute(Object o){
-            listener.onTaskCompleted();
+    protected void onPostExecute(String result){
+
+            listener.onTaskCompleted(result);
         }
 
 }

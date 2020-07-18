@@ -14,4 +14,10 @@
     <string name="main_update_content_btn">Update content</string>
     <string name="main_config_transport_btn">Config transport</string>
     <string name="main_config_station_btn">Config station</string>
+    <string name="main_menu_main_label">Main menu</string>
+    <string name="update_btn_check">Check updates</string>
+    <string name="content_btn_send">Send</string>
+    <string name="content_btn_rasp">Rasp</string>
+    <string name="content_btn_stm">STM</string>
+    <string name="content_label_reboot">Reboot</string>
 </resources>
