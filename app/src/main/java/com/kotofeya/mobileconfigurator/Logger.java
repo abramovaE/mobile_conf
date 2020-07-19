@@ -10,6 +10,9 @@ public class Logger {
     public static final int MAIN_LOG = 0;
     public static final int BASIC_SCANNER_LOG = 1;
     public static final int BLE_SCANNER_LOG = 2;
+    public static final int BT_HANDLER_LOG = 3;
+    public static final int UTILS_LOG = 4;
+    public static final int FILTER_LOG = 5;
 
 
 
@@ -35,6 +38,11 @@ public class Logger {
 
     static {
         mType.put(MAIN_LOG,"Main_task");
+        mType.put(BASIC_SCANNER_LOG, "Basic_scanner_task");
+        mType.put(BLE_SCANNER_LOG, "Ble_scanner_task");
+        mType.put(BT_HANDLER_LOG, "BT_handler_task");
+        mType.put(UTILS_LOG, "Utils_task");
+        mType.put(FILTER_LOG, "Filter_task");
 //        mType.put(SC_LOG,"SC_task");
 //        mType.put(BT_LOG,"BT_task");
 //        mType.put(WIFI_LOG,"Wifi_task");

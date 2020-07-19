@@ -36,6 +36,11 @@ public class UpdateStmFragment extends Fragment implements SshCompleted {
         TextView scannerLabel = view.findViewById(R.id.scanner_label);
         Button scannerButton = view.findViewById(R.id.scanner_btn);
 
+
+        TextView mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
+        mainTxtLabel.setText(R.string.update_stm_main_txt_label);
+        Button mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
+
         // TODO: 18.07.20  settext , buttontext and listener
 //        scannerLabel.setText("");
 

@@ -1,0 +1,153 @@
+package com.kotofeya.mobileconfigurator;
+
+import android.bluetooth.le.ScanResult;
+
+import java.io.UnsupportedEncodingException;
+
+public class TransportTransiver extends Transiver {
+    public TransportTransiver(String ip) {
+        super(ip);
+    }
+
+    public TransportTransiver(ScanResult result) {
+        super(result);
+    }
+
+
+        private int number;
+
+        public static final int PARK = 0;
+        public static final int DIRECT = 1;
+        public static final int REVERSE = 2;
+
+
+        public int getCity(){
+            if(getTransVersion() == VERSION_NEW){
+                return (((getRawData()[12] & 0xff)) + (getRawData()[13] & 0xff));
+            }
+
+            return 0;
+        }
+
+        public int getTransportType(){
+            if(getTransVersion() == VERSION_NEW){
+                return getRawData()[14] & 0xff;
+            }
+            else {
+                return (getRawData()[2] & 0xff);
+            }
+        }
+
+        public String getFullNumber() {
+            byte[] rawData = getRawData();
+            StringBuilder sb = new StringBuilder();
+            sb.append("\"");
+
+            if (getTransVersion() == VERSION_NEW) {
+                number = ((rawData[17] & 0xff) << 8) + (rawData[18] & 0xff);
+
+                if ((rawData[15] & 0xff) != 0) {
+                    byte tmpArr15[] = {rawData[15]};
+                    try {
+                        sb.append(new String(tmpArr15, "Windows-1251").toUpperCase());
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if ((rawData[16] & 0xff) != 0) {
+                    byte tmpArr16[] = {rawData[16]};
+                    try {
+                        sb.append(new String(tmpArr16, "Windows-1251").toUpperCase());
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                sb.append(number);
+
+                if ((rawData[19] & 0xff) != 0) {
+                    byte tmpArr19[] = {rawData[19]};
+                    try {
+                        sb.append(new String(tmpArr19, "Windows-1251").toUpperCase());
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+                if ((rawData[20] & 0xff) != 0) {
+                    byte tmpArr20[] = {rawData[20]};
+                    try {
+                        sb.append(new String(tmpArr20, "Windows-1251").toUpperCase());
+
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                }
+
+            }
+
+            else {
+                number = ((rawData[3] & 0xff) << 8) + (rawData[4] & 0xff);
+                sb.append(number);
+                if ((rawData[5] & 0xff) != 0) {
+                    byte tmpArr[] = {rawData[5]};
+                    try {
+                        sb.append(new String(tmpArr, "Windows-1251").toUpperCase());
+                    } catch (UnsupportedEncodingException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+            sb.append("\"");
+            return sb.toString();
+        }
+
+        public int getDirection() {
+            if(this.number == 0){
+                return PARK;
+            }
+
+            else {
+                int dir;
+                if(getTransVersion() == VERSION_NEW){
+                    dir = (getRawData()[7] >> 4) & 0b00000011;
+                }
+                else {
+                    dir = getRawData()[6] & 0xff;
+                }
+
+                switch (dir){
+                    case 0:
+                        return PARK;
+                    case 1:
+                        return DIRECT;
+                    case 2:
+                        return  REVERSE;
+                }
+                return 0;
+            }
+        }
+
+        public int getIntDirection(){
+            int dir;
+            if(getTransVersion() == VERSION_NEW){
+                dir = (getRawData()[7] >> 4) & 0b00000011;
+            }
+            else {
+                dir = getRawData()[6] & 0xff;
+            }
+            return dir;
+        }
+
+        private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
+
+        private String byteToHex(byte bytes) {
+            char[] hexChar = new char[2];
+            int v = bytes & 0xff;
+            hexChar[0] = hexArray[v >>> 4];
+            hexChar[1] = hexArray[v & 0x0F];
+            return new String(hexChar);
+        }
+    }
+

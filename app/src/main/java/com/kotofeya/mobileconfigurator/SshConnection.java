@@ -9,27 +9,35 @@ import com.jcraft.jsch.Session;
 import java.io.ByteArrayOutputStream;
 import java.util.Properties;
 
-public class SshConnection extends AsyncTask<String, Object, String> {
+public class SshConnection extends AsyncTask<Object, Object, String> {
 
 
     public static final String UPTIME_COMMAND = "uptime";
+    public static final String TAKE_COMMEND = "-C ";
 
     private SshCompleted listener;
+    private Transiver currentTransiver;
 
 
     public SshConnection(SshCompleted listener){
             this.listener=listener;
         }
 
-        // req[0] - ip
+        // req[0] - transiver
         //req[1] - command
-    protected String doInBackground(String...req) {
-        ByteArrayOutputStream baos = null;
 
+    protected String doInBackground(Object...req) {
+
+        Session session;
+        ChannelExec channelssh;
+        ByteArrayOutputStream baos = null;
+        String res = "";
+
+        this.currentTransiver = (Transiver) req[0];
         try
         {
             JSch jsch = new JSch();
-            Session session = jsch.getSession("staff", req[0], 22);
+            session = jsch.getSession("staff", currentTransiver.getIp(), 22);
             session.setPassword("staff");
 
             // Avoid asking for key confirmation
@@ -39,20 +47,23 @@ public class SshConnection extends AsyncTask<String, Object, String> {
 
             session.connect();
 
-            Logger.d(Logger.MAIN_LOG, req[0] + " isConnected: " + session.isConnected());
+            Logger.d(Logger.MAIN_LOG, ((Transiver) req[0]).getIp() + " isConnected: " + session.isConnected());
 
 
             // SSH Channel
-            ChannelExec channelssh = (ChannelExec) session.openChannel("exec");
+            channelssh = (ChannelExec) session.openChannel("exec");
+
+
             baos = new ByteArrayOutputStream();
             channelssh.setOutputStream(baos);
 
             channelssh.setCommand((String)req[1]);
             channelssh.connect();
             try{Thread.sleep(1000);}catch(Exception ee){}
-
-            Logger.d(Logger.MAIN_LOG, "result: " + baos.toString());
+            res = baos.toString();
+            baos.close();
             channelssh.disconnect();
+            session.disconnect();
         }
         catch (Exception e)
         {
@@ -60,11 +71,14 @@ public class SshConnection extends AsyncTask<String, Object, String> {
 
         }
 
-        return baos.toString();
+
+
+        return res;
     }
 
     protected void onPostExecute(String result){
-
+            Logger.d(Logger.MAIN_LOG, "result: " + result);
+            currentTransiver.setBasicScanInfo(result);
             listener.onTaskCompleted(result);
         }
 

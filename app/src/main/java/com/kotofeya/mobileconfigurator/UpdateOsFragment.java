@@ -39,6 +39,11 @@ public class UpdateOsFragment extends Fragment implements SshCompleted {
         Button scannerButton = view.findViewById(R.id.scanner_btn);
 
 
+        TextView mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
+        mainTxtLabel.setText(R.string.update_os_main_txt_label);
+        Button mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
+
+
         // TODO: 18.07.20  settext , buttontext and listener
 //        scannerLabel.setText("");
 

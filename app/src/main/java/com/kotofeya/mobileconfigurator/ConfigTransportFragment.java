@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,7 +18,6 @@ public class ConfigTransportFragment extends Fragment {
 
     private Context context;
     private Utils utils;
-    private Transiver currentTransiver;
 
     @Override
     public void onAttach(Context context) {
@@ -31,7 +32,13 @@ public class ConfigTransportFragment extends Fragment {
         View view = inflater.inflate(R.layout.scanner_fragment, container, false);
         ListView lvScanner = view.findViewById(R.id.lv_scanner);
 
-//        List<Transiver> = BluetoothHandler.getTransivers();
+        TextView mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
+        mainTxtLabel.setText(R.string.config_transp_main_txt_label);
+        Button mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
+
+        utils.getTransivers().clear();
+        utils.setRadioType(Utils.TRANSP_RADIO_TYPE);
+        utils.getBluetooth().startScan(false);
 
         ScannerAdapter scannerAdapter = new ScannerAdapter(context, utils.getTransivers(), ScannerAdapter.CONFIG_TRANSPORT);
         lvScanner.setAdapter(scannerAdapter);

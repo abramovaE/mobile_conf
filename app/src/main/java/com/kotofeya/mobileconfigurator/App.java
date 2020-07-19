@@ -14,6 +14,7 @@ public class App extends Application {
     private FragmentHandler fragmentHandler;
 
 
+
     public static App get() {
         return instance;
     }

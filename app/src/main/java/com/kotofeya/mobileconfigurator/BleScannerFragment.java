@@ -5,19 +5,21 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import java.util.List;
 
 public class BleScannerFragment extends Fragment {
 
     private Context context;
     private Utils utils;
-    private Transiver currentTransiver;
+    ListView lvScanner;
+    ScannerAdapter scannerAdapter;
 
     @Override
     public void onAttach(Context context) {
@@ -30,12 +32,28 @@ public class BleScannerFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.scanner_fragment, container, false);
-        ListView lvScanner = view.findViewById(R.id.lv_scanner);
+        lvScanner = view.findViewById(R.id.lv_scanner);
 
-//        List<Transiver> = BluetoothHandler.getTransivers();
+        TextView mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
+        mainTxtLabel.setText(R.string.ble_scan_main_txt_label);
 
-        ScannerAdapter scannerAdapter = new ScannerAdapter(context, utils.getTransivers(), ScannerAdapter.BLE_SCANNER_TYPE);
+
+        utils.getTransivers().clear();
+        utils.setTransiversLv(lvScanner);
+        scan();
+        scannerAdapter = new ScannerAdapter(context, utils.getTransivers(), ScannerAdapter.BLE_SCANNER_TYPE);
         lvScanner.setAdapter(scannerAdapter);
+        scannerAdapter.notifyDataSetChanged();
         return view;
     }
+
+
+    private void scan(){
+        utils.setRadioType(Utils.ALL_RADIO_TYPE);
+        utils.getBluetooth().startScan(false);
+    }
+
+
+
+
 }
