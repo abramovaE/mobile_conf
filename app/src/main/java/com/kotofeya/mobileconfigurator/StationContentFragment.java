@@ -45,9 +45,9 @@ public class StationContentFragment extends Fragment {
 
         EditText volumeZummer = view.findViewById(R.id.content_txt_2);
         volumeZummer.setText("");
-
-        EditText modemConfig = view.findViewById(R.id.content_txt_3);
-        modemConfig.setText("");
+//
+//        EditText modemConfig = view.findViewById(R.id.content_txt_3);
+//        modemConfig.setText("");
 
         Button btnRebootRasp = view.findViewById(R.id.content_btn_rasp);
         Button btnRebootStm = view.findViewById(R.id.content_btn_stm);

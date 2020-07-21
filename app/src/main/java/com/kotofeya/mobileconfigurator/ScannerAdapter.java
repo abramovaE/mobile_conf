@@ -16,6 +16,7 @@ public class ScannerAdapter extends BaseAdapter {
     Context ctx;
     LayoutInflater lInflater;
     List<Transiver> objects;
+    Utils utils;
 
     private int scannerType;
 
@@ -28,9 +29,10 @@ public class ScannerAdapter extends BaseAdapter {
     public static final int CONFIG_STATION = 6;
 
 
-    ScannerAdapter(Context context, List<Transiver> transivers, int scannerType) {
+    ScannerAdapter(Context context, Utils utils, int scannerType) {
         ctx = context;
-        objects = transivers;
+        this.utils = utils;
+        objects = utils.getTransivers();
         lInflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.scannerType = scannerType;
 
@@ -64,10 +66,14 @@ public class ScannerAdapter extends BaseAdapter {
 
         TextView version = view.findViewById(R.id.scanner_lv_item0);
         version.setText(p.getVersion());
+
         TextView stmFirmware = view.findViewById(R.id.scanner_lv_item1);
         stmFirmware.setText(p.getStmFirmware());
+
         TextView stmBootloader = view.findViewById(R.id.scanner_lv_item2);
         stmBootloader.setText(p.getStmBootloader());
+
+
 
         final TextView exp = view.findViewById(R.id.scanner_lv_item_txt_exp);
 
@@ -152,11 +158,21 @@ public class ScannerAdapter extends BaseAdapter {
         }
 
         else if(scannerType == CONFIG_TRANSPORT){
-            // TODO: 18.07.20  set type & direction
-//            version.setText();
-//            version.setVisibility(View.VISIBLE);
-//            stmFirmware.setText();
-//            stmFirmware.setVisibility(View.VISIBLE);
+            TransportTransiver transportTransiver = (TransportTransiver) p;
+            version.setText(transportTransiver.getTransportType() + " / " + transportTransiver.getFullNumber());
+            version.setVisibility(View.VISIBLE);
+            stmFirmware.setText(transportTransiver.getDirection() + "");
+            stmFirmware.setVisibility(View.VISIBLE);
+             view.setOnClickListener(new View.OnClickListener() {
+                 @Override
+                 public void onClick(View v) {
+                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "view was pressed");
+
+                     utils.setCurrentTransiver(p);
+                     App.get().getFragmentHandler().changeFragment(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT);
+
+                 }
+             });
         }
 
         else if(scannerType == CONFIG_STATION){

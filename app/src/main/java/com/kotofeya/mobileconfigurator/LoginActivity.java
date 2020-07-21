@@ -41,7 +41,7 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
     private EditText loginTxt;
     private EditText passwordTxt;

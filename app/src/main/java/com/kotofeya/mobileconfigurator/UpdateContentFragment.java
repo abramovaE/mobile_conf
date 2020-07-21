@@ -40,7 +40,7 @@ public class UpdateContentFragment extends Fragment {
 
 //        List<Transiver> = BluetoothHandler.getTransivers();
 
-        ScannerAdapter scannerAdapter = new ScannerAdapter(context, utils.getTransivers(), ScannerAdapter.UPDATE_CONTENT_TYPE);
+        ScannerAdapter scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_CONTENT_TYPE);
         lvScanner.setAdapter(scannerAdapter);
         return view;
     }

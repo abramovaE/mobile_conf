@@ -4,34 +4,56 @@
     android:layout_height="match_parent"
     android:padding="50dp">
 
-
     <EditText
         android:id="@+id/content_txt_0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/content_txt"
-        android:padding="5dp"/>
+        android:padding="5dp"
+        android:visibility="gone"/>
+
+    <Spinner
+        android:id="@+id/content_spn_0"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
 
     <EditText
         android:id="@+id/content_txt_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/content_txt"
-        android:padding="5dp"/>
+        android:padding="5dp"
+        android:visibility="gone"/>
 
     <EditText
         android:id="@+id/content_txt_2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/content_txt"
-        android:padding="5dp"/>
+        android:padding="5dp"
+        android:visibility="gone"/>
 
-    <EditText
-        android:id="@+id/content_txt_3"
+    <Spinner
+        android:id="@+id/content_spn_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:textSize="@dimen/content_txt"
-        android:padding="5dp"/>
+        android:visibility="gone"/>
+
+
+    <Spinner
+        android:id="@+id/content_spn_2"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+
+
+    <Spinner
+        android:id="@+id/content_spn_3"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+
 
     <TextView
         android:id="@+id/content_label"
@@ -42,7 +64,7 @@
         android:text="@string/content_label_reboot"
         android:gravity="center"
         android:layout_marginTop="100px"
-        android:layout_marginBottom="100px"/>
+        android:layout_marginBottom="20px"/>
 
     <LinearLayout
         android:layout_width="match_parent"

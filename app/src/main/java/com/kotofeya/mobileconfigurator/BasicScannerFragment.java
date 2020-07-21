@@ -49,7 +49,7 @@ public class BasicScannerFragment extends Fragment implements SshCompleted {
 
         utils.getTransivers().clear();
         scan();
-        scannerAdapter = new ScannerAdapter(context, utils.getTransivers(), ScannerAdapter.BASIC_SCANNER_TYPE);
+        scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.BASIC_SCANNER_TYPE);
         lvScanner.setAdapter(scannerAdapter);
         scannerAdapter.notifyDataSetChanged();
         return view;

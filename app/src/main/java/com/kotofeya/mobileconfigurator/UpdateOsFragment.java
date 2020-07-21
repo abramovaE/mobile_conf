@@ -62,7 +62,7 @@ public class UpdateOsFragment extends Fragment implements SshCompleted {
             currentTransiver = transiver;
             connection.execute(s, SshConnection.UPTIME_COMMAND);
         }
-        ScannerAdapter scannerAdapter = new ScannerAdapter(context, utils.getTransivers(), ScannerAdapter.UPDATE_OS_TYPE);
+        ScannerAdapter scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_OS_TYPE);
         lvScanner.setAdapter(scannerAdapter);
         return view;
     }

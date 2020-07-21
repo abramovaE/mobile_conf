@@ -32,6 +32,9 @@
     <string name="doorsOpened">Landing is allowed</string>
     <string name="doorsClosed">The doors are closed</string>
     <string name="doorsBroken">Be careful, the condition of the doors is not monitoring </string>
+    <string name="content_transport_number_hint">Number</string>
+    <string name="content_transport_litera_hint">Litera</string>
+
 
 
 </resources>

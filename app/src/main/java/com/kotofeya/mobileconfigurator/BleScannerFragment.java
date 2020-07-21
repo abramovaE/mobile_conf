@@ -41,7 +41,7 @@ public class BleScannerFragment extends Fragment {
         utils.getTransivers().clear();
         utils.setTransiversLv(lvScanner);
         scan();
-        scannerAdapter = new ScannerAdapter(context, utils.getTransivers(), ScannerAdapter.BLE_SCANNER_TYPE);
+        scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.BLE_SCANNER_TYPE);
         lvScanner.setAdapter(scannerAdapter);
         scannerAdapter.notifyDataSetChanged();
         return view;

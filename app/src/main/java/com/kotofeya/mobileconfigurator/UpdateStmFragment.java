@@ -60,7 +60,7 @@ public class UpdateStmFragment extends Fragment implements SshCompleted {
             currentTransiver = transiver;
             connection.execute(s, SshConnection.UPTIME_COMMAND);
         }
-        ScannerAdapter scannerAdapter = new ScannerAdapter(context, utils.getTransivers(), ScannerAdapter.UPDATE_STM_TYPE);
+        ScannerAdapter scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_STM_TYPE);
         lvScanner.setAdapter(scannerAdapter);
         return view;
     }

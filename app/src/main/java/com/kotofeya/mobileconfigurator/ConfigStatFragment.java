@@ -42,7 +42,7 @@ public class ConfigStatFragment extends Fragment {
 
 
 
-        ScannerAdapter scannerAdapter = new ScannerAdapter(context, utils.getTransivers(), ScannerAdapter.CONFIG_STATION);
+        ScannerAdapter scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.CONFIG_STATION);
         lvScanner.setAdapter(scannerAdapter);
         return view;
     }

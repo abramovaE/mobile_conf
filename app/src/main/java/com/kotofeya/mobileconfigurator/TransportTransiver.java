@@ -5,6 +5,7 @@ import android.bluetooth.le.ScanResult;
 import java.io.UnsupportedEncodingException;
 
 public class TransportTransiver extends Transiver {
+
     public TransportTransiver(String ip) {
         super(ip);
     }
@@ -109,14 +110,7 @@ public class TransportTransiver extends Transiver {
             }
 
             else {
-                int dir;
-                if(getTransVersion() == VERSION_NEW){
-                    dir = (getRawData()[7] >> 4) & 0b00000011;
-                }
-                else {
-                    dir = getRawData()[6] & 0xff;
-                }
-
+                int dir = getIntDirection();
                 switch (dir){
                     case 0:
                         return PARK;

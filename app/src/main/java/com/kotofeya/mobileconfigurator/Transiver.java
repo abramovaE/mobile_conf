@@ -53,13 +53,7 @@ public class Transiver {
 
         if(result.getScanRecord().getDeviceName().equals("stp")){
             int i = (((rawData[2] & 0xFF) << 16) + ((rawData[3] & 0xFF) << 8) + (rawData[4] & 0xFF));
-            String s = String.valueOf(i);
-            StringBuffer sb = new StringBuffer(s);
-            while (sb.length() < 6){
-                sb.insert(0, "0");
-            }
-            sb.insert(0, "stp");
-            ssid = sb.toString();
+            ssid = String.valueOf(i);
             transVersion = VERSION_NEW;
         }
         else {

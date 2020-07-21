@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="transports">
+        <item>None</item>
+
+        //1
+        <item>Bus</item>
+
+        //2
+        <item>Trolley bus</item>
+
+        //3
+        <item>Tram</item>
+
+        //4
+        <item>Low-flor bus</item>
+
+        //5
+        <item>Low-flor trolley bus</item>
+
+        //6
+        <item>Low-flor tram</item>
+
+        //7
+        <item>Route taxi</item>
+
+        //8
+        <item>Train car</item>
+
+        //9
+        <item>The cable car</item>
+
+        //10
+        <item>Low-flor bus with ramp</item>
+
+        //11
+        <item>Low-floor trolley bus with ramp</item>
+
+        //12
+        <item>Low-floor tram with ramp</item>
+
+        //13
+        <item>Route taxi with ramp</item>
+
+        //14
+        <item>Train car with ramp</item>
+
+        //15
+        <item>The cable car with ramp</item>
+    </string-array>
+
+    <string-array name="direction">
+        <item>No direction</item>
+        <item>Straight</item>
+        <item>Back</item>
+    </string-array>
+
+
+</resources>

@@ -55,23 +55,24 @@ public class InformerFilter {
 
 
     private boolean filterStationary(byte[] data) {
-        if(data.length == 3 && (data[0]&0xff) != Utils.STAT_RADIO_TYPE){
-            return false;
-        }
-        else if(data.length == 22 && (data[5]&0xff) != Utils.STAT_RADIO_TYPE){
-            return false;
-        }
-        return true;
-    }
-
-    private boolean filterTransport(byte[] data){
-        if(data.length == 22 && (data[5] & 0xff) != Utils.TRANSP_RADIO_TYPE) {
-                return false;
-        }
-
-        else if ((data[0] & 0xff) != Utils.TRANSP_RADIO_TYPE) {
-                return false;
-            }
+        if(data.length == 3 && ((data[0]&0xff) == Utils.STAT_RADIO_TYPE)){
             return true;
         }
+        else if(data.length == 22 && ((data[5]&0xff) == Utils.STAT_RADIO_TYPE)){
+            return true;
+        }
+        return false;
+    }
+
+    private boolean filterTransport(byte[] data) {
+        if (data.length == 22 && ((data[5] & 0xff) == Utils.TRANSP_RADIO_TYPE)) {
+            return true;
+        } else {
+
+            if ((data[0] & 0xff) == Utils.TRANSP_RADIO_TYPE) {
+                return true;
+            }
+            return false;
+        }
+    }
 }
