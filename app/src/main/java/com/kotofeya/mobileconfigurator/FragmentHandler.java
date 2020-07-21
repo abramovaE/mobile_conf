@@ -11,7 +11,7 @@ import androidx.fragment.app.FragmentTransaction;
 public class FragmentHandler {
 
     private FragmentManager fragmentManager;
-
+    private Fragment currentFragment;
     private View conteinerView;
 
     final static String MAIN_FRAGMENT_TAG = "MAIN_FRAGMENT";
@@ -31,8 +31,6 @@ public class FragmentHandler {
 
 
     public FragmentHandler(Context context){
-
-
         fragmentManager = ((MainMenu) context).getSupportFragmentManager();
     }
 
@@ -83,16 +81,41 @@ public class FragmentHandler {
                  break;
          }
         }
+        setFragment(fragment, fragmentTag, true);
 
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.replace(R.id.fragment_container, fragment, fragmentTag);
-        fragmentTransaction.commit();
+//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//        fragmentTransaction.replace(R.id.fragment_container, fragment, fragmentTag);
+//        fragmentTransaction.commit();
     }
 
     public void addMainFragment(){
+
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.add(R.id.fragment_container, new MainFragment(), MAIN_FRAGMENT_TAG);
         fragmentTransaction.commit();
     }
 
+
+    private void setFragment(Fragment fragment, String tag, boolean stacked){
+
+        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container, fragment, tag);
+
+        if (stacked) {
+            fragmentTransaction.addToBackStack(tag);
+        }
+
+        fragmentTransaction.commit();
+        try {
+            Thread.sleep(100);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        currentFragment = fragment;
+    }
+
+    public Fragment getCurrentFragment() {
+        return currentFragment;
+    }
 }

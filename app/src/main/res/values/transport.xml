@@ -49,6 +49,21 @@
         <item>The cable car with ramp</item>
     </string-array>
 
+
+    <string-array name="zummer_types">
+        <item></item>
+        <item>Street</item>
+        <item>Room</item>
+    </string-array>
+
+    <string-array name="modem_types">
+        <item></item>
+        <item>Megafon</item>
+        <item>MTS</item>
+        <item>BeeLine</item>
+    </string-array>
+
+
     <string-array name="direction">
         <item>No direction</item>
         <item>Straight</item>

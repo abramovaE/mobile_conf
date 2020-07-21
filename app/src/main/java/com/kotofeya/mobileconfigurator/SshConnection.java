@@ -59,9 +59,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
 
             session.connect();
 
-
-
-
             Logger.d(Logger.MAIN_LOG, ((Transiver) req[0]).getIp() + " isConnected: " + session.isConnected());
 
             Channel channel=session.openChannel("shell");

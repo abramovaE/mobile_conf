@@ -39,8 +39,9 @@ public class WiFiLocalHotspot {
                 String[] splitted = line.split(" +");
                 if (splitted != null) {
                     String mac = splitted[3];
-                    if (mac.matches("..:..:..:..:..:..")) {
+                    if (mac.matches("b8:27:..:..:..:..")) {
                         macCount++;
+
 
                         connectedTransivers.add(splitted[0]);
                     }

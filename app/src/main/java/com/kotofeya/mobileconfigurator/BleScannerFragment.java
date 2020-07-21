@@ -37,6 +37,9 @@ public class BleScannerFragment extends Fragment {
         TextView mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
         mainTxtLabel.setText(R.string.ble_scan_main_txt_label);
 
+        Button mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
+        mainBtnRescan.setVisibility(View.GONE);
+
 
         utils.getTransivers().clear();
         utils.setTransiversLv(lvScanner);

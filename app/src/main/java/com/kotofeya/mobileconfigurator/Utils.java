@@ -269,7 +269,9 @@ public class Utils {
     }
 
     public void stopLVTimer() {
-        updateLv.cancel();
+        if(updateLv != null) {
+            updateLv.cancel();
+        }
     }
 
     private Transiver getBySsid(String ssid) {

@@ -29,6 +29,15 @@ public class BasicScannerFragment extends Fragment implements SshCompleted {
         super.onAttach(context);
     }
 
+
+    @Override
+    public void onResume() {
+        utils.getBluetooth().stopScan(true);
+        utils.getTransivers().clear();
+        scan();
+        super.onResume();
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -47,8 +56,6 @@ public class BasicScannerFragment extends Fragment implements SshCompleted {
             }
         });
 
-        utils.getTransivers().clear();
-        scan();
         scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.BASIC_SCANNER_TYPE);
         lvScanner.setAdapter(scannerAdapter);
         scannerAdapter.notifyDataSetChanged();
@@ -70,6 +77,7 @@ public class BasicScannerFragment extends Fragment implements SshCompleted {
 
     private void scan(){
         List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
+        Logger.d(Logger.BASIC_SCANNER_LOG, "clients: " + clients);
         for(String s: clients){
             Transiver transiver = new Transiver(s);
             utils.getTransivers().add(transiver);
