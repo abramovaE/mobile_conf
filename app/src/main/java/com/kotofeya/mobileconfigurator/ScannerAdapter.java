@@ -163,11 +163,9 @@ public class ScannerAdapter extends BaseAdapter {
             version.setVisibility(View.VISIBLE);
             stmFirmware.setText(transportTransiver.getDirection() + "");
             stmFirmware.setVisibility(View.VISIBLE);
-             view.setOnClickListener(new View.OnClickListener() {
+            view.setOnClickListener(new View.OnClickListener() {
                  @Override
                  public void onClick(View v) {
-                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "view was pressed");
-
                      utils.setCurrentTransiver(p);
                      App.get().getFragmentHandler().changeFragment(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT);
 
@@ -176,9 +174,21 @@ public class ScannerAdapter extends BaseAdapter {
         }
 
         else if(scannerType == CONFIG_STATION){
-            // TODO: 18.07.20  set increment
+            StatTransiver statTransiver = (StatTransiver) p;
+
 //            version.setText();
 //            version.setVisibility(View.VISIBLE);
+
+            view.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    utils.setCurrentTransiver(p);
+                    App.get().getFragmentHandler().changeFragment(FragmentHandler.STATION_CONTENT_FRAGMENT);
+
+                }
+            });
+
+
         }
         return view;
     }

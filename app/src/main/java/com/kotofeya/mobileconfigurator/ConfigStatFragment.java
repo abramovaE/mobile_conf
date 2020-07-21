@@ -18,6 +18,7 @@ public class ConfigStatFragment extends Fragment {
 
     private Context context;
     private Utils utils;
+    ScannerAdapter scannerAdapter;
 
     @Override
     public void onAttach(Context context) {
@@ -35,15 +36,33 @@ public class ConfigStatFragment extends Fragment {
         TextView mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
         mainTxtLabel.setText(R.string.config_stat_main_txt_label);
         Button mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
+        mainBtnRescan.setVisibility(View.VISIBLE);
+        mainBtnRescan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rescan();
+            }
+        });
 
         utils.getTransivers().clear();
-        utils.setRadioType(Utils.STAT_RADIO_TYPE);
-        utils.getBluetooth().startScan(false);
-
-
-
-        ScannerAdapter scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.CONFIG_STATION);
+        utils.setTransiversLv(lvScanner);
+        scan();
+        scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.CONFIG_STATION);
         lvScanner.setAdapter(scannerAdapter);
         return view;
+    }
+
+
+
+    private void scan(){
+        utils.setRadioType(Utils.STAT_RADIO_TYPE);
+        utils.getBluetooth().startScan(false);
+    }
+
+
+    private void rescan(){
+        utils.getTransivers().clear();
+        scannerAdapter.notifyDataSetChanged();
+//        scan();
     }
 }

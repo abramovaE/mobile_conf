@@ -10,7 +10,8 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/content_txt"
         android:padding="5dp"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:maxLines="1"/>
 
     <Spinner
         android:id="@+id/content_spn_0"
@@ -95,6 +96,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/content_btn_send"
-        android:layout_marginTop="100px"/>
+        android:layout_marginTop="100px"
+        android:enabled="false"/>
 
 </LinearLayout>
