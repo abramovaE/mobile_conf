@@ -148,6 +148,8 @@ public class BTHandler {
             mScanning.set(false);
             mBluetoothLeScanner.stopScan(scanCallback);
             Logger.d(Logger.BT_HANDLER_LOG, "Stop scanning...");
+
+            utils.clearTransivers();
         }
     }
 

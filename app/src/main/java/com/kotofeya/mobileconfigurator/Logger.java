@@ -14,6 +14,8 @@ public class Logger {
     public static final int UTILS_LOG = 4;
     public static final int FILTER_LOG = 5;
     public static final int SCANNER_ADAPTER_LOG = 6;
+    public static final int UPDATE_OS_LOG = 7;
+
 
 
 
@@ -45,6 +47,7 @@ public class Logger {
         mType.put(UTILS_LOG, "Utils_task");
         mType.put(FILTER_LOG, "Filter_task");
         mType.put(SCANNER_ADAPTER_LOG, "Scanner_adapter_task");
+        mType.put(UPDATE_OS_LOG, "Update_os_task");
 //        mType.put(SC_LOG,"SC_task");
 //        mType.put(BT_LOG,"BT_task");
 //        mType.put(WIFI_LOG,"Wifi_task");

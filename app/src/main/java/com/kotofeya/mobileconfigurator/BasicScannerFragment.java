@@ -21,6 +21,8 @@ public class BasicScannerFragment extends Fragment implements SshCompleted {
     private Utils utils;
     ListView lvScanner;
     ScannerAdapter scannerAdapter;
+    Button mainBtnRescan;
+
 
     @Override
     public void onAttach(Context context) {
@@ -31,11 +33,13 @@ public class BasicScannerFragment extends Fragment implements SshCompleted {
 
 
     @Override
-    public void onResume() {
+    public void onStart() {
+        super.onStart();
+        mainBtnRescan.setVisibility(View.VISIBLE);
         utils.getBluetooth().stopScan(true);
-        utils.getTransivers().clear();
+        utils.clearTransivers();
+        scannerAdapter.notifyDataSetChanged();
         scan();
-        super.onResume();
     }
 
     @Nullable
@@ -47,8 +51,7 @@ public class BasicScannerFragment extends Fragment implements SshCompleted {
         TextView mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
         mainTxtLabel.setText(R.string.basic_scan_main_txt_label);
 
-        Button mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
-        mainBtnRescan.setVisibility(View.VISIBLE);
+        mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
         mainBtnRescan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -58,7 +61,6 @@ public class BasicScannerFragment extends Fragment implements SshCompleted {
 
         scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.BASIC_SCANNER_TYPE);
         lvScanner.setAdapter(scannerAdapter);
-        scannerAdapter.notifyDataSetChanged();
         return view;
     }
 
@@ -70,17 +72,16 @@ public class BasicScannerFragment extends Fragment implements SshCompleted {
 
 
     private void rescan(){
-        utils.getTransivers().clear();
+        utils.clearTransivers();
         scannerAdapter.notifyDataSetChanged();
         scan();
     }
 
     private void scan(){
         List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
-        Logger.d(Logger.BASIC_SCANNER_LOG, "clients: " + clients);
         for(String s: clients){
             Transiver transiver = new Transiver(s);
-            utils.getTransivers().add(transiver);
+            utils.addSshTransiver(transiver);
             SshConnection connection = new SshConnection(this);
             utils.setCurrentTransiver(transiver);
             connection.execute(transiver, SshConnection.UPTIME_COMMAND);

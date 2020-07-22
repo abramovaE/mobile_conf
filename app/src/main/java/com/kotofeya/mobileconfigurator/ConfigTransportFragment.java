@@ -19,6 +19,7 @@ public class ConfigTransportFragment extends Fragment {
     private Context context;
     private Utils utils;
     private ScannerAdapter scannerAdapter;
+    Button mainBtnRescan;
 
     @Override
     public void onAttach(Context context) {
@@ -26,6 +27,18 @@ public class ConfigTransportFragment extends Fragment {
         this.utils = ((MainMenu) context).getUtils();
         super.onAttach(context);
     }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mainBtnRescan.setVisibility(View.VISIBLE);
+        utils.getBluetooth().stopScan(true);
+        utils.clearTransivers();
+        scannerAdapter.notifyDataSetChanged();
+        scan();
+    }
+
 
     @Nullable
     @Override
@@ -35,8 +48,7 @@ public class ConfigTransportFragment extends Fragment {
 
         TextView mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
         mainTxtLabel.setText(R.string.config_transp_main_txt_label);
-        Button mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
-        mainBtnRescan.setVisibility(View.VISIBLE);
+        mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
         mainBtnRescan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -44,12 +56,7 @@ public class ConfigTransportFragment extends Fragment {
             }
         });
 
-
-
-        utils.getTransivers().clear();
         utils.setTransiversLv(lvScanner);
-        scan();
-
         scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.CONFIG_TRANSPORT);
         lvScanner.setAdapter(scannerAdapter);
         return view;
@@ -62,7 +69,7 @@ public class ConfigTransportFragment extends Fragment {
 
 
     private void rescan(){
-        utils.getTransivers().clear();
+        utils.clearTransivers();
         scannerAdapter.notifyDataSetChanged();
 //        scan();
     }

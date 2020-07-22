@@ -41,7 +41,7 @@ public class FragmentHandler {
         if(fragment == null){
          switch (fragmentTag){
              case MAIN_FRAGMENT_TAG:
-                 fragment = new MainFragment();
+                 fragment = new MainMenuFragment();
                  break;
 
              case BASIC_SCANNER_FRAGMENT:
@@ -91,7 +91,7 @@ public class FragmentHandler {
     public void addMainFragment(){
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.fragment_container, new MainFragment(), MAIN_FRAGMENT_TAG);
+        fragmentTransaction.add(R.id.fragment_container, new MainMenuFragment(), MAIN_FRAGMENT_TAG);
         fragmentTransaction.commit();
     }
 

@@ -1,11 +1,8 @@
 package com.kotofeya.mobileconfigurator;
 
-import android.content.Context;
-import android.os.Build;
+
 import android.os.Handler;
 import android.os.Looper;
-import android.os.VibrationEffect;
-import android.os.Vibrator;
 import android.widget.ListView;
 
 import java.io.ByteArrayInputStream;
@@ -21,7 +18,6 @@ import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 
-import static android.content.Context.VIBRATOR_SERVICE;
 
 public class Utils {
 
@@ -195,26 +191,30 @@ public class Utils {
 //        List<Transiver> infFromRVMainAdapter = (List<Transiver>) cloneObject(rvMainAdapter.getInformerArrayList());
 
 
-        if(transiver != null) {
+        if(bluetooth.getmScanning().get()){
+            if(transiver != null) {
 
-            boolean isContains = false;
-            for(Transiver t: transivers){
-                if(t.getSsid().equals(transiver.getSsid())){
-                    isContains = true;
+                boolean isContains = false;
+                Logger.d(Logger.UTILS_LOG, "transivers: " + transivers);
+                for(Transiver t: transivers){
+                    if(t.getSsid() != null && t.getSsid().equals(transiver.getSsid())){
+                        isContains = true;
+                    }
                 }
-            }
 
-            if (!isContains) {
-                transivers.add(transiver);
-                ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
+                if (!isContains) {
+                    transivers.add(transiver);
+                    ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
 
-            }
-            else {
-                updateTransiver(transiver);
+                }
+                else {
+                    updateTransiver(transiver);
 //                ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
 
+                }
             }
         }
+
 
 //        Logger.d(Logger.UTILS_LOG, "transivers: " + transivers);
 //        ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
@@ -225,6 +225,10 @@ public class Utils {
 //        updateRvContent(infFromRVMainAdapter);
     }
 
+
+    public void addSshTransiver(Transiver transiver){
+        transivers.add(transiver);
+    }
 
 //
 //    private void updateRvContent(List<IRadioInformer> infFromRVMainAdapter){
@@ -269,6 +273,7 @@ public class Utils {
     }
 
     public void stopLVTimer() {
+        Logger.d(Logger.UTILS_LOG, "updateLvTimer: " + updateLv);
         if(updateLv != null) {
             updateLv.cancel();
         }
@@ -276,11 +281,15 @@ public class Utils {
 
     private Transiver getBySsid(String ssid) {
         for(Transiver transiver: transivers){
-            if(transiver.getSsid().equals(ssid)){
+            if(transiver.getSsid() != null && transiver.getSsid().equals(ssid)){
                 return transiver;
             }
         }
         return null;
+    }
+
+    public void clearTransivers(){
+        transivers.clear();
     }
 
 

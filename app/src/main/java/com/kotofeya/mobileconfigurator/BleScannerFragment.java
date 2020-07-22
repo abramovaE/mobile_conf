@@ -20,12 +20,23 @@ public class BleScannerFragment extends Fragment {
     private Utils utils;
     ListView lvScanner;
     ScannerAdapter scannerAdapter;
+    Button mainBtnRescan;
 
     @Override
     public void onAttach(Context context) {
         this.context = context;
         this.utils = ((MainMenu) context).getUtils();
         super.onAttach(context);
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mainBtnRescan.setVisibility(View.GONE);
+        utils.getBluetooth().stopScan(true);
+        utils.clearTransivers();
+        scannerAdapter.notifyDataSetChanged();
+        scan();
     }
 
     @Nullable
@@ -37,16 +48,12 @@ public class BleScannerFragment extends Fragment {
         TextView mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
         mainTxtLabel.setText(R.string.ble_scan_main_txt_label);
 
-        Button mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
-        mainBtnRescan.setVisibility(View.GONE);
+        mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
 
 
-        utils.getTransivers().clear();
         utils.setTransiversLv(lvScanner);
-        scan();
         scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.BLE_SCANNER_TYPE);
         lvScanner.setAdapter(scannerAdapter);
-        scannerAdapter.notifyDataSetChanged();
         return view;
     }
 

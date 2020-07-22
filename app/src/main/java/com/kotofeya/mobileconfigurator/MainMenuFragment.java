@@ -9,7 +9,7 @@ import android.widget.Button;
 
 import androidx.fragment.app.Fragment;
 
-public class MainFragment extends Fragment implements View.OnClickListener {
+public class MainMenuFragment extends Fragment implements View.OnClickListener {
 
     private Button basicScannerbtn;
     private Button bleScannerBtn;
