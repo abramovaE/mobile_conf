@@ -59,7 +59,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
 
             session.connect();
 
-            Logger.d(Logger.MAIN_LOG, ((Transiver) req[0]).getIp() + " isConnected: " + session.isConnected());
+            Logger.d(Logger.SSH_CONNECTION_LOG, ((Transiver) req[0]).getIp() + " isConnected: " + session.isConnected());
 
             Channel channel=session.openChannel("shell");
 
@@ -68,137 +68,32 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
             OutputStream inputstream_for_the_channel = channel.getOutputStream();
             PrintStream commander = new PrintStream(inputstream_for_the_channel, true);
             channel.setOutputStream(baos, true);
-
             channel.connect();
-
-
-
-            BufferedReader reader = new BufferedReader(new InputStreamReader(App.get().getAssets().open("take")));
+            BufferedReader reader = new BufferedReader(new InputStreamReader(App.get().getAssets().open("take.sh")));
             String e;
             while ((e = reader.readLine()) != null){
                 commander.println(e);
             }
             reader.close();
             commander.close();
-
             do {
                 Thread.sleep(1000);
             } while(!channel.isEOF());
 
+
+            res = baos.toString().substring(baos.toString().lastIndexOf("$load") + 6, baos.toString().lastIndexOf("$ exit"));
+            String[] r = res.split("\n");
             session.disconnect();
-
-            Logger.d(Logger.MAIN_LOG, "res " + baos.toString());
-
-//            InputStream in = new PipedInputStream();
-//            PipedOutputStream pin = new PipedOutputStream((PipedInputStream) in);
-//            channel.setInputStream(in);
-//            channel.connect();
-//
-//            int c;
-//            InputStream inputStream = App.get().getAssets().open("take");
-//            while ((c = inputStream.read()) != -1){
-//                pin.write(c);
-//            }
-////
-////            inputStream.close();
-////
-//
-//
-//            channel.setOutputStream(System.out, true);
-
-//
-//
-//            OutputStream out = new PipedOutputStream();
-//            PipedInputStream pout = new PipedInputStream((PipedOutputStream) out);
-//            BufferedReader consoleOutput = new BufferedReader(new InputStreamReader(pout));
-//            consoleOutput.readLine();
-//
-//            boolean end = true;
-//
-//            while(!end)
-//            {
-//                consoleOutput.mark(32);
-//                if (consoleOutput.read()==0x03) end = true;//End of Text
-//                else
-//                {
-//                    consoleOutput.reset();
-//                    consoleOutput.readLine();
-//                    end = false;
-//                }
-//            }
-
-//
-//            OutputStream inputstream_for_the_channel = channel.getOutputStream();
-//            PrintStream commander = new PrintStream(inputstream_for_the_channel, true);
-//
-//            channel.setOutputStream(System.out, true);
-//
-//            channel.connect();
-//
-//
-//            BufferedReader reader = new BufferedReader(new InputStreamReader(App.get().getAssets().open("take")));
-//            String e;
-//            while ((e = reader.readLine()) != null){
-//                commander.println(e);
-////                Logger.d(Logger.MAIN_LOG, "rres: " + e);
-//            }
-//            reader.close();
-////
-
-//
-//            commander.println("ls -la");
-//            commander.println("cd folder");
-//            commander.println("ls -la");
-//            commander.println("exit");
-//            commander.close();
-
-//            do {
-//                Thread.sleep(1000);
-//            } while(!channel.isEOF());
-
-            session.disconnect();
-
-
-
-
-
-//
-//            InputStream in = new PipedInputStream();
-//            channel.setInputStream(App.get().getAssets().open("take"));
-//
-//
-//
-//            baos = new ByteArrayOutputStream();
-//            channel.setOutputStream(baos);
-//
-//            channel.connect();
-//
-//            Thread.sleep(4000);
-//
-//            res = baos.toString();
-//
-//            baos.close();
-//            in.close();
-//
-//            channel.disconnect();
-//            session.disconnect();
-//
-//
-//
         }
         catch (Exception e)
         {
-            Logger.d(Logger.MAIN_LOG, "error: " + e.getMessage());
-
+            Logger.d(Logger.SSH_CONNECTION_LOG, "error: " + e.getMessage());
         }
-
-
-
         return res;
     }
 
     protected void onPostExecute(String result){
-            Logger.d(Logger.MAIN_LOG, "result: " + result);
+            Logger.d(Logger.SSH_CONNECTION_LOG, "result: " + result);
             currentTransiver.setBasicScanInfo(result);
             listener.onTaskCompleted(result);
         }

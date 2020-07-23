@@ -15,22 +15,7 @@ public class Logger {
     public static final int FILTER_LOG = 5;
     public static final int SCANNER_ADAPTER_LOG = 6;
     public static final int UPDATE_OS_LOG = 7;
-
-
-
-
-//    public static final int BT_LOG = 2;
-//    public static final int WIFI_LOG = 3;
-//    public static final int DOWNLOAD_LOG = 4;
-//    public static final int TALKER_LOG = 5;
-//    public static final int FRAG_LOG = 6;
-//    public static final int OTHER_LOG = 7;
-//    public static final int SHARED_PREFS_LOG = 8;
-//    public static final int DB_LOG = 9;
-//    public static final int UTILS_LOG = 10;
-//    public static final int SETTINGS_LOG = 11;
-//    public static final int DIFF_UTILS_LOG = 12;
-//    public static final int PLAYER_LOG = 13;
+    public static final int SSH_CONNECTION_LOG = 8;
 
 
 
@@ -48,19 +33,8 @@ public class Logger {
         mType.put(FILTER_LOG, "Filter_task");
         mType.put(SCANNER_ADAPTER_LOG, "Scanner_adapter_task");
         mType.put(UPDATE_OS_LOG, "Update_os_task");
-//        mType.put(SC_LOG,"SC_task");
-//        mType.put(BT_LOG,"BT_task");
-//        mType.put(WIFI_LOG,"Wifi_task");
-//        mType.put(DOWNLOAD_LOG,"Download_task");
-//        mType.put(TALKER_LOG,"Talker_task");
-//        mType.put(FRAG_LOG, "Fragment_task");
-//        mType.put(OTHER_LOG,"Other_tasks");
-//        mType.put(SHARED_PREFS_LOG, "SharedUtils_task");
-//        mType.put(DB_LOG, "Database_task");
-//        mType.put(UTILS_LOG, "Utils_task");
-//        mType.put(SETTINGS_LOG, "Settings_task");
-//        mType.put(DIFF_UTILS_LOG, "MyDiffUtils_task");
-//        mType.put(PLAYER_LOG, "Player_task");
+        mType.put(SSH_CONNECTION_LOG,"Ssh_connection_task");
+
 
     }
 
