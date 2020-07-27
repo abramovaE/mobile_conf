@@ -70,11 +70,13 @@ public class Downloader extends AsyncTask<Void, Void, Boolean> {
 //        isUpdating = true;
         File outputDir = App.get().getCacheDir();
         try {
-            tempFile = File.createTempFile("OSPACK", ".bz2", outputDir);
+            tempFile = new File(outputDir + "/root.img.bz2");
+//            tempFile = File.createTempFile("root", ".img.bz2", outputDir);
+
             tempFile.deleteOnExit();
 //            tempCityfile = File.createTempFile("city", ".json", outputDir);
 //            tempCityfile.deleteOnExit();
-        } catch (IOException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
