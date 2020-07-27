@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import java.util.List;
 
-public class UpdateContentFragment extends Fragment implements SshCompleted{
+public class UpdateContentFragment extends Fragment implements OnTaskCompleted {
 
 
     private Context context;
@@ -23,6 +23,7 @@ public class UpdateContentFragment extends Fragment implements SshCompleted{
     private Transiver currentTransiver;
     ScannerAdapter scannerAdapter;
     Button mainBtnRescan;
+
 
 
     @Override
@@ -42,6 +43,7 @@ public class UpdateContentFragment extends Fragment implements SshCompleted{
         utils.clearTransivers();
         scannerAdapter.notifyDataSetChanged();
         scan();
+//        loadUpdates();
     }
 
 
@@ -76,4 +78,10 @@ public class UpdateContentFragment extends Fragment implements SshCompleted{
             connection.execute(transiver, SshConnection.UPTIME_COMMAND);
         }
     }
+//
+//    private void loadUpdates(){
+//        Downloader downloader = new Downloader(this);
+//        downloader.execute();
+//    }
+
 }

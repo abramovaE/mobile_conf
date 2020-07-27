@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import java.util.List;
 
-public class UpdateStmFragment extends Fragment implements SshCompleted {
+public class UpdateStmFragment extends Fragment implements OnTaskCompleted {
 
     private Context context;
     private Utils utils;

@@ -19,13 +19,27 @@ public class Transiver {
 
 
     private String ssid;
-    private String version;
+    private String ip;
+    private String macWifi;
+    private String macBt;
+    private String boardVersion;
+    private String osVersion;
     private String stmFirmware;
     private String stmBootloader;
+    private String core;
+    private String modem;
+    private String incrementOfContent;
+    private String uptime;
+    private String cpuTemp;
+    private String load;
+
+
+//    private String version;
     private String basicScanInfo;
 
-    private String uptime;
-    private String ip;
+
+
+
 
 
 
@@ -65,12 +79,12 @@ public class Transiver {
     }
 
 
-    public int getTransVersion() {
-        return transVersion;
+    public String getSsid() {
+        return ssid;
     }
 
-    public void setTransVersion(int transVersion) {
-        this.transVersion = transVersion;
+    public void setSsid(String ssid) {
+        this.ssid = ssid;
     }
 
     public String getIp() {
@@ -81,21 +95,93 @@ public class Transiver {
         this.ip = ip;
     }
 
-    public String getSsid() {
-        return ssid;
+    public String getMacWifi() {
+        return macWifi;
     }
 
-    public void setSsid(String ssid) {
-        this.ssid = ssid;
+    public void setMacWifi(String macWifi) {
+        this.macWifi = macWifi;
     }
 
-    public String getVersion() {
-        return version;
+    public String getMacBt() {
+        return macBt;
     }
 
-    public void setVersion(String version) {
-        this.version = version;
+    public void setMacBt(String macBt) {
+        this.macBt = macBt;
     }
+
+    public String getBoardVersion() {
+        return boardVersion;
+    }
+
+    public void setBoardVersion(String boardVersion) {
+        this.boardVersion = boardVersion;
+    }
+
+    public String getOsVersion() {
+        return osVersion;
+    }
+
+    public void setOsVersion(String osVersion) {
+        this.osVersion = osVersion;
+    }
+
+    public String getCore() {
+        return core;
+    }
+
+    public void setCore(String core) {
+        this.core = core;
+    }
+
+    public String getModem() {
+        return modem;
+    }
+
+    public void setModem(String modem) {
+        this.modem = modem;
+    }
+
+    public String getIncrementOfContent() {
+        return incrementOfContent;
+    }
+
+    public void setIncrementOfContent(String incrementOfContent) {
+        this.incrementOfContent = incrementOfContent;
+    }
+
+    public String getCpuTemp() {
+        return cpuTemp;
+    }
+
+    public void setCpuTemp(String cpuTemp) {
+        this.cpuTemp = cpuTemp;
+    }
+
+    public String getLoad() {
+        return load;
+    }
+
+    public void setLoad(String load) {
+        this.load = load;
+    }
+
+    public int getTransVersion() {
+        return transVersion;
+    }
+
+    public void setTransVersion(int transVersion) {
+        this.transVersion = transVersion;
+    }
+
+//    public String getVersion() {
+//        return version;
+//    }
+//
+//    public void setVersion(String version) {
+//        this.version = version;
+//    }
 
     public String getStmFirmware() {
         return stmFirmware;
@@ -298,4 +384,52 @@ public class Transiver {
         }
         return false;
     }
+
+    public String getExpBasicScanInfo(){
+        StringBuilder sb = new StringBuilder();
+        sb.append("ssid: ");
+        sb.append(ssid);
+        sb.append("\n");
+        sb.append("ip: ");
+        sb.append(ip);
+        sb.append("\n");
+        sb.append("mac wifi: ");
+        sb.append(macWifi);
+        sb.append("\n");
+        sb.append("mac bt: ");
+        sb.append(macBt);
+        sb.append("\n");
+        sb.append("board version: ");
+        sb.append(boardVersion);
+        sb.append("\n");
+        sb.append("os version: ");
+        sb.append(osVersion);
+        sb.append("\n");
+        sb.append("stm firmware: ");
+        sb.append(stmFirmware);
+        sb.append("\n");
+        sb.append("stm bootloader: ");
+        sb.append(stmBootloader);
+        sb.append("\n");
+        sb.append("core: ");
+        sb.append(core);
+        sb.append("\n");
+        sb.append("modem: ");
+        sb.append(modem);
+        sb.append("\n");
+        sb.append("increment of content: ");
+        sb.append(incrementOfContent);
+        sb.append("\n");
+        sb.append("uptime: ");
+        sb.append(uptime);
+        sb.append("\n");
+        sb.append("cpu temp: ");
+        sb.append(cpuTemp);
+        sb.append("\n");
+        sb.append("load: ");
+        sb.append(load);
+        sb.append("\n");
+        return sb.toString();
+    }
+
 }

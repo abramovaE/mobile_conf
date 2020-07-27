@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-ipa=`ip a | grep "inet " | grep 10. | grep wlan0 | awk {'print $2'}| awk -F / {'print $1'}`
+ipa=`ip a | grep "inet " | grep wlan0 | awk {'print $2'}| awk -F / {'print $1'}`
 macblu=`hcitool dev | tail -1 | awk {'print $2'}`
 macwif=`ip a | grep "wlan0" -A 2 | head -n 2 | tail -n 1 | awk {'print $2'}`
 ser=`head -1 /etc/hostapd/hostapd.conf | sed s/[^0-9]//g  | sed 's/^[0]*//'`

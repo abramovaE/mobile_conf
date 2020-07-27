@@ -65,7 +65,7 @@ public class ScannerAdapter extends BaseAdapter {
         ssid.setText(p.getSsid());
 
         TextView version = view.findViewById(R.id.scanner_lv_item0);
-        version.setText(p.getVersion());
+        version.setText(p.getOsVersion());
 
         TextView stmFirmware = view.findViewById(R.id.scanner_lv_item1);
         stmFirmware.setText(p.getStmFirmware());
@@ -96,7 +96,7 @@ public class ScannerAdapter extends BaseAdapter {
             stmFirmware.setVisibility(View.VISIBLE);
             stmBootloader.setVisibility(View.VISIBLE);
             expButton.setVisibility(View.VISIBLE);
-            exp.setText(p.getBasicScanInfo());
+            exp.setText(p.getExpBasicScanInfo());
         }
 
         else if(scannerType == BLE_SCANNER_TYPE){
@@ -144,6 +144,8 @@ public class ScannerAdapter extends BaseAdapter {
         }
 
         else if(scannerType == UPDATE_OS_TYPE){
+
+
             version.setVisibility(View.VISIBLE);
         }
 

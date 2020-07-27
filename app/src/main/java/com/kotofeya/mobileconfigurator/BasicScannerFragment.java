@@ -15,7 +15,7 @@ import androidx.fragment.app.Fragment;
 
 import java.util.List;
 
-public class BasicScannerFragment extends Fragment implements SshCompleted {
+public class BasicScannerFragment extends Fragment implements OnTaskCompleted {
 
     private Context context;
     private Utils utils;
@@ -69,6 +69,8 @@ public class BasicScannerFragment extends Fragment implements SshCompleted {
     public void onTaskCompleted(String result) {
         scannerAdapter.notifyDataSetChanged();
     }
+
+
 
 
     private void rescan(){

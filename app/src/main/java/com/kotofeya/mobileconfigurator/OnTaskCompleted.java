@@ -1,6 +1,6 @@
 package com.kotofeya.mobileconfigurator;
 
-public interface SshCompleted {
+public interface OnTaskCompleted {
     void onTaskCompleted(String result);
 
 }
