@@ -7,7 +7,6 @@ import android.os.AsyncTask;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -15,7 +14,6 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.Arrays;
 
 
 public class Downloader extends AsyncTask<Void, Void, Boolean> {
@@ -30,13 +28,14 @@ public class Downloader extends AsyncTask<Void, Void, Boolean> {
 //    private static final String CITY_URL = "http://95.161.210.44/update/city.json";
 
 
-    private File tempFile;
+    public static File tempUpdateOsFile;
     //    private File tempCityfile;
     private String osVersion;
 
 
     private OnTaskCompleted listener;
 
+    private boolean isSuccessful;
 
 
 //    private boolean isUpdating;
@@ -66,14 +65,13 @@ public class Downloader extends AsyncTask<Void, Void, Boolean> {
     @Override
     protected void onPreExecute() {
 
+        isSuccessful = false;
         Logger.d(Logger.DOWNLOAD_LOG, "downloading os server version");
 //        isUpdating = true;
         File outputDir = App.get().getCacheDir();
         try {
-            tempFile = new File(outputDir + "/root.img.bz2");
-//            tempFile = File.createTempFile("root", ".img.bz2", outputDir);
-
-            tempFile.deleteOnExit();
+            tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
+            tempUpdateOsFile.deleteOnExit();
 //            tempCityfile = File.createTempFile("city", ".json", outputDir);
 //            tempCityfile.deleteOnExit();
         } catch (Exception e) {
@@ -84,8 +82,10 @@ public class Downloader extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected void onPostExecute(Boolean isNeedUpdate) {
+    protected void onPostExecute(Boolean isSuccessful) {
         Logger.d(Logger.DOWNLOAD_LOG, "onPostExecute");
+        this.isSuccessful = isSuccessful;
+
         listener.onTaskCompleted("Release OS: " + osVersion);
     }
 
@@ -116,26 +116,25 @@ public class Downloader extends AsyncTask<Void, Void, Boolean> {
             }
             reader.close();
 
+            Logger.d(Logger.DOWNLOAD_LOG, "start os update downloading");
+            URL url = new URL(OS_URL);
+            c = (HttpURLConnection) url.openConnection();
+            c.setRequestMethod("GET");
+            c.setReadTimeout(5000);
+            c.connect();
 
-                Logger.d(Logger.DOWNLOAD_LOG, "start os update downloading");
-//
-                URL url=new URL(OS_URL);
-                c = (HttpURLConnection) url.openConnection();
-                c.setRequestMethod("GET");
-                c.setReadTimeout(5000);
-                c.connect();
+            input = c.getInputStream();
+            output = new FileOutputStream(tempUpdateOsFile);
 
-                input = c.getInputStream();
-                output = new FileOutputStream(tempFile);
 
-                Logger.d(Logger.DOWNLOAD_LOG, "outputfile: " + tempFile.getAbsolutePath());
-                byte data[] = new byte[4096];
-                int count;
-                while ((count = input.read(data)) != -1) {
-                    output.write(data, 0, count);
-                }
-                c.disconnect();
+            Logger.d(Logger.DOWNLOAD_LOG, "outputfile: " + tempUpdateOsFile.getAbsolutePath());
+            byte data[] = new byte[4096];
+            int count;
+            while ((count = input.read(data)) != -1) {
+                output.write(data, 0, count);
                 return true;
+            }
+            c.disconnect();
 
         } finally {
             try {
@@ -147,18 +146,21 @@ public class Downloader extends AsyncTask<Void, Void, Boolean> {
             if (c != null) c.disconnect();
         }
 
+        return false;
+    }
+
+    public boolean isSuccessful() {
+        return isSuccessful;
     }
 
 
 
-
-
-//    private void updateBase(){
+    //    private void updateBase(){
 //
 //        Logger.d(Logger.WIFI_LOG, "start base updating");
 //        try {
-//            Logger.d(Logger.WIFI_LOG, "tempfile created:" + tempFile);
-//            InputStream fi = new FileInputStream(tempFile);
+//            Logger.d(Logger.WIFI_LOG, "tempfile created:" + tempUpdateOsFile);
+//            InputStream fi = new FileInputStream(tempUpdateOsFile);
 //            InputStream bi = new BufferedInputStream(fi);
 //            InputStream bz2 = new BZip2CompressorInputStream(bi);
 //            TarArchiveInputStream tarIn = new TarArchiveInputStream(bz2);
@@ -208,7 +210,7 @@ public class Downloader extends AsyncTask<Void, Void, Boolean> {
 //    }
 
 
-
-
-
+    public File getTempUpdateOsFile() {
+        return tempUpdateOsFile;
+    }
 }

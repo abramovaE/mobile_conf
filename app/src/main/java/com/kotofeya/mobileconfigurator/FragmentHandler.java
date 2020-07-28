@@ -12,7 +12,7 @@ public class FragmentHandler {
 
     private FragmentManager fragmentManager;
     private Fragment currentFragment;
-    private View conteinerView;
+    private View containerView;
 
     final static String MAIN_FRAGMENT_TAG = "MAIN_FRAGMENT";
     final static String BASIC_SCANNER_FRAGMENT = "BASIC_SCANNER_FRAGMENT";
@@ -27,8 +27,12 @@ public class FragmentHandler {
     final static String STATION_CONTENT_FRAGMENT = "STATION_CONTENT_FRAGMENT";
 
 
+    public final static String CONFIRMATION_DIALOG_TAG = "CONFIRMATION_DIALOG";
 
 
+    public FragmentManager getFragmentManager() {
+        return fragmentManager;
+    }
 
     public FragmentHandler(Context context){
         fragmentManager = ((MainMenu) context).getSupportFragmentManager();

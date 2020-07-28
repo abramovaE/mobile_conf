@@ -25,7 +25,7 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
     TextView scannerLabel;
     Button scannerButton;
 
-
+    Downloader downloader;
 
     @Override
     public void onAttach(Context context) {
@@ -67,8 +67,9 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
         mainBtnRescan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
-
+                utils.clearTransivers();
+                scannerAdapter.notifyDataSetChanged();
+                scan();
             }
         });
 
@@ -89,14 +90,29 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
 
     @Override
     public void onTaskCompleted(String result) {
+        Logger.d(Logger.UPDATE_OS_LOG, "onTaskCompleted");
+
+
         if(result.contains("Release OS: ")){
             scannerLabel.setText(result);
         }
+
+        else if(result.contains("updateos:")){
+            Transiver transiver = utils.getCurrentTransiver();
+            utils.removeTransiver(transiver);
+            utils.setCurrentTransiver(null);
+            scannerAdapter.notifyDataSetChanged();
+        }
+
         else {
             scannerAdapter.notifyDataSetChanged();
         }
 
+
     }
+
+
+
 
 
 
@@ -107,12 +123,12 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
             utils.addSshTransiver(transiver);
             SshConnection connection = new SshConnection(this);
             utils.setCurrentTransiver(transiver);
-            connection.execute(transiver, SshConnection.UPTIME_COMMAND);
+            connection.execute(transiver, SshConnection.TAKE_COMMAND);
         }
     }
 
     private void loadUpdates(){
-        Downloader downloader = new Downloader(this);
+        downloader = new Downloader(this);
         downloader.execute();
     }
 

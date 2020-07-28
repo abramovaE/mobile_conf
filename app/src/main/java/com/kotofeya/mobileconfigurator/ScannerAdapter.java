@@ -1,22 +1,34 @@
 package com.kotofeya.mobileconfigurator;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.FragmentManager;
 
 import org.w3c.dom.Text;
 
+import java.util.Arrays;
 import java.util.List;
 
-public class ScannerAdapter extends BaseAdapter {
+public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
     Context ctx;
     LayoutInflater lInflater;
     List<Transiver> objects;
     Utils utils;
+
 
     private int scannerType;
 
@@ -147,6 +159,42 @@ public class ScannerAdapter extends BaseAdapter {
 
 
             version.setVisibility(View.VISIBLE);
+            LinearLayout linearLayout = view.findViewById(R.id.scanner_lv);
+
+            linearLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
+
+                    List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "clients: " + clients);
+
+                    Transiver transiver = getTransiver(position);
+
+
+
+//
+//                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "selected transiver ip: " + transiver.getIp());
+//
+//                    SshConnection sshConnection = new SshConnection(ScannerAdapter.this::onTaskCompleted);
+                    utils.setCurrentTransiver(transiver);
+//                    sshConnection.execute(transiver, SshConnection.TAKE_COMMAND);
+
+
+
+//                    SshConnection connection = new SshConnection();
+//                    utils.setCurrentTransiver(currentTransiver);
+//                    connection.execute(currentTransiver.getIp(), SshConnection.UPDATE_OS_LOAD_FILE_COMMAND);
+////
+                    Bundle bundle = new Bundle();
+                    bundle.putString("transIp", transiver.getIp());
+                    ConfrmationDialog dialog = new ConfrmationDialog();
+                    dialog.setArguments(bundle);
+                    dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+
+
+                }
+            });
         }
 
         else if(scannerType == UPDATE_STM_TYPE){
@@ -216,5 +264,41 @@ public class ScannerAdapter extends BaseAdapter {
         }
     }
 
+    @Override
+    public void onTaskCompleted(String result) {
+
+    }
+
+
+    public static class ConfrmationDialog extends DialogFragment {
+
+
+    @NonNull
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        String ip = getArguments().getString("transIp");
+        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        builder.setTitle("Confirmation is required");
+        builder.setMessage("Confirm the download of the updates");
+        builder.setPositiveButton("download", new DialogInterface.OnClickListener() {
+
+            public void onClick(DialogInterface dialog, int id) {
+                 SshConnection connection = new SshConnection(((UpdateOsFragment)App.get().getFragmentHandler().getCurrentFragment()));
+
+                 connection.execute(ip, SshConnection.UPDATE_OS_LOAD_FILE_COMMAND);
+
+            }
+        });
+        builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+
+            }
+        });
+        builder.setCancelable(true);
+        return builder.create();
+    }
+
+
+    }
 
 }

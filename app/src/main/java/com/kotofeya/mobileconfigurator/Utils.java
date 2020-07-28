@@ -34,6 +34,7 @@ public class Utils {
     private BTHandler bluetooth;
 
 
+
     private int radioType;
 
 //    private Context mContext;
@@ -57,6 +58,9 @@ public class Utils {
     boolean isConnecting;
 
     private int currentLevel;
+
+
+
 
     public List<Transiver> getTransivers() {
         return transivers;
@@ -230,6 +234,11 @@ public class Utils {
         transivers.add(transiver);
     }
 
+    public void removeTransiver(Transiver transiver){
+        transivers.remove(transiver);
+    }
+
+
 //
 //    private void updateRvContent(List<IRadioInformer> infFromRVMainAdapter){
 //        MyDiffUtilCallback myDiffUtilCallback = new MyDiffUtilCallback(iRadioInformerList, infFromRVMainAdapter, this);
@@ -305,8 +314,6 @@ public class Utils {
     public void addToSsidRunTimeSet(String ssid) {
         ssidListRunTime.add(ssid);
     }
-
-
 
 
 }

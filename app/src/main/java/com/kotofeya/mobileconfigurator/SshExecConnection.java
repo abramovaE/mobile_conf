@@ -3,7 +3,6 @@ package com.kotofeya.mobileconfigurator;
 import android.os.AsyncTask;
 
 import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 
@@ -14,24 +13,26 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Properties;
 
-public class SshConnection extends AsyncTask<Object, Object, String> {
+public class SshExecConnection extends AsyncTask<Object, Object, String> {
 
 
     public static final String TAKE_COMMAND = "take command";
     public static final String UPDATE_OS_LOAD_FILE_COMMAND = "update os command";
-    public static final String REBOOT_COMMAND = "sudo reboot";
+    public static final String REBOOT_COMMAND = "reboot";
 
+
+
+
+//    public static final String TAKE_COMMAND = "'sh -s' < /home/dirvion/scripts/take/take.sh";
 
     private OnTaskCompleted listener;
     private Transiver currentTransiver;
 
 
+    public SshExecConnection() {
+    }
 
 
-    public SshConnection(OnTaskCompleted listener){
-            this.listener = listener;
-
-        }
 
         // req[0] - transiver
         //req[1] - command
@@ -41,7 +42,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
         Session session;
         ByteArrayOutputStream baos = null;
         String res = "";
-        JSch jsch = new JSch();
 
 
         switch ((String)req[1]){
@@ -49,7 +49,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                 this.currentTransiver = (Transiver) req[0];
                 try
                 {
-
+                    JSch jsch = new JSch();
                     session = jsch.getSession("staff", currentTransiver.getIp(), 22);
                     session.setPassword("staff");
 
@@ -94,6 +94,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
 
                 try
                 {
+                JSch jsch = new JSch();
                 session = jsch.getSession("staff", ip, 22);
                 session.setPassword("staff");
 
@@ -104,27 +105,22 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                 session.connect();
                 Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());
 
-                    // SSH Channel
-                    ChannelExec channelssh = (ChannelExec) session.openChannel("exec");
-                    baos = new ByteArrayOutputStream();
-                    channelssh.setOutputStream(baos);
+//                    // SSH Channel
+//                    ChannelExec channelssh = (ChannelExec) session.openChannel("exec");
+//                    baos = new ByteArrayOutputStream();
+//                    channelssh.setOutputStream(baos);
+//
+//                    // Execute command
+////                    channelssh.setCommand(REBOOT_COMMAND);
+//                    channelssh.connect();
+//
+//                    do {
+//                        Thread.sleep(2000);
+//                    } while(!channelssh.isEOF());
+//
+////                    channelssh.disconnect();
 
-                    // Execute command
-
-//                    Logger.d(Logger.SSH_CONNECTION_LOG, );
-                    Thread.sleep(3000);
-                    channelssh.setCommand("scp command: " + "scp " + Downloader.tempUpdateOsFile + " " + "staff@" + ip + ":/overlay/update");
-                    channelssh.setCommand(REBOOT_COMMAND);
-                    channelssh.connect();
-
-                    do {
-                        Thread.sleep(2000);
-                    } while(!channelssh.isEOF());
-
-//                    channelssh.disconnect();
-
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "baos: " + baos.toString());
-                    res = "updateos:" + ip;
+//                    res = baos.toString();
                     session.disconnect();
                     return res;
 
@@ -133,16 +129,12 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
         {
             Logger.d(Logger.SSH_CONNECTION_LOG, "error: " + e.getMessage());
         }
-
-
         return res;
 
 
-                default:
-                    return "";
-
         }
 
+        return "";
 
     }
 
@@ -164,8 +156,14 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
 
     private void parseBasicScanInfo(String result){
         String[] info = result.split("\n");
+//        Logger.d(Logger.SSH_CONNECTION_LOG, "info: " + info.length);
+
+//        for(String s: info){
+//            Logger.d(Logger.SSH_CONNECTION_LOG, "s: " + s);
+//        }
+
             currentTransiver.setSsid(info[1]);
-//            currentTransiver.setIp(info[2]);
+//            currentTransiver.setIp(info[2].trim());
             currentTransiver.setMacWifi(info[3]);
             currentTransiver.setMacBt(info[4]);
             currentTransiver.setBoardVersion(info[5]);
@@ -178,6 +176,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
             currentTransiver.setUptime(info[12]);
             currentTransiver.setCpuTemp(info[13]);
             currentTransiver.setLoad(info[14]);
+
+
     }
 
 }

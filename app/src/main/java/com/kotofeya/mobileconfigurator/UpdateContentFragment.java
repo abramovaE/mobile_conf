@@ -75,7 +75,7 @@ public class UpdateContentFragment extends Fragment implements OnTaskCompleted {
             utils.addSshTransiver(transiver);
             SshConnection connection = new SshConnection(this);
             utils.setCurrentTransiver(transiver);
-            connection.execute(transiver, SshConnection.UPTIME_COMMAND);
+            connection.execute(transiver, SshConnection.TAKE_COMMAND);
         }
     }
 //
