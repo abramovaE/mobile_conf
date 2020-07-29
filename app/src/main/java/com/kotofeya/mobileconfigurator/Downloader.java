@@ -4,7 +4,7 @@ package com.kotofeya.mobileconfigurator;
 import android.os.AsyncTask;
 
 
-
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -16,11 +16,11 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 
-public class Downloader extends AsyncTask<Void, Void, Boolean> {
+public class Downloader extends AsyncTask<String, Void, Boolean> {
 
 
-    private static final String OS_VERSION_URL = "http://95.161.210.44/update/rootimg";
-    private static final String OS_URL = "http://95.161.210.44/update/rootimg/";
+    public static final String OS_VERSION_URL = "http://95.161.210.44/update/rootimg";
+    public static final String OS_URL = "http://95.161.210.44/update/rootimg/root.img.bz2";
 
 
 //    private static final String SERVER = "http://95.161.210.44/update/PACK.tar.bz2";
@@ -52,11 +52,16 @@ public class Downloader extends AsyncTask<Void, Void, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(Void... voids) {
+    protected Boolean doInBackground(String... url) {
         try {
-            return getContent();
 
-        } catch (IOException ex) {
+                return getContent(url[0]);
+
+
+//            return getContent();
+
+        }
+        catch (IOException ex) {
             return null;
         }
     }
@@ -89,54 +94,54 @@ public class Downloader extends AsyncTask<Void, Void, Boolean> {
         listener.onTaskCompleted("Release OS: " + osVersion);
     }
 
-    private Boolean getContent() throws IOException {
+    private Boolean getContent(String stringUrl) throws IOException {
 
         Logger.d(Logger.DOWNLOAD_LOG, "getting version");
 
         InputStream input = null;
         OutputStream output = null;
         HttpURLConnection c = null;
-
+        URL url = new URL(stringUrl);
+        c = (HttpURLConnection) url.openConnection();
+        c.setRequestMethod("GET");
+        c.setConnectTimeout(12000);
+        c.setReadTimeout(15000);
+        c.connect();
+        input = c.getInputStream();
         try {
-            URL versionUrl = new URL(OS_VERSION_URL);
-            c = (HttpURLConnection) versionUrl.openConnection();
-            c.setRequestMethod("GET");
-            c.setConnectTimeout(2000);
-            c.setReadTimeout(5000);
-            c.connect();
 
-            input = c.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-            String s;
-            while ((s = reader.readLine()) != null) {
-                if (s.contains("ver.")) {
-                    osVersion = s;
-                    Logger.d(Logger.DOWNLOAD_LOG, "server osVersion is " + osVersion);
-                }
+
+            switch (stringUrl) {
+                case OS_VERSION_URL:
+                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
+                    String s;
+                    while ((s = reader.readLine()) != null) {
+                        if (s.contains("ver.")) {
+                            osVersion = s;
+                            Logger.d(Logger.DOWNLOAD_LOG, "server osVersion is " + osVersion);
+                        }
+                    }
+                    reader.close();
+                    break;
+
+                case OS_URL:
+                    Logger.d(Logger.DOWNLOAD_LOG, "start os update downloading");
+                    output = new FileOutputStream(tempUpdateOsFile);
+                    Logger.d(Logger.DOWNLOAD_LOG, "outputfile: " + tempUpdateOsFile.getAbsolutePath());
+                    byte data[] = new byte[4096];
+                    int count;
+
+                    while ((count = input.read(data)) != -1) {
+                        output.write(data, 0, count);
+                        Logger.d(Logger.DOWNLOAD_LOG, "outputfile downloading: " + count);
+                    }
+
+                    Logger.d(Logger.DOWNLOAD_LOG, "outputfile downloaded, temp/file length: " + tempUpdateOsFile.length());
+                    output.close();
+                    break;
             }
-            reader.close();
 
-            Logger.d(Logger.DOWNLOAD_LOG, "start os update downloading");
-            URL url = new URL(OS_URL);
-            c = (HttpURLConnection) url.openConnection();
-            c.setRequestMethod("GET");
-            c.setReadTimeout(5000);
-            c.connect();
-
-            input = c.getInputStream();
-            output = new FileOutputStream(tempUpdateOsFile);
-
-
-            Logger.d(Logger.DOWNLOAD_LOG, "outputfile: " + tempUpdateOsFile.getAbsolutePath());
-            byte data[] = new byte[4096];
-            int count;
-            while ((count = input.read(data)) != -1) {
-                output.write(data, 0, count);
-                return true;
-            }
-            c.disconnect();
-
-        } finally {
+        }finally {
             try {
                 if (output != null) output.close();
                 if (input != null) input.close();
@@ -152,62 +157,6 @@ public class Downloader extends AsyncTask<Void, Void, Boolean> {
     public boolean isSuccessful() {
         return isSuccessful;
     }
-
-
-
-    //    private void updateBase(){
-//
-//        Logger.d(Logger.WIFI_LOG, "start base updating");
-//        try {
-//            Logger.d(Logger.WIFI_LOG, "tempfile created:" + tempUpdateOsFile);
-//            InputStream fi = new FileInputStream(tempUpdateOsFile);
-//            InputStream bi = new BufferedInputStream(fi);
-//            InputStream bz2 = new BZip2CompressorInputStream(bi);
-//            TarArchiveInputStream tarIn = new TarArchiveInputStream(bz2);
-//            ArchiveEntry entry = null;
-//            while (null != (entry = tarIn.getNextEntry())) {
-//                Logger.d(Logger.DOWNLOAD_LOG, entry.getName());
-//
-//                if (entry.getSize() < 1) {
-//                    continue;
-//                }
-//                String entryName = entry.getName();
-//                String data1 = new String(IOUtils.toByteArray(tarIn), "cp1251");
-//                JSONObject jsonObject = new JSONObject(data1);
-//                if (entryName.contains("perepicJSON")) {
-//                    String ssid = entryName.substring(entryName.indexOf("perepicJSON/") + 12, entryName.indexOf("/stat"));
-//                    String jsonCrc = jsonObject.getJSONObject("data").getString("crc");
-////                    String baseCrc = App.get().getDBHelper().getStatCrc(ssid);
-//                    String lang = entryName.substring(entryName.indexOf("stat") + 5, entryName.indexOf("json") -1);
-////                    if (!baseCrc.equals(jsonCrc)) {
-//                        Logger.d(Logger.OTHER_LOG, "write to database, stationary, ssid: " + ssid  + ", lang: " + lang + ", jsonCrc: " + jsonCrc);
-//                        App.get().getDBHelper().addStatToTable(ssid, jsonObject.toString(), lang, jsonCrc);
-////                    }
-//                }
-//
-//                else if(entryName.contains("transport")){
-//                    JSONObject data = jsonObject.getJSONObject("data");
-//                    int increment = data.getInt("increment");
-//                    String city = entryName.substring(entryName.indexOf("ts") + 3, entryName.lastIndexOf("_"));
-//                    String tableName = "transport" + "_" + city;
-//                    int tableIncr =  App.get().getDBHelper().getTableIncrement(tableName);
-//                    if (tableIncr != increment) {
-//                        Route[] routes = new Gson().fromJson(data.get("routes").toString(), Route[].class);
-//                        Logger.d(Logger.OTHER_LOG, "jsonroutes: " + Arrays.toString(routes));
-//                        Logger.d(Logger.DB_LOG, "updating table: " + tableName);
-//                        Logger.d(Logger.OTHER_LOG, "write to database, transport: " + tableName + ", routes count: " + routes.length);
-//                        App.get().getDBHelper().updateTransportTable(tableName, routes, increment);
-//                    }
-//
-//                }
-//            }
-//            tarIn.close();
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-//    }
 
 
     public File getTempUpdateOsFile() {

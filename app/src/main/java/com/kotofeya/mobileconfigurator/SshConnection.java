@@ -4,11 +4,17 @@ import android.os.AsyncTask;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpProgressMonitor;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -104,26 +110,86 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                 session.connect();
                 Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());
 
+                    ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
+                    sftpChannel.connect();
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "updateOsFile: " + Downloader.tempUpdateOsFile);
+//
+//                    File file = new File(App.get().getCacheDir() + "/" + "test");
+//
+//                    try(FileWriter writer = new FileWriter(file.getAbsolutePath(), false))
+//                    {
+//                        // запись всей строки
+//                        String text = "mur";
+//                        writer.write(text);
+//                        // запись по символам
+//                        writer.append('\n');
+//                        writer.append('E');
+//
+//                        writer.flush();
+//                    }
+//                    catch(IOException ex){
+//
+//                        System.out.println(ex.getMessage());
+//                    }
+//
+//
+//                    file.deleteOnExit();
+
+
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "testFile: " + file.getAbsolutePath());
+
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "src file length: " + Downloader.tempUpdateOsFile.length());
+
+
+                    sftpChannel.put(Downloader.tempUpdateOsFile.getAbsolutePath(), "/overlay/update", new SftpProgressMonitor() {
+                        @Override
+                        public void init(int op, String src, String dest, long max) {
+
+                        }
+
+                        @Override
+                        public boolean count(long count) {
+                            Logger.d(Logger.SSH_CONNECTION_LOG, "transfered: " + count);
+                            return true;
+                        }
+
+                        @Override
+                        public void end() {
+                            Logger.d(Logger.SSH_CONNECTION_LOG, "end transfering");
+//                            sftpChannel.exit();
+
+
+
+
+                        }
+                    });
+
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "updateOsFile completed");
+
+
+
+
+
                     // SSH Channel
                     ChannelExec channelssh = (ChannelExec) session.openChannel("exec");
-                    baos = new ByteArrayOutputStream();
-                    channelssh.setOutputStream(baos);
-
-                    // Execute command
-
-//                    Logger.d(Logger.SSH_CONNECTION_LOG, );
-                    Thread.sleep(3000);
-                    channelssh.setCommand("scp command: " + "scp " + Downloader.tempUpdateOsFile + " " + "staff@" + ip + ":/overlay/update");
+//                    baos = new ByteArrayOutputStream();
+//                    channelssh.setOutputStream(baos);
+//
+//                    // Execute command
+//
+////                    Logger.d(Logger.SSH_CONNECTION_LOG, );
+//                    Thread.sleep(3000);
+//                    channelssh.setCommand("scp command: " + "scp " + Downloader.tempUpdateOsFile + " " + "staff@" + ip + ":/overlay/update");
                     channelssh.setCommand(REBOOT_COMMAND);
                     channelssh.connect();
 
-                    do {
-                        Thread.sleep(2000);
-                    } while(!channelssh.isEOF());
+//                    do {
+//                        Thread.sleep(2000);
+//                    } while(!channelssh.isEOF());
 
 //                    channelssh.disconnect();
 
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "baos: " + baos.toString());
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "baos: " + baos.toString());
                     res = "updateos:" + ip;
                     session.disconnect();
                     return res;
@@ -131,6 +197,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
         }
                 catch (Exception e)
         {
+            e.printStackTrace();
             Logger.d(Logger.SSH_CONNECTION_LOG, "error: " + e.getMessage());
         }
 

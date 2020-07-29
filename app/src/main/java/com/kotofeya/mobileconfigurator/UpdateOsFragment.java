@@ -46,7 +46,7 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
         utils.getBluetooth().stopScan(true);
         utils.clearTransivers();
         scannerAdapter.notifyDataSetChanged();
-        loadUpdates();
+        loadVersion();
         scan();
     }
 
@@ -77,7 +77,7 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
             @Override
             public void onClick(View v) {
                 Logger.d(Logger.UPDATE_OS_LOG, "check updates button was pressed");
-                scannerLabel.setText("");
+//                scannerLabel.setText("");
                 loadUpdates();
             }
         });
@@ -127,9 +127,17 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
         }
     }
 
+
+    private void loadVersion(){
+        Downloader downloader = new Downloader(this);
+        downloader.execute(Downloader.OS_VERSION_URL);
+    }
+
+
     private void loadUpdates(){
-        downloader = new Downloader(this);
-        downloader.execute();
+        Downloader downloader = new Downloader(this);
+
+        downloader.execute(Downloader.OS_URL);
     }
 
 }
