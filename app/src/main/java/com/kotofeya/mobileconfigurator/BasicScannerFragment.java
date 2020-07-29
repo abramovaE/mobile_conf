@@ -70,7 +70,10 @@ public class BasicScannerFragment extends Fragment implements OnTaskCompleted {
         scannerAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void onProgressUpdate(Integer downloaded) {
 
+    }
 
 
     private void rescan(){

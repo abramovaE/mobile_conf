@@ -1,13 +1,18 @@
 package com.kotofeya.mobileconfigurator;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -24,6 +29,7 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
 
     TextView scannerLabel;
     Button scannerButton;
+    ProgressBar progressBar;
 
     Downloader downloader;
 
@@ -58,6 +64,8 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
         ListView lvScanner = view.findViewById(R.id.lv_scanner);
         scannerLabel = view.findViewById(R.id.scanner_label);
         scannerButton = view.findViewById(R.id.scanner_btn);
+        progressBar = view.findViewById(R.id.scanner_progressBar);
+
 
 
         TextView mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
@@ -78,6 +86,8 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
             public void onClick(View v) {
                 Logger.d(Logger.UPDATE_OS_LOG, "check updates button was pressed");
 //                scannerLabel.setText("");
+                progressBar.setVisibility(View.VISIBLE);
+
                 loadUpdates();
             }
         });
@@ -102,6 +112,9 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
             utils.removeTransiver(transiver);
             utils.setCurrentTransiver(null);
             scannerAdapter.notifyDataSetChanged();
+            Toast.makeText(context, "update downloaded", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.INVISIBLE);
+
         }
 
         else {
@@ -111,9 +124,12 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
 
     }
 
+    @Override
+    public void onProgressUpdate(Integer downloaded) {
 
+        progressBar.setProgress(downloaded);
 
-
+    }
 
 
     private void scan(){
@@ -139,5 +155,8 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
 
         downloader.execute(Downloader.OS_URL);
     }
+
+
+
 
 }

@@ -186,13 +186,15 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
 //                    utils.setCurrentTransiver(currentTransiver);
 //                    connection.execute(currentTransiver.getIp(), SshConnection.UPDATE_OS_LOAD_FILE_COMMAND);
 ////
-                    Bundle bundle = new Bundle();
-                    bundle.putString("transIp", transiver.getIp());
-                    ConfrmationDialog dialog = new ConfrmationDialog();
-                    dialog.setArguments(bundle);
-                    dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateOsFileLength: " + Downloader.tempUpdateOsFile.length());
 
-
+                    if(Downloader.tempUpdateOsFile.length() > 1000){
+                        Bundle bundle = new Bundle();
+                        bundle.putString("transIp", transiver.getIp());
+                        ConfrmationDialog dialog = new ConfrmationDialog();
+                        dialog.setArguments(bundle);
+                        dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+                    }
                 }
             });
         }
@@ -269,6 +271,11 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
 
     }
 
+    @Override
+    public void onProgressUpdate(Integer downloaded) {
+
+    }
+
 
     public static class ConfrmationDialog extends DialogFragment {
 
@@ -279,21 +286,19 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
         String ip = getArguments().getString("transIp");
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Confirmation is required");
-        builder.setMessage("Confirm the download of the updates");
-        builder.setPositiveButton("download", new DialogInterface.OnClickListener() {
-
+        builder.setMessage("Confirm the upload of the updates");
+        builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-                 SshConnection connection = new SshConnection(((UpdateOsFragment)App.get().getFragmentHandler().getCurrentFragment()));
-
-                 connection.execute(ip, SshConnection.UPDATE_OS_LOAD_FILE_COMMAND);
-
+                SshConnection connection = new SshConnection(((UpdateOsFragment)App.get().getFragmentHandler().getCurrentFragment()));
+                connection.execute(ip, SshConnection.UPDATE_OS_LOAD_FILE_COMMAND);
             }
         });
+
         builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int id) {
-
             }
         });
+
         builder.setCancelable(true);
         return builder.create();
     }

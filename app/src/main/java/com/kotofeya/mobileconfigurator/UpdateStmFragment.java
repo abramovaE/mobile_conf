@@ -79,6 +79,11 @@ public class UpdateStmFragment extends Fragment implements OnTaskCompleted {
         scannerAdapter.notifyDataSetChanged();
     }
 
+    @Override
+    public void onProgressUpdate(Integer downloaded) {
+
+    }
+
     private void scan(){
         List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
         for(String s: clients){
