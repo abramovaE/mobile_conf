@@ -16,7 +16,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 
-public class Downloader extends AsyncTask<String, Integer, Boolean> {
+public class Downloader extends AsyncTask<String, Integer, String> {
 
 
     public static final String OS_VERSION_URL = "http://95.161.210.44/update/rootimg";
@@ -34,7 +34,7 @@ public class Downloader extends AsyncTask<String, Integer, Boolean> {
     }
 
     @Override
-    protected Boolean doInBackground(String... url) {
+    protected String doInBackground(String... url) {
         try {
             return getContent(url[0]);
         }
@@ -46,25 +46,35 @@ public class Downloader extends AsyncTask<String, Integer, Boolean> {
 
     @Override
     protected void onPreExecute() {
-        Logger.d(Logger.DOWNLOAD_LOG, "downloading os server version");
+        createTempUpdateOsFile();
+    }
+
+
+    private void createTempUpdateOsFile(){
         File outputDir = App.get().getCacheDir();
         try {
+            Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateOsFile: " + tempUpdateOsFile);
+
+            if(tempUpdateOsFile != null && tempUpdateOsFile.exists()){
+                Logger.d(Logger.DOWNLOAD_LOG, "delete exist file");
+                tempUpdateOsFile.delete();
+            }
+            Logger.d(Logger.DOWNLOAD_LOG, " creating new temp file");
+
             tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
             tempUpdateOsFile.deleteOnExit();
         } catch (Exception e) {
             e.printStackTrace();
         }
-
-
     }
 
     @Override
-    protected void onPostExecute(Boolean isSuccessful) {
+    protected void onPostExecute(String result) {
         Logger.d(Logger.DOWNLOAD_LOG, "onPostExecute");
-        listener.onTaskCompleted("Release OS: " + osVersion);
+        listener.onTaskCompleted(result);
     }
 
-    private Boolean getContent(String stringUrl) throws IOException {
+    private String getContent(String stringUrl) throws IOException {
         Logger.d(Logger.DOWNLOAD_LOG, "getting version");
         OutputStream output = null;
         URL url = new URL(stringUrl);
@@ -85,9 +95,10 @@ public class Downloader extends AsyncTask<String, Integer, Boolean> {
                         }
                     }
                     reader.close();
-                    break;
+                    return "Release OS: " + osVersion;
 
                 case OS_URL:
+
                     output = new FileOutputStream(tempUpdateOsFile);
                     byte data[] = new byte[4096];
                     int count;
@@ -97,7 +108,7 @@ public class Downloader extends AsyncTask<String, Integer, Boolean> {
                         publishProgress((int) (100 * (tempUpdateOsFile.length()/40755927.0)));
                     }
                     output.close();
-                    break;
+                    return "Downloaded";
             }
         }finally {
             try {
@@ -108,14 +119,14 @@ public class Downloader extends AsyncTask<String, Integer, Boolean> {
             }
             if (c != null) c.disconnect();
         }
-        return false;
+        return "";
     }
 
 
 
     @Override
     protected void onProgressUpdate(Integer... values) {
-        Logger.d(Logger.SSH_CONNECTION_LOG, "progress count: " + values[0]);
+//        Logger.d(Logger.DOWNLOAD_LOG, "progress count: " + values[0]);
         listener.onProgressUpdate(values[0]);
         super.onProgressUpdate(values);
     }

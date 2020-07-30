@@ -113,31 +113,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                     ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
                     sftpChannel.connect();
                     Logger.d(Logger.SSH_CONNECTION_LOG, "updateOsFile: " + Downloader.tempUpdateOsFile);
-//
-//                    File file = new File(App.get().getCacheDir() + "/" + "test");
-//
-//                    try(FileWriter writer = new FileWriter(file.getAbsolutePath(), false))
-//                    {
-//                        // запись всей строки
-//                        String text = "mur";
-//                        writer.write(text);
-//                        // запись по символам
-//                        writer.append('\n');
-//                        writer.append('E');
-//
-//                        writer.flush();
-//                    }
-//                    catch(IOException ex){
-//
-//                        System.out.println(ex.getMessage());
-//                    }
-//
-//
-//                    file.deleteOnExit();
-
-
-//                    Logger.d(Logger.SSH_CONNECTION_LOG, "testFile: " + file.getAbsolutePath());
-
                     Logger.d(Logger.SSH_CONNECTION_LOG, "src file length: " + Downloader.tempUpdateOsFile.length());
 
 
@@ -172,24 +147,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
 
                     // SSH Channel
                     ChannelExec channelssh = (ChannelExec) session.openChannel("exec");
-//                    baos = new ByteArrayOutputStream();
-//                    channelssh.setOutputStream(baos);
-//
-//                    // Execute command
-//
-////                    Logger.d(Logger.SSH_CONNECTION_LOG, );
-//                    Thread.sleep(3000);
-//                    channelssh.setCommand("scp command: " + "scp " + Downloader.tempUpdateOsFile + " " + "staff@" + ip + ":/overlay/update");
                     channelssh.setCommand(REBOOT_COMMAND);
                     channelssh.connect();
-
-//                    do {
-//                        Thread.sleep(2000);
-//                    } while(!channelssh.isEOF());
-
-//                    channelssh.disconnect();
-
-//                    Logger.d(Logger.SSH_CONNECTION_LOG, "baos: " + baos.toString());
                     res = "updateos:" + ip;
                     session.disconnect();
                     return res;
@@ -215,8 +174,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
 
     protected void onPostExecute(String result) {
         Logger.d(Logger.SSH_CONNECTION_LOG, "result: " + result);
-//            currentTransiver.setBasicScanInfo(result);
-
         if (result.split("\n").length > 10) {
             parseBasicScanInfo(result);
         }

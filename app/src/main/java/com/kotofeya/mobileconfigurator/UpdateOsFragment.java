@@ -31,8 +31,6 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
     Button scannerButton;
     ProgressBar progressBar;
 
-    Downloader downloader;
-
     @Override
     public void onAttach(Context context) {
         this.context = context;
@@ -100,26 +98,27 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
 
     @Override
     public void onTaskCompleted(String result) {
-        Logger.d(Logger.UPDATE_OS_LOG, "onTaskCompleted");
+        Logger.d(Logger.UPDATE_OS_LOG, "onTaskCompleted, result: " + result);
 
 
         if(result.contains("Release OS: ")){
             scannerLabel.setText(result);
         }
 
-        else if(result.contains("updateos:")){
+        else if(result.contains("Downloaded")){
             Transiver transiver = utils.getCurrentTransiver();
             utils.removeTransiver(transiver);
             utils.setCurrentTransiver(null);
             scannerAdapter.notifyDataSetChanged();
-            Toast.makeText(context, "update downloaded", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.INVISIBLE);
+            Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.GONE);
 
         }
 
         else {
             scannerAdapter.notifyDataSetChanged();
         }
+
 
 
     }
