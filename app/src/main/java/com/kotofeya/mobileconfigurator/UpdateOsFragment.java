@@ -5,6 +5,7 @@ import android.graphics.Color;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.ShapeDrawable;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -31,6 +32,8 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
     Button scannerButton;
     ProgressBar progressBar;
 
+    String version = "version";
+
     @Override
     public void onAttach(Context context) {
         this.context = context;
@@ -38,22 +41,32 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
         super.onAttach(context);
     }
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        Logger.d(Logger.UPDATE_OS_LOG, "onCreate");
+        super.onCreate(savedInstanceState);
+    }
 
     @Override
     public void onStart() {
+        Logger.d(Logger.UPDATE_OS_LOG, "onStart");
         super.onStart();
-        scannerLabel.setVisibility(View.VISIBLE);
-        scannerLabel.setText("version");
 
+        scannerLabel.setVisibility(View.VISIBLE);
+        scannerLabel.setText(version);
         scannerButton.setVisibility(View.VISIBLE);
         mainBtnRescan.setVisibility(View.VISIBLE);
-        utils.getBluetooth().stopScan(true);
-        utils.clearTransivers();
-        scannerAdapter.notifyDataSetChanged();
-        loadVersion();
-        scan();
+
+
     }
 
+
+    @Override
+    public void onResume() {
+        Logger.d(Logger.UPDATE_OS_LOG, "onResume");
+
+        super.onResume();
+    }
 
     @Nullable
     @Override
@@ -92,6 +105,14 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
 
         scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_OS_TYPE);
         lvScanner.setAdapter(scannerAdapter);
+
+
+        utils.getBluetooth().stopScan(true);
+        utils.clearTransivers();
+        scannerAdapter.notifyDataSetChanged();
+        loadVersion();
+        scan();
+
         return view;
     }
 
@@ -102,6 +123,7 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
 
 
         if(result.contains("Release OS: ")){
+            version = result;
             scannerLabel.setText(result);
         }
 
@@ -112,16 +134,16 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
             scannerAdapter.notifyDataSetChanged();
             Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show();
             progressBar.setVisibility(View.GONE);
-
         }
 
         else {
+            Logger.d(Logger.UPDATE_OS_LOG, "notifyDataSetChanged, transivers: " + utils.getTransivers().size());
+
             scannerAdapter.notifyDataSetChanged();
         }
-
-
-
     }
+
+
 
     @Override
     public void onProgressUpdate(Integer downloaded) {
@@ -137,7 +159,7 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
             Transiver transiver = new Transiver(s);
             utils.addSshTransiver(transiver);
             SshConnection connection = new SshConnection(this);
-            utils.setCurrentTransiver(transiver);
+//            utils.setCurrentTransiver(transiver);
             connection.execute(transiver, SshConnection.TAKE_COMMAND);
         }
     }

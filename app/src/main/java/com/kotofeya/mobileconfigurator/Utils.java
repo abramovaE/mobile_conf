@@ -298,6 +298,7 @@ public class Utils {
     }
 
     public void clearTransivers(){
+//        currentTransiver = null;
         transivers.clear();
     }
 

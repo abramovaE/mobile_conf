@@ -156,8 +156,6 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
         }
 
         else if(scannerType == UPDATE_OS_TYPE){
-
-
             version.setVisibility(View.VISIBLE);
             LinearLayout linearLayout = view.findViewById(R.id.scanner_lv);
 
@@ -165,27 +163,10 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
                 @Override
                 public void onClick(View v) {
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
-
                     List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "clients: " + clients);
-
                     Transiver transiver = getTransiver(position);
-
-
-
-//
-//                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "selected transiver ip: " + transiver.getIp());
-//
-//                    SshConnection sshConnection = new SshConnection(ScannerAdapter.this::onTaskCompleted);
                     utils.setCurrentTransiver(transiver);
-//                    sshConnection.execute(transiver, SshConnection.TAKE_COMMAND);
-
-
-
-//                    SshConnection connection = new SshConnection();
-//                    utils.setCurrentTransiver(currentTransiver);
-//                    connection.execute(currentTransiver.getIp(), SshConnection.UPDATE_OS_LOAD_FILE_COMMAND);
-////
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateOsFileLength: " + Downloader.tempUpdateOsFile.length());
 
                     if(Downloader.tempUpdateOsFile.length() > 1000){

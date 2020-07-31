@@ -17,8 +17,8 @@ public class MainMenu extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        mainBtnRescan.setVisibility(View.GONE);
-        label.setText(R.string.main_menu_main_label);
+//        mainBtnRescan.setVisibility(View.GONE);
+//        label.setText(R.string.main_menu_main_label);
         utils.getBluetooth().stopScan(true);
         utils.clearTransivers();
     }
@@ -39,6 +39,9 @@ public class MainMenu extends AppCompatActivity {
 
 
         mainBtnRescan = findViewById(R.id.main_btn_rescan);
+        mainBtnRescan.setVisibility(View.GONE);
+        label.setText(R.string.main_menu_main_label);
+
 
     }
 
