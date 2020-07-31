@@ -14,6 +14,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.util.ArrayList;
+import java.util.List;
 
 
 public class Downloader extends AsyncTask<String, Integer, String> {
@@ -21,10 +23,14 @@ public class Downloader extends AsyncTask<String, Integer, String> {
 
     public static final String OS_VERSION_URL = "http://95.161.210.44/update/rootimg";
     public static final String STM_VERSION_URL = "http://95.161.210.44/update/data/stm";
+    public static final String STM_URL = "http://95.161.210.44/update/data/stm/";
+
 
     public static final String OS_URL = "http://95.161.210.44/update/rootimg/root.img.bz2";
 
     public static File tempUpdateOsFile;
+    public static List<String> tempUpdateStmFiles;
+
     private String osVersion;
     private String stmVersion;
 
@@ -101,11 +107,25 @@ public class Downloader extends AsyncTask<String, Integer, String> {
                     return "Release OS: " + osVersion;
 
                 case STM_VERSION_URL:
+                    tempUpdateStmFiles = new ArrayList<>();
                     BufferedReader r = new BufferedReader(new InputStreamReader(input));
                     while ((s = r.readLine()) != null) {
+
                         if (s.contains("ver.")) {
                             stmVersion = s.substring(0, s.indexOf("<"));
                         }
+
+                        else if(s.contains("M")){
+                            String sub = s.substring(s.lastIndexOf("M"));
+                            tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
+                        }
+
+                        else if(s.contains("S")) {
+                            String sub = s.substring(s.lastIndexOf("S"));
+                            tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
+                        }
+
+
                     }
                     r.close();
                     return "Release: " + stmVersion;
@@ -123,6 +143,13 @@ public class Downloader extends AsyncTask<String, Integer, String> {
                     }
                     output.close();
                     return "Downloaded";
+
+//                case STM_URL:
+//
+//
+//
+//                    return "Downloaded";
+
             }
         }finally {
             try {

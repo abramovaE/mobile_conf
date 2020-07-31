@@ -182,15 +182,15 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
                     Transiver transiver = getTransiver(position);
                     utils.setCurrentTransiver(transiver);
-                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateStmFileLength: " + Downloader.tempUpdateOsFile.length());
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateStmFilsSize: " + Downloader.tempUpdateStmFiles.size());
 
-//                    if(Downloader.tempUpdateOsFile.length() > 1000){
+                    if(Downloader.tempUpdateStmFiles != null && !Downloader.tempUpdateStmFiles.isEmpty()){
                         Bundle bundle = new Bundle();
                         bundle.putString("transIp", transiver.getIp());
                         UpdateStmConfDialog dialog = new UpdateStmConfDialog();
                         dialog.setArguments(bundle);
                         dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
-//                    }
+                    }
                 }
             });
 
@@ -309,19 +309,31 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             String ip = getArguments().getString("transIp");
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Confirmation is required");
-            builder.setMessage("Confirm the upload of the updates");
-            builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    SshConnection connection = new SshConnection(((UpdateOsFragment)App.get().getFragmentHandler().getCurrentFragment()));
-                    connection.execute(ip, SshConnection.UPDATE_OS_LOAD_FILE_COMMAND);
+            builder.setTitle("Choose the stm version for upload");
+
+            String[] content = Downloader.tempUpdateStmFiles.toArray(new String[Downloader.tempUpdateStmFiles.size()]);
+//            for(String s: content){
+//                Logger.d(Logger.SCANNER_ADAPTER_LOG, "dialogContent: " + s);
+//            }
+
+            builder.setItems(content,
+                    new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "dialogContent: " + content[which]);
+                    Downloader downloader = new Downloader((UpdateStmFragment)App.get().getFragmentHandler().getCurrentFragment());
+                    downloader.execute(content[which]);
+
+                    
+//                    SshConnection connection = new SshConnection(((UpdateStmFragment)App.get().getFragmentHandler().getCurrentFragment()));
+//                    connection.execute(ip, SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, content[which]);
                 }
             });
 
-            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                }
-            });
+//            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+//                public void onClick(DialogInterface dialog, int id) {
+//                }
+//            });
 
             builder.setCancelable(true);
             return builder.create();

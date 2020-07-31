@@ -23,7 +23,6 @@ import java.util.List;
 
 public class UpdateOsFragment extends UpdateFragment {
 
-    ProgressBar progressBar;
 
 
     @Nullable
@@ -31,16 +30,6 @@ public class UpdateOsFragment extends UpdateFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         mainTxtLabel.setText(R.string.update_os_main_txt_label);
-        progressBar = view.findViewById(R.id.scanner_progressBar);
-
-        scannerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Logger.d(Logger.UPDATE_OS_LOG, "check updates button was pressed");
-                progressBar.setVisibility(View.VISIBLE);
-                loadUpdates();
-            }
-        });
 
         scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_OS_TYPE);
         lvScanner.setAdapter(scannerAdapter);
@@ -54,39 +43,14 @@ public class UpdateOsFragment extends UpdateFragment {
     }
 
 
-    @Override
-    public void onTaskCompleted(String result) {
-        Logger.d(Logger.UPDATE_OS_LOG, "onTaskCompleted, result: " + result);
-        if(result.contains("Release OS: ")){
-            version = result;
-            scannerLabel.setText(result);
-        }
 
-        else if(result.contains("Downloaded")){
-            Transiver transiver = utils.getCurrentTransiver();
-            utils.removeTransiver(transiver);
-            utils.setCurrentTransiver(null);
-            scannerAdapter.notifyDataSetChanged();
-            Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.GONE);
-        }
 
-        else {
-            Logger.d(Logger.UPDATE_OS_LOG, "notifyDataSetChanged, transivers: " + utils.getTransivers().size());
-            scannerAdapter.notifyDataSetChanged();
-        }
-    }
-
-    @Override
-    public void onProgressUpdate(Integer downloaded) {
-        progressBar.setProgress(downloaded);
-    }
     private void loadVersion(){
         Downloader downloader = new Downloader(this);
         downloader.execute(Downloader.OS_VERSION_URL);
     }
 
-    private void loadUpdates(){
+    void loadUpdates(){
         Downloader downloader = new Downloader(this);
         downloader.execute(Downloader.OS_URL);
     }

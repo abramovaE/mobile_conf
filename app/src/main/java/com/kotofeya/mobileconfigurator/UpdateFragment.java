@@ -7,7 +7,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +29,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     Button scannerButton;
     String version = "version";
     TextView mainTxtLabel;
+
+    ProgressBar progressBar;
 
 
     @Override
@@ -74,6 +78,16 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         });
 
 
+        progressBar = view.findViewById(R.id.scanner_progressBar);
+        scannerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Logger.d(Logger.UPDATE_OS_LOG, "check updates button was pressed");
+                progressBar.setVisibility(View.VISIBLE);
+                loadUpdates();
+            }
+        });
+
 
 //        scannerButton.setOnClickListener(new View.OnClickListener() {
 //            @Override
@@ -120,11 +134,30 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     @Override
     public void onTaskCompleted(String result) {
+        if(result.contains("Release")){
+            version = result;
+            scannerLabel.setText(result);
+        }
 
+        else if(result.contains("Downloaded")){
+            Transiver transiver = utils.getCurrentTransiver();
+            utils.removeTransiver(transiver);
+            utils.setCurrentTransiver(null);
+            scannerAdapter.notifyDataSetChanged();
+            Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.GONE);
+        }
+
+        else {
+            Logger.d(Logger.UPDATE_OS_LOG, "notifyDataSetChanged, transivers: " + utils.getTransivers().size());
+            scannerAdapter.notifyDataSetChanged();
+        }
     }
 
     @Override
     public void onProgressUpdate(Integer downloaded) {
-
+        progressBar.setProgress(downloaded);
     }
+
+    abstract void loadUpdates();
 }

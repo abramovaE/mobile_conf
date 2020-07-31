@@ -25,6 +25,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
 
     public static final String TAKE_COMMAND = "take command";
     public static final String UPDATE_OS_LOAD_FILE_COMMAND = "update os command";
+    public static final String UPDATE_STM_LOAD_FILE_COMMAND = "update stm command";
+
     public static final String REBOOT_COMMAND = "sudo reboot";
 
 
@@ -114,8 +116,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                     sftpChannel.connect();
                     Logger.d(Logger.SSH_CONNECTION_LOG, "updateOsFile: " + Downloader.tempUpdateOsFile);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "src file length: " + Downloader.tempUpdateOsFile.length());
-
-
                     sftpChannel.put(Downloader.tempUpdateOsFile.getAbsolutePath(), "/overlay/update", new SftpProgressMonitor() {
                         @Override
                         public void init(int op, String src, String dest, long max) {
@@ -132,18 +132,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                         public void end() {
                             Logger.d(Logger.SSH_CONNECTION_LOG, "end transfering");
 //                            sftpChannel.exit();
-
-
-
-
                         }
                     });
-
                     Logger.d(Logger.SSH_CONNECTION_LOG, "updateOsFile completed");
-
-
-
-
 
                     // SSH Channel
                     ChannelExec channelssh = (ChannelExec) session.openChannel("exec");
@@ -151,18 +142,64 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                     channelssh.connect();
                     res = "updateos:" + ip;
                     session.disconnect();
-                    return res;
-
-        }
-                catch (Exception e)
+        } catch (Exception e)
         {
             e.printStackTrace();
             Logger.d(Logger.SSH_CONNECTION_LOG, "error: " + e.getMessage());
         }
-
-
         return res;
 
+
+            case UPDATE_STM_LOAD_FILE_COMMAND:
+                String ipTrans = (String) req[0];
+                try
+                {
+                    session = jsch.getSession("staff", ip, 22);
+                    session.setPassword("staff");
+                    Properties prop = new Properties();
+                    prop.put("StrictHostKeyChecking", "no");
+                    session.setConfig(prop);
+                    session.connect();
+                    Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());
+                    ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
+                    sftpChannel.connect();
+
+
+
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "updateStmFile: " + Downloader.tempUpdateOsFile);
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "src file length: " + Downloader.tempUpdateOsFile.length());
+//                    sftpChannel.put(Downloader.tempUpdateOsFile.getAbsolutePath(), "/overlay/update", new SftpProgressMonitor() {
+//                        @Override
+//                        public void init(int op, String src, String dest, long max) {
+//
+//                        }
+//
+//                        @Override
+//                        public boolean count(long count) {
+//                            Logger.d(Logger.SSH_CONNECTION_LOG, "transfered: " + count);
+//                            return true;
+//                        }
+//
+//                        @Override
+//                        public void end() {
+//                            Logger.d(Logger.SSH_CONNECTION_LOG, "end transfering");
+////                            sftpChannel.exit();
+//                        }
+//                    });
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "updateOsFile completed");
+//
+//                    // SSH Channel
+//                    ChannelExec channelssh = (ChannelExec) session.openChannel("exec");
+//                    channelssh.setCommand(REBOOT_COMMAND);
+//                    channelssh.connect();
+//                    res = "updateos:" + ip;
+//                    session.disconnect();
+                } catch (Exception e)
+                {
+                    e.printStackTrace();
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "error: " + e.getMessage());
+                }
+                return res;
 
                 default:
                     return "";

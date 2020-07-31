@@ -8,6 +8,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -23,17 +24,6 @@ public class UpdateStmFragment extends UpdateFragment {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         mainTxtLabel.setText(R.string.update_stm_main_txt_label);
 
-        scannerButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Logger.d(Logger.UPDATE_OS_LOG, "check stm scanner button was pressed");
-//                progressBar.setVisibility(View.VISIBLE);
-//                loadUpdates();
-            }
-        });
-
-
-
         scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_STM_TYPE);
         lvScanner.setAdapter(scannerAdapter);
 
@@ -46,26 +36,15 @@ public class UpdateStmFragment extends UpdateFragment {
     }
 
 
-    @Override
-    public void onTaskCompleted(String result) {
-
-        if(result.contains("Release: ")){
-            version = result;
-            scannerLabel.setText(result);
-        }
-
-        scannerAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onProgressUpdate(Integer downloaded) {
-
-    }
 
     private void loadVersion(){
         Downloader downloader = new Downloader(this);
         downloader.execute(Downloader.STM_VERSION_URL);
     }
 
+    void loadUpdates(){
+        Downloader downloader = new Downloader(this);
+        downloader.execute(Downloader.STM_VERSION_URL);
+    }
 
 }
