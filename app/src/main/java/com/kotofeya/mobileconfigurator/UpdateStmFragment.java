@@ -36,7 +36,6 @@ public class UpdateStmFragment extends UpdateFragment {
     }
 
 
-
     private void loadVersion(){
         Downloader downloader = new Downloader(this);
         downloader.execute(Downloader.STM_VERSION_URL);

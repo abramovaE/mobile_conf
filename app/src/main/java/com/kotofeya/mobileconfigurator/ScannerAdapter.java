@@ -324,7 +324,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
                     Downloader downloader = new Downloader((UpdateStmFragment)App.get().getFragmentHandler().getCurrentFragment());
                     downloader.execute(content[which]);
 
-                    
+
 //                    SshConnection connection = new SshConnection(((UpdateStmFragment)App.get().getFragmentHandler().getCurrentFragment()));
 //                    connection.execute(ip, SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, content[which]);
                 }

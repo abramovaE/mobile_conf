@@ -2,6 +2,7 @@ package com.kotofeya.mobileconfigurator;
 
 
 import android.os.AsyncTask;
+import android.os.Bundle;
 
 
 import java.io.BufferedInputStream;
@@ -48,6 +49,7 @@ public class Downloader extends AsyncTask<String, Integer, String> {
             return getContent(url[0]);
         }
         catch (IOException ex) {
+            Logger.d(Logger.DOWNLOAD_LOG, "getContentException: " + ex.getMessage());
             return null;
         }
     }
@@ -77,6 +79,25 @@ public class Downloader extends AsyncTask<String, Integer, String> {
         }
     }
 
+
+    private File createTempUpdateStmFile(String fileName){
+        File outputDir = App.get().getCacheDir();
+        File file = new File(outputDir + "/" + fileName);
+        try {
+            Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateStmFile: " + file);
+            if(file.exists()){
+                Logger.d(Logger.DOWNLOAD_LOG, "delete exist file");
+                file.delete();
+            }
+            Logger.d(Logger.DOWNLOAD_LOG, " creating new temp file");
+            file = new File(outputDir + "/" + fileName);
+            file.deleteOnExit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return file;
+    }
+
     @Override
     protected void onPostExecute(String result) {
         Logger.d(Logger.DOWNLOAD_LOG, "onPostExecute");
@@ -84,16 +105,52 @@ public class Downloader extends AsyncTask<String, Integer, String> {
     }
 
     private String getContent(String stringUrl) throws IOException {
-        Logger.d(Logger.DOWNLOAD_LOG, "getting version");
+        Logger.d(Logger.DOWNLOAD_LOG, "getting version, string url: " + stringUrl);
         OutputStream output = null;
-        URL url = new URL(stringUrl);
-        HttpURLConnection c = (HttpURLConnection) url.openConnection();
-        c.setRequestMethod("GET");
-        c.setConnectTimeout(12000);
-        c.setReadTimeout(15000);
-        c.connect();
-        InputStream input = c.getInputStream();
+
+
+        URL url;
+        HttpURLConnection c = null;
+        InputStream input = null;
+
+
+
+
         try {
+
+
+            if(tempUpdateStmFiles != null && tempUpdateStmFiles.contains(stringUrl)){
+                url = new URL(STM_VERSION_URL + "/" + stringUrl);
+                c = (HttpURLConnection) url.openConnection();
+                c.setRequestMethod("GET");
+                c.setConnectTimeout(12000);
+                c.setReadTimeout(15000);
+                c.connect();
+                input = c.getInputStream();
+
+                    File file = createTempUpdateStmFile(stringUrl);
+                    output = new FileOutputStream(file);
+                    byte data[] = new byte[4096];
+                    int count;
+                    while ((count = input.read(data)) != -1) {
+                        output.write(data, 0, count);
+                        publishProgress((int) (100 * (file.length() / 40755927.0)));
+                    }
+//                output.close();
+
+
+
+                    return "stm downloaded";
+            }
+
+            else {
+                url = new URL(stringUrl);
+                c = (HttpURLConnection) url.openConnection();
+                c.setRequestMethod("GET");
+                c.setConnectTimeout(12000);
+                c.setReadTimeout(15000);
+                c.connect();
+                input = c.getInputStream();
             switch (stringUrl) {
                 case OS_VERSION_URL:
                     BufferedReader reader = new BufferedReader(new InputStreamReader(input));
@@ -113,14 +170,10 @@ public class Downloader extends AsyncTask<String, Integer, String> {
 
                         if (s.contains("ver.")) {
                             stmVersion = s.substring(0, s.indexOf("<"));
-                        }
-
-                        else if(s.contains("M")){
+                        } else if (s.contains("M")) {
                             String sub = s.substring(s.lastIndexOf("M"));
                             tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
-                        }
-
-                        else if(s.contains("S")) {
+                        } else if (s.contains("S")) {
                             String sub = s.substring(s.lastIndexOf("S"));
                             tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
                         }
@@ -132,16 +185,14 @@ public class Downloader extends AsyncTask<String, Integer, String> {
 
 
                 case OS_URL:
-
                     output = new FileOutputStream(tempUpdateOsFile);
                     byte data[] = new byte[4096];
                     int count;
-
                     while ((count = input.read(data)) != -1) {
                         output.write(data, 0, count);
-                        publishProgress((int) (100 * (tempUpdateOsFile.length()/40755927.0)));
+                        publishProgress((int) (100 * (tempUpdateOsFile.length() / 40755927.0)));
                     }
-                    output.close();
+//                    output.close();
                     return "Downloaded";
 
 //                case STM_URL:
@@ -151,6 +202,8 @@ public class Downloader extends AsyncTask<String, Integer, String> {
 //                    return "Downloaded";
 
             }
+        }
+
         }finally {
             try {
                 if (output != null) output.close();

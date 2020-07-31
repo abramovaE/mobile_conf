@@ -154,13 +154,13 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                 String ipTrans = (String) req[0];
                 try
                 {
-                    session = jsch.getSession("staff", ip, 22);
+                    session = jsch.getSession("staff", ipTrans, 22);
                     session.setPassword("staff");
                     Properties prop = new Properties();
                     prop.put("StrictHostKeyChecking", "no");
                     session.setConfig(prop);
                     session.connect();
-                    Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());
+                    Logger.d(Logger.SSH_CONNECTION_LOG, ipTrans + " isConnected: " + session.isConnected());
                     ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
                     sftpChannel.connect();
 

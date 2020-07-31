@@ -134,6 +134,9 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     @Override
     public void onTaskCompleted(String result) {
+
+        Logger.d(Logger.UPDATE_OS_LOG, "result: " + result);
+
         if(result.contains("Release")){
             version = result;
             scannerLabel.setText(result);
@@ -141,17 +144,24 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
         else if(result.contains("Downloaded")){
             Transiver transiver = utils.getCurrentTransiver();
+            Logger.d(Logger.UPDATE_OS_LOG, "currenttransiver: " + transiver);
             utils.removeTransiver(transiver);
             utils.setCurrentTransiver(null);
             scannerAdapter.notifyDataSetChanged();
             Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show();
-            progressBar.setVisibility(View.GONE);
+        }
+
+        else if(result.contains("stm downloaded")){
+            SshConnection connection = new SshConnection(this);
+            connection.execute(ip, SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, content[which]);
         }
 
         else {
             Logger.d(Logger.UPDATE_OS_LOG, "notifyDataSetChanged, transivers: " + utils.getTransivers().size());
             scannerAdapter.notifyDataSetChanged();
         }
+
+        progressBar.setVisibility(View.GONE);
     }
 
     @Override
