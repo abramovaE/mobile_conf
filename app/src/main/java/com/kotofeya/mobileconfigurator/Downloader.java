@@ -20,10 +20,13 @@ public class Downloader extends AsyncTask<String, Integer, String> {
 
 
     public static final String OS_VERSION_URL = "http://95.161.210.44/update/rootimg";
+    public static final String STM_VERSION_URL = "http://95.161.210.44/update/data/stm";
+
     public static final String OS_URL = "http://95.161.210.44/update/rootimg/root.img.bz2";
 
     public static File tempUpdateOsFile;
     private String osVersion;
+    private String stmVersion;
 
     private OnTaskCompleted listener;
 
@@ -96,6 +99,17 @@ public class Downloader extends AsyncTask<String, Integer, String> {
                     }
                     reader.close();
                     return "Release OS: " + osVersion;
+
+                case STM_VERSION_URL:
+                    BufferedReader r = new BufferedReader(new InputStreamReader(input));
+                    while ((s = r.readLine()) != null) {
+                        if (s.contains("ver.")) {
+                            stmVersion = s.substring(0, s.indexOf("<"));
+                        }
+                    }
+                    r.close();
+                    return "Release: " + stmVersion;
+
 
                 case OS_URL:
 

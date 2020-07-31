@@ -11,16 +11,11 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
 
-import org.w3c.dom.Text;
-
-import java.util.Arrays;
 import java.util.List;
 
 public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
@@ -163,8 +158,6 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
                 @Override
                 public void onClick(View v) {
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
-                    List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
-                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "clients: " + clients);
                     Transiver transiver = getTransiver(position);
                     utils.setCurrentTransiver(transiver);
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateOsFileLength: " + Downloader.tempUpdateOsFile.length());
@@ -172,7 +165,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
                     if(Downloader.tempUpdateOsFile.length() > 1000){
                         Bundle bundle = new Bundle();
                         bundle.putString("transIp", transiver.getIp());
-                        ConfrmationDialog dialog = new ConfrmationDialog();
+                        UpdateOsConfDialog dialog = new UpdateOsConfDialog();
                         dialog.setArguments(bundle);
                         dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
                     }
@@ -182,6 +175,26 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
 
         else if(scannerType == UPDATE_STM_TYPE){
             stmFirmware.setVisibility(View.VISIBLE);
+            LinearLayout linearLayout = view.findViewById(R.id.scanner_lv);
+            linearLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
+                    Transiver transiver = getTransiver(position);
+                    utils.setCurrentTransiver(transiver);
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateStmFileLength: " + Downloader.tempUpdateOsFile.length());
+
+//                    if(Downloader.tempUpdateOsFile.length() > 1000){
+                        Bundle bundle = new Bundle();
+                        bundle.putString("transIp", transiver.getIp());
+                        UpdateStmConfDialog dialog = new UpdateStmConfDialog();
+                        dialog.setArguments(bundle);
+                        dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+//                    }
+                }
+            });
+
+
         }
 
         else if(scannerType == UPDATE_CONTENT_TYPE){
@@ -258,7 +271,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
     }
 
 
-    public static class ConfrmationDialog extends DialogFragment {
+    public static class UpdateOsConfDialog extends DialogFragment {
 
 
     @NonNull
@@ -283,6 +296,36 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
         builder.setCancelable(true);
         return builder.create();
     }
+
+
+    }
+
+
+    public static class UpdateStmConfDialog extends DialogFragment {
+
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            String ip = getArguments().getString("transIp");
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Confirmation is required");
+            builder.setMessage("Confirm the upload of the updates");
+            builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    SshConnection connection = new SshConnection(((UpdateOsFragment)App.get().getFragmentHandler().getCurrentFragment()));
+                    connection.execute(ip, SshConnection.UPDATE_OS_LOAD_FILE_COMMAND);
+                }
+            });
+
+            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                }
+            });
+
+            builder.setCancelable(true);
+            return builder.create();
+        }
 
 
     }

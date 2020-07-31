@@ -15,67 +15,45 @@ import androidx.fragment.app.Fragment;
 
 import java.util.List;
 
-public class UpdateStmFragment extends Fragment implements OnTaskCompleted {
-
-    private Context context;
-    private Utils utils;
-//    private Transiver currentTransiver;
-    ScannerAdapter scannerAdapter;
-    Button mainBtnRescan;
-
-    @Override
-    public void onAttach(Context context) {
-        this.context = context;
-        this.utils = ((MainMenu) context).getUtils();
-        super.onAttach(context);
-    }
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mainBtnRescan.setVisibility(View.VISIBLE);
-        utils.getBluetooth().stopScan(true);
-        utils.clearTransivers();
-        scannerAdapter.notifyDataSetChanged();
-        scan();
-    }
-
-
+public class UpdateStmFragment extends UpdateFragment {
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.scanner_fragment, container, false);
-        ListView lvScanner = view.findViewById(R.id.lv_scanner);
-        TextView scannerLabel = view.findViewById(R.id.scanner_label);
-        Button scannerButton = view.findViewById(R.id.scanner_btn);
-
-
-        TextView mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
+        View view = super.onCreateView(inflater, container, savedInstanceState);
         mainTxtLabel.setText(R.string.update_stm_main_txt_label);
-        mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
 
-        // TODO: 18.07.20  settext , buttontext and listener
-//        scannerLabel.setText("");
-
-//        scannerButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//
-//            }
-//        });
+        scannerButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Logger.d(Logger.UPDATE_OS_LOG, "check stm scanner button was pressed");
+//                progressBar.setVisibility(View.VISIBLE);
+//                loadUpdates();
+            }
+        });
 
 
 
         scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_STM_TYPE);
         lvScanner.setAdapter(scannerAdapter);
+
+        utils.getBluetooth().stopScan(true);
+        utils.clearTransivers();
+        scannerAdapter.notifyDataSetChanged();
+        loadVersion();
+        scan();
         return view;
     }
 
 
     @Override
     public void onTaskCompleted(String result) {
+
+        if(result.contains("Release: ")){
+            version = result;
+            scannerLabel.setText(result);
+        }
+
         scannerAdapter.notifyDataSetChanged();
     }
 
@@ -84,15 +62,10 @@ public class UpdateStmFragment extends Fragment implements OnTaskCompleted {
 
     }
 
-    private void scan(){
-        List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
-        for(String s: clients){
-            Transiver transiver = new Transiver(s);
-            utils.addSshTransiver(transiver);
-            SshConnection connection = new SshConnection(this);
-            utils.setCurrentTransiver(transiver);
-            connection.execute(transiver, SshConnection.TAKE_COMMAND);
-        }
+    private void loadVersion(){
+        Downloader downloader = new Downloader(this);
+        downloader.execute(Downloader.STM_VERSION_URL);
     }
+
 
 }

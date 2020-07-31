@@ -21,84 +21,23 @@ import androidx.fragment.app.Fragment;
 
 import java.util.List;
 
-public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
+public class UpdateOsFragment extends UpdateFragment {
 
-    private Context context;
-    private Utils utils;
-    ScannerAdapter scannerAdapter;
-    Button mainBtnRescan;
-
-    TextView scannerLabel;
-    Button scannerButton;
     ProgressBar progressBar;
 
-    String version = "version";
-
-    @Override
-    public void onAttach(Context context) {
-        this.context = context;
-        this.utils = ((MainMenu) context).getUtils();
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        Logger.d(Logger.UPDATE_OS_LOG, "onCreate");
-        super.onCreate(savedInstanceState);
-    }
-
-    @Override
-    public void onStart() {
-        Logger.d(Logger.UPDATE_OS_LOG, "onStart");
-        super.onStart();
-
-        scannerLabel.setVisibility(View.VISIBLE);
-        scannerLabel.setText(version);
-        scannerButton.setVisibility(View.VISIBLE);
-        mainBtnRescan.setVisibility(View.VISIBLE);
-
-
-    }
-
-
-    @Override
-    public void onResume() {
-        Logger.d(Logger.UPDATE_OS_LOG, "onResume");
-
-        super.onResume();
-    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.scanner_fragment, container, false);
-        ListView lvScanner = view.findViewById(R.id.lv_scanner);
-        scannerLabel = view.findViewById(R.id.scanner_label);
-        scannerButton = view.findViewById(R.id.scanner_btn);
-        progressBar = view.findViewById(R.id.scanner_progressBar);
-
-
-
-        TextView mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
+        View view = super.onCreateView(inflater, container, savedInstanceState);
         mainTxtLabel.setText(R.string.update_os_main_txt_label);
-        mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
-
-        mainBtnRescan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                utils.clearTransivers();
-                scannerAdapter.notifyDataSetChanged();
-                scan();
-            }
-        });
+        progressBar = view.findViewById(R.id.scanner_progressBar);
 
         scannerButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Logger.d(Logger.UPDATE_OS_LOG, "check updates button was pressed");
-//                scannerLabel.setText("");
                 progressBar.setVisibility(View.VISIBLE);
-
                 loadUpdates();
             }
         });
@@ -106,13 +45,11 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
         scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_OS_TYPE);
         lvScanner.setAdapter(scannerAdapter);
 
-
         utils.getBluetooth().stopScan(true);
         utils.clearTransivers();
         scannerAdapter.notifyDataSetChanged();
         loadVersion();
         scan();
-
         return view;
     }
 
@@ -120,8 +57,6 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
     @Override
     public void onTaskCompleted(String result) {
         Logger.d(Logger.UPDATE_OS_LOG, "onTaskCompleted, result: " + result);
-
-
         if(result.contains("Release OS: ")){
             version = result;
             scannerLabel.setText(result);
@@ -138,46 +73,21 @@ public class UpdateOsFragment extends Fragment implements OnTaskCompleted {
 
         else {
             Logger.d(Logger.UPDATE_OS_LOG, "notifyDataSetChanged, transivers: " + utils.getTransivers().size());
-
             scannerAdapter.notifyDataSetChanged();
         }
     }
 
-
-
     @Override
     public void onProgressUpdate(Integer downloaded) {
-
         progressBar.setProgress(downloaded);
-
     }
-
-
-    private void scan(){
-        List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
-        for(String s: clients){
-            Transiver transiver = new Transiver(s);
-            utils.addSshTransiver(transiver);
-            SshConnection connection = new SshConnection(this);
-//            utils.setCurrentTransiver(transiver);
-            connection.execute(transiver, SshConnection.TAKE_COMMAND);
-        }
-    }
-
-
     private void loadVersion(){
         Downloader downloader = new Downloader(this);
         downloader.execute(Downloader.OS_VERSION_URL);
     }
 
-
     private void loadUpdates(){
         Downloader downloader = new Downloader(this);
-
         downloader.execute(Downloader.OS_URL);
     }
-
-
-
-
 }
