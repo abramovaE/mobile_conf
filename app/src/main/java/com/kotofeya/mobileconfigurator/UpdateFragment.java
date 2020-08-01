@@ -153,7 +153,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
         else if(result.contains("stm downloaded")){
             SshConnection connection = new SshConnection(this);
-            connection.execute(ip, SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, content[which]);
+//            connection.execute(ip, SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, content[which]);
         }
 
         else {
