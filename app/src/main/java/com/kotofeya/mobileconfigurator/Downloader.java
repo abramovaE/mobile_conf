@@ -19,7 +19,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Downloader extends AsyncTask<String, Integer, String> {
+public class Downloader extends AsyncTask<String, Integer, Bundle> {
 
 
     public static final String OS_VERSION_URL = "http://95.161.210.44/update/rootimg";
@@ -44,7 +44,7 @@ public class Downloader extends AsyncTask<String, Integer, String> {
     }
 
     @Override
-    protected String doInBackground(String... url) {
+    protected Bundle doInBackground(String... url) {
         try {
             return getContent(url[0]);
         }
@@ -99,12 +99,13 @@ public class Downloader extends AsyncTask<String, Integer, String> {
     }
 
     @Override
-    protected void onPostExecute(String result) {
+    protected void onPostExecute(Bundle result) {
         Logger.d(Logger.DOWNLOAD_LOG, "onPostExecute");
         listener.onTaskCompleted(result);
     }
 
-    private String getContent(String stringUrl) throws IOException {
+    private Bundle getContent(String stringUrl) throws IOException {
+        Bundle bundle = new Bundle();
         Logger.d(Logger.DOWNLOAD_LOG, "getting version, string url: " + stringUrl);
         OutputStream output = null;
 
@@ -115,10 +116,7 @@ public class Downloader extends AsyncTask<String, Integer, String> {
 
 
 
-
         try {
-
-
             if(tempUpdateStmFiles != null && tempUpdateStmFiles.contains(stringUrl)){
                 url = new URL(STM_VERSION_URL + "/" + stringUrl);
                 c = (HttpURLConnection) url.openConnection();
@@ -127,8 +125,8 @@ public class Downloader extends AsyncTask<String, Integer, String> {
                 c.setReadTimeout(15000);
                 c.connect();
                 input = c.getInputStream();
-
                     File file = createTempUpdateStmFile(stringUrl);
+                    file.deleteOnExit();
                     output = new FileOutputStream(file);
                     byte data[] = new byte[4096];
                     int count;
@@ -138,9 +136,11 @@ public class Downloader extends AsyncTask<String, Integer, String> {
                     }
 //                output.close();
 
-
-
-                    return "stm downloaded";
+                bundle.putString("result", "stm downloaded");
+                bundle.putString("filePath", file.getAbsolutePath());
+//                    bundle.putString("ip", ip);
+                    return bundle;
+//                    return "stm downloaded";
             }
 
             else {
@@ -161,7 +161,9 @@ public class Downloader extends AsyncTask<String, Integer, String> {
                         }
                     }
                     reader.close();
-                    return "Release OS: " + osVersion;
+                    bundle.putString("result", "Release OS: " + osVersion);
+                    return bundle;
+//                    return ;
 
                 case STM_VERSION_URL:
                     tempUpdateStmFiles = new ArrayList<>();
@@ -181,7 +183,9 @@ public class Downloader extends AsyncTask<String, Integer, String> {
 
                     }
                     r.close();
-                    return "Release: " + stmVersion;
+                    bundle.putString("result", "Release: " + stmVersion);
+                    return  bundle;
+//                    return "Release: " + stmVersion;
 
 
                 case OS_URL:
@@ -193,7 +197,10 @@ public class Downloader extends AsyncTask<String, Integer, String> {
                         publishProgress((int) (100 * (tempUpdateOsFile.length() / 40755927.0)));
                     }
 //                    output.close();
-                    return "Downloaded";
+                    bundle.putString("result", "Downloaded");
+                    return bundle;
+
+//                    return "Downloaded";
 
 //                case STM_URL:
 //
@@ -213,7 +220,7 @@ public class Downloader extends AsyncTask<String, Integer, String> {
             }
             if (c != null) c.disconnect();
         }
-        return "";
+        return bundle;
     }
 
 

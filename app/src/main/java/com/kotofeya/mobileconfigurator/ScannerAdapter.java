@@ -193,8 +193,6 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
                     }
                 }
             });
-
-
         }
 
         else if(scannerType == UPDATE_CONTENT_TYPE){
@@ -261,7 +259,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
     }
 
     @Override
-    public void onTaskCompleted(String result) {
+    public void onTaskCompleted(Bundle result) {
 
     }
 

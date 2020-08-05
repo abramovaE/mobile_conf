@@ -133,8 +133,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
 
     @Override
-    public void onTaskCompleted(String result) {
-
+    public void onTaskCompleted(Bundle bundle) {
+        String result = bundle.getString("result");
         Logger.d(Logger.UPDATE_OS_LOG, "result: " + result);
 
         if(result.contains("Release")){
@@ -153,7 +153,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
         else if(result.contains("stm downloaded")){
             SshConnection connection = new SshConnection(this);
-//            connection.execute(ip, SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, content[which]);
+            String filePath = bundle.getString("filePath");
+            connection.execute(utils.getCurrentTransiver().getIp(), SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, filePath);
         }
 
         else {

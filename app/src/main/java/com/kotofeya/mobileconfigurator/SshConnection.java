@@ -1,6 +1,7 @@
 package com.kotofeya.mobileconfigurator;
 
 import android.os.AsyncTask;
+import android.os.Bundle;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -28,6 +29,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
     public static final String UPDATE_STM_LOAD_FILE_COMMAND = "update stm command";
 
     public static final String REBOOT_COMMAND = "sudo reboot";
+
 
 
     private OnTaskCompleted listener;
@@ -95,11 +97,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                 }
                 return res;
 
-
             case UPDATE_OS_LOAD_FILE_COMMAND:
                 String ip = (String) req[0];
                 Logger.d(Logger.SSH_CONNECTION_LOG, ip);
-
                 try
                 {
                 session = jsch.getSession("staff", ip, 22);
@@ -142,16 +142,18 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                     channelssh.connect();
                     res = "updateos:" + ip;
                     session.disconnect();
-        } catch (Exception e)
-        {
-            e.printStackTrace();
-            Logger.d(Logger.SSH_CONNECTION_LOG, "error: " + e.getMessage());
         }
-        return res;
-
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "error: " + e.getMessage());
+                }
+                return res;
 
             case UPDATE_STM_LOAD_FILE_COMMAND:
                 String ipTrans = (String) req[0];
+                String filePath = (String) req[2];
+                File file = new File(filePath);
                 try
                 {
                     session = jsch.getSession("staff", ipTrans, 22);
@@ -164,45 +166,48 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                     ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
                     sftpChannel.connect();
 
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "updateOsFile: " + file.getAbsolutePath());
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "src file length: " + file.length());
+                    sftpChannel.put(file.getAbsolutePath(), "/overlay/update", new SftpProgressMonitor() {
+                        @Override
+                        public void init(int op, String src, String dest, long max) {
+
+                        }
+
+                        @Override
+                        public boolean count(long count) {
+                            Logger.d(Logger.SSH_CONNECTION_LOG, "transfered: " + count);
+                            return true;
+                        }
+
+                        @Override
+                        public void end() {
+                            Logger.d(Logger.SSH_CONNECTION_LOG, "end transfering");
 
 
-//                    Logger.d(Logger.SSH_CONNECTION_LOG, "updateStmFile: " + Downloader.tempUpdateOsFile);
-//                    Logger.d(Logger.SSH_CONNECTION_LOG, "src file length: " + Downloader.tempUpdateOsFile.length());
-//                    sftpChannel.put(Downloader.tempUpdateOsFile.getAbsolutePath(), "/overlay/update", new SftpProgressMonitor() {
-//                        @Override
-//                        public void init(int op, String src, String dest, long max) {
-//
-//                        }
-//
-//                        @Override
-//                        public boolean count(long count) {
-//                            Logger.d(Logger.SSH_CONNECTION_LOG, "transfered: " + count);
-//                            return true;
-//                        }
-//
-//                        @Override
-//                        public void end() {
-//                            Logger.d(Logger.SSH_CONNECTION_LOG, "end transfering");
-////                            sftpChannel.exit();
-//                        }
-//                    });
-//                    Logger.d(Logger.SSH_CONNECTION_LOG, "updateOsFile completed");
-//
-//                    // SSH Channel
-//                    ChannelExec channelssh = (ChannelExec) session.openChannel("exec");
-//                    channelssh.setCommand(REBOOT_COMMAND);
-//                    channelssh.connect();
-//                    res = "updateos:" + ip;
-//                    session.disconnect();
-                } catch (Exception e)
+                        }
+                    });
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "updateStmFile completed");
+
+                    // SSH Channel
+                    ChannelExec channelssh = (ChannelExec) session.openChannel("exec");
+
+                    // TODO: 05.08.2020 куда?
+                    String moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + "///";
+//                    mv что куда
+                    channelssh.setCommand(moveCommand + "; " + REBOOT_COMMAND);
+                    channelssh.connect();
+                    res = "updatstm:" + ipTrans;
+                    session.disconnect();
+                }
+                catch (Exception e)
                 {
                     e.printStackTrace();
                     Logger.d(Logger.SSH_CONNECTION_LOG, "error: " + e.getMessage());
                 }
                 return res;
-
-                default:
-                    return "";
+            default:
+                return "";
 
         }
 
@@ -214,10 +219,10 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
         if (result.split("\n").length > 10) {
             parseBasicScanInfo(result);
         }
-
-
         if (listener != null) {
-            listener.onTaskCompleted(result);
+            Bundle bundle = new Bundle();
+            bundle.putString("result", result);
+            listener.onTaskCompleted(bundle);
         }
     }
 
