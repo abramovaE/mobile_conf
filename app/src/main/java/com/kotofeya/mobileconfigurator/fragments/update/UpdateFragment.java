@@ -1,4 +1,4 @@
-package com.kotofeya.mobileconfigurator;
+package com.kotofeya.mobileconfigurator.fragments.update;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -15,10 +15,20 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.OnTaskCompleted;
+import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.ScannerAdapter;
+import com.kotofeya.mobileconfigurator.SshConnection;
+import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
+
 import java.util.List;
 
 
-public abstract class UpdateFragment extends Fragment implements OnTaskCompleted{
+public abstract class UpdateFragment extends Fragment implements OnTaskCompleted {
 
     protected Context context;
     protected Utils utils;
@@ -36,7 +46,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     @Override
     public void onAttach(Context context) {
         this.context = context;
-        this.utils = ((MainMenu) context).getUtils();
+        this.utils = ((MainActivity) context).getUtils();
         super.onAttach(context);
     }
 
@@ -65,8 +75,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         lvScanner = view.findViewById(R.id.lv_scanner);
         scannerLabel = view.findViewById(R.id.scanner_label);
         scannerButton = view.findViewById(R.id.scanner_btn);
-        mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
-        mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
+        mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
+        mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
 
         mainBtnRescan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -88,26 +98,14 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
             }
         });
 
-
-//        scannerButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                Logger.d(Logger.UPDATE_OS_LOG, "check updates button was pressed");
-////                scannerLabel.setText("");
-//                progressBar.setVisibility(View.VISIBLE);
-//
-//                loadUpdates();
-//            }
-//        });
-//
-//        scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_OS_TYPE);
-//        lvScanner.setAdapter(scannerAdapter);
-//
-//        utils.getBluetooth().stopScan(true);
-//        utils.clearTransivers();
-//        scannerAdapter.notifyDataSetChanged();
-//        loadVersion();
-//        scan();
+        setMainTextLabelText();
+        scannerAdapter = getScannerAdapter();
+        lvScanner.setAdapter(scannerAdapter);
+        utils.getBluetooth().stopScan(true);
+        utils.clearTransivers();
+        scannerAdapter.notifyDataSetChanged();
+        loadVersion();
+        scan();
         return view;
     }
 
@@ -171,4 +169,9 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     }
 
     abstract void loadUpdates();
+    abstract void loadVersion();
+    abstract void setMainTextLabelText();
+    abstract ScannerAdapter getScannerAdapter();
+
+
 }

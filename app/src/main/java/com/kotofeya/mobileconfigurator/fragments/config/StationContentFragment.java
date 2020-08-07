@@ -1,22 +1,19 @@
-package com.kotofeya.mobileconfigurator;
+package com.kotofeya.mobileconfigurator.fragments.config;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+
+import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
 
 public class StationContentFragment extends ContentFragment {
 

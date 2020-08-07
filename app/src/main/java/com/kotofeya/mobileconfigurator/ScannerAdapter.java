@@ -16,6 +16,12 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.UpdateStmFragment;
+import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
+import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
+
 import java.util.List;
 
 public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
@@ -36,7 +42,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
     public static final int CONFIG_STATION = 6;
 
 
-    ScannerAdapter(Context context, Utils utils, int scannerType) {
+    public ScannerAdapter(Context context, Utils utils, int scannerType) {
         ctx = context;
         this.utils = utils;
         objects = utils.getTransivers();
@@ -80,9 +86,9 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
         TextView stmBootloader = view.findViewById(R.id.scanner_lv_item2);
         stmBootloader.setText(p.getStmBootloader());
 
-
-
         final TextView exp = view.findViewById(R.id.scanner_lv_item_txt_exp);
+
+        LinearLayout linearLayout = view.findViewById(R.id.scanner_lv);
 
         Button expButton = view.findViewById(R.id.scanner_lv_exp_btn);
         expButton.setOnClickListener(new View.OnClickListener() {
@@ -152,7 +158,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
 
         else if(scannerType == UPDATE_OS_TYPE){
             version.setVisibility(View.VISIBLE);
-            LinearLayout linearLayout = view.findViewById(R.id.scanner_lv);
+
 
             linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -175,14 +181,13 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
 
         else if(scannerType == UPDATE_STM_TYPE){
             stmFirmware.setVisibility(View.VISIBLE);
-            LinearLayout linearLayout = view.findViewById(R.id.scanner_lv);
             linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
                     Transiver transiver = getTransiver(position);
                     utils.setCurrentTransiver(transiver);
-                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateStmFilsSize: " + Downloader.tempUpdateStmFiles.size());
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateStmFilesSize: " + Downloader.tempUpdateStmFiles.size());
 
                     if(Downloader.tempUpdateStmFiles != null && !Downloader.tempUpdateStmFiles.isEmpty()){
                         Bundle bundle = new Bundle();
@@ -197,8 +202,27 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
 
         else if(scannerType == UPDATE_CONTENT_TYPE){
             // TODO: 18.07.20  set increment
-//            version.setText();
-//            version.setVisibility(View.VISIBLE);
+            version.setVisibility(View.VISIBLE);
+            version.setText(p.getIncrementOfContent());
+
+            linearLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
+                    Transiver transiver = getTransiver(position);
+                    utils.setCurrentTransiver(transiver);
+//                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateContentFileLength: " + Downloader.tempUpdateOsFile.length());
+
+//                    if(Downloader.tempUpdateOsFile.length() > 1000){
+//                        Bundle bundle = new Bundle();
+//                        bundle.putString("transIp", transiver.getIp());
+//                        UpdateOsConfDialog dialog = new UpdateOsConfDialog();
+//                        dialog.setArguments(bundle);
+//                        dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+//                    }
+                }
+            });
+
         }
 
         else if(scannerType == CONFIG_TRANSPORT){

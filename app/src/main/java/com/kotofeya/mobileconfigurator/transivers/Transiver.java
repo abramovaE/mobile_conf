@@ -1,6 +1,8 @@
-package com.kotofeya.mobileconfigurator;
+package com.kotofeya.mobileconfigurator.transivers;
 
 import android.bluetooth.le.ScanResult;
+
+import com.kotofeya.mobileconfigurator.Utils;
 
 public class Transiver {
 

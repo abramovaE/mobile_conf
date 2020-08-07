@@ -10,8 +10,6 @@ import java.util.List;
 
 public class WiFiLocalHotspot {
 
-
-
     private static WiFiLocalHotspot instance = new WiFiLocalHotspot();
     private WiFiLocalHotspot(){}
 
@@ -21,8 +19,6 @@ public class WiFiLocalHotspot {
 
     public List<String> getClientList() {
         List<String> connectedTransivers = new ArrayList<>();
-
-        int macCount = 0;
         BufferedReader br = null;
         String flushCmd = "sh ip -s -s neigh flush all";
         Runtime runtime = Runtime.getRuntime();
@@ -31,7 +27,6 @@ public class WiFiLocalHotspot {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
         try {
             br = new BufferedReader(new FileReader("/proc/net/arp"));
             String line;
@@ -40,22 +35,12 @@ public class WiFiLocalHotspot {
                 if (splitted != null) {
                     String mac = splitted[3];
                     if (mac.matches("b8:27:..:..:..:..")) {
-                        macCount++;
-
-
                         connectedTransivers.add(splitted[0]);
                     }
-
-
                 }
             }
         } catch (Exception e) {
-
         }
-
         return connectedTransivers;
     }
-
-
-
 }

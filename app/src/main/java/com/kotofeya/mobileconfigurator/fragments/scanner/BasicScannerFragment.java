@@ -1,4 +1,4 @@
-package com.kotofeya.mobileconfigurator;
+package com.kotofeya.mobileconfigurator.fragments.scanner;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,26 +13,32 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.kotofeya.mobileconfigurator.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.OnTaskCompleted;
+import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.ScannerAdapter;
+import com.kotofeya.mobileconfigurator.SshConnection;
+import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
+
 import java.util.List;
 
-public class UpdateContentFragment extends Fragment implements OnTaskCompleted {
-
+public class BasicScannerFragment extends Fragment implements OnTaskCompleted {
 
     private Context context;
     private Utils utils;
-    private Transiver currentTransiver;
+    ListView lvScanner;
     ScannerAdapter scannerAdapter;
     Button mainBtnRescan;
-
 
 
     @Override
     public void onAttach(Context context) {
         this.context = context;
-        this.utils = ((MainMenu) context).getUtils();
+        this.utils = ((MainActivity) context).getUtils();
         super.onAttach(context);
     }
-
 
 
     @Override
@@ -43,27 +49,33 @@ public class UpdateContentFragment extends Fragment implements OnTaskCompleted {
         utils.clearTransivers();
         scannerAdapter.notifyDataSetChanged();
         scan();
-//        loadUpdates();
     }
-
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.scanner_fragment, container, false);
-        ListView lvScanner = view.findViewById(R.id.lv_scanner);
+        lvScanner = view.findViewById(R.id.lv_scanner);
 
-        TextView mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
-        mainTxtLabel.setText(R.string.update_content_main_txt_label);
-        mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
+        TextView mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
+        mainTxtLabel.setText(R.string.basic_scan_main_txt_label);
 
-        scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_CONTENT_TYPE);
+        mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
+        mainBtnRescan.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                rescan();
+            }
+        });
+
+        scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.BASIC_SCANNER_TYPE);
         lvScanner.setAdapter(scannerAdapter);
         return view;
     }
 
+
     @Override
-    public void onTaskCompleted(String result) {
+    public void onTaskCompleted(Bundle result) {
         scannerAdapter.notifyDataSetChanged();
     }
 
@@ -72,6 +84,12 @@ public class UpdateContentFragment extends Fragment implements OnTaskCompleted {
 
     }
 
+
+    private void rescan(){
+        utils.clearTransivers();
+        scannerAdapter.notifyDataSetChanged();
+        scan();
+    }
 
     private void scan(){
         List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
@@ -82,11 +100,7 @@ public class UpdateContentFragment extends Fragment implements OnTaskCompleted {
             utils.setCurrentTransiver(transiver);
             connection.execute(transiver, SshConnection.TAKE_COMMAND);
         }
+
     }
-//
-//    private void loadUpdates(){
-//        Downloader downloader = new Downloader(this);
-//        downloader.execute();
-//    }
 
 }

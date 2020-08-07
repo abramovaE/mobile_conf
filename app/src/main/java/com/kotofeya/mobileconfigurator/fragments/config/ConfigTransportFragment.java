@@ -1,4 +1,4 @@
-package com.kotofeya.mobileconfigurator;
+package com.kotofeya.mobileconfigurator.fragments.config;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,6 +13,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.kotofeya.mobileconfigurator.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.ScannerAdapter;
+import com.kotofeya.mobileconfigurator.Utils;
+
 public class ConfigTransportFragment extends Fragment {
 
 
@@ -24,7 +29,7 @@ public class ConfigTransportFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         this.context = context;
-        this.utils = ((MainMenu) context).getUtils();
+        this.utils = ((MainActivity) context).getUtils();
         super.onAttach(context);
     }
 
@@ -46,9 +51,9 @@ public class ConfigTransportFragment extends Fragment {
         View view = inflater.inflate(R.layout.scanner_fragment, container, false);
         ListView lvScanner = view.findViewById(R.id.lv_scanner);
 
-        TextView mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
+        TextView mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
         mainTxtLabel.setText(R.string.config_transp_main_txt_label);
-        mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
+        mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
         mainBtnRescan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

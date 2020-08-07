@@ -109,7 +109,6 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
         Logger.d(Logger.DOWNLOAD_LOG, "getting version, string url: " + stringUrl);
         OutputStream output = null;
 
-
         URL url;
         HttpURLConnection c = null;
         InputStream input = null;

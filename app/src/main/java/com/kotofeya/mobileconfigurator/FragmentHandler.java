@@ -8,13 +8,24 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.kotofeya.mobileconfigurator.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.fragments.config.ConfigStatFragment;
+import com.kotofeya.mobileconfigurator.fragments.config.ConfigTransportFragment;
+import com.kotofeya.mobileconfigurator.fragments.config.StationContentFragment;
+import com.kotofeya.mobileconfigurator.fragments.config.TransportContentFragment;
+import com.kotofeya.mobileconfigurator.fragments.scanner.BasicScannerFragment;
+import com.kotofeya.mobileconfigurator.fragments.scanner.BleScannerFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.UpdateContentFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.UpdateStmFragment;
+
 public class FragmentHandler {
 
     private FragmentManager fragmentManager;
     private Fragment currentFragment;
     private View containerView;
 
-    final static String MAIN_FRAGMENT_TAG = "MAIN_FRAGMENT";
+    public final static String MAIN_FRAGMENT_TAG = "MAIN_FRAGMENT";
     final static String BASIC_SCANNER_FRAGMENT = "BASIC_SCANNER_FRAGMENT";
     final static String BLE_SCANNER_FRAGMENT = "BLE_SCANNER_FRAGMENT";
     final static String UPDATE_OS_FRAGMENT = "UPDATE_OS_FRAGMENT";
@@ -35,7 +46,7 @@ public class FragmentHandler {
     }
 
     public FragmentHandler(Context context){
-        fragmentManager = ((MainMenu) context).getSupportFragmentManager();
+        fragmentManager = ((MainActivity) context).getSupportFragmentManager();
     }
 
 

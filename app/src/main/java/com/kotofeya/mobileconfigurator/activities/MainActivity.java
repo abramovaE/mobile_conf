@@ -1,4 +1,4 @@
-package com.kotofeya.mobileconfigurator;
+package com.kotofeya.mobileconfigurator.activities;
 
 import android.os.Bundle;
 import android.view.View;
@@ -8,7 +8,12 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
-public class MainMenu extends AppCompatActivity {
+import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.FragmentHandler;
+import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.Utils;
+
+public class MainActivity extends AppCompatActivity {
 
     Utils utils;
     TextView label;

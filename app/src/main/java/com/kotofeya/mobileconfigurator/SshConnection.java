@@ -9,13 +9,11 @@ import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpProgressMonitor;
+import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -193,7 +191,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                     ChannelExec channelssh = (ChannelExec) session.openChannel("exec");
 
                     // TODO: 05.08.2020 куда?
-                    String moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + "///";
+                    String moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + "/overlay/update/www-data";
 //                    mv что куда
                     channelssh.setCommand(moveCommand + "; " + REBOOT_COMMAND);
                     channelssh.connect();

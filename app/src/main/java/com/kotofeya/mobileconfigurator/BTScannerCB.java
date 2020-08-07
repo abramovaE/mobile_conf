@@ -5,6 +5,10 @@ import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 
 
+import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
+import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
+
 import java.util.List;
 
 class BTScannerCB extends ScanCallback {
@@ -12,19 +16,15 @@ class BTScannerCB extends ScanCallback {
     private Utils utils;
     private BluetoothAdapter mBluetoothAdapter;
 
-
     BTScannerCB(Utils utils, BluetoothAdapter adapter) {
         this.utils = utils;
         mBluetoothAdapter = adapter;
-
     }
-
 
     @Override
     public void onScanResult(int callbackType, ScanResult result) {
         addResult(result);
     }
-
 
     @Override
     public void onBatchScanResults(List<ScanResult> results) {
@@ -32,7 +32,6 @@ class BTScannerCB extends ScanCallback {
             addResult(result);
         }
     }
-
 
     @Override
     public void onScanFailed(int errorCode) {
@@ -57,7 +56,6 @@ class BTScannerCB extends ScanCallback {
 
 
     private void addResult(ScanResult result) {
-
 //        Logger.d(Logger.BT_HANDLER_LOG, "radioType: " + utils.getRadioType());
         if (utils.getFilter().filter(result)) {
             Transiver transiver;
@@ -82,6 +80,4 @@ class BTScannerCB extends ScanCallback {
             utils.addTransiver(null);
         }
     }
-
-
 }

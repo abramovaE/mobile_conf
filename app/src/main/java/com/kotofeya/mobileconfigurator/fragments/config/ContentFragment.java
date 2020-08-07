@@ -1,4 +1,4 @@
-package com.kotofeya.mobileconfigurator;
+package com.kotofeya.mobileconfigurator.fragments.config;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -17,6 +17,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.Utils;
+
 public abstract class ContentFragment extends Fragment {
 
     protected Context context;
@@ -32,7 +37,7 @@ public abstract class ContentFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         this.context = context;
-        this.utils = ((MainMenu) context).getUtils();
+        this.utils = ((MainActivity) context).getUtils();
         super.onAttach(context);
 
         onKeyListener = new View.OnKeyListener() {
@@ -74,8 +79,8 @@ public abstract class ContentFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.content_fragment, container, false);
-        Button mainBtnRescan = ((MainMenu)context).findViewById(R.id.main_btn_rescan);
-        mainTxtLabel = ((MainMenu)context).findViewById(R.id.main_txt_label);
+        Button mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
+        mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
         Button btnRebootRasp = view.findViewById(R.id.content_btn_rasp);
         Button btnRebootStm = view.findViewById(R.id.content_btn_stm);
         btnContntSend = view.findViewById(R.id.content_btn_send);

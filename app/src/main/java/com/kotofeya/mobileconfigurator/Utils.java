@@ -5,6 +5,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.ListView;
 
+import com.kotofeya.mobileconfigurator.transivers.Transiver;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -23,44 +25,17 @@ public class Utils {
 
     public static final int TRANSP_RADIO_TYPE = 0x80;
     public static final int STAT_RADIO_TYPE = 0x40;
-
     public static final int ALL_RADIO_TYPE = 0;
-
 
     private Transiver currentTransiver;
     private List<Transiver> transivers;
     private Set<String> ssidListRunTime;
     private List<Transiver> forDel;
     private BTHandler bluetooth;
-
-
-
     private int radioType;
-
-//    private Context mContext;
-//    private ContentFormer contentFormer;
-//    private MySettings settings;
-
-//    private IFragmentHandler fragmentHandler;
-//    private ITextHandler textHandler;
     private InformerFilter filter;
-//    private IDownloader downloader;
     private Timer updateLv;
-//    private IPlayer player;
-//    private Translit translit;
-
     private ListView transiversLv;
-
-
-
-    private int callingBuzzer;
-
-    boolean isConnecting;
-
-    private int currentLevel;
-
-
-
 
     public List<Transiver> getTransivers() {
         return transivers;
@@ -69,20 +44,8 @@ public class Utils {
     public Utils() {
         bluetooth = new BTHandler(this);
         this.transivers = new ArrayList<>();
-
-//        this.mContext = context;
-//        contentFormer = new ContentFormer(this);
-//        this.settings = settings;
-//        textHandler = new TextHandler(this);
         filter = new InformerFilter(this);
-
         ssidListRunTime = new HashSet<>();
-
-//        isConnecting = false;
-//        wifi.registerCallBack(this);
-//        isNeedSaying = true;
-//        this.translit = new Translit(this);
-
     }
 
     public ListView getTransiversLv() {
@@ -126,15 +89,12 @@ public class Utils {
         return filter;
     }
 
-
     @SuppressWarnings("unchecked")
     public void startLVTimer() {
-
         Logger.d(Logger.UTILS_LOG, "start rv timer");
         if(updateLv != null){
             updateLv.cancel();
         }
-
         updateLv = new Timer();
         updateLv.schedule(new TimerTask() {
 
@@ -144,41 +104,27 @@ public class Utils {
 
                     Set<String> ssidSetRunTimeClone = (Set<String>) cloneObject(ssidListRunTime);
                     ssidListRunTime.clear();
-
                     forDel = new ArrayList<>();
                     for(Transiver transiver: transivers){
                         int sec = transiver.getDelCount();
                         if (!ssidSetRunTimeClone.contains(transiver.getSsid())) {
                             sec ++;
                             transiver.setDelCount(sec);
-
                             if(transiver.isDelFlag() || transiver.getDelCount() >= 2){
                                 forDel.add(transiver);
                             }
                         }
                         else {
                             transiver.setDelCount(0);
-//                            connectAndDownloadInfo(iRadioInf);
                         }
                     }
-
                     if(!forDel.isEmpty()){
                         Logger.d(Logger.UTILS_LOG, "remove informers " + forDel);
-
-//                        new Handler(Looper.getMainLooper()).post(() -> {
-//
-//                            List<Transiver> infFromRVMainAdapter = (List<Transiver>) cloneObject(rvMainAdapter.getInformerArrayList());
-
                             transivers.removeAll(forDel);
                             forDel.clear();
-
                         new Handler(Looper.getMainLooper()).post(() -> {
                             ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
                         });
-
-//                            updateRvContent(infFromRVMainAdapter);
-//                        });
-
                     }
                 }
             }
@@ -186,18 +132,10 @@ public class Utils {
         }, 0, 1000);
     }
 
-
-
-
     @SuppressWarnings("unchecked")
     public void addTransiver(Transiver transiver) {
-//        Logger.d(Logger.UTILS_LOG, "adding transiver: " + transiver);
-//        List<Transiver> infFromRVMainAdapter = (List<Transiver>) cloneObject(rvMainAdapter.getInformerArrayList());
-
-
         if(bluetooth.getmScanning().get()){
             if(transiver != null) {
-
                 boolean isContains = false;
                 Logger.d(Logger.UTILS_LOG, "transivers: " + transivers);
                 for(Transiver t: transivers){
@@ -205,28 +143,15 @@ public class Utils {
                         isContains = true;
                     }
                 }
-
                 if (!isContains) {
                     transivers.add(transiver);
                     ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
-
                 }
                 else {
                     updateTransiver(transiver);
-//                ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
-
                 }
             }
         }
-
-
-//        Logger.d(Logger.UTILS_LOG, "transivers: " + transivers);
-//        ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
-
-
-//        ScannerAdapter adapter = (ScannerAdapter) transiversLv.getAdapter();
-//        adapter.notifyDataSetChanged();
-//        updateRvContent(infFromRVMainAdapter);
     }
 
 
@@ -237,16 +162,6 @@ public class Utils {
     public void removeTransiver(Transiver transiver){
         transivers.remove(transiver);
     }
-
-
-//
-//    private void updateRvContent(List<IRadioInformer> infFromRVMainAdapter){
-//        MyDiffUtilCallback myDiffUtilCallback = new MyDiffUtilCallback(iRadioInformerList, infFromRVMainAdapter, this);
-//        DiffUtil.DiffResult productDiffResult = DiffUtil.calculateDiff(myDiffUtilCallback);
-//        rvMainAdapter.setInformerArrayList(iRadioInformerList);
-//        productDiffResult.dispatchUpdatesTo(rvMainAdapter);
-//    }
-
 
     private synchronized Object cloneObject(Object object){
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -269,13 +184,10 @@ public class Utils {
 
     private void updateTransiver(Transiver transiver){
         Transiver informerFromList = getBySsid(transiver.getSsid());
-
         if(!Arrays.equals(informerFromList.getRawData(), transiver.getRawData())){
             informerFromList.setRawData(transiver.getRawData());
             ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
-
         }
-
         if((Math.abs(informerFromList.getRssi() - transiver.getRssi())) > 20){
             informerFromList.setDelFlag(true);
         }
@@ -298,23 +210,14 @@ public class Utils {
     }
 
     public void clearTransivers(){
-//        currentTransiver = null;
         transivers.clear();
     }
-
-
-
-
 
     public static String byteArrayToBitString(byte b) {
         return String.format("%8s", Integer.toBinaryString(b)).replace(' ', '0');
     }
 
-
-
     public void addToSsidRunTimeSet(String ssid) {
         ssidListRunTime.add(ssid);
     }
-
-
 }

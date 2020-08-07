@@ -1,45 +1,19 @@
-package com.kotofeya.mobileconfigurator;
+package com.kotofeya.mobileconfigurator.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentTransaction;
 
-import android.content.Context;
 import android.content.Intent;
-import android.net.ConnectivityManager;
-import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
-import android.net.NetworkRequest;
-import android.net.NetworkSpecifier;
-import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
-import android.net.wifi.WifiNetworkSpecifier;
-import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.PatternMatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.Toast;
 
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
+import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.R;
 
-import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.lang.reflect.InvocationHandler;
-import java.net.InetAddress;
-import java.net.NetworkInterface;
-import java.net.SocketException;
-import java.util.ArrayList;
-import java.util.Enumeration;
 import java.util.List;
-import java.util.Properties;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -81,7 +55,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         // TODO: 16.07.20 validate login and password with observer
         if(true){
             App.get().setContext(this);
-            Intent intent = new Intent(this, MainMenu.class);
+            Intent intent = new Intent(this, MainActivity.class);
             startActivity(intent);
         }
     }
