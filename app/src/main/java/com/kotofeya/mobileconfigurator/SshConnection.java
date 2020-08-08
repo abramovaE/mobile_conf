@@ -7,6 +7,7 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpProgressMonitor;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
@@ -14,6 +15,8 @@ import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
@@ -164,7 +167,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                     ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
                     sftpChannel.connect();
 
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "updateOsFile: " + file.getAbsolutePath());
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "updateStmFile: " + file.getAbsolutePath());
                     Logger.d(Logger.SSH_CONNECTION_LOG, "src file length: " + file.length());
                     sftpChannel.put(file.getAbsolutePath(), "/overlay/update", new SftpProgressMonitor() {
                         @Override
@@ -182,20 +185,21 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                         public void end() {
                             Logger.d(Logger.SSH_CONNECTION_LOG, "end transfering");
 
-
                         }
                     });
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "updateStmFile completed");
 
-                    // SSH Channel
-                    ChannelExec channelssh = (ChannelExec) session.openChannel("exec");
+                    ChannelExec channelssh = null;
+                    try {
+                        channelssh = (ChannelExec) session.openChannel("exec");
+                        String moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/data.tar.bz2";
+                        channelssh.setCommand(moveCommand + ";" + REBOOT_COMMAND);
+                        channelssh.connect();
 
-                    // TODO: 05.08.2020 куда?
-                    String moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + "/overlay/update/www-data";
-//                    mv что куда
-                    channelssh.setCommand(moveCommand + "; " + REBOOT_COMMAND);
-                    channelssh.connect();
-                    res = "updatstm:" + ipTrans;
+                    } catch (JSchException e) {
+                        Logger.d(Logger.SSH_CONNECTION_LOG, "jsch exception");
+                        e.printStackTrace();
+                    }
+                    res = "Downloaded" + ipTrans;
                     session.disconnect();
                 }
                 catch (Exception e)

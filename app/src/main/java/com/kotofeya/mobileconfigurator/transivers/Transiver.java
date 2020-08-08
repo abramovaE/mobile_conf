@@ -367,23 +367,28 @@ public class Transiver {
 
 
     public boolean isStationary() {
-        if(rawData.length == 3 && (rawData[0]&0xff) == Utils.STAT_RADIO_TYPE){
-            return true;
-        }
-        else if(rawData.length == 22 && (rawData[5]&0xff) == Utils.STAT_RADIO_TYPE){
-            return true;
+        if(rawData != null){
+            if(rawData.length == 3 && (rawData[0]&0xff) == Utils.STAT_RADIO_TYPE){
+                return true;
+            }
+            else if(rawData.length == 22 && (rawData[5]&0xff) == Utils.STAT_RADIO_TYPE){
+                return true;
+            }
         }
         return false;
     }
 
     public boolean isTransport(){
-        if(rawData.length == 22 && (rawData[5]&0xff) == Utils.TRANSP_RADIO_TYPE) {
-            return true;
+        if(rawData != null){
+            if(rawData.length == 22 && (rawData[5]&0xff) == Utils.TRANSP_RADIO_TYPE) {
+                return true;
+            }
+
+            else if ((rawData[0] & 0xff) == Utils.TRANSP_RADIO_TYPE) {
+                return true;
+            }
         }
 
-        else if ((rawData[0] & 0xff) == Utils.TRANSP_RADIO_TYPE) {
-            return true;
-        }
         return false;
     }
 

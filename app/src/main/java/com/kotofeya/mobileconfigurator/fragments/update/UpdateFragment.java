@@ -132,34 +132,40 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     @Override
     public void onTaskCompleted(Bundle bundle) {
-        String result = bundle.getString("result");
-        Logger.d(Logger.UPDATE_OS_LOG, "result: " + result);
+        if (bundle != null && bundle.containsKey("result")){
+            String result = bundle.getString("result");
+            Logger.d(Logger.UPDATE_OS_LOG, "result: " + result);
 
-        if(result.contains("Release")){
-            version = result;
-            scannerLabel.setText(result);
+            if(result.contains("Release")){
+                version = result;
+                scannerLabel.setText(result);
+            }
+
+            else if(result.contains("Downloaded")){
+                Transiver transiver = utils.getCurrentTransiver();
+                Logger.d(Logger.UPDATE_OS_LOG, "currenttransiver: " + transiver);
+                utils.removeTransiver(transiver);
+                utils.setCurrentTransiver(null);
+                scannerAdapter.notifyDataSetChanged();
+                Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show();
+            }
+
+            else if(result.contains("stm downloaded")){
+                SshConnection connection = new SshConnection(this);
+                String filePath = bundle.getString("filePath");
+                connection.execute(utils.getCurrentTransiver().getIp(), SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, filePath);
+            }
+
+            else {
+                Logger.d(Logger.UPDATE_OS_LOG, "notifyDataSetChanged, transivers: " + utils.getTransivers().size());
+                scannerAdapter.notifyDataSetChanged();
+            }
+
         }
-
-        else if(result.contains("Downloaded")){
-            Transiver transiver = utils.getCurrentTransiver();
-            Logger.d(Logger.UPDATE_OS_LOG, "currenttransiver: " + transiver);
-            utils.removeTransiver(transiver);
-            utils.setCurrentTransiver(null);
-            scannerAdapter.notifyDataSetChanged();
-            Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show();
-        }
-
-        else if(result.contains("stm downloaded")){
-            SshConnection connection = new SshConnection(this);
-            String filePath = bundle.getString("filePath");
-            connection.execute(utils.getCurrentTransiver().getIp(), SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, filePath);
-        }
-
         else {
             Logger.d(Logger.UPDATE_OS_LOG, "notifyDataSetChanged, transivers: " + utils.getTransivers().size());
             scannerAdapter.notifyDataSetChanged();
         }
-
         progressBar.setVisibility(View.GONE);
     }
 

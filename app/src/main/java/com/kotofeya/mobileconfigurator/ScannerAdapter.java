@@ -22,6 +22,7 @@ import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
@@ -187,11 +188,14 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
                     Transiver transiver = getTransiver(position);
                     utils.setCurrentTransiver(transiver);
-                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateStmFilesSize: " + Downloader.tempUpdateStmFiles.size());
 
                     if(Downloader.tempUpdateStmFiles != null && !Downloader.tempUpdateStmFiles.isEmpty()){
+                        Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateStmFilesSize: " + Downloader.tempUpdateStmFiles.size());
+
                         Bundle bundle = new Bundle();
                         bundle.putString("transIp", transiver.getIp());
+                        bundle.putBoolean("isTransport", transiver.isTransport());
+                        bundle.putBoolean("isStationary", transiver.isStationary());
                         UpdateStmConfDialog dialog = new UpdateStmConfDialog();
                         dialog.setArguments(bundle);
                         dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
@@ -329,11 +333,40 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            String ip = getArguments().getString("transIp");
+
+            boolean isTransport = getArguments().getBoolean("isTransport");
+            boolean isStationary = getArguments().getBoolean("isStationary");
+
+            List<String> transportContent = new ArrayList<>();
+            List<String> stationaryContent = new ArrayList<>();
+
+
+            String[] content;
+            for (String s: Downloader.tempUpdateStmFiles){
+                if(s.startsWith("M")){
+                    transportContent.add(s);
+                }
+                else if(s.startsWith("S")){
+                    stationaryContent.add(s);
+                }
+            }
+
+            if(isTransport){
+                content = transportContent.toArray(new String[transportContent.size()]);
+            }
+            else if(isStationary){
+                content = stationaryContent.toArray(new String[stationaryContent.size()]);
+            }
+            else {
+                content = Downloader.tempUpdateStmFiles.toArray(new String[Downloader.tempUpdateStmFiles.size()]);
+            }
+
+
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("Choose the stm version for upload");
 
-            String[] content = Downloader.tempUpdateStmFiles.toArray(new String[Downloader.tempUpdateStmFiles.size()]);
+
+
 //            for(String s: content){
 //                Logger.d(Logger.SCANNER_ADAPTER_LOG, "dialogContent: " + s);
 //            }

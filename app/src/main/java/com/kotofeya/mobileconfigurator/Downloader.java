@@ -3,7 +3,10 @@ package com.kotofeya.mobileconfigurator;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.widget.Toast;
 
+
+import com.kotofeya.mobileconfigurator.activities.MainActivity;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -49,7 +52,8 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
             return getContent(url[0]);
         }
         catch (IOException ex) {
-            Logger.d(Logger.DOWNLOAD_LOG, "getContentException: " + ex.getMessage());
+//            Toast.makeText((MainActivity)App.get().getContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
+            Logger.d(Logger.DOWNLOAD_LOG, "getContentException: " + ex.getMessage() + " " + ex.getCause());
             return null;
         }
     }
