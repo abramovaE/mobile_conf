@@ -39,6 +39,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
     private String stmVersion;
 
     private OnTaskCompleted listener;
+    private String currentIp;
 
 
     public Downloader(OnTaskCompleted listener) {
@@ -48,6 +49,9 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
 
     @Override
     protected Bundle doInBackground(String... url) {
+        if(url.length>1) {
+            currentIp = url[1];
+        }
         try {
             return getContent(url[0]);
         }
@@ -110,6 +114,8 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
 
     private Bundle getContent(String stringUrl) throws IOException {
         Bundle bundle = new Bundle();
+        bundle.putString("ip", currentIp);
+
         Logger.d(Logger.DOWNLOAD_LOG, "getting version, string url: " + stringUrl);
         OutputStream output = null;
 
@@ -141,8 +147,8 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
 
                 bundle.putString("result", "stm downloaded");
                 bundle.putString("filePath", file.getAbsolutePath());
-//                    bundle.putString("ip", ip);
-                    return bundle;
+                bundle.putString("ip", currentIp);
+                return bundle;
 //                    return "stm downloaded";
             }
 
@@ -187,6 +193,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
                     }
                     r.close();
                     bundle.putString("result", "Release: " + stmVersion);
+                    bundle.putString("ip", currentIp);
                     return  bundle;
 //                    return "Release: " + stmVersion;
 
@@ -201,6 +208,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
                     }
 //                    output.close();
                     bundle.putString("result", "Downloaded");
+                    bundle.putString("ip", currentIp);
                     return bundle;
 
 //                    return "Downloaded";

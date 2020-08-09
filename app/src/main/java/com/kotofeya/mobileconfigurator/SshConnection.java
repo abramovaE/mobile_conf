@@ -54,12 +54,14 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
         ByteArrayOutputStream baos = null;
         String res = "";
         JSch jsch = new JSch();
-        String ip;
+        this.ip = (String) req[0];
+
+//        String ip;
 
 
         switch ((String)req[1]){
             case TAKE_COMMAND:
-                this.ip = (String) req[0];
+//                this.ip = (String) req[0];
                 ip = (String) req[0];
                 try
                 {
@@ -103,7 +105,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
 
 
             case UPDATE_OS_LOAD_FILE_COMMAND:
-                ip = (String) req[0];
+//                ip = (String) req[0];
                 Logger.d(Logger.SSH_CONNECTION_LOG, ip);
                 try
                 {
@@ -156,18 +158,18 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                 return res;
 
             case UPDATE_STM_LOAD_FILE_COMMAND:
-                String ipTrans = (String) req[0];
+//                String ipTrans = (String) req[0];
                 String filePath = (String) req[2];
                 File file = new File(filePath);
                 try
                 {
-                    session = jsch.getSession("staff", ipTrans, 22);
+                    session = jsch.getSession("staff", ip, 22);
                     session.setPassword("staff");
                     Properties prop = new Properties();
                     prop.put("StrictHostKeyChecking", "no");
                     session.setConfig(prop);
                     session.connect();
-                    Logger.d(Logger.SSH_CONNECTION_LOG, ipTrans + " isConnected: " + session.isConnected());
+                    Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());
                     ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
                     sftpChannel.connect();
 
@@ -203,7 +205,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                         Logger.d(Logger.SSH_CONNECTION_LOG, "jsch exception");
                         e.printStackTrace();
                     }
-                    res = "Downloaded" + ipTrans;
+                    res = "Downloaded" + ip;
                     session.disconnect();
                 }
                 catch (Exception e)
@@ -253,38 +255,13 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
 
     protected void onPostExecute(String result) {
         Logger.d(Logger.SSH_CONNECTION_LOG, "result: " + result);
-//        if (result.split("\n").length > 10) {
-//            parseBasicScanInfo(result);
-//        }
+
         if (listener != null) {
             Bundle bundle = new Bundle();
             bundle.putString("result", result);
+            bundle.putString("ip", this.ip);
             listener.onTaskCompleted(bundle);
         }
     }
-
-
-
-//    private void parseBasicScanInfo(String result){
-//        String[] info = result.split("\n");
-//
-//        Transiver currentTransiver = new Transiver(this.ip);
-//
-//            currentTransiver.setSsid(info[1]);
-////            currentTransiver.setIp(info[2]);
-//            currentTransiver.setMacWifi(info[3]);
-//            currentTransiver.setMacBt(info[4]);
-//            currentTransiver.setBoardVersion(info[5]);
-//            currentTransiver.setOsVersion(info[6]);
-//            currentTransiver.setStmFirmware(info[7]);
-//            currentTransiver.setStmBootloader(info[8]);
-//            currentTransiver.setCore(info[9]);
-//            currentTransiver.setModem(info[10]);
-//            currentTransiver.setIncrementOfContent(info[11]);
-//            currentTransiver.setUptime(info[12]);
-//            currentTransiver.setCpuTemp(info[13]);
-//            currentTransiver.setLoad(info[14]);
-//
-//    }
 
 }

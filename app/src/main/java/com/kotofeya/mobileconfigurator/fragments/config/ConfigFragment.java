@@ -38,6 +38,7 @@ public abstract class ConfigFragment extends Fragment {
         super.onStart();
         setMainTextLabel();
         mainBtnRescan.setVisibility(View.VISIBLE);
+//        rescan();
     }
 
     @Nullable

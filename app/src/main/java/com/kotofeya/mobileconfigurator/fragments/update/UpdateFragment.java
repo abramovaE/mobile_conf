@@ -144,10 +144,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
             }
 
             else if(result.contains("Downloaded")){
-                Transiver transiver = utils.getCurrentTransiver();
-                Logger.d(Logger.UPDATE_OS_LOG, "currenttransiver: " + transiver);
+                Transiver transiver = utils.getTransiverByIp(bundle.getString("ip"));
                 utils.removeTransiver(transiver);
-                utils.setCurrentTransiver(null);
                 scannerAdapter.notifyDataSetChanged();
                 Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show();
             }
@@ -155,7 +153,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
             else if(result.contains("stm downloaded")){
                 SshConnection connection = new SshConnection(this);
                 String filePath = bundle.getString("filePath");
-                connection.execute(utils.getCurrentTransiver().getIp(), SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, filePath);
+                connection.execute(bundle.getString("ip"), SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, filePath);
             }
 
             else {

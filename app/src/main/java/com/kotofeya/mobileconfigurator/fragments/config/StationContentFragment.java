@@ -32,7 +32,7 @@ public class StationContentFragment extends ContentFragment {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         StatTransiver statTransiver = (StatTransiver) utils.getCurrentTransiver();
 
-        mainTxtLabel.setText(utils.getCurrentTransiver().getSsid() + " (" + statTransiver.getType() + ")");
+        mainTxtLabel.setText(statTransiver.getSsid() + " (" + statTransiver.getType() + ")");
 
         floorTxt = view.findViewById(R.id.content_txt_0);
         floorTxt.setText(statTransiver.getFloor() + "");

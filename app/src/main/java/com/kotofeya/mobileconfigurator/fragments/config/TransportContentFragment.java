@@ -31,7 +31,7 @@ public class TransportContentFragment extends ContentFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         TransportTransiver transportTransiver = (TransportTransiver) utils.getCurrentTransiver();
-        mainTxtLabel.setText(utils.getCurrentTransiver().getSsid() + "\n (" + transportTransiver.getTransportType() + "/" + transportTransiver.getFullNumber() + "/" + transportTransiver.getDirection() + ")");
+        mainTxtLabel.setText(transportTransiver.getSsid() + "\n (" + transportTransiver.getTransportType() + "/" + transportTransiver.getFullNumber() + "/" + transportTransiver.getDirection() + ")");
 
         spinner = view.findViewById(R.id.content_spn_0);
         String[] transports = getResources().getStringArray(R.array.transports);

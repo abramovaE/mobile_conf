@@ -166,7 +166,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
                 public void onClick(View v) {
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
                     Transiver transiver = getTransiver(position);
-                    utils.setCurrentTransiver(transiver);
+//                    utils.setCurrentTransiver(transiver);
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateOsFileLength: " + Downloader.tempUpdateOsFile.length());
 
                     if(Downloader.tempUpdateOsFile.length() > 1000){
@@ -187,7 +187,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
                 public void onClick(View v) {
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
                     Transiver transiver = getTransiver(position);
-                    utils.setCurrentTransiver(transiver);
+//                    utils.setCurrentTransiver(transiver);
 
                     if(Downloader.tempUpdateStmFiles != null && !Downloader.tempUpdateStmFiles.isEmpty()){
                         Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateStmFilesSize: " + Downloader.tempUpdateStmFiles.size());
@@ -214,7 +214,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
                 public void onClick(View v) {
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
                     Transiver transiver = getTransiver(position);
-                    utils.setCurrentTransiver(transiver);
+//                    utils.setCurrentTransiver(transiver);
 //                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateContentFileLength: " + Downloader.tempUpdateOsFile.length());
 
 //                    if(Downloader.tempUpdateOsFile.length() > 1000){

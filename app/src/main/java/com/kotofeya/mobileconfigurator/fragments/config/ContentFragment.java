@@ -102,10 +102,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         btnRebootRasp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                stopScan();
-
                 currentTransiver = utils.getCurrentTransiver();
-
                 if(currentTransiver.getIp() == null){
                     basicScan();
                 }
@@ -114,8 +111,6 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
                     SshConnection connection = new SshConnection(((ContentFragment)App.get().getFragmentHandler().getCurrentFragment()));
                     connection.execute(currentTransiver.getIp(), SshConnection.REBOOT_COMMAND);
                 }
-
-
             }
         });
         return view;
@@ -127,25 +122,32 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     @Override
     public void onTaskCompleted(Bundle result) {
 
-//        Logger.d(Logger.CONTENT_LOG, "result: " + result);
+        Logger.d(Logger.CONTENT_LOG, "result: " + result);
         Logger.d(Logger.CONTENT_LOG, "currentTransiver: " + currentTransiver);
 
 
+        if(result.getString("result").contains("reboot")){
+            ((MainActivity)context).onBackPressed();
 
-        String res = result.getString("result");
-        if (res.split("\n").length > 10) {
-            Transiver transiver = new Transiver(null, res);
-            utils.addSshTransiver(transiver);
         }
 
-        Logger.d(Logger.CONTENT_LOG, "currentTransSsid: " + currentTransiver.getSsid());
+        else {
+            String res = result.getString("result");
+            if (res.split("\n").length > 10) {
+                Transiver transiver = new Transiver(null, res);
+                utils.addSshTransiver(transiver);
+            }
+
+            Logger.d(Logger.CONTENT_LOG, "currentTransSsid: " + currentTransiver.getSsid());
 
 
-        if(res.contains(currentTransiver.getSsid())){
-            Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + currentTransiver.getIp());
-            SshConnection connection = new SshConnection(((ContentFragment)App.get().getFragmentHandler().getCurrentFragment()));
-            connection.execute(currentTransiver.getIp(), SshConnection.REBOOT_COMMAND);
+            if(res.contains(currentTransiver.getSsid())){
+                Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + currentTransiver.getIp());
+                SshConnection connection = new SshConnection(((ContentFragment)App.get().getFragmentHandler().getCurrentFragment()));
+                connection.execute(currentTransiver.getIp(), SshConnection.REBOOT_COMMAND);
+            }
         }
+
     }
 
 
