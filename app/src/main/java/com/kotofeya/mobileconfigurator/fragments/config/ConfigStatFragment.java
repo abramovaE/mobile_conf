@@ -44,4 +44,14 @@ public class ConfigStatFragment extends ConfigFragment {
         scannerAdapter.notifyDataSetChanged();
 //        scan();
     }
+
+    @Override
+    public void onTaskCompleted(Bundle result) {
+
+    }
+
+    @Override
+    public void onProgressUpdate(Integer downloaded) {
+
+    }
 }

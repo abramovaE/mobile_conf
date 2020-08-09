@@ -13,12 +13,17 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
+import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 
-public abstract class ConfigFragment extends Fragment {
+import java.util.List;
+
+public abstract class ConfigFragment extends Fragment implements OnTaskCompleted {
 
     Context context;
     Utils utils;
@@ -63,10 +68,18 @@ public abstract class ConfigFragment extends Fragment {
         utils.clearTransivers();
         scannerAdapter.notifyDataSetChanged();
         scan();
+//        basicScan();
         return view;
     }
 
 
+    private void basicScan(){
+        List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
+        for(String s: clients){
+            SshConnection connection = new SshConnection(this);
+            connection.execute(s, SshConnection.TAKE_COMMAND);
+        }
+    }
 
     public abstract ScannerAdapter getScannerAdapter();
     public abstract void setMainTextLabel();

@@ -45,4 +45,15 @@ public class ConfigTransportFragment extends ConfigFragment {
     public void setMainTextLabel() {
         mainTxtLabel.setText(R.string.config_transp_main_txt_label);
     }
+
+
+    @Override
+    public void onTaskCompleted(Bundle result) {
+
+    }
+
+    @Override
+    public void onProgressUpdate(Integer downloaded) {
+
+    }
 }

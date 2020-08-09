@@ -230,7 +230,7 @@ public class Utils {
         }
     }
 
-    private Transiver getBySsid(String ssid) {
+    public Transiver getBySsid(String ssid) {
         for(Transiver transiver: transivers){
             if(transiver.getSsid() != null && transiver.getSsid().equals(ssid)){
                 return transiver;

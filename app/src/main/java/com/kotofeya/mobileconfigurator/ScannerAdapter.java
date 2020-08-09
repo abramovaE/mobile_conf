@@ -239,7 +239,11 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
                  @Override
                  public void onClick(View v) {
                      utils.setCurrentTransiver(p);
-                     App.get().getFragmentHandler().changeFragment(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT);
+                     Bundle bundle = new Bundle();
+                     bundle.putString("ssid", p.getSsid());
+                     App.get().getFragmentHandler().changeFragmentBundle(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT, bundle);
+
+//                     App.get().getFragmentHandler().changeFragment(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT);
 
                  }
              });

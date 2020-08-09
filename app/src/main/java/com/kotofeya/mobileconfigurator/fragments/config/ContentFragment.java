@@ -12,6 +12,7 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -27,6 +28,7 @@ import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
 
 import java.util.List;
 
@@ -39,8 +41,6 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     protected TextWatcher textWatcher;
     TextView mainTxtLabel;
     protected Button btnContntSend;
-
-
 
     Button btnRebootRasp;
     Button btnRebootStm;
@@ -97,19 +97,35 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         btnRebootRasp = view.findViewById(R.id.content_btn_rasp);
         btnRebootStm = view.findViewById(R.id.content_btn_stm);
         btnContntSend = view.findViewById(R.id.content_btn_send);
-
-
         btnRebootRasp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                currentTransiver = utils.getCurrentTransiver();
+//                currentTransiver = utils.getCurrentTransiver();
                 if(currentTransiver.getIp() == null){
                     basicScan();
+                    Toast.makeText(context, "try                again", Toast.LENGTH_SHORT).show();
                 }
                 else {
                     Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + currentTransiver.getIp());
                     SshConnection connection = new SshConnection(((ContentFragment)App.get().getFragmentHandler().getCurrentFragment()));
                     connection.execute(currentTransiver.getIp(), SshConnection.REBOOT_COMMAND);
+                }
+            }
+        });
+
+        btnRebootStm.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                currentTransiver = utils.getCurrentTransiver();
+                if(currentTransiver.getIp() == null){
+                    basicScan();
+                    Toast.makeText(context, "try                again", Toast.LENGTH_SHORT).show();
+
+                }
+                else {
+                    Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + currentTransiver.getIp());
+                    SshConnection connection = new SshConnection(((ContentFragment)App.get().getFragmentHandler().getCurrentFragment()));
+                    connection.execute(currentTransiver.getIp(), SshConnection.REBOOT_STM_COMMAND);
                 }
             }
         });
@@ -121,14 +137,10 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
     @Override
     public void onTaskCompleted(Bundle result) {
-
         Logger.d(Logger.CONTENT_LOG, "result: " + result);
         Logger.d(Logger.CONTENT_LOG, "currentTransiver: " + currentTransiver);
-
-
         if(result.getString("result").contains("reboot")){
             ((MainActivity)context).onBackPressed();
-
         }
 
         else {
@@ -137,29 +149,19 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
                 Transiver transiver = new Transiver(null, res);
                 utils.addSshTransiver(transiver);
             }
-
             Logger.d(Logger.CONTENT_LOG, "currentTransSsid: " + currentTransiver.getSsid());
-
-
             if(res.contains(currentTransiver.getSsid())){
-                Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + currentTransiver.getIp());
-                SshConnection connection = new SshConnection(((ContentFragment)App.get().getFragmentHandler().getCurrentFragment()));
-                connection.execute(currentTransiver.getIp(), SshConnection.REBOOT_COMMAND);
+//                Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + currentTransiver.getIp());
+//                SshConnection connection = new SshConnection(((ContentFragment)App.get().getFragmentHandler().getCurrentFragment()));
+//                connection.execute(currentTransiver.getIp(), SshConnection.REBOOT_COMMAND);
             }
         }
-
     }
-
-
-
 
     private void basicScan(){
         List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
         for(String s: clients){
-//            Transiver transiver = new Transiver(s);
-//            utils.addSshTransiver(transiver);
             SshConnection connection = new SshConnection(this);
-//            utils.setCurrentTransiver(transiver);
             connection.execute(s, SshConnection.TAKE_COMMAND);
         }
     }
@@ -167,6 +169,9 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     @Override
     public void onStart() {
         super.onStart();
+        String ssid = getArguments().getString("ssid");
+        currentTransiver = utils.getBySsid(ssid);
+        basicScan();
     }
 
     public abstract void stopScan();

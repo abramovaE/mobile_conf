@@ -30,7 +30,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
     public static final String UPDATE_STM_LOAD_FILE_COMMAND = "update stm command";
 
     public static final String REBOOT_COMMAND = "sudo reboot";
-    public static final String REBOOT_STM =  "/usr/local/bin/call --cmd REST 0";
+    public static final String REBOOT_STM_COMMAND =  "/usr/local/bin/call --cmd REST 0";
 
 
     private OnTaskCompleted listener;
@@ -243,6 +243,51 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                     Logger.d(Logger.SSH_CONNECTION_LOG, "error: " + e.getMessage());
                 }
                 return res;
+
+            case REBOOT_STM_COMMAND:
+                ip = (String) req[0];
+                Logger.d(Logger.SSH_CONNECTION_LOG, ip);
+                try
+                {
+                    session = jsch.getSession("staff", ip, 22);
+                    session.setPassword("staff");
+
+                    Properties prop = new Properties();
+                    prop.put("StrictHostKeyChecking", "no");
+
+                    session.setConfig(prop);
+                    session.connect();
+                    Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());
+
+                    // SSH Channel
+                    ChannelExec channelssh = (ChannelExec) session.openChannel("exec");
+                    channelssh.setCommand(REBOOT_STM_COMMAND);
+                    StringBuilder sb = new StringBuilder();
+                    channelssh.connect();
+                    InputStream commandOutput = channelssh.getInputStream();
+
+                    Thread.sleep(1000);
+                    int readByte = 0;
+
+                    while((readByte = commandOutput.read()) != -1)
+                    {
+                        sb.append((char)readByte);
+                    }
+
+                    res = sb.toString();
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "reboot stm res" + res);
+
+                    session.disconnect();
+                }
+                catch (Exception e)
+                {
+                    e.printStackTrace();
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "error: " + e.getMessage());
+                }
+                return res;
+
+
+
 
 
             default:
