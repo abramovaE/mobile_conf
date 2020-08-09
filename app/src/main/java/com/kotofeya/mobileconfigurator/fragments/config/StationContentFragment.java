@@ -12,6 +12,7 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
 
@@ -21,6 +22,8 @@ public class StationContentFragment extends ContentFragment {
     Spinner zummerTypesSpn;
     Spinner zummerVolumeSpn;
     Spinner modemConfigSpn;
+
+
 
 
     @Nullable
@@ -80,5 +83,17 @@ public class StationContentFragment extends ContentFragment {
         else {
             btnContntSend.setEnabled(false);
         }
+    }
+
+    @Override
+    public void stopScan() {
+        utils.getBluetooth().stopScan(true);
+    }
+
+
+
+    @Override
+    public void onProgressUpdate(Integer downloaded) {
+
     }
 }

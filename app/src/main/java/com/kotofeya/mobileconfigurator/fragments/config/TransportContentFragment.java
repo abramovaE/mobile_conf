@@ -11,10 +11,14 @@ import android.widget.Spinner;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
 
 public class TransportContentFragment extends ContentFragment {
+
+
+
 
     private int selectedTransport;
     Spinner spinner;
@@ -62,6 +66,9 @@ public class TransportContentFragment extends ContentFragment {
         spinner.setOnItemSelectedListener(onItemSelectedListener);
 
         updateBtnCotentSendState();
+
+
+
         return view;
     }
 
@@ -75,5 +82,16 @@ public class TransportContentFragment extends ContentFragment {
         }
     }
 
+    @Override
+    public void stopScan() {
+        utils.getBluetooth().stopScan(true);
+    }
 
+
+
+
+    @Override
+    public void onProgressUpdate(Integer downloaded) {
+
+    }
 }

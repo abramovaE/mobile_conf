@@ -137,7 +137,7 @@ public class Utils {
         if(bluetooth.getmScanning().get()){
             if(transiver != null) {
                 boolean isContains = false;
-                Logger.d(Logger.UTILS_LOG, "transivers: " + transivers);
+//                Logger.d(Logger.UTILS_LOG, "transivers: " + transivers);
                 for(Transiver t: transivers){
                     if(t.getSsid() != null && t.getSsid().equals(transiver.getSsid())){
                         isContains = true;
@@ -156,7 +156,37 @@ public class Utils {
 
 
     public void addSshTransiver(Transiver transiver){
-        transivers.add(transiver);
+        boolean isExist = false;
+        for(Transiver t: transivers){
+            Logger.d(Logger.UTILS_LOG, "t: " + t.getSsid() + " " + transiver.getSsid() + t.getSsid().equals(transiver.getSsid()));
+            if(t.getSsid() != null && t.getSsid().equals(transiver.getSsid())){
+                Logger.d(Logger.UTILS_LOG, "update transiver");
+                t.setIp(transiver.getIp());
+                t.setMacWifi(transiver.getMacWifi());
+                t.setMacBt(transiver.getMacBt());
+                t.setBoardVersion(transiver.getBoardVersion());
+                t.setOsVersion(transiver.getOsVersion());
+                t.setStmFirmware(transiver.getStmFirmware());
+                t.setStmBootloader(transiver.getStmBootloader());
+                t.setCore(transiver.getCore());
+                t.setModem(transiver.getModem());
+                t.setIncrementOfContent(transiver.getIncrementOfContent());
+                t.setUptime(transiver.getUptime());
+                t.setCpuTemp(transiver.getCpuTemp());
+                t.setLoad(transiver.getLoad());
+                isExist = true;
+                return;
+            }
+
+        }
+
+        if(!isExist) {
+            Logger.d(Logger.UTILS_LOG, "add new transiver");
+
+            transivers.add(transiver);
+        }
+
+
     }
 
     public void removeTransiver(Transiver transiver){

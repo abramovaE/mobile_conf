@@ -17,66 +17,29 @@ import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.fragments.update.UpdateFragment;
 
-public class ConfigStatFragment extends Fragment {
-
-
-    private Context context;
-    private Utils utils;
-    ScannerAdapter scannerAdapter;
-    Button mainBtnRescan;
+public class ConfigStatFragment extends ConfigFragment {
 
     @Override
-    public void onAttach(Context context) {
-        this.context = context;
-        this.utils = ((MainActivity) context).getUtils();
-        super.onAttach(context);
+    public ScannerAdapter getScannerAdapter() {
+        return new ScannerAdapter(context, utils, ScannerAdapter.CONFIG_STATION);
     }
 
-
-
     @Override
-    public void onStart() {
-        super.onStart();
-        mainBtnRescan.setVisibility(View.VISIBLE);
-        utils.getBluetooth().stopScan(true);
-        utils.clearTransivers();
-        scannerAdapter.notifyDataSetChanged();
-        scan();
-    }
-
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.scanner_fragment, container, false);
-        ListView lvScanner = view.findViewById(R.id.lv_scanner);
-
-        TextView mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
+    public void setMainTextLabel() {
         mainTxtLabel.setText(R.string.config_stat_main_txt_label);
-        mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
-        mainBtnRescan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                rescan();
-            }
-        });
-
-        utils.setTransiversLv(lvScanner);
-        scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.CONFIG_STATION);
-        lvScanner.setAdapter(scannerAdapter);
-        return view;
     }
 
-
-
-    private void scan(){
+    @Override
+    public void scan(){
         utils.setRadioType(Utils.STAT_RADIO_TYPE);
         utils.getBluetooth().startScan(false);
     }
 
 
-    private void rescan(){
+    @Override
+    public void rescan(){
         utils.clearTransivers();
         scannerAdapter.notifyDataSetChanged();
 //        scan();

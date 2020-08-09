@@ -26,7 +26,7 @@
     <string name="update_os_main_txt_label">Update OS</string>
     <string name="update_stm_main_txt_label">Update stm</string>
     <string name="update_content_main_txt_label">Update content</string>
-    <string name="config_transp_main_txt_label">Config transport</string>
+    <string name="config_transp_main_txt_label">Config transp</string>
     <string name="config_stat_main_txt_label">Config station</string>
 
     <string name="doorsOpened">Landing is allowed</string>

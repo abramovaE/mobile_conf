@@ -62,6 +62,25 @@ public class Transiver {
         this.ip = ip;
     }
 
+    public Transiver(String ip, String result){
+        String[] info = result.split("\n");
+        this.ip = info[2].trim();
+        this.ssid = info[1].trim();
+        this.macWifi = info[3].trim();
+        this.macBt = info[4].trim();
+        this.boardVersion = info[5].trim();
+        this.osVersion = info[6].trim();
+        this.stmFirmware = info[7].trim();
+        this.stmBootloader = info[8].trim();
+        this.core = info[9].trim();
+        this.modem = info[10].trim();
+        this.incrementOfContent = info[11].trim();
+        this.uptime = info[12].trim();
+        this.cpuTemp = info[13].trim();
+        this.load = info[14].trim();
+    }
+
+
     public Transiver(ScanResult result) {
         rssi = result.getRssi();
         address = result.getDevice().getAddress();
@@ -362,6 +381,8 @@ public class Transiver {
     public String toString() {
         return "Transiver{" +
                 "ssid='" + ssid + '\'' +
+                "ip='" + ip + '\'' +
+
                 '}';
     }
 

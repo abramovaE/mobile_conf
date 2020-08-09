@@ -17,6 +17,11 @@ public class Logger {
     public static final int UPDATE_OS_LOG = 7;
     public static final int SSH_CONNECTION_LOG = 8;
     public static final int DOWNLOAD_LOG = 9;
+    public static final int STATION_CONTEN_LOG = 10;
+    public static final int TRANSPORT_CONTENT_LOG = 11;
+    public static final int CONTENT_LOG = 12;
+
+
 
 
 
@@ -38,6 +43,9 @@ public class Logger {
         mType.put(UPDATE_OS_LOG, "Update_os_task");
         mType.put(SSH_CONNECTION_LOG,"Ssh_connection_task");
         mType.put(DOWNLOAD_LOG,"Download_task");
+        mType.put(STATION_CONTEN_LOG, "Station_content_task");
+        mType.put(TRANSPORT_CONTENT_LOG, "Transport_content_task");
+        mType.put(CONTENT_LOG, "Content_task");
 
 
 

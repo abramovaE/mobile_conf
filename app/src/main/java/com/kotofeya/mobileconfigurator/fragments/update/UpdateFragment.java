@@ -35,8 +35,10 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     ListView lvScanner;
     ScannerAdapter scannerAdapter;
     Button mainBtnRescan;
-    TextView scannerLabel;
-    Button scannerButton;
+
+    TextView versionLabel;
+    Button checkVersionButton;
+
     String version = "version";
     TextView mainTxtLabel;
 
@@ -54,9 +56,9 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     public void onStart() {
         Logger.d(Logger.UPDATE_OS_LOG, "onStart");
         super.onStart();
-        scannerLabel.setVisibility(View.VISIBLE);
-        scannerLabel.setText(version);
-        scannerButton.setVisibility(View.VISIBLE);
+        versionLabel.setVisibility(View.VISIBLE);
+        versionLabel.setText(version);
+        checkVersionButton.setVisibility(View.VISIBLE);
         mainBtnRescan.setVisibility(View.VISIBLE);
     }
 
@@ -73,8 +75,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         View view = inflater.inflate(R.layout.scanner_fragment, container, false);
 
         lvScanner = view.findViewById(R.id.lv_scanner);
-        scannerLabel = view.findViewById(R.id.scanner_label);
-        scannerButton = view.findViewById(R.id.scanner_btn);
+        versionLabel = view.findViewById(R.id.scanner_label);
+        checkVersionButton = view.findViewById(R.id.scanner_btn);
         mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
         mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
 
@@ -89,7 +91,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
 
         progressBar = view.findViewById(R.id.scanner_progressBar);
-        scannerButton.setOnClickListener(new View.OnClickListener() {
+        checkVersionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Logger.d(Logger.UPDATE_OS_LOG, "check updates button was pressed");
@@ -122,10 +124,10 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     protected void scan(){
         List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
         for(String s: clients){
-            Transiver transiver = new Transiver(s);
-            utils.addSshTransiver(transiver);
+//            Transiver transiver = new Transiver(s);
+//            utils.addSshTransiver(transiver);
             SshConnection connection = new SshConnection(this);
-            connection.execute(transiver, SshConnection.TAKE_COMMAND);
+            connection.execute(s, SshConnection.TAKE_COMMAND);
         }
     }
 
@@ -138,7 +140,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
             if(result.contains("Release")){
                 version = result;
-                scannerLabel.setText(result);
+                versionLabel.setText(result);
             }
 
             else if(result.contains("Downloaded")){
@@ -158,6 +160,10 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
             else {
                 Logger.d(Logger.UPDATE_OS_LOG, "notifyDataSetChanged, transivers: " + utils.getTransivers().size());
+                if (result.split("\n").length > 10) {
+                    Transiver transiver = new Transiver(null, result);
+                    utils.addSshTransiver(transiver);
+                }
                 scannerAdapter.notifyDataSetChanged();
             }
 

@@ -76,8 +76,16 @@ public class BasicScannerFragment extends Fragment implements OnTaskCompleted {
 
     @Override
     public void onTaskCompleted(Bundle result) {
+        String res = result.getString("result");
+        if (res.split("\n").length > 10) {
+            Transiver transiver = new Transiver(null, res);
+            utils.addSshTransiver(transiver);
+        }
         scannerAdapter.notifyDataSetChanged();
     }
+
+
+
 
     @Override
     public void onProgressUpdate(Integer downloaded) {
@@ -94,13 +102,12 @@ public class BasicScannerFragment extends Fragment implements OnTaskCompleted {
     private void scan(){
         List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
         for(String s: clients){
-            Transiver transiver = new Transiver(s);
-            utils.addSshTransiver(transiver);
+//            Transiver transiver = new Transiver(s);
+//            utils.addSshTransiver(transiver);
             SshConnection connection = new SshConnection(this);
-            utils.setCurrentTransiver(transiver);
-            connection.execute(transiver, SshConnection.TAKE_COMMAND);
+//            utils.setCurrentTransiver(transiver);
+            connection.execute(s, SshConnection.TAKE_COMMAND);
         }
-
     }
 
 }

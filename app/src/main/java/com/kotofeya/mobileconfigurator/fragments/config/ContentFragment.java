@@ -18,11 +18,19 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.OnTaskCompleted;
+import com.kotofeya.mobileconfigurator.SshConnection;
+import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
+import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
-public abstract class ContentFragment extends Fragment {
+import java.util.List;
+
+public abstract class ContentFragment extends Fragment implements OnTaskCompleted {
 
     protected Context context;
     protected Utils utils;
@@ -33,6 +41,11 @@ public abstract class ContentFragment extends Fragment {
     protected Button btnContntSend;
 
 
+
+    Button btnRebootRasp;
+    Button btnRebootStm;
+
+    Transiver currentTransiver;
 
     @Override
     public void onAttach(Context context) {
@@ -81,14 +94,78 @@ public abstract class ContentFragment extends Fragment {
         View view = inflater.inflate(R.layout.content_fragment, container, false);
         Button mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
         mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
-        Button btnRebootRasp = view.findViewById(R.id.content_btn_rasp);
-        Button btnRebootStm = view.findViewById(R.id.content_btn_stm);
+        btnRebootRasp = view.findViewById(R.id.content_btn_rasp);
+        btnRebootStm = view.findViewById(R.id.content_btn_stm);
         btnContntSend = view.findViewById(R.id.content_btn_send);
+
+
+        btnRebootRasp.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+//                stopScan();
+
+                currentTransiver = utils.getCurrentTransiver();
+
+                if(currentTransiver.getIp() == null){
+                    basicScan();
+                }
+                else {
+                    Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + currentTransiver.getIp());
+                    SshConnection connection = new SshConnection(((ContentFragment)App.get().getFragmentHandler().getCurrentFragment()));
+                    connection.execute(currentTransiver.getIp(), SshConnection.REBOOT_COMMAND);
+                }
+
+
+            }
+        });
         return view;
     }
 
     protected abstract void updateBtnCotentSendState();
 
 
+    @Override
+    public void onTaskCompleted(Bundle result) {
 
+//        Logger.d(Logger.CONTENT_LOG, "result: " + result);
+        Logger.d(Logger.CONTENT_LOG, "currentTransiver: " + currentTransiver);
+
+
+
+        String res = result.getString("result");
+        if (res.split("\n").length > 10) {
+            Transiver transiver = new Transiver(null, res);
+            utils.addSshTransiver(transiver);
+        }
+
+        Logger.d(Logger.CONTENT_LOG, "currentTransSsid: " + currentTransiver.getSsid());
+
+
+        if(res.contains(currentTransiver.getSsid())){
+            Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + currentTransiver.getIp());
+            SshConnection connection = new SshConnection(((ContentFragment)App.get().getFragmentHandler().getCurrentFragment()));
+            connection.execute(currentTransiver.getIp(), SshConnection.REBOOT_COMMAND);
+        }
+    }
+
+
+
+
+    private void basicScan(){
+        List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
+        for(String s: clients){
+//            Transiver transiver = new Transiver(s);
+//            utils.addSshTransiver(transiver);
+            SshConnection connection = new SshConnection(this);
+//            utils.setCurrentTransiver(transiver);
+            connection.execute(s, SshConnection.TAKE_COMMAND);
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    public abstract void stopScan();
 }
