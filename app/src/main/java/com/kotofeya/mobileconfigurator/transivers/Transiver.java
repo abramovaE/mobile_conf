@@ -1,7 +1,10 @@
 package com.kotofeya.mobileconfigurator.transivers;
 
 import android.bluetooth.le.ScanResult;
+import android.content.Context;
 
+import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.Utils;
 
 public class Transiver {
@@ -458,6 +461,40 @@ public class Transiver {
         sb.append(load);
         sb.append("\n");
         return sb.toString();
+    }
+
+    public String getBleExpText(){
+        StringBuilder text = new StringBuilder();
+        text.append("inf state: /ready/busy/called");
+        text.append("\n");
+        for(int i = 0; i < 4; i++){
+            text.append("inf" + i + ": " +  this.isCallReady(i) + "/" + this.isCallBusy(i) + "/" + this.isCalled(i));
+            text.append("\n");
+        }
+        getFirstPartExpInfo();
+        text.append("crc: " +  this.getCrc());
+        text.append("\n");
+        text.append("incr: " + this.getIncrement());
+        text.append("\n");
+        getSecondPartExpInfo();
+        return text.toString();
+    }
+
+    String getFirstPartExpInfo(){return "";}
+    String getSecondPartExpInfo(){return "";}
+
+    public String getStringDoorStatus(int doorStatus) {
+        Context ctx = App.get().getContext();
+        switch (doorStatus) {
+            case 0:
+                return ctx.getString(R.string.doorsClosed);
+            case 1:
+                return ctx.getString(R.string.doorsOpened);
+            case 2:
+                return ctx.getString(R.string.doorsBroken);
+            default:
+                return null;
+        }
     }
 
 }

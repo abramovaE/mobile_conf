@@ -176,25 +176,10 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         }
 
         else if(result.getString("result").contains("Tested")){
-//
-//
-//            LayoutInflater inflater = getLayoutInflater();
-//
-//
-//            Fragment fragment = ((ContentFragment)App.get().getFragmentHandler().getCurrentFragment());
-
-//            View layout = inflater.inflate(R.layout.my_toast, fragment.getView().findViewById(R.id.toast_layout));
-
-
-//            TextView toastTextView = layout.findViewById(R.id.toastTxt);
             Toast toast = Toast.makeText(context, "Stm rebooted", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
-//            toast.setMargin(10, 10);
-//            toast.setView(layout);
-
-//            LinearLayout toastContainer = (LinearLayout) toast.getView();
-            // Устанавливаем прозрачность у контейнера
-//            toastContainer.setBackgroundColor(Color.TRANSPARENT);
+            LinearLayout toastContainer = (LinearLayout) toast.getView();
+            toastContainer.setBackgroundColor(Color.WHITE);
             toast.show();
         }
 

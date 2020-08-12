@@ -12,6 +12,20 @@ public class StatTransiver extends Transiver {
         super(result);
     }
 
+    @Override
+    String getFirstPartExpInfo() {
+        return "";
+    }
+
+    @Override
+    String getSecondPartExpInfo() {
+        StringBuilder text = new StringBuilder();
+        text.append(getType());
+        text.append(" ");
+        text.append(getGroupId());
+        return text.toString();
+    }
+
     public int getType() {
         return ((getRawData()[12] & 0xFF) << 8) + (getRawData()[13] & 0xFF);
     }

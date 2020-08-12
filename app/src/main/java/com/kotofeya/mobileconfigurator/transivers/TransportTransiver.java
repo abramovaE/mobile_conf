@@ -143,5 +143,26 @@ public class TransportTransiver extends Transiver {
             hexChar[1] = hexArray[v & 0x0F];
             return new String(hexChar);
         }
+
+    @Override
+    String getFirstPartExpInfo() {
+            StringBuilder text = new StringBuilder();
+            text.append("doors status: " + getStringDoorStatus(this.getFloorOrDoorStatus()));
+            text.append("\n");
+            text.append("direction: " + this.getDirection());
+            text.append("\n");
+            text.append("city: " +  this.getCity());
+            text.append("\n");
+            return text.toString();
     }
+
+    @Override
+    String getSecondPartExpInfo() {
+        StringBuilder text = new StringBuilder();
+        text.append(getTransportType());
+        text.append(" ");
+        text.append(getFullNumber());
+        return text.toString();
+    }
+}
 

@@ -68,18 +68,12 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
         utils.clearTransivers();
         scannerAdapter.notifyDataSetChanged();
         scan();
-//        basicScan();
+
         return view;
     }
 
 
-    private void basicScan(){
-        List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
-        for(String s: clients){
-            SshConnection connection = new SshConnection(this);
-            connection.execute(s, SshConnection.TAKE_COMMAND);
-        }
-    }
+
 
     public abstract ScannerAdapter getScannerAdapter();
     public abstract void setMainTextLabel();

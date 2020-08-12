@@ -15,6 +15,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
 
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateStmFragment;
@@ -78,14 +79,14 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
         TextView ssid = view.findViewById(R.id.scanner_lv_item_ssid);
         ssid.setText(p.getSsid());
 
-        TextView version = view.findViewById(R.id.scanner_lv_item0);
-        version.setText(p.getOsVersion());
+        TextView textItem0 = view.findViewById(R.id.scanner_lv_item0);
+        textItem0.setText(p.getOsVersion());
 
-        TextView stmFirmware = view.findViewById(R.id.scanner_lv_item1);
-        stmFirmware.setText(p.getStmFirmware());
+        TextView textItem1 = view.findViewById(R.id.scanner_lv_item1);
+        textItem1.setText(p.getStmFirmware());
 
-        TextView stmBootloader = view.findViewById(R.id.scanner_lv_item2);
-        stmBootloader.setText(p.getStmBootloader());
+        TextView textItem2 = view.findViewById(R.id.scanner_lv_item2);
+        textItem2.setText(p.getStmBootloader());
 
         final TextView exp = view.findViewById(R.id.scanner_lv_item_txt_exp);
 
@@ -106,72 +107,31 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
 
 
         if(scannerType == BASIC_SCANNER_TYPE){
-            version.setVisibility(View.VISIBLE);
-            stmFirmware.setVisibility(View.VISIBLE);
-            stmBootloader.setVisibility(View.VISIBLE);
+            textItem0.setVisibility(View.VISIBLE);
+            textItem1.setVisibility(View.VISIBLE);
+            textItem2.setVisibility(View.VISIBLE);
             expButton.setVisibility(View.VISIBLE);
             exp.setText(p.getExpBasicScanInfo());
         }
 
         else if(scannerType == BLE_SCANNER_TYPE){
-
             Logger.d(Logger.UTILS_LOG, "scanner " + p.getSsid() + " " + p.isTransport());
             expButton.setVisibility(View.VISIBLE);
-            StringBuilder text = new StringBuilder();
-            text.append("inf state: /ready/busy/called");
-            text.append("\n");
-            for(int i = 0; i < 4; i++){
-                text.append("inf" + i + ": " +  p.isCallReady(i) + "/" + p.isCallBusy(i) + "/" + p.isCalled(i));
-                text.append("\n");
-            }
-
-            if(p.isTransport()){
-                text.append("doors status: " + getStringDoorStatus(p.getFloorOrDoorStatus()));
-                text.append("\n");
-                text.append("direction: " + ((TransportTransiver) p).getDirection());
-                text.append("\n");
-                text.append("city: " +  ((TransportTransiver) p).getCity());
-                text.append("\n");
-            }
-
-            text.append("crc: " +  p.getCrc());
-            text.append("\n");
-            text.append("incr: " + p.getIncrement());
-            text.append("\n");
-
-
-            if(p.isTransport()) {
-                    text.append(((TransportTransiver)p).getTransportType());
-                    text.append(" ");
-                    text.append(((TransportTransiver)p).getFullNumber());
-
-            }
-
-
-            if(p.isStationary()){
-                text.append(((StatTransiver)p).getType());
-                text.append(" ");
-                text.append(((StatTransiver)p).getGroupId());
-            }
-
-            exp.setText(text.toString());
+            exp.setText(p.getBleExpText());
         }
 
         else if(scannerType == UPDATE_OS_TYPE){
-            version.setVisibility(View.VISIBLE);
-
-
+            textItem0.setVisibility(View.VISIBLE);
             linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
                     Transiver transiver = getTransiver(position);
-//                    utils.setCurrentTransiver(transiver);
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateOsFileLength: " + Downloader.tempUpdateOsFile.length());
 
                     if(Downloader.tempUpdateOsFile.length() > 1000){
                         Bundle bundle = new Bundle();
-                        bundle.putString("transIp", transiver.getIp());
+                        bundle.putString("ip", transiver.getIp());
                         UpdateOsConfDialog dialog = new UpdateOsConfDialog();
                         dialog.setArguments(bundle);
                         dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
@@ -181,19 +141,16 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
         }
 
         else if(scannerType == UPDATE_STM_TYPE){
-            stmFirmware.setVisibility(View.VISIBLE);
+            textItem1.setVisibility(View.VISIBLE);
             linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
                     Transiver transiver = getTransiver(position);
-//                    utils.setCurrentTransiver(transiver);
-
                     if(Downloader.tempUpdateStmFiles != null && !Downloader.tempUpdateStmFiles.isEmpty()){
                         Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateStmFilesSize: " + Downloader.tempUpdateStmFiles.size());
-
                         Bundle bundle = new Bundle();
-                        bundle.putString("transIp", transiver.getIp());
+                        bundle.putString("ip", transiver.getIp());
                         bundle.putBoolean("isTransport", transiver.isTransport());
                         bundle.putBoolean("isStationary", transiver.isStationary());
                         UpdateStmConfDialog dialog = new UpdateStmConfDialog();
@@ -206,8 +163,8 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
 
         else if(scannerType == UPDATE_CONTENT_TYPE){
             // TODO: 18.07.20  set increment
-            version.setVisibility(View.VISIBLE);
-            version.setText(p.getIncrementOfContent());
+            textItem0.setVisibility(View.VISIBLE);
+            textItem0.setText(p.getIncrementOfContent());
 
             linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -231,30 +188,17 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
 
         else if(scannerType == CONFIG_TRANSPORT){
             TransportTransiver transportTransiver = (TransportTransiver) p;
-            version.setText(transportTransiver.getTransportType() + " / " + transportTransiver.getFullNumber());
-            version.setVisibility(View.VISIBLE);
-            stmFirmware.setText(transportTransiver.getDirection() + "");
-            stmFirmware.setVisibility(View.VISIBLE);
-            view.setOnClickListener(new View.OnClickListener() {
-                 @Override
-                 public void onClick(View v) {
-                     Bundle bundle = new Bundle();
-                     bundle.putString("ssid", p.getSsid());
-                     App.get().getFragmentHandler().changeFragmentBundle(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT, bundle);
-                 }
-             });
+            textItem0.setText(transportTransiver.getTransportType() + " / " + transportTransiver.getFullNumber());
+            textItem0.setVisibility(View.VISIBLE);
+            textItem1.setText(transportTransiver.getDirection() + "");
+            textItem1.setVisibility(View.VISIBLE);
+            view.setOnClickListener(configListener(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT, p.getSsid()));
         }
 
         else if(scannerType == CONFIG_STATION){
-            StatTransiver statTransiver = (StatTransiver) p;
-            view.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Bundle bundle = new Bundle();
-                    bundle.putString("ssid", p.getSsid());
-                    App.get().getFragmentHandler().changeFragmentBundle(FragmentHandler.STATION_CONTENT_FRAGMENT, bundle);
-                }
-            });
+            textItem0.setText(p.getIp());
+            textItem0.setVisibility(View.VISIBLE);
+            view.setOnClickListener(configListener(FragmentHandler.STATION_CONTENT_FRAGMENT, p.getSsid()));
         }
         return view;
     }
@@ -264,21 +208,19 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
     }
 
 
-    public String getStringDoorStatus(int doorStatus) {
-        switch (doorStatus) {
-            case 0:
-                return  ctx.getString(R.string.doorsClosed);
-
-            case 1:
-                return  ctx.getString(R.string.doorsOpened);
-
-            case 2:
-                return ctx.getString(R.string.doorsBroken);
-
-            default:
-                return null;
-        }
+    private View.OnClickListener configListener(String fragment, String ssid){
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Bundle bundle = new Bundle();
+                bundle.putString("ssid", ssid);
+                App.get().getFragmentHandler().changeFragmentBundle(fragment, bundle);
+            }
+        };
+        return onClickListener;
     }
+
+
 
     @Override
     public void onTaskCompleted(Bundle result) {
@@ -297,7 +239,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        String ip = getArguments().getString("transIp");
+        String ip = getArguments().getString("ip");
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
         builder.setTitle("Confirmation is required");
         builder.setMessage("Confirm the upload of the updates");
