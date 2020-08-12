@@ -15,6 +15,7 @@ import androidx.annotation.Nullable;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
+import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
 
 public class StationContentFragment extends ContentFragment {
 
@@ -30,7 +31,9 @@ public class StationContentFragment extends ContentFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        StatTransiver statTransiver = (StatTransiver) utils.getCurrentTransiver();
+        String ssid = getArguments().getString("ssid");
+        StatTransiver statTransiver = (StatTransiver) utils.getBySsid(ssid);
+
 
         mainTxtLabel.setText(statTransiver.getSsid() + " (" + statTransiver.getType() + ")");
 

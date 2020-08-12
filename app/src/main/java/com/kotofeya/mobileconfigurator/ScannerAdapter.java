@@ -238,33 +238,23 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted{
             view.setOnClickListener(new View.OnClickListener() {
                  @Override
                  public void onClick(View v) {
-                     utils.setCurrentTransiver(p);
                      Bundle bundle = new Bundle();
                      bundle.putString("ssid", p.getSsid());
                      App.get().getFragmentHandler().changeFragmentBundle(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT, bundle);
-
-//                     App.get().getFragmentHandler().changeFragment(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT);
-
                  }
              });
         }
 
         else if(scannerType == CONFIG_STATION){
             StatTransiver statTransiver = (StatTransiver) p;
-
-//            version.setText();
-//            version.setVisibility(View.VISIBLE);
-
             view.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    utils.setCurrentTransiver(p);
-                    App.get().getFragmentHandler().changeFragment(FragmentHandler.STATION_CONTENT_FRAGMENT);
-
+                    Bundle bundle = new Bundle();
+                    bundle.putString("ssid", p.getSsid());
+                    App.get().getFragmentHandler().changeFragmentBundle(FragmentHandler.STATION_CONTENT_FRAGMENT, bundle);
                 }
             });
-
-
         }
         return view;
     }
