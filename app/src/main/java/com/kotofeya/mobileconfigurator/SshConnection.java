@@ -31,6 +31,11 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
     public static final String REBOOT_COMMAND = "sudo reboot";
     public static final String REBOOT_STM_COMMAND =  "/usr/local/bin/call --cmd REST 0";
 
+    public static final String CLEAR_RASP_COMMAND = "/sudo rm - f /var/www/html/data/*/* /var/www/html/data/*";
+
+    public static final String SEND_TRANSPORT_CONTENT_COMMAND = "/user/local/bin/call —cmd TSCFG";
+
+
     private OnTaskCompleted listener;
     private String ip;
 
@@ -47,6 +52,10 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
         ChannelSftp channelSftp = null;
         ChannelExec channelExec = null;
         Channel channel = null;
+        StringBuilder sb = null;
+        InputStream commandOutput = null;
+        int readByte = 0;
+
 
         try {
             JSch jsch = new JSch();
@@ -152,16 +161,48 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                     // SSH Channel
                     channelExec = (ChannelExec) session.openChannel("exec");
                     channelExec.setCommand(REBOOT_STM_COMMAND);
-                    StringBuilder sb = new StringBuilder();
+                    sb = new StringBuilder();
                     channelExec.connect();
-                    InputStream commandOutput = channelExec.getInputStream();
+                    commandOutput = channelExec.getInputStream();
                     Thread.sleep(1000);
-                    int readByte = 0;
+                    readByte = 0;
                     while ((readByte = commandOutput.read()) != -1) {
                         sb.append((char) readByte);
                     }
                     res = sb.toString();
                     Logger.d(Logger.SSH_CONNECTION_LOG, "reboot stm res" + res);
+                    break;
+
+                case CLEAR_RASP_COMMAND:
+                    channelExec = (ChannelExec) session.openChannel("exec");
+                    channelExec.setCommand(CLEAR_RASP_COMMAND);
+                    sb = new StringBuilder();
+                    channelExec.connect();
+                    commandOutput = channelExec.getInputStream();
+                    Thread.sleep(1000);
+                    readByte = 0;
+                    while ((readByte = commandOutput.read()) != -1) {
+                        sb.append((char) readByte);
+                    }
+                    res = sb.toString();
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "clear rasp res" + res);
+                    break;
+
+                case SEND_TRANSPORT_CONTENT_COMMAND:
+                    channelExec = (ChannelExec) session.openChannel("exec");
+                    String command = SEND_TRANSPORT_CONTENT_COMMAND + " " + req[2] + " " + req[3] + " " + req[4] + " " + req[5];
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "send command: " + command);
+                    channelExec.setCommand(command);
+                    sb = new StringBuilder();
+                    channelExec.connect();
+                    commandOutput = channelExec.getInputStream();
+                    Thread.sleep(1000);
+                    readByte = 0;
+                    while ((readByte = commandOutput.read()) != -1) {
+                        sb.append((char) readByte);
+                    }
+                    res = sb.toString();
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "clear rasp res" + res);
                     break;
             }
         }
@@ -174,7 +215,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                 channel.disconnect();
             }
             if(channelExec != null){
-                channel.disconnect();
+                channelExec.disconnect();
             }
             if(channelSftp != null){
                 channelSftp.disconnect();

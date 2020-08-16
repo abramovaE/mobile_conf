@@ -2,6 +2,8 @@ package com.kotofeya.mobileconfigurator.transivers;
 
 import android.bluetooth.le.ScanResult;
 
+import com.kotofeya.mobileconfigurator.Logger;
+
 import java.io.UnsupportedEncodingException;
 
 public class TransportTransiver extends Transiver {
@@ -15,7 +17,6 @@ public class TransportTransiver extends Transiver {
     }
 
 
-        private int number;
 
         public static final int PARK = 0;
         public static final int DIRECT = 1;
@@ -39,73 +40,86 @@ public class TransportTransiver extends Transiver {
             }
         }
 
+
+
         public String getFullNumber() {
-            byte[] rawData = getRawData();
             StringBuilder sb = new StringBuilder();
             sb.append("\"");
-
+            int number = getNumber();
             if (getTransVersion() == VERSION_NEW) {
-                number = ((rawData[17] & 0xff) << 8) + (rawData[18] & 0xff);
-
-                if ((rawData[15] & 0xff) != 0) {
-                    byte tmpArr15[] = {rawData[15]};
-                    try {
-                        sb.append(new String(tmpArr15, "Windows-1251").toUpperCase());
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                if ((rawData[16] & 0xff) != 0) {
-                    byte tmpArr16[] = {rawData[16]};
-                    try {
-                        sb.append(new String(tmpArr16, "Windows-1251").toUpperCase());
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
-
+                sb.append(getPreLitera());
                 sb.append(number);
-
-                if ((rawData[19] & 0xff) != 0) {
-                    byte tmpArr19[] = {rawData[19]};
-                    try {
-                        sb.append(new String(tmpArr19, "Windows-1251").toUpperCase());
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
-
-                if ((rawData[20] & 0xff) != 0) {
-                    byte tmpArr20[] = {rawData[20]};
-                    try {
-                        sb.append(new String(tmpArr20, "Windows-1251").toUpperCase());
-
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
-
+                sb.append(getPostLitera());
             }
-
             else {
-                number = ((rawData[3] & 0xff) << 8) + (rawData[4] & 0xff);
                 sb.append(number);
-                if ((rawData[5] & 0xff) != 0) {
-                    byte tmpArr[] = {rawData[5]};
-                    try {
-                        sb.append(new String(tmpArr, "Windows-1251").toUpperCase());
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
-                }
+                sb.append(getPostLitera());
             }
             sb.append("\"");
             return sb.toString();
         }
 
+        public int getNumber(){
+            byte[] rawData = getRawData();
+            String number = "";
+            if (getTransVersion() == VERSION_NEW) {
+                number = ((rawData[17] & 0xff) << 8) + (rawData[18] & 0xff) + "";
+            }
+            else {
+                number = ((rawData[3] & 0xff) << 8) + (rawData[4] & 0xff) + "";
+            }
+            Logger.d(Logger.TRANSPORT_CONTENT_LOG, "number: " + number);
+            return Integer.parseInt(number);
+
+        }
+
+        public String getPreLitera() {
+            byte[] rawData = getRawData();
+            StringBuilder sb = new StringBuilder();
+            try {
+                if (getTransVersion() == VERSION_NEW) {
+                    if ((rawData[15] & 0xff) != 0) {
+                        byte tmpArr15[] = {rawData[15]};
+                            sb.append(new String(tmpArr15, "Windows-1251").toUpperCase());
+                    }
+                    if ((rawData[16] & 0xff) != 0) {
+                        byte tmpArr16[] = {rawData[16]};
+                        sb.append(new String(tmpArr16, "Windows-1251").toUpperCase());
+                    }
+                }
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            return sb.toString();
+        }
+
+        public String getPostLitera(){
+            byte[] rawData = getRawData();
+            StringBuilder sb = new StringBuilder();
+            try {
+                if (getTransVersion() == VERSION_NEW) {
+                    if ((rawData[19] & 0xff) != 0) {
+                        byte tmpArr19[] = {rawData[19]};
+                        sb.append(new String(tmpArr19, "Windows-1251").toUpperCase());
+                    }
+                    if ((rawData[20] & 0xff) != 0) {
+                        byte tmpArr20[] = {rawData[20]};
+                        sb.append(new String(tmpArr20, "Windows-1251").toUpperCase());
+                    }
+                } else {
+                    if ((rawData[5] & 0xff) != 0) {
+                        byte tmpArr[] = {rawData[5]};
+                        sb.append(new String(tmpArr, "Windows-1251").toUpperCase());
+                    }
+                }
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+            return sb.toString();
+        }
+
         public int getDirection() {
-            if(this.number == 0){
+            if(this.getNumber() == 0){
                 return PARK;
             }
 

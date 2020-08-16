@@ -48,20 +48,22 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     protected AdapterView.OnItemSelectedListener onItemSelectedListener;
     protected TextWatcher textWatcher;
     TextView mainTxtLabel;
+
     protected Button btnContntSend;
 
     Button btnRebootRasp;
     Button btnRebootStm;
+    Button btnClearRasp;
 
     Transiver currentTransiver;
+
+    ContentClickListener contentClickListener;
 
     @Override
     public void onAttach(Context context) {
         this.context = context;
         this.utils = ((MainActivity) context).getUtils();
         super.onAttach(context);
-
-
 
         onKeyListener = new View.OnKeyListener() {
             public boolean onKey(View v, int keyCode, KeyEvent event) {
@@ -80,11 +82,9 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 updateBtnCotentSendState();
             }
-
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
                 updateBtnCotentSendState();
-
             }
         };
 
@@ -102,65 +102,16 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.content_fragment, container, false);
-
         Button mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
         mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
         btnRebootRasp = view.findViewById(R.id.content_btn_rasp);
         btnRebootStm = view.findViewById(R.id.content_btn_stm);
         btnContntSend = view.findViewById(R.id.content_btn_send);
-        btnRebootRasp.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(currentTransiver.getIp() == null){
-                    basicScan();
-                    Toast toast = Toast.makeText(context, "try again", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                }
-                else {
-                    Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + currentTransiver.getIp());
-
-                    Bundle bundle = new Bundle();
-                    bundle.putString("rebootType", "raspberry");
-                    bundle.putString("ip", currentTransiver.getIp());
-
-                    RebootConfDialog dialog = new RebootConfDialog();
-                    dialog.setArguments(bundle);
-                    dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
-
-//                    SshConnection connection = new SshConnection(((ContentFragment)App.get().getFragmentHandler().getCurrentFragment()));
-//                    connection.execute(currentTransiver.getIp(), SshConnection.REBOOT_COMMAND);
-                }
-            }
-        });
-
-        btnRebootStm.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-//                currentTransiver = utils.getCurrentTransiver();
-                if(currentTransiver.getIp() == null){
-                    basicScan();
-                    Toast.makeText(context, "try again", Toast.LENGTH_SHORT).show();
-
-                }
-                else {
-                    Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + currentTransiver.getIp());
-                    Bundle bundle = new Bundle();
-                    bundle.putString("rebootType", "stm");
-                    bundle.putString("ip", currentTransiver.getIp());
-
-                    RebootConfDialog dialog = new RebootConfDialog();
-                    dialog.setArguments(bundle);
-                    dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
-
-
-
-//                    SshConnection connection = new SshConnection(((ContentFragment)App.get().getFragmentHandler().getCurrentFragment()));
-//                    connection.execute(currentTransiver.getIp(), SshConnection.REBOOT_STM_COMMAND);
-                }
-            }
-        });
-
+        btnClearRasp = view.findViewById(R.id.content_btn_clear);
+        contentClickListener = new ContentClickListener(currentTransiver);
+        btnRebootRasp.setOnClickListener(contentClickListener);
+        btnRebootStm.setOnClickListener(contentClickListener);
+        btnClearRasp.setOnClickListener(contentClickListener);
         return view;
     }
 
@@ -213,7 +164,6 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         super.onStart();
         String ssid = getArguments().getString("ssid");
         currentTransiver = utils.getBySsid(ssid);
-//        boolean res = refreshButtons();
         if(!refreshButtons()){
             basicScan();
         }
@@ -223,6 +173,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         if(currentTransiver.getIp() != null){
             btnRebootRasp.setEnabled(true);
             btnRebootStm.setEnabled(true);
+            btnClearRasp.setEnabled(true);
             return true;
         }
         return false;
@@ -240,7 +191,13 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("Confirmation is required");
-            builder.setMessage("Confirm the reboot of " + rebootType);
+
+            if(rebootType.equals("rasp") || rebootType.equals("stm")) {
+                builder.setMessage("Confirm the reboot of " + rebootType);
+            }
+            else if(rebootType.equals("clear")){
+                builder.setMessage("Clear this transiver?");
+            }
 
             builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
@@ -250,6 +207,9 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
                     }
                     else if(rebootType.equals("stm")){
                         connection.execute(ip, SshConnection.REBOOT_STM_COMMAND);
+                    }
+                    else if(rebootType.equals("clear")){
+                        connection.execute(ip, SshConnection.CLEAR_RASP_COMMAND);
                     }
                 }
             });
@@ -262,7 +222,39 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
             builder.setCancelable(true);
             return builder.create();
         }
+    }
 
 
+}
+
+
+class ContentClickListener implements View.OnClickListener{
+    private Transiver transiver;
+    public ContentClickListener(Transiver transiver){
+        this.transiver = transiver;
+    }
+
+    @Override
+    public void onClick(View v) {
+        Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + transiver.getIp());
+        Bundle bundle = new Bundle();
+        bundle.putString("ip", transiver.getIp());
+        DialogFragment dialog = null;
+        switch (v.getId()) {
+            case R.id.content_btn_rasp:
+                bundle.putString("rebootType", "raspberry");
+                dialog = new ContentFragment.RebootConfDialog();
+                break;
+            case R.id.content_btn_stm:
+                bundle.putString("rebootType", "stm");
+                dialog = new ContentFragment.RebootConfDialog();
+                break;
+            case R.id.content_btn_clear:
+                bundle.putString("rebootType", "clear");
+                dialog = new ContentFragment.RebootConfDialog();
+                break;
+        }
+        dialog.setArguments(bundle);
+        dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
     }
 }

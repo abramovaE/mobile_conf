@@ -19,7 +19,9 @@
     <string name="content_btn_send">Send</string>
     <string name="content_btn_rasp">Rasp</string>
     <string name="content_btn_stm">STM</string>
+    <string name="content_btn_clear">Clear rasp</string>
     <string name="content_label_reboot">Reboot</string>
+
 
     <string name="basic_scan_main_txt_label">Basic scan</string>
     <string name="ble_scan_main_txt_label">Bluetooth scan</string>
