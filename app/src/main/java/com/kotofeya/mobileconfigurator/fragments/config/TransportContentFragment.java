@@ -25,7 +25,6 @@ public class TransportContentFragment extends ContentFragment implements View.On
 
 
 
-    private int selectedTransport;
     Spinner spnType;
     EditText number;
     EditText liter;
@@ -77,19 +76,17 @@ public class TransportContentFragment extends ContentFragment implements View.On
         spnDir.setSelection(transportTransiver.getDirection());
         spnDir.setVisibility(View.VISIBLE);
         spnType.setOnItemSelectedListener(onItemSelectedListener);
-
         updateBtnCotentSendState();
-
-
         btnContntSend.setOnClickListener(this);
-
         return view;
     }
 
 
     protected void updateBtnCotentSendState(){
-        if(spnType.getSelectedItemPosition()> 0 && !number.getText().toString().isEmpty() && !liter.getText().toString().isEmpty() && spnDir.getSelectedItemPosition() > 0){
-            btnContntSend.setEnabled(true);
+        if(spnType.getSelectedItemPosition()> 0 && !number.getText().toString().isEmpty()
+                && !liter.getText().toString().isEmpty() && spnDir.getSelectedItemPosition() > 0
+                && transportTransiver.getIp() != null){
+                btnContntSend.setEnabled(true);
         }
         else {
             btnContntSend.setEnabled(false);
@@ -141,7 +138,7 @@ public class TransportContentFragment extends ContentFragment implements View.On
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        Logger.d(Logger.TRANSPORT_CONTENT_LOG, "send: " + type + " " + num + " " + lit + " " + dir);
+        Logger.d(Logger.TRANSPORT_CONTENT_LOG, "send: " + typeHex + " " + numHex + " " + litHex + " " + dirHex);
         SshConnection connection = new SshConnection(((TransportContentFragment) App.get().getFragmentHandler().getCurrentFragment()));
         connection.execute(transportTransiver.getIp(), SshConnection.SEND_TRANSPORT_CONTENT_COMMAND, typeHex, numHex, litHex, dirHex);
     }

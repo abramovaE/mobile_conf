@@ -58,6 +58,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     Transiver currentTransiver;
 
     ContentClickListener contentClickListener;
+    String ssid;
 
     @Override
     public void onAttach(Context context) {
@@ -108,6 +109,8 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         btnRebootStm = view.findViewById(R.id.content_btn_stm);
         btnContntSend = view.findViewById(R.id.content_btn_send);
         btnClearRasp = view.findViewById(R.id.content_btn_clear);
+        String ssid = getArguments().getString("ssid");
+        currentTransiver = utils.getBySsid(ssid);
         contentClickListener = new ContentClickListener(currentTransiver);
         btnRebootRasp.setOnClickListener(contentClickListener);
         btnRebootStm.setOnClickListener(contentClickListener);
@@ -174,6 +177,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
             btnRebootRasp.setEnabled(true);
             btnRebootStm.setEnabled(true);
             btnClearRasp.setEnabled(true);
+            btnContntSend.setEnabled(true);
             return true;
         }
         return false;

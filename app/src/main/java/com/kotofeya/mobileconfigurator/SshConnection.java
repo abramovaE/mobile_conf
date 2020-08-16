@@ -33,7 +33,14 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
 
     public static final String CLEAR_RASP_COMMAND = "/sudo rm - f /var/www/html/data/*/* /var/www/html/data/*";
 
-    public static final String SEND_TRANSPORT_CONTENT_COMMAND = "/user/local/bin/call —cmd TSCFG";
+    public static final String SEND_TRANSPORT_CONTENT_COMMAND = "/user/local/bin/call --cmd TSCFG";
+    public static final String SEND_STATION_CONTENT_COMMAND = "send station content command";
+
+    public static final String FLOOR_COMMAND = "/user/local/bin/call --cmd FLOOR";
+    public static final String ZUMMER_TYPE_COMMAND = "/user/local/bin/call --cmd SNDTYPE";
+    public static final String ZUMMER_VOLUME_COMMAND = "";
+    public static final String MODEM_CONFIG_MEGAF_BEELINE_COMMAND = "sudo sed -I ’s/megafon-m2m/beeline-m2m/g’ /etc/init.d/S99stp-tools";
+    public static final String MODEM_CONFIG_BEELINE_MEGAF_COMMAND = "sudo sed -I ’s/beeline-m2m/megafon-m2m/g’ /etc/init.d/S99stp-tools";
 
 
     private OnTaskCompleted listener;
@@ -203,6 +210,23 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                     }
                     res = sb.toString();
                     Logger.d(Logger.SSH_CONNECTION_LOG, "clear rasp res" + res);
+                    break;
+
+                case SEND_STATION_CONTENT_COMMAND:
+                    channelExec = (ChannelExec) session.openChannel("exec");
+                    String comm = (String) req[2];
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "send command: " + comm);
+                    channelExec.setCommand(comm);
+                    sb = new StringBuilder();
+                    channelExec.connect();
+                    commandOutput = channelExec.getInputStream();
+                    Thread.sleep(2000);
+                    readByte = 0;
+                    while ((readByte = commandOutput.read()) != -1) {
+                        sb.append((char) readByte);
+                    }
+                    res = sb.toString();
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "send station content" + res);
                     break;
             }
         }

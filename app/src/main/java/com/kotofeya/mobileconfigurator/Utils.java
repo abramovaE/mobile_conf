@@ -27,7 +27,6 @@ public class Utils {
     public static final int STAT_RADIO_TYPE = 0x40;
     public static final int ALL_RADIO_TYPE = 0;
 
-//    private Transiver currentTransiver;
     private List<Transiver> transivers;
     private Set<String> ssidListRunTime;
     private List<Transiver> forDel;
@@ -73,10 +72,6 @@ public class Utils {
         return null;
     }
 
-
-//    public void setCurrentTransiver(Transiver currentTransiver) {
-//        this.currentTransiver = currentTransiver;
-//    }
 
     public BTHandler getBluetooth() {
         return bluetooth;

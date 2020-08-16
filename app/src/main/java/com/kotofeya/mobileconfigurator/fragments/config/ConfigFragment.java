@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
@@ -36,6 +37,7 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
         this.context = context;
         this.utils = ((MainActivity) context).getUtils();
         super.onAttach(context);
+
     }
 
     @Override
@@ -43,6 +45,7 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
         super.onStart();
         setMainTextLabel();
         mainBtnRescan.setVisibility(View.VISIBLE);
+
 //        rescan();
     }
 
@@ -65,12 +68,15 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
         scannerAdapter = getScannerAdapter();
         lvScanner.setAdapter(scannerAdapter);
         utils.getBluetooth().stopScan(true);
+        Logger.d(Logger.CONTENT_LOG, "clearTransivers");
         utils.clearTransivers();
         scannerAdapter.notifyDataSetChanged();
         scan();
 
         return view;
     }
+
+
 
 
 
