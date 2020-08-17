@@ -257,6 +257,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
 
             boolean isTransport = getArguments().getBoolean("isTransport");
             boolean isStationary = getArguments().getBoolean("isStationary");
+            String ip = getArguments().getString("ip");
 
 //            List<String> transportContent = new ArrayList<>();
 //            List<String> stationaryContent = new ArrayList<>();
@@ -321,6 +322,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                             Bundle bundle = new Bundle();
                             bundle.putString("key", content[which]);
                             bundle.putString("value", commonContent.get(content[which]));
+                            bundle.putString("ip", ip);
                             UploadStmConfDialog d = new UploadStmConfDialog();
                             d.setArguments(bundle);
                             d.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
@@ -343,6 +345,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             String key = getArguments().getString("key");
             String value = getArguments().getString("value");
+            String ip = getArguments().getString("ip");
             Logger.d(Logger.SCANNER_ADAPTER_LOG, "key: " + key);
             AlertDialog.Builder builder = new AlertDialog.Builder((App.get().getFragmentHandler().getCurrentFragment()).getActivity());
             builder.setTitle("Confirmation is required");
@@ -350,7 +353,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     Downloader downloader = new Downloader((UpdateStmFragment) App.get().getFragmentHandler().getCurrentFragment());
-                    downloader.execute(value);
+                    downloader.execute(value, ip);
                 }
             });
             builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {

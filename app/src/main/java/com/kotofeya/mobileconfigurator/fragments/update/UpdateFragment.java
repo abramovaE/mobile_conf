@@ -151,6 +151,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
             }
 
             else if(result.contains("stm downloaded")){
+                Logger.d(Logger.UPDATE_OS_LOG, "ip: " + bundle.getString("ip") + ", filepath: " + bundle.getString("filePath"));
                 SshConnection connection = new SshConnection(this);
                 String filePath = bundle.getString("filePath");
                 connection.execute(bundle.getString("ip"), SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, filePath);

@@ -49,7 +49,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
 
     @Override
     protected Bundle doInBackground(String... url) {
-        if(url.length>1) {
+        if(url.length > 1) {
             currentIp = url[1];
         }
         try {
