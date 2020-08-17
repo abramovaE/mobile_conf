@@ -159,8 +159,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
             else {
                 Logger.d(Logger.UPDATE_OS_LOG, "notifyDataSetChanged, transivers: " + utils.getTransivers().size());
                 if (result.split("\n").length > 10) {
-                    Transiver transiver = new Transiver(null, result);
-                    utils.addSshTransiver(transiver);
+                    utils.addTakeInfo(result, true);
                 }
                 scannerAdapter.notifyDataSetChanged();
             }

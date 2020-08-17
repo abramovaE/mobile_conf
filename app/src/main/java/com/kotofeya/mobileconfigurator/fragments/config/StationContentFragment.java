@@ -36,7 +36,6 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
         String ssid = getArguments().getString("ssid");
         statTransiver = (StatTransiver) utils.getBySsid(ssid);
 
-
         mainTxtLabel.setText(statTransiver.getSsid() + " (" + statTransiver.getType() + ")");
 
         floorTxt = view.findViewById(R.id.content_txt_0);
@@ -84,7 +83,7 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
     protected void updateBtnCotentSendState(){
         if((!floorTxt.getText().toString().isEmpty() || zummerTypesSpn.getSelectedItemPosition()> 0
                 || zummerVolumeSpn.getSelectedItemPosition() > 0 || modemConfigSpn.getSelectedItemPosition() > 0)
-                && statTransiver.getIp() != null){
+                && utils.getIp(statTransiver.getSsid()) != null){
             btnContntSend.setEnabled(true);
         }
         else {

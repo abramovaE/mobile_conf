@@ -65,23 +65,42 @@ public class Transiver {
         this.ip = ip;
     }
 
-    public Transiver(String ip, String result){
-        String[] info = result.split("\n");
-        this.ip = info[2].trim();
-        this.ssid = info[1].trim();
-        this.macWifi = info[3].trim();
-        this.macBt = info[4].trim();
-        this.boardVersion = info[5].trim();
-        this.osVersion = info[6].trim();
-        this.stmFirmware = info[7].trim();
-        this.stmBootloader = info[8].trim();
-        this.core = info[9].trim();
-        this.modem = info[10].trim();
-        this.incrementOfContent = info[11].trim();
-        this.uptime = info[12].trim();
-        this.cpuTemp = info[13].trim();
-        this.load = info[14].trim();
+    public Transiver(String ssid, String ip, String macWifi, String macBt, String boardVersion, String osVersion,
+                     String stmFirmware, String stmBootloader, String core, String modem, String incrementOfContent,
+                     String uptime, String cpuTemp, String load) {
+        this.ssid = ssid;
+        this.ip = ip;
+        this.macWifi = macWifi;
+        this.macBt = macBt;
+        this.boardVersion = boardVersion;
+        this.osVersion = osVersion;
+        this.stmFirmware = stmFirmware;
+        this.stmBootloader = stmBootloader;
+        this.core = core;
+        this.modem = modem;
+        this.incrementOfContent = incrementOfContent;
+        this.uptime = uptime;
+        this.cpuTemp = cpuTemp;
+        this.load = load;
     }
+//
+//    public Transiver(String ip, String result){
+//        String[] info = result.split("\n");
+//        this.ip = info[2].trim();
+//        this.ssid = info[1].trim();
+//        this.macWifi = info[3].trim();
+//        this.macBt = info[4].trim();
+//        this.boardVersion = info[5].trim();
+//        this.osVersion = info[6].trim();
+//        this.stmFirmware = info[7].trim();
+//        this.stmBootloader = info[8].trim();
+//        this.core = info[9].trim();
+//        this.modem = info[10].trim();
+//        this.incrementOfContent = info[11].trim();
+//        this.uptime = info[12].trim();
+//        this.cpuTemp = info[13].trim();
+//        this.load = info[14].trim();
+//    }
 
 
     public Transiver(ScanResult result) {
@@ -99,7 +118,6 @@ public class Transiver {
             transVersion = VERSION_OLD;
         }
         delFlag = false;
-
     }
 
 

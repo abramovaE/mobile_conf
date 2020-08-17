@@ -14,10 +14,14 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.SshConnection;
+import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
+
+import java.util.List;
 
 public class ConfigTransportFragment extends ConfigFragment {
 
@@ -46,12 +50,8 @@ public class ConfigTransportFragment extends ConfigFragment {
         mainTxtLabel.setText(R.string.config_transp_main_txt_label);
     }
 
-
     @Override
-    public void onTaskCompleted(Bundle result) {
-
-    }
-
+    public void onTaskCompleted(Bundle result) {}
     @Override
     public void onProgressUpdate(Integer downloaded) {
 

@@ -1,30 +1,19 @@
 package com.kotofeya.mobileconfigurator.fragments.config;
 
-import android.content.Context;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.LinearLayout;
-import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
 
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
-import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
-import com.kotofeya.mobileconfigurator.fragments.update.UpdateFragment;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import java.util.List;
@@ -60,8 +49,7 @@ public class ConfigStatFragment extends ConfigFragment {
         Logger.d(Logger.CONTENT_LOG, "result: " + result);
         String res = result.getString("result");
         if (res.split("\n").length > 10) {
-            Transiver transiver = new Transiver(null, res);
-            utils.addSshTransiver(transiver);
+            utils.addTakeInfo(res, false);
         }
         scannerAdapter.notifyDataSetChanged();
     }

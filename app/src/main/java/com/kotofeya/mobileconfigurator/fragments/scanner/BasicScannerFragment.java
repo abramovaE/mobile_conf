@@ -78,8 +78,7 @@ public class BasicScannerFragment extends Fragment implements OnTaskCompleted {
     public void onTaskCompleted(Bundle result) {
         String res = result.getString("result");
         if (res.split("\n").length > 10) {
-            Transiver transiver = new Transiver(null, res);
-            utils.addSshTransiver(transiver);
+            utils.addTakeInfo(res, true);
         }
         scannerAdapter.notifyDataSetChanged();
     }

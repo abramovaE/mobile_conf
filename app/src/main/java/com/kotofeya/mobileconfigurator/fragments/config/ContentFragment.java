@@ -28,15 +28,12 @@ import androidx.fragment.app.Fragment;
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
-import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.Utils;
-import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
-import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
 
 import java.util.List;
 
@@ -140,8 +137,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         else {
             String res = result.getString("result");
             if (res.split("\n").length > 10) {
-                Transiver transiver = new Transiver(null, res);
-                utils.addSshTransiver(transiver);
+                utils.addTakeInfo(res, true);
             }
             Logger.d(Logger.CONTENT_LOG, "currentTransSsid: " + currentTransiver.getSsid());
             if(res.contains(currentTransiver.getSsid())){
@@ -173,7 +169,8 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     }
 
     public boolean refreshButtons(){
-        if(currentTransiver.getIp() != null){
+        Logger.d(Logger.CONTENT_LOG, "currentTransiverIp: " + currentTransiver.getIp());
+        if(currentTransiver.getIp() != null || utils.getIp(currentTransiver.getSsid()) != null){
             btnRebootRasp.setEnabled(true);
             btnRebootStm.setEnabled(true);
             btnClearRasp.setEnabled(true);

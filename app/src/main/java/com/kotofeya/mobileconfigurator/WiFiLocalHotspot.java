@@ -31,6 +31,7 @@ public class WiFiLocalHotspot {
             br = new BufferedReader(new FileReader("/proc/net/arp"));
             String line;
             while ((line = br.readLine()) != null) {
+//                Logger.d(Logger.WIFI_LOG, line);
                 String[] splitted = line.split(" +");
                 if (splitted != null) {
                     String mac = splitted[3];

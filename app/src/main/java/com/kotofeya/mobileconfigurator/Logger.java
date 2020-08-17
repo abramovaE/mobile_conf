@@ -20,7 +20,8 @@ public class Logger {
     public static final int STATION_CONTEN_LOG = 10;
     public static final int TRANSPORT_CONTENT_LOG = 11;
     public static final int CONTENT_LOG = 12;
-
+    public static final int WIFI_LOG = 13;
+    public static final int UPDATE_CONTENT_LOG = 14;
 
 
 
@@ -46,6 +47,8 @@ public class Logger {
         mType.put(STATION_CONTEN_LOG, "Station_content_task");
         mType.put(TRANSPORT_CONTENT_LOG, "Transport_content_task");
         mType.put(CONTENT_LOG, "Content_task");
+        mType.put(WIFI_LOG, "Wifi_task");
+        mType.put(UPDATE_CONTENT_LOG, "Update content log");
 
 
 

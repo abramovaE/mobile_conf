@@ -72,12 +72,8 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
         utils.clearTransivers();
         scannerAdapter.notifyDataSetChanged();
         scan();
-
         return view;
     }
-
-
-
 
 
 
@@ -85,4 +81,5 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
     public abstract void setMainTextLabel();
     public abstract void rescan();
     public abstract void scan();
+
 }

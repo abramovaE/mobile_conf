@@ -85,7 +85,7 @@ public class TransportContentFragment extends ContentFragment implements View.On
     protected void updateBtnCotentSendState(){
         if(spnType.getSelectedItemPosition()> 0 && !number.getText().toString().isEmpty()
                 && !liter.getText().toString().isEmpty() && spnDir.getSelectedItemPosition() > 0
-                && transportTransiver.getIp() != null){
+                && utils.getIp(transportTransiver.getSsid()) != null){
                 btnContntSend.setEnabled(true);
         }
         else {

@@ -14,8 +14,10 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -35,6 +37,7 @@ public class Utils {
     private InformerFilter filter;
     private Timer updateLv;
     private ListView transiversLv;
+    private Map<String, String> transMap;
 
     public List<Transiver> getTransivers() {
         return transivers;
@@ -45,6 +48,7 @@ public class Utils {
         this.transivers = new ArrayList<>();
         filter = new InformerFilter(this);
         ssidListRunTime = new HashSet<>();
+        transMap = new HashMap<>();
     }
 
     public ListView getTransiversLv() {
@@ -147,38 +151,51 @@ public class Utils {
     }
 
 
-    public void addSshTransiver(Transiver transiver){
+    public void addTakeInfo(String takeInfo, boolean createNew){
         boolean isExist = false;
+        String[] info = takeInfo.split("\n");
+        String ip = info[2].trim();
+        String ssid = info[1].trim();
+        String macWifi = info[3].trim();
+        String macBt = info[4].trim();
+        String boardVersion = info[5].trim();
+        String osVersion = info[6].trim();
+        String stmFirmware = info[7].trim();
+        String stmBootloader = info[8].trim();
+        String core = info[9].trim();
+        String modem = info[10].trim();
+        String incrementOfContent = info[11].trim();
+        String uptime = info[12].trim();
+        String cpuTemp = info[13].trim();
+        String load = info[14].trim();
+
         for(Transiver t: transivers){
-            Logger.d(Logger.UTILS_LOG, "t: " + t.getSsid() + " " + transiver.getSsid() + t.getSsid().equals(transiver.getSsid()));
-            if(t.getSsid() != null && t.getSsid().equals(transiver.getSsid())){
+            if(t.getSsid() != null && t.getSsid().equals(ssid)){
                 Logger.d(Logger.UTILS_LOG, "update transiver");
-                t.setIp(transiver.getIp());
-                t.setMacWifi(transiver.getMacWifi());
-                t.setMacBt(transiver.getMacBt());
-                t.setBoardVersion(transiver.getBoardVersion());
-                t.setOsVersion(transiver.getOsVersion());
-                t.setStmFirmware(transiver.getStmFirmware());
-                t.setStmBootloader(transiver.getStmBootloader());
-                t.setCore(transiver.getCore());
-                t.setModem(transiver.getModem());
-                t.setIncrementOfContent(transiver.getIncrementOfContent());
-                t.setUptime(transiver.getUptime());
-                t.setCpuTemp(transiver.getCpuTemp());
-                t.setLoad(transiver.getLoad());
+                t.setIp(ip);
+                t.setMacWifi(macWifi);
+                t.setMacBt(macBt);
+                t.setBoardVersion(boardVersion);
+                t.setOsVersion(osVersion);
+                t.setStmFirmware(stmFirmware);
+                t.setStmBootloader(stmBootloader);
+                t.setCore(core);
+                t.setModem(modem);
+                t.setIncrementOfContent(incrementOfContent);
+                t.setUptime(uptime);
+                t.setCpuTemp(cpuTemp);
+                t.setLoad(load);
                 isExist = true;
-                return;
             }
-
         }
-
-        if(!isExist) {
+        if(!isExist && createNew) {
             Logger.d(Logger.UTILS_LOG, "add new transiver");
-
+            Transiver transiver = new Transiver(ssid, ip, macWifi, macBt, boardVersion, osVersion,
+                        stmFirmware, stmBootloader, core, modem, incrementOfContent,
+                        uptime, cpuTemp, load);
             transivers.add(transiver);
         }
-
-
+        transMap.put(ssid, ip);
     }
 
     public void removeTransiver(Transiver transiver){
@@ -243,5 +260,9 @@ public class Utils {
 
     public void addToSsidRunTimeSet(String ssid) {
         ssidListRunTime.add(ssid);
+    }
+
+    public String getIp(String ssid){
+        return transMap.get(ssid);
     }
 }

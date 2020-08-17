@@ -59,10 +59,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
         ChannelSftp channelSftp = null;
         ChannelExec channelExec = null;
         Channel channel = null;
-        StringBuilder sb = null;
-        InputStream commandOutput = null;
-        int readByte = 0;
-
 
         try {
             JSch jsch = new JSch();
@@ -115,15 +111,10 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                         @Override
                         public void end() {
                             Logger.d(Logger.SSH_CONNECTION_LOG, "end transfering");
-//                            sftpChannel.exit();
                         }
                     });
                     Logger.d(Logger.SSH_CONNECTION_LOG, "updateOsFile completed");
-
-                    // SSH Channel
-                    channelExec = (ChannelExec) session.openChannel("exec");
-                    channelExec.setCommand(REBOOT_COMMAND);
-                    channelExec.connect();
+                    execCommand(session, REBOOT_COMMAND);
                     res = "updateos:" + ip;
                     break;
 
@@ -149,83 +140,35 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                         }
                     });
 
-                    channelExec = (ChannelExec) session.openChannel("exec");
                     String moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/data.tar.bz2";
-                    channelExec.setCommand(moveCommand + ";" + REBOOT_COMMAND);
-                    channelExec.connect();
+                    execCommand(session, moveCommand + ";" + REBOOT_COMMAND);
                     res = "Downloaded" + ip;
                     break;
 
                 case REBOOT_COMMAND:
-                    channelExec = (ChannelExec) session.openChannel("exec");
-                    channelExec.setCommand(REBOOT_COMMAND);
-                    channelExec.connect();
+                    execCommand(session, REBOOT_COMMAND);
                     res = "reboot:" + ip;
                     break;
 
                 case REBOOT_STM_COMMAND:
-
-                    // SSH Channel
-                    channelExec = (ChannelExec) session.openChannel("exec");
-                    channelExec.setCommand(REBOOT_STM_COMMAND);
-                    sb = new StringBuilder();
-                    channelExec.connect();
-                    commandOutput = channelExec.getInputStream();
-                    Thread.sleep(1000);
-                    readByte = 0;
-                    while ((readByte = commandOutput.read()) != -1) {
-                        sb.append((char) readByte);
-                    }
-                    res = sb.toString();
+                    execCommand(session, REBOOT_STM_COMMAND);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "reboot stm res" + res);
                     break;
 
                 case CLEAR_RASP_COMMAND:
-                    channelExec = (ChannelExec) session.openChannel("exec");
-                    channelExec.setCommand(CLEAR_RASP_COMMAND);
-                    sb = new StringBuilder();
-                    channelExec.connect();
-                    commandOutput = channelExec.getInputStream();
-                    Thread.sleep(1000);
-                    readByte = 0;
-                    while ((readByte = commandOutput.read()) != -1) {
-                        sb.append((char) readByte);
-                    }
-                    res = sb.toString();
+                    execCommand(session, CLEAR_RASP_COMMAND);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "clear rasp res" + res);
                     break;
 
                 case SEND_TRANSPORT_CONTENT_COMMAND:
-                    channelExec = (ChannelExec) session.openChannel("exec");
                     String command = SEND_TRANSPORT_CONTENT_COMMAND + " " + req[2] + " " + req[3] + " " + req[4] + " " + req[5];
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "send command: " + command);
-                    channelExec.setCommand(command);
-                    sb = new StringBuilder();
-                    channelExec.connect();
-                    commandOutput = channelExec.getInputStream();
-                    Thread.sleep(1000);
-                    readByte = 0;
-                    while ((readByte = commandOutput.read()) != -1) {
-                        sb.append((char) readByte);
-                    }
-                    res = sb.toString();
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "clear rasp res" + res);
+                    execCommand(session, command);
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "send transport content res" + res);
                     break;
 
                 case SEND_STATION_CONTENT_COMMAND:
-                    channelExec = (ChannelExec) session.openChannel("exec");
                     String comm = (String) req[2];
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "send command: " + comm);
-                    channelExec.setCommand(comm);
-                    sb = new StringBuilder();
-                    channelExec.connect();
-                    commandOutput = channelExec.getInputStream();
-                    Thread.sleep(2000);
-                    readByte = 0;
-                    while ((readByte = commandOutput.read()) != -1) {
-                        sb.append((char) readByte);
-                    }
-                    res = sb.toString();
+                    execCommand(session, comm);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "send station content" + res);
                     break;
             }
@@ -260,4 +203,39 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
             listener.onTaskCompleted(bundle);
         }
     }
+
+
+
+
+    private String execCommand(Session session, String command) throws IOException {
+        String res = "";
+        ChannelExec channelExec = null;
+        InputStream commandOutput = null;
+        try {
+            channelExec = (ChannelExec) session.openChannel("exec");
+            channelExec.setCommand(command);
+            StringBuilder sb = new StringBuilder();
+            channelExec.connect();
+            commandOutput = channelExec.getInputStream();
+            Thread.sleep(2000);
+            int readByte = 0;
+            while ((readByte = commandOutput.read()) != -1) {
+                sb.append((char) readByte);
+            }
+            res = sb.toString();
+        } catch (JSchException | IOException | InterruptedException e) {
+            e.printStackTrace();
+        }
+        finally {
+            if(commandOutput != null){
+                commandOutput.close();
+            }
+            if(channelExec != null){
+                channelExec.disconnect();
+            }
+        }
+        return res;
+    }
+
+
 }
