@@ -3,8 +3,11 @@ package com.kotofeya.mobileconfigurator;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.SharedPreferences;
 
 import androidx.fragment.app.Fragment;
+
+import java.io.File;
 
 public class App extends Application {
 
@@ -13,6 +16,11 @@ public class App extends Application {
     private Context context;
     private FragmentHandler fragmentHandler;
 
+    private SharedPreferences preferences;
+    private String updateOsFilePath;
+    private String updateOsFileVersion;
+
+    private static final String PREF_NAME = "mobile_conf_pref";
 
 
     public static App get() {
@@ -23,7 +31,30 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+        preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+        updateOsFilePath = preferences.getString("updateOsFilePath", "");
+        updateOsFilePath = preferences.getString("updateOsFileVersion", "");
+        Downloader.tempUpdateOsFile = new File(updateOsFilePath);
 
+    }
+
+
+    public String getUpdateOsFilePath() {
+        return updateOsFilePath;
+    }
+
+    public void setUpdateOsFilePath(String updateOsFilePath) {
+        preferences.edit().putString("updateOsFilePath", updateOsFilePath).commit();
+        this.updateOsFilePath = updateOsFilePath;
+    }
+
+    public String getUpdateOsFileVersion() {
+        return updateOsFileVersion;
+    }
+
+    public void setUpdateOsFileVersion(String updateOsFileVersion) {
+        preferences.edit().putString("updateOsFileVersion", updateOsFileVersion).commit();
+        this.updateOsFileVersion = updateOsFileVersion;
     }
 
     public Context getContext() {

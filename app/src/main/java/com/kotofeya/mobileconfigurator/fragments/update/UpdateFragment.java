@@ -76,7 +76,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         View view = inflater.inflate(R.layout.scanner_fragment, container, false);
 
         lvScanner = view.findViewById(R.id.lv_scanner);
-        versionLabel = view.findViewById(R.id.scanner_label);
+        versionLabel = view.findViewById(R.id.scanner_label0);
         checkVersionButton = view.findViewById(R.id.scanner_btn);
         mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
         mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);

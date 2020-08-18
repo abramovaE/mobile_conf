@@ -3,6 +3,7 @@ package com.kotofeya.mobileconfigurator;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Environment;
 import android.widget.Toast;
 
 
@@ -53,7 +54,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
 
 
 
-    private String osVersion;
+    private static String osVersion;
     private String stmVersion;
 
     private OnTaskCompleted listener;
@@ -87,7 +88,8 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
 
     @Override
     protected void onPreExecute() {
-        createTempUpdateOsFile();
+//        createTempUpdateOsFile();
+        createUpdateOsFile();
     }
 
 
@@ -104,6 +106,25 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
 
             tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
             tempUpdateOsFile.deleteOnExit();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    private void createUpdateOsFile(){
+        File outputDir = App.get().getContext().getExternalFilesDir(null);
+        try {
+            Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateOsFile: " + tempUpdateOsFile);
+
+            if(tempUpdateOsFile != null && tempUpdateOsFile.exists()){
+                Logger.d(Logger.DOWNLOAD_LOG, "delete exist file");
+                tempUpdateOsFile.delete();
+            }
+            Logger.d(Logger.DOWNLOAD_LOG, " creating new temp file");
+
+            tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
+//            tempUpdateOsFile.deleteOnExit();
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -231,6 +252,9 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
 //                    output.close();
                     bundle.putString("result", "Downloaded");
                     bundle.putString("ip", currentIp);
+                    App.get().setUpdateOsFileVersion(osVersion);
+                    App.get().setUpdateOsFilePath(tempUpdateOsFile.getAbsolutePath());
+
                     return bundle;
 
 

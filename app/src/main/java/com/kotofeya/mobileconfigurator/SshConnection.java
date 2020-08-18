@@ -276,7 +276,18 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
             Logger.d(Logger.SSH_CONNECTION_LOG, "tar entry: " + entry.getName() + ", isContainsBin: " + entry.getName().contains(".bin"));
 
             if(entry.getName().contains(".bin")){
-                binFile = new File(file.getParent() + "/" + entry.getName().substring(entry.getName().lastIndexOf("/")));
+                if(entry.getName().contains("static")){
+                    binFile = new File(file.getParent() + "/mobile" + entry.getName().substring(entry.getName().lastIndexOf("_")));
+                }
+                else if(entry.getName().contains("mobile")){
+                    String s = entry.getName().substring(entry.getName().indexOf("ver.") + 4);
+                    if(s.contains("_")){
+                        s = s.replace("_", ".");
+                    }
+                    binFile = new File(file.getParent() + "/mobile_" + s);
+                }
+                Logger.d(Logger.SSH_CONNECTION_LOG, "bin file size: " + binFile.length() + ", bin file name: " + binFile.getName());
+
                 FileOutputStream fileOutputStream = new FileOutputStream(binFile);
                 int i = 0;
                 while ((i = tarIn.read()) > 0){
@@ -292,6 +303,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
             e.printStackTrace();
         }
         return binFile;
+
+//        "mobile_chislovaya_versia_.bin"
     }
 
 
