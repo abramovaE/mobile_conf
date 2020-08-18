@@ -270,9 +270,9 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                 if (s.startsWith("M")) {
                     String key = "";
                     if (s.startsWith("MP")) {
-                        key = "mobile Spb";
+                        key = "mobile Spb " + s.substring(2, s.indexOf(".tar.bz2"));
                     } else if (s.startsWith("MR")) {
-                        key = "mobile Rostov";
+                        key = "mobile Rostov " + s.substring(2, s.indexOf(".tar.bz2"));
                     }
 
                     if (s.endsWith("b.tar.bz2")) {
@@ -284,9 +284,9 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                 } else if (s.startsWith("S")) {
                     String key = "";
                     if (s.startsWith("SP")) {
-                        key = "stationary Spb";
+                        key = "stationary Spb " + s.substring(2, s.indexOf(".tar.bz2"));
                     } else if (s.startsWith("SR")) {
-                        key = "stationary Rostov";
+                        key = "stationary Rostov " + s.substring(2, s.indexOf(".tar.bz2"));
                     }
                     if (s.endsWith("b.tar.bz2")) {
                         key = key + " bootloader";

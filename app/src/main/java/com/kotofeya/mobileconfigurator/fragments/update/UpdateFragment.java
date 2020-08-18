@@ -124,8 +124,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     protected void scan(){
         List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
         for(String s: clients){
-//            Transiver transiver = new Transiver(s);
-//            utils.addSshTransiver(transiver);
             SshConnection connection = new SshConnection(this);
             connection.execute(s, SshConnection.TAKE_COMMAND);
         }
@@ -182,6 +180,5 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     abstract void loadVersion();
     abstract void setMainTextLabelText();
     abstract ScannerAdapter getScannerAdapter();
-
 
 }

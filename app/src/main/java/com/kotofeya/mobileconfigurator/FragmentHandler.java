@@ -157,12 +157,6 @@ public class FragmentHandler {
 //        fragmentTransaction.commit();
     }
 
-    public void addMainFragment(){
-
-        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-        fragmentTransaction.add(R.id.fragment_container, new MainMenuFragment(), MAIN_FRAGMENT_TAG);
-        fragmentTransaction.commit();
-    }
 
 
     private void setFragment(Fragment fragment, String tag, boolean stacked){
