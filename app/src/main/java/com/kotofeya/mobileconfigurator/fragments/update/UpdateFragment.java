@@ -15,6 +15,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
@@ -155,6 +156,15 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 connection.execute(bundle.getString("ip"), SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, filePath);
             }
 
+            else if(result.contains("content")){
+                Logger.d(Logger.UPDATE_OS_LOG, "content files transport: " + Downloader.tempUpdateTransportContentFiles);
+                Logger.d(Logger.UPDATE_OS_LOG, "content files stationary: " + Downloader.tempUpdateStationaryContentFiles);
+
+
+
+
+            }
+
             else {
                 Logger.d(Logger.UPDATE_OS_LOG, "notifyDataSetChanged, transivers: " + utils.getTransivers().size());
                 if (result.split("\n").length > 10) {
@@ -162,7 +172,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 }
                 scannerAdapter.notifyDataSetChanged();
             }
-
         }
         else {
             Logger.d(Logger.UPDATE_OS_LOG, "notifyDataSetChanged, transivers: " + utils.getTransivers().size());

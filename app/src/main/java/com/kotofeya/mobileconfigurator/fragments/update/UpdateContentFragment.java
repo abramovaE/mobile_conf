@@ -10,6 +10,7 @@ import android.widget.LinearLayout;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
@@ -30,6 +31,10 @@ public class UpdateContentFragment extends UpdateFragment {
 
     @Override
     void loadVersion() {
+        Downloader transpDownloader = new Downloader(this);
+        transpDownloader.execute(Downloader.TRANSPORT_CONTENT_VERSION_URL);
+        Downloader stationDownloader = new Downloader(this);
+        stationDownloader.execute(Downloader.STATION_CONTENT_VERSION_URL);
     }
 
     @Override

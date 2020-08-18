@@ -152,10 +152,59 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             });
         } else if (scannerType == UPDATE_CONTENT_TYPE) {
             // TODO: 18.07.20  set increment
+
             textItem0.setVisibility(View.VISIBLE);
-            textItem0.setText(p.getIncrementOfContent());
+            if(p.getIncrementOfContent() != null && p.getIncrementOfContent().isEmpty()){
+                textItem0.setText("no incr");
+            }
+            else {
+                textItem0.setText(p.getIncrementOfContent());
+            }
+
+            Logger.d(Logger.SCANNER_ADAPTER_LOG, "isTransport: " + p.isTransport());
+
+            StringBuilder sb = new StringBuilder();
+            boolean isTransport = p.isTransport();
+            boolean isStationary = p.isStationary();
+
+
+            if(p.getSsid().equalsIgnoreCase("6424")){
+                isStationary = true;
+            }
+            else {
+                isTransport = true;
+            }
+
+            if(isTransport){
+                if(Downloader.tempUpdateTransportContentFiles != null){
+                    for(String s: Downloader.tempUpdateTransportContentFiles){
+                        sb.append(s.substring(0, s.indexOf(".tar")));
+                        sb.append(", ");
+                    }
+                    sb.delete(sb.lastIndexOf(","), sb.length());
+                    textItem1.setText(sb.toString());
+                }
+                else {
+                    textItem1.setText("no updates");
+                }
+            }
+
+            else if(isStationary){
+                if(Downloader.tempUpdateStationaryContentFiles != null){
+                    for(String s: Downloader.tempUpdateStationaryContentFiles){
+                        if(s.contains(p.getSsid())){
+                            textItem1.setText(s.substring(s.indexOf(".") + 1, s.indexOf(".tar")));
+                        }
+                    }
+                }
+                else {
+                    textItem1.setText("no updates");
+                }
+            }
             textItem1.setVisibility(View.VISIBLE);
-            textItem1.setText("");
+
+
+
 
             linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -186,7 +235,12 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             }
         } else if (scannerType == CONFIG_STATION) {
             if (p.isStationary()) {
-                textItem0.setText(p.getIp());
+                if(p.getIncrementOfContent() != null && p.getIncrementOfContent().isEmpty()){
+                    textItem0.setText("no incr");
+                }
+                else {
+                    textItem0.setText(p.getIncrementOfContent());
+                }
                 textItem0.setVisibility(View.VISIBLE);
                 view.setOnClickListener(configListener(FragmentHandler.STATION_CONTENT_FRAGMENT, p.getSsid()));
             }

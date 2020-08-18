@@ -27,13 +27,31 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
 
     public static final String OS_VERSION_URL = "http://95.161.210.44/update/rootimg";
     public static final String STM_VERSION_URL = "http://95.161.210.44/update/data/stm";
-    public static final String STM_URL = "http://95.161.210.44/update/data/stm/";
+
+
+    public static final String TRANSPORT_CONTENT_VERSION_URL = "http://95.161.210.44/update/content/transp";
+    public static final String STATION_CONTENT_VERSION_URL = "http://95.161.210.44/update/content/station";
 
 
     public static final String OS_URL = "http://95.161.210.44/update/rootimg/root.img.bz2";
 
     public static File tempUpdateOsFile;
     public static List<String> tempUpdateStmFiles;
+
+
+    public static List<String> tempUpdateTransportContentFiles;
+    public static List<String> tempUpdateStationaryContentFiles;
+
+//    // TODO: 18.08.2020 for test, delete in release
+//    static {
+//        tempUpdateTransportContentFiles = new ArrayList<>();
+//        tempUpdateStationaryContentFiles = new ArrayList<>();
+//        tempUpdateTransportContentFiles.add("spb.2.tar.bz2");
+//        tempUpdateTransportContentFiles.add("ros.1.tar.bz2");
+//        tempUpdateStationaryContentFiles.add("6424.1.tar.bz2");
+//    }
+
+
 
     private String osVersion;
     private String stmVersion;
@@ -58,7 +76,11 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
         catch (IOException ex) {
 //            Toast.makeText((MainActivity)App.get().getContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
             Logger.d(Logger.DOWNLOAD_LOG, "getContentException: " + ex.getMessage() + " " + ex.getCause());
-            return null;
+
+            Bundle bundle = new Bundle();
+            bundle.putString("result", "get content exception");
+            bundle.putString("ip", currentIp);
+            return bundle;
         }
     }
 
@@ -211,13 +233,51 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
                     bundle.putString("ip", currentIp);
                     return bundle;
 
-//                    return "Downloaded";
 
-//                case STM_URL:
+                case TRANSPORT_CONTENT_VERSION_URL:
+                    tempUpdateTransportContentFiles = new ArrayList<>();
+                    BufferedReader r1 = new BufferedReader(new InputStreamReader(input));
+                    while ((s = r1.readLine()) != null) {
+//                        if (s.contains("ver.")) {
+//                            stmVersion = s.substring(0, s.indexOf("<"));
+//                        } else if (s.contains("M")) {
+//                            String sub = s.substring(s.lastIndexOf("M"));
+//                            tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
+//                        } else if (s.contains("S")) {
+//                            String sub = s.substring(s.lastIndexOf("S"));
+//                            tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
+//                        }
 //
+                        tempUpdateTransportContentFiles.add(s);
 //
+                    }
+                    r1.close();
+                    bundle.putString("result", "transport content");
+                    bundle.putString("ip", currentIp);
+                    return bundle;
+
+                case STATION_CONTENT_VERSION_URL:
+
+                    tempUpdateStationaryContentFiles = new ArrayList<>();
+                BufferedReader r2 = new BufferedReader(new InputStreamReader(input));
+                while ((s = r2.readLine()) != null) {
+//                        if (s.contains("ver.")) {
+//                            stmVersion = s.substring(0, s.indexOf("<"));
+//                        } else if (s.contains("M")) {
+//                            String sub = s.substring(s.lastIndexOf("M"));
+//                            tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
+//                        } else if (s.contains("S")) {
+//                            String sub = s.substring(s.lastIndexOf("S"));
+//                            tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
+//                        }
 //
-//                    return "Downloaded";
+                    tempUpdateStationaryContentFiles.add(s);
+//
+                }
+                r2.close();
+                bundle.putString("result", "stationary content");
+                bundle.putString("ip", currentIp);
+                return bundle;
 
             }
         }

@@ -51,7 +51,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
     public static final String MODEM_CONFIG_BEELINE_MEGAF_COMMAND = "sudo sed -I ’s/beeline-m2m/megafon-m2m/g’ /etc/init.d/S99stp-tools";
 
     private static final String CLEAR_ARCHIVE_DIR_COMMAND = "sudo rm -rf /var/www/html/data/archive/*";
-    private static final String CLEAR_UPDATE_STM_LOG_COMMAND = "sudo rm /var/www/html/data/stm_update_log;sudo touch /var/www/html/data/stm_update_log";
+    private static final String DELETE_UPDATE_STM_LOG_COMMAND = "sudo rm /var/www/html/data/stm_update_log";
+    private static final String CREATE_UPDATE_STM_LOG_COMMAND = "sudo touch /var/www/html/data/stm_update_log";
 
     private OnTaskCompleted listener;
     private String ip;
@@ -112,8 +113,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                     break;
 
                 case UPDATE_STM_LOAD_FILE_COMMAND:
-                    String clearArchiveDir = execCommand(session, CLEAR_ARCHIVE_DIR_COMMAND);
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "clear archive dir result: " + clearArchiveDir);
+                    execCommand(session, CLEAR_ARCHIVE_DIR_COMMAND);
+                    String archiveDir = execCommand(session, "ls /var/www/html/data/archive/");
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "ls /var/www/html/data/archive/ result: " + archiveDir);
 
                     String filePath = (String) req[2];
                     File file = new File(filePath);
@@ -126,13 +128,16 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
 //                    execCommand(session, moveCommand + ";" + REBOOT_COMMAND);
                     String h = execCommand(session, "ls /overlay/update");
                     Logger.d(Logger.SSH_CONNECTION_LOG, "ls /overlay/update res: " + h);
-
                     String moveCommand = "sudo mv " + "/overlay/update/" + binFile.getName() + " /var/www/html/data/archive/" + binFile.getName();
                     String s = execCommand(session, moveCommand);
                     String r = execCommand(session, "ls /var/www/html/data/archive/");
                     Logger.d(Logger.SSH_CONNECTION_LOG, "ls /var/www/html/data/archive/ res: " + r);
-                    String f = execCommand(session, CLEAR_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND);
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "clear update stm log command res: " + f);
+
+                    execCommand(session, DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND);
+
+                    String aftClearLogFileSize = execCommand(session, "du -h /var/www/html/data/stm_update_log");
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "log file size after clearing: " + aftClearLogFileSize);
+                    execCommand(session, REBOOT_COMMAND);
                     res = "Downloaded" + ip;
                     break;
 
