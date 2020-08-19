@@ -1,9 +1,16 @@
 package com.kotofeya.mobileconfigurator;
 
 
+import android.app.Dialog;
+import android.content.DialogInterface;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.ListView;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
@@ -264,5 +271,30 @@ public class Utils {
 
     public String getIp(String ssid){
         return transMap.get(ssid);
+    }
+
+    public static class MessageDialog extends DialogFragment {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            String message = getArguments().getString("message");
+            builder.setMessage(message);
+            builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                }
+            });
+            builder.setCancelable(true);
+            return builder.create();
+        }
+    }
+
+
+    public void showMessage(String message){
+        Bundle bundle = new Bundle();
+        bundle.putString("message", message);
+        Utils.MessageDialog dialog = new Utils.MessageDialog();
+        dialog.setArguments(bundle);
+        dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
     }
 }

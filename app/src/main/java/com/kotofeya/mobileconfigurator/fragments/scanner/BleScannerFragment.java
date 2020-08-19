@@ -49,26 +49,17 @@ public class BleScannerFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.scanner_fragment, container, false);
         lvScanner = view.findViewById(R.id.lv_scanner);
-
         TextView mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
         mainTxtLabel.setText(R.string.ble_scan_main_txt_label);
-
         mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
-
-
         utils.setTransiversLv(lvScanner);
         scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.BLE_SCANNER_TYPE);
         lvScanner.setAdapter(scannerAdapter);
         return view;
     }
 
-
     private void scan(){
         utils.setRadioType(Utils.ALL_RADIO_TYPE);
         utils.getBluetooth().startScan(false);
     }
-
-
-
-
 }

@@ -22,7 +22,6 @@ import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 
-import java.util.List;
 
 public abstract class ConfigFragment extends Fragment implements OnTaskCompleted {
 

@@ -23,6 +23,8 @@ public class Logger {
     public static final int WIFI_LOG = 13;
     public static final int UPDATE_CONTENT_LOG = 14;
     public static final int APP_LOG = 15;
+    public static final int UPDATE_STM_LOG = 16;
+
 
 
 
@@ -48,8 +50,9 @@ public class Logger {
         mType.put(TRANSPORT_CONTENT_LOG, "Transport_content_task");
         mType.put(CONTENT_LOG, "Content_task");
         mType.put(WIFI_LOG, "Wifi_task");
-        mType.put(UPDATE_CONTENT_LOG, "Update content log");
+        mType.put(UPDATE_CONTENT_LOG, "Update_content_task");
         mType.put(APP_LOG, "App_task");
+        mType.put(UPDATE_STM_LOG, "Update_stm_task");
 
 
 

@@ -112,7 +112,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             expButton.setVisibility(View.VISIBLE);
             exp.setText(p.getExpBasicScanInfo());
         } else if (scannerType == BLE_SCANNER_TYPE) {
-            Logger.d(Logger.UTILS_LOG, "scanner " + p.getSsid() + " " + p.isTransport());
+            Logger.d(Logger.SCANNER_ADAPTER_LOG, "scanner " + p.getSsid() + " " + p.isTransport());
             expButton.setVisibility(View.VISIBLE);
             exp.setText(p.getBleExpText());
         } else if (scannerType == UPDATE_OS_TYPE) {
@@ -127,7 +127,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                     if (new File(App.get().getUpdateOsFilePath()).length() > 1000) {
                         Bundle bundle = new Bundle();
                         bundle.putString("ip", transiver.getIp());
-                        UpdateOsConfDialog dialog = new UpdateOsConfDialog();
+                        UpdateOsFragment.UpdateOsConfDialog dialog = new UpdateOsFragment.UpdateOsConfDialog();
                         dialog.setArguments(bundle);
                         dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
                     }
@@ -146,7 +146,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                         bundle.putString("ip", transiver.getIp());
                         bundle.putBoolean("isTransport", transiver.isTransport());
                         bundle.putBoolean("isStationary", transiver.isStationary());
-                        UpdateStmConfDialog dialog = new UpdateStmConfDialog();
+                        UpdateStmFragment.UpdateStmConfDialog dialog = new UpdateStmFragment.UpdateStmConfDialog();
                         dialog.setArguments(bundle);
                         dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
                     }
@@ -279,151 +279,150 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
     }
 
 
-    public static class UpdateOsConfDialog extends DialogFragment {
-
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            String ip = getArguments().getString("ip");
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Confirmation is required");
-            builder.setMessage("Confirm the upload of the updates");
-            builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    View view = ((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()).getView();
-                    ProgressBar p = view.findViewById(R.id.scanner_progressBar);
-                    p.setVisibility(View.VISIBLE);
-
-                    SshConnection connection = new SshConnection(((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()));
-                    connection.execute(ip, SshConnection.UPDATE_OS_UPLOAD_CODE);
-                }
-            });
-            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                }
-            });
-            builder.setCancelable(true);
-            return builder.create();
-        }
-    }
-
-
-    public static class UpdateStmConfDialog extends DialogFragment {
+//    public static class UpdateOsConfDialog extends DialogFragment {
+//
+//        @NonNull
+//        @Override
+//        public Dialog onCreateDialog(Bundle savedInstanceState) {
+//            String ip = getArguments().getString("ip");
+//            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//            builder.setTitle("Confirmation is required");
+//            builder.setMessage("Confirm the upload of the updates");
+//            builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
+//                public void onClick(DialogInterface dialog, int id) {
+//                    View view = ((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()).getView();
+//                    ProgressBar p = view.findViewById(R.id.scanner_progressBar);
+//                    p.setVisibility(View.VISIBLE);
+//                    SshConnection connection = new SshConnection(((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()));
+//                    connection.execute(ip, SshConnection.UPDATE_OS_UPLOAD_CODE);
+//                }
+//            });
+//            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+//                public void onClick(DialogInterface dialog, int id) {
+//                }
+//            });
+//            builder.setCancelable(true);
+//            return builder.create();
+//        }
+//    }
 
 
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
+//    public static class UpdateStmConfDialog extends DialogFragment {
+//
+//
+//        @NonNull
+//        @Override
+//        public Dialog onCreateDialog(Bundle savedInstanceState) {
+//
+//            boolean isTransport = getArguments().getBoolean("isTransport");
+//            boolean isStationary = getArguments().getBoolean("isStationary");
+//            String ip = getArguments().getString("ip");
+//
+////            List<String> transportContent = new ArrayList<>();
+////            List<String> stationaryContent = new ArrayList<>();
+//            Map<String, String> transportContent = new HashMap<>();
+//            Map<String, String> stationaryContent = new HashMap<>();
+//
+//
+//            String[] content;
+//            for (String s : Downloader.tempUpdateStmFiles) {
+//                if (s.startsWith("M")) {
+//                    String key = "";
+//                    if (s.startsWith("MP")) {
+//                        key = "mobile Spb " + s.substring(2, s.indexOf(".tar.bz2"));
+//                    } else if (s.startsWith("MR")) {
+//                        key = "mobile Rostov " + s.substring(2, s.indexOf(".tar.bz2"));
+//                    }
+//
+//                    if (s.endsWith("b.tar.bz2")) {
+//                        key = key + " bootloader";
+//                    }
+//
+//                    transportContent.put(key, s);
+////                    transportContent.add(s);
+//                } else if (s.startsWith("S")) {
+//                    String key = "";
+//                    if (s.startsWith("SP")) {
+//                        key = "stationary Spb " + s.substring(2, s.indexOf(".tar.bz2"));
+//                    } else if (s.startsWith("SR")) {
+//                        key = "stationary Rostov " + s.substring(2, s.indexOf(".tar.bz2"));
+//                    }
+//                    if (s.endsWith("b.tar.bz2")) {
+//                        key = key + " bootloader";
+//                    }
+//                    stationaryContent.put(key, s);
+////                    stationaryContent.add(s);
+//                }
+//            }
+//
+//            Map<String, String> commonContent = new HashMap<>();
+//            commonContent.putAll(transportContent);
+//            commonContent.putAll(stationaryContent);
+//
+//            if (isTransport) {
+//                content = transportContent.keySet().toArray(new String[transportContent.size()]);
+//            } else if (isStationary) {
+//                content = stationaryContent.keySet().toArray(new String[stationaryContent.size()]);
+//            } else {
+//
+//                content = commonContent.keySet().toArray(new String[commonContent.size()]);
+////                content = Downloader.tempUpdateStmFiles.toArray(new String[Downloader.tempUpdateStmFiles.size()]);
+//            }
+//
+//
+//            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+//            builder.setTitle("Choose the stm version for upload");
+//            builder.setItems(content,
+//                    new DialogInterface.OnClickListener() {
+//                        @Override
+//                        public void onClick(DialogInterface dialog, int which) {
+//                            Logger.d(Logger.SCANNER_ADAPTER_LOG, "dialogContent: " + content[which]);
+//
+//                            Bundle bundle = new Bundle();
+//                            bundle.putString("key", content[which]);
+//                            bundle.putString("value", commonContent.get(content[which]));
+//                            bundle.putString("ip", ip);
+//                            UpdateStmFragment.UploadStmConfDialog d = new UpdateStmFragment.UploadStmConfDialog();
+//                            d.setArguments(bundle);
+//                            d.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+//
+//
+////                    Downloader downloader = new Downloader((UpdateStmFragment)App.get().getFragmentHandler().getCurrentFragment());
+////                    downloader.execute(content[which]);
+//                        }
+//                    });
+//            builder.setCancelable(true);
+//            return builder.create();
+//        }
+//
+//
+//    }
 
-            boolean isTransport = getArguments().getBoolean("isTransport");
-            boolean isStationary = getArguments().getBoolean("isStationary");
-            String ip = getArguments().getString("ip");
 
-//            List<String> transportContent = new ArrayList<>();
-//            List<String> stationaryContent = new ArrayList<>();
-            Map<String, String> transportContent = new HashMap<>();
-            Map<String, String> stationaryContent = new HashMap<>();
-
-
-            String[] content;
-            for (String s : Downloader.tempUpdateStmFiles) {
-                if (s.startsWith("M")) {
-                    String key = "";
-                    if (s.startsWith("MP")) {
-                        key = "mobile Spb " + s.substring(2, s.indexOf(".tar.bz2"));
-                    } else if (s.startsWith("MR")) {
-                        key = "mobile Rostov " + s.substring(2, s.indexOf(".tar.bz2"));
-                    }
-
-                    if (s.endsWith("b.tar.bz2")) {
-                        key = key + " bootloader";
-                    }
-
-                    transportContent.put(key, s);
-//                    transportContent.add(s);
-                } else if (s.startsWith("S")) {
-                    String key = "";
-                    if (s.startsWith("SP")) {
-                        key = "stationary Spb " + s.substring(2, s.indexOf(".tar.bz2"));
-                    } else if (s.startsWith("SR")) {
-                        key = "stationary Rostov " + s.substring(2, s.indexOf(".tar.bz2"));
-                    }
-                    if (s.endsWith("b.tar.bz2")) {
-                        key = key + " bootloader";
-                    }
-                    stationaryContent.put(key, s);
-//                    stationaryContent.add(s);
-                }
-            }
-
-            Map<String, String> commonContent = new HashMap<>();
-            commonContent.putAll(transportContent);
-            commonContent.putAll(stationaryContent);
-
-            if (isTransport) {
-                content = transportContent.keySet().toArray(new String[transportContent.size()]);
-            } else if (isStationary) {
-                content = stationaryContent.keySet().toArray(new String[stationaryContent.size()]);
-            } else {
-
-                content = commonContent.keySet().toArray(new String[commonContent.size()]);
-//                content = Downloader.tempUpdateStmFiles.toArray(new String[Downloader.tempUpdateStmFiles.size()]);
-            }
-
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Choose the stm version for upload");
-            builder.setItems(content,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Logger.d(Logger.SCANNER_ADAPTER_LOG, "dialogContent: " + content[which]);
-
-                            Bundle bundle = new Bundle();
-                            bundle.putString("key", content[which]);
-                            bundle.putString("value", commonContent.get(content[which]));
-                            bundle.putString("ip", ip);
-                            UploadStmConfDialog d = new UploadStmConfDialog();
-                            d.setArguments(bundle);
-                            d.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
-
-
-//                    Downloader downloader = new Downloader((UpdateStmFragment)App.get().getFragmentHandler().getCurrentFragment());
-//                    downloader.execute(content[which]);
-                        }
-                    });
-            builder.setCancelable(true);
-            return builder.create();
-        }
-
-
-    }
-
-
-    public static class UploadStmConfDialog extends DialogFragment {
-        @NonNull
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            String key = getArguments().getString("key");
-            String value = getArguments().getString("value");
-            String ip = getArguments().getString("ip");
-            Logger.d(Logger.SCANNER_ADAPTER_LOG, "key: " + key);
-            AlertDialog.Builder builder = new AlertDialog.Builder((App.get().getFragmentHandler().getCurrentFragment()).getActivity());
-            builder.setTitle("Confirmation is required");
-            builder.setMessage("Confirm the upload of " + key);
-            builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    Downloader downloader = new Downloader((UpdateStmFragment) App.get().getFragmentHandler().getCurrentFragment());
-                    downloader.execute(value, ip);
-                }
-            });
-            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                }
-            });
-            builder.setCancelable(true);
-            return builder.create();
-        }
-    }
+//    public static class UploadStmConfDialog extends DialogFragment {
+//        @NonNull
+//        public Dialog onCreateDialog(Bundle savedInstanceState) {
+//            String key = getArguments().getString("key");
+//            String value = getArguments().getString("value");
+//            String ip = getArguments().getString("ip");
+//            Logger.d(Logger.SCANNER_ADAPTER_LOG, "key: " + key);
+//            AlertDialog.Builder builder = new AlertDialog.Builder((App.get().getFragmentHandler().getCurrentFragment()).getActivity());
+//            builder.setTitle("Confirmation is required");
+//            builder.setMessage("Confirm the upload of " + key);
+//            builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
+//                public void onClick(DialogInterface dialog, int id) {
+//                    Downloader downloader = new Downloader((UpdateStmFragment) App.get().getFragmentHandler().getCurrentFragment());
+//                    downloader.execute(value, ip);
+//                }
+//            });
+//            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+//                public void onClick(DialogInterface dialog, int id) {
+//                }
+//            });
+//            builder.setCancelable(true);
+//            return builder.create();
+//        }
+//    }
 
 }
 

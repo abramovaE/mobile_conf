@@ -1,6 +1,8 @@
 package com.kotofeya.mobileconfigurator.fragments.update;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,13 +11,14 @@ import android.widget.Button;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
-import com.kotofeya.mobileconfigurator.Downloader;
+import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
@@ -150,8 +153,9 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
             Transiver transiver = utils.getTransiverByIp(ip);
             utils.removeTransiver(transiver);
             scannerAdapter.notifyDataSetChanged();
-            Toast.makeText(context, "Uploaded", Toast.LENGTH_SHORT).show();
             progressBar.setVisibility(View.GONE);
+            utils.showMessage("Uploaded");
+
         }
 
         else if(resultCode == TaskCode.UPDATE_OS_VERSION_CODE){
@@ -160,8 +164,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         }
 
         else if(resultCode == TaskCode.UPDATE_OS_DOWNLOAD_CODE){
-            Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show();
             progressBar.setVisibility(View.GONE);
+            utils.showMessage("Downloaded");
         }
 
         else if(resultCode == TaskCode.UPDATE_STM_VERSION_CODE){
@@ -181,10 +185,13 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
             Transiver transiver = utils.getTransiverByIp(ip);
             utils.removeTransiver(transiver);
             scannerAdapter.notifyDataSetChanged();
-            Toast.makeText(context, "Uploaded", Toast.LENGTH_SHORT).show();
+            utils.showMessage("Uploaded");
             progressBar.setVisibility(View.GONE);
         }
 
+        else if(resultCode == TaskCode.SSH_ERROR_CODE || resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
+            utils.showMessage("Error");
+        }
     }
 
     @Override
@@ -196,5 +203,9 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     abstract void loadVersion();
     abstract void setMainTextLabelText();
     abstract ScannerAdapter getScannerAdapter();
+
+
+
+
 
 }

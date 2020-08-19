@@ -21,7 +21,6 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,6 +76,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
         try {
             JSch jsch = new JSch();
             this.ip = (String) req[0];
+            this.resultCode = (Integer) req[1];
             session = jsch.getSession("staff", ip, 22);
             session.setPassword("staff");
             ByteArrayOutputStream baos = null;
@@ -87,7 +87,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             session.connect();
             Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());
 
-            switch ((Integer) req[1]) {
+            switch (resultCode) {
                 case TAKE_CODE:
                     channel = session.openChannel("shell");
                     baos = new ByteArrayOutputStream();
@@ -106,7 +106,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     reader.close();
                     commander.close();
                     res = baos.toString().substring(baos.toString().lastIndexOf("$load") + 6, baos.toString().lastIndexOf("$ exit"));
-                    this.resultCode = TAKE_CODE;
                     break;
 
                 case UPDATE_OS_UPLOAD_CODE:
@@ -114,76 +113,67 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     uploadToOverlayUpdate(session, new File(App.get().getUpdateOsFilePath()));
                     Logger.d(Logger.SSH_CONNECTION_LOG, "updateOsFile completed");
                     execCommand(session, REBOOT_COMMAND);
-                    this.resultCode = UPDATE_OS_UPLOAD_CODE;
                     break;
 
                 case UPDATE_STM_UPLOAD_CODE:
                     execCommand(session, CLEAR_ARCHIVE_DIR_COMMAND);
-                    String archiveDir = execCommand(session, "ls /var/www/html/data/archive/");
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "ls /var/www/html/data/archive/ result: " + archiveDir);
+//                    String archiveDir = execCommand(session, "ls /var/www/html/data/archive/");
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "ls /var/www/html/data/archive/ result: " + archiveDir);
 
                     String filePath = (String) req[2];
                     File file = new File(filePath);
-
                     File binFile = getBinFromArchive(file);
 
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "file size: " + binFile.length() + ", file name: " + binFile.getName());
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "file size: " + binFile.length() + ", file name: " + binFile.getName());
                     uploadToOverlayUpdate(session, binFile);
 //                    String moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/data.tar.bz2";
 //                    execCommand(session, moveCommand + ";" + REBOOT_COMMAND);
-                    String h = execCommand(session, "ls /overlay/update");
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "ls /overlay/update res: " + h);
+//                    String h = execCommand(session, "ls /overlay/update");
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "ls /overlay/update res: " + h);
                     String moveCommand = "sudo mv " + "/overlay/update/" + binFile.getName() + " /var/www/html/data/archive/" + binFile.getName();
                     String s = execCommand(session, moveCommand);
-                    String r = execCommand(session, "ls /var/www/html/data/archive/");
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "ls /var/www/html/data/archive/ res: " + r);
+//                    String r = execCommand(session, "ls /var/www/html/data/archive/");
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "ls /var/www/html/data/archive/ res: " + r);
 
                     execCommand(session, DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND);
 
-                    String aftClearLogFileSize = execCommand(session, "du -h /var/www/html/data/stm_update_log");
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "log file size after clearing: " + aftClearLogFileSize);
+//                    String aftClearLogFileSize = execCommand(session, "du -h /var/www/html/data/stm_update_log");
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "log file size after clearing: " + aftClearLogFileSize);
                     execCommand(session, REBOOT_COMMAND);
-                    this.resultCode = UPDATE_STM_UPLOAD_CODE;
                     break;
 
                 case REBOOT_CODE:
                     execCommand(session, REBOOT_COMMAND);
-                    this.resultCode = REBOOT_CODE;
                     break;
 
                 case REBOOT_STM_CODE:
                     res = execCommand(session, REBOOT_STM_COMMAND);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "reboot stm res" + res);
-                    this.resultCode = REBOOT_STM_CODE;
                     break;
 
                 case CLEAR_RASP_CODE:
-                    execCommand(session, CLEAR_RASP_COMMAND);
+                    res = execCommand(session, CLEAR_RASP_COMMAND);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "clear rasp res" + res);
-                    this.resultCode = CLEAR_RASP_CODE;
-
                     break;
 
                 case SEND_TRANSPORT_CONTENT_CODE:
                     String command = SEND_TRANSPORT_CONTENT_COMMAND + " " + req[2] + " " + req[3] + " " + req[4] + " " + req[5];
                     execCommand(session, command);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "send transport content res" + res);
-                    this.resultCode = SEND_TRANSPORT_CONTENT_CODE;
-
                     break;
 
                 case SEND_STATION_CONTENT_CODE:
                     String comm = (String) req[2];
                     execCommand(session, comm);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "send station content" + res);
-                    this.resultCode = SEND_STATION_CONTENT_CODE;
                     break;
             }
         }
         catch (Exception e){
                 Logger.d(Logger.SSH_CONNECTION_LOG, "error: " + e.getMessage() + ", cause: " + e.getCause());
-                this.resultCode = SSH_ERROR_CODE;
                 res = e.getMessage();
+                this.resultCode = SSH_ERROR_CODE;
+
         }
 
         finally {
@@ -235,6 +225,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             res = sb.toString();
         } catch (JSchException | IOException | InterruptedException e) {
             e.printStackTrace();
+            this.resultCode = SSH_ERROR_CODE;
         }
         finally {
             if(commandOutput != null){
@@ -272,6 +263,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             });
         } catch (JSchException | SftpException e) {
             e.printStackTrace();
+            this.resultCode = SSH_ERROR_CODE;
         }
         finally {
             if(channelSftp != null){
@@ -315,10 +307,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                 fileOutputStream.close();
             }
         }
-        } catch (FileNotFoundException e) {
+        } catch (Exception e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
+            this.resultCode = SSH_ERROR_CODE;
         }
         return binFile;
     }

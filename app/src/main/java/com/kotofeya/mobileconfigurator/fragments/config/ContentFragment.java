@@ -17,7 +17,6 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -128,11 +127,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         Logger.d(Logger.CONTENT_LOG, "result: " + result);
 
         if(resultCode == TaskCode.REBOOT_STM_CODE && resultStr.contains("Tested")){
-            Toast toast = Toast.makeText(context, "Stm rebooted", Toast.LENGTH_SHORT);
-            toast.setGravity(Gravity.CENTER, 0, 0);
-            LinearLayout toastContainer = (LinearLayout) toast.getView();
-            toastContainer.setBackgroundColor(Color.WHITE);
-            toast.show();
+            utils.showMessage("Stm rebooted");
         }
 
         else if(resultCode == TaskCode.REBOOT_CODE){
@@ -141,6 +136,14 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
         else if(resultCode == TaskCode.TAKE_CODE){
             utils.addTakeInfo(resultStr, true);
+        }
+
+        else if(resultCode == TaskCode.CLEAR_RASP_CODE){
+            utils.showMessage("Rasp was cleared");
+        }
+
+        else if(resultCode == TaskCode.SSH_ERROR_CODE || resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
+            utils.showMessage("Error");
         }
 
         refreshButtons();

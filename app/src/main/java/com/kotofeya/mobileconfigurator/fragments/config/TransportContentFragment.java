@@ -23,8 +23,6 @@ import java.math.BigInteger;
 public class TransportContentFragment extends ContentFragment implements View.OnClickListener {
 
 
-
-
     Spinner spnType;
     EditText number;
     EditText liter;
@@ -36,13 +34,9 @@ public class TransportContentFragment extends ContentFragment implements View.On
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-
         String ssid = getArguments().getString("ssid");
         transportTransiver = (TransportTransiver) utils.getBySsid(ssid);
 
-
-
-//        TransportTransiver transportTransiver = (TransportTransiver) utils.getCurrentTransiver();
         mainTxtLabel.setText(transportTransiver.getSsid() + "\n (" + transportTransiver.getTransportType() + "/" + transportTransiver.getFullNumber() + "/" + transportTransiver.getDirection() + ")");
 
         spnType = view.findViewById(R.id.content_spn_0);
