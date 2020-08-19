@@ -76,13 +76,14 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         try {
             return getContent(url[0]);
         }
-        catch (IOException ex) {
+        catch (Exception ex) {
 //            Toast.makeText((MainActivity)App.get().getContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
             Logger.d(Logger.DOWNLOAD_LOG, "getContentException: " + ex.getMessage() + " " + ex.getCause());
 
             Bundle bundle = new Bundle();
-            bundle.putString("result", "get content exception");
+            bundle.putString("result", ex.getMessage());
             bundle.putString("ip", currentIp);
+            bundle.putInt("resultCode", DOWNLOADER_ERROR_CODE);
             return bundle;
         }
     }
@@ -91,63 +92,54 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     @Override
     protected void onPreExecute() {
 //        createTempUpdateOsFile();
-        createUpdateOsFile();
+        try {
+            createUpdateOsFile();
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            Bundle bundle = new Bundle();
+            bundle.putString("result", ex.getMessage());
+            bundle.putString("ip", currentIp);
+            bundle.putInt("resultCode", DOWNLOADER_ERROR_CODE);
+        }
     }
 
 
-    private void createTempUpdateOsFile(){
+    private void createTempUpdateOsFile() throws Exception{
         File outputDir = App.get().getCacheDir();
-        try {
-            Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateOsFile: " + tempUpdateOsFile);
-
-            if(tempUpdateOsFile != null && tempUpdateOsFile.exists()){
-                Logger.d(Logger.DOWNLOAD_LOG, "delete exist file");
-                tempUpdateOsFile.delete();
-            }
-            Logger.d(Logger.DOWNLOAD_LOG, " creating new temp file");
-
-            tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
-            tempUpdateOsFile.deleteOnExit();
-        } catch (Exception e) {
-            e.printStackTrace();
+        Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateOsFile: " + tempUpdateOsFile);
+        if(tempUpdateOsFile != null && tempUpdateOsFile.exists()){
+            Logger.d(Logger.DOWNLOAD_LOG, "delete exist file");
+            tempUpdateOsFile.delete();
         }
+        Logger.d(Logger.DOWNLOAD_LOG, " creating new temp file");
+        tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
+        tempUpdateOsFile.deleteOnExit();
     }
 
 
-    private void createUpdateOsFile(){
+    private void createUpdateOsFile() throws Exception{
         File outputDir = App.get().getContext().getExternalFilesDir(null);
-        try {
-            Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateOsFile: " + tempUpdateOsFile);
-
-            if(tempUpdateOsFile != null && tempUpdateOsFile.exists()){
-                Logger.d(Logger.DOWNLOAD_LOG, "delete exist file");
-                tempUpdateOsFile.delete();
-            }
-            Logger.d(Logger.DOWNLOAD_LOG, " creating new temp file");
-
-            tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
-//            tempUpdateOsFile.deleteOnExit();
-        } catch (Exception e) {
-            e.printStackTrace();
+        Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateOsFile: " + tempUpdateOsFile);
+        if(tempUpdateOsFile != null && tempUpdateOsFile.exists()){
+            Logger.d(Logger.DOWNLOAD_LOG, "delete exist file");
+            tempUpdateOsFile.delete();
         }
+        Logger.d(Logger.DOWNLOAD_LOG, " creating new temp os file");
+        tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
     }
 
 
-    private File createTempUpdateStmFile(String fileName){
+    private File createTempUpdateStmFile(String fileName) throws Exception{
         File outputDir = App.get().getCacheDir();
         File file = new File(outputDir + "/" + fileName);
-        try {
-            Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateStmFile: " + file);
-            if(file.exists()){
-                Logger.d(Logger.DOWNLOAD_LOG, "delete exist file");
-                file.delete();
-            }
-            Logger.d(Logger.DOWNLOAD_LOG, " creating new temp file");
-            file = new File(outputDir + "/" + fileName);
-            file.deleteOnExit();
-        } catch (Exception e) {
-            e.printStackTrace();
+        Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateStmFile: " + file);
+        if(file.exists()){
+            Logger.d(Logger.DOWNLOAD_LOG, "delete exist file");
+            file.delete();
         }
+        Logger.d(Logger.DOWNLOAD_LOG, " creating new temp stm file");
+        file = new File(outputDir + "/" + fileName);
+        file.deleteOnExit();
         return file;
     }
 
@@ -157,7 +149,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         listener.onTaskCompleted(result);
     }
 
-    private Bundle getContent(String stringUrl) throws IOException {
+    private Bundle getContent(String stringUrl) throws Exception {
         Bundle bundle = new Bundle();
         bundle.putString("ip", currentIp);
 
@@ -191,9 +183,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 //                output.close();
 
                 bundle.putInt("resultCode", UPDATE_STM_DOWNLOAD_CODE);
-                bundle.putString("result", "stm downloaded");
                 bundle.putString("filePath", file.getAbsolutePath());
-                bundle.putString("ip", currentIp);
                 return bundle;
             }
 
@@ -240,7 +230,6 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                     r.close();
                     bundle.putInt("resultCode", UPDATE_STM_VERSION_CODE);
                     bundle.putString("result", "Release: " + stmVersion);
-                    bundle.putString("ip", currentIp);
                     return  bundle;
 //                    return "Release: " + stmVersion;
 
@@ -254,8 +243,6 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                         publishProgress((int) (100 * (tempUpdateOsFile.length() / 40755927.0)));
                     }
 //                    output.close();
-                    bundle.putString("result", "Downloaded");
-                    bundle.putString("ip", currentIp);
                     bundle.putInt("resultCode", UPDATE_OS_DOWNLOAD_CODE);
 
                     App.get().setUpdateOsFileVersion(osVersion);
@@ -283,9 +270,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                     }
                     r1.close();
                     bundle.putInt("resultCode", TRANSPORT_CONTENT_VERSION_CODE);
-
                     bundle.putString("result", "transport content");
-                    bundle.putString("ip", currentIp);
                     return bundle;
 
                 case STATION_CONTENT_VERSION_URL:
@@ -310,7 +295,6 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                     bundle.putInt("resultCode", STATION_CONTENT_VERSION_CODE);
 
                     bundle.putString("result", "stationary content");
-                bundle.putString("ip", currentIp);
                 return bundle;
 
             }
@@ -322,6 +306,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                 if (input != null) input.close();
             } catch (IOException e) {
                 Logger.d(Logger.DOWNLOAD_LOG, "exception: " + e);
+                bundle.putInt("resultCode", TaskCode.DOWNLOADER_ERROR_CODE);
             }
             if (c != null) c.disconnect();
         }

@@ -140,7 +140,7 @@ public class TransportContentFragment extends ContentFragment implements View.On
         }
         Logger.d(Logger.TRANSPORT_CONTENT_LOG, "send: " + typeHex + " " + numHex + " " + litHex + " " + dirHex);
         SshConnection connection = new SshConnection(((TransportContentFragment) App.get().getFragmentHandler().getCurrentFragment()));
-        connection.execute(transportTransiver.getIp(), SshConnection.SEND_TRANSPORT_CONTENT_COMMAND, typeHex, numHex, litHex, dirHex);
+        connection.execute(transportTransiver.getIp(), SshConnection.SEND_TRANSPORT_CONTENT_CODE, typeHex, numHex, litHex, dirHex);
     }
 
     public String toHex(String arg) throws UnsupportedEncodingException {

@@ -29,6 +29,7 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.SshConnection;
+import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.R;
@@ -121,15 +122,12 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     @Override
     public void onTaskCompleted(Bundle result) {
         int resultCode = result.getInt("resultCode");
-        Logger.d(Logger.UPDATE_OS_LOG, "resultCode: " + resultCode);
+        String resultStr = result.getString("result");
 
+        Logger.d(Logger.CONTENT_LOG, "resultCode: " + resultCode);
         Logger.d(Logger.CONTENT_LOG, "result: " + result);
-        Logger.d(Logger.CONTENT_LOG, "currentTransiver: " + currentTransiver);
-        if(result.getString("result").contains("reboot")){
-            ((MainActivity)context).onBackPressed();
-        }
 
-        else if(result.getString("result").contains("Tested")){
+        if(resultCode == TaskCode.REBOOT_STM_CODE && resultStr.contains("Tested")){
             Toast toast = Toast.makeText(context, "Stm rebooted", Toast.LENGTH_SHORT);
             toast.setGravity(Gravity.CENTER, 0, 0);
             LinearLayout toastContainer = (LinearLayout) toast.getView();
@@ -137,17 +135,12 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
             toast.show();
         }
 
-        else {
-            String res = result.getString("result");
-            if (res.split("\n").length > 10) {
-                utils.addTakeInfo(res, true);
-            }
-            Logger.d(Logger.CONTENT_LOG, "currentTransSsid: " + currentTransiver.getSsid());
-            if(res.contains(currentTransiver.getSsid())){
-//                Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + currentTransiver.getIp());
-//                SshConnection connection = new SshConnection(((ContentFragment)App.get().getFragmentHandler().getCurrentFragment()));
-//                connection.execute(currentTransiver.getIp(), SshConnection.REBOOT_COMMAND);
-            }
+        else if(resultCode == TaskCode.REBOOT_CODE){
+            ((MainActivity)context).onBackPressed();
+        }
+
+        else if(resultCode == TaskCode.TAKE_CODE){
+            utils.addTakeInfo(resultStr, true);
         }
 
         refreshButtons();
@@ -157,7 +150,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
         for(String s: clients){
             SshConnection connection = new SshConnection(this);
-            connection.execute(s, SshConnection.TAKE_COMMAND);
+            connection.execute(s, SshConnection.TAKE_CODE);
         }
     }
 
@@ -207,13 +200,13 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
                 public void onClick(DialogInterface dialog, int id) {
                     SshConnection connection = new SshConnection(((ContentFragment)App.get().getFragmentHandler().getCurrentFragment()));
                     if(rebootType.equals("raspberry")){
-                        connection.execute(ip, SshConnection.REBOOT_COMMAND);
+                        connection.execute(ip, SshConnection.REBOOT_CODE);
                     }
                     else if(rebootType.equals("stm")){
-                        connection.execute(ip, SshConnection.REBOOT_STM_COMMAND);
+                        connection.execute(ip, SshConnection.REBOOT_STM_CODE);
                     }
                     else if(rebootType.equals("clear")){
-                        connection.execute(ip, SshConnection.CLEAR_RASP_COMMAND);
+                        connection.execute(ip, SshConnection.CLEAR_RASP_CODE);
                     }
                 }
             });

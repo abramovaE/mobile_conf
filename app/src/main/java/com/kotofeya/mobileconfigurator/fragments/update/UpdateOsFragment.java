@@ -15,6 +15,7 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
+import com.kotofeya.mobileconfigurator.TaskCode;
 
 public class UpdateOsFragment extends UpdateFragment {
 
@@ -54,7 +55,9 @@ public class UpdateOsFragment extends UpdateFragment {
     @Override
     public void onTaskCompleted(Bundle bundle) {
         super.onTaskCompleted(bundle);
-        storageVersionTxt.setText("Storage OS: " + App.get().getUpdateOsFileVersion());
+        if(bundle.getInt("resultCode") == TaskCode.UPDATE_OS_VERSION_CODE) {
+            storageVersionTxt.setText("Storage OS: " + App.get().getUpdateOsFileVersion());
+        }
     }
 
 }

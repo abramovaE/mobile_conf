@@ -127,7 +127,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
         for(String s: clients){
             SshConnection connection = new SshConnection(this);
-            connection.execute(s, SshConnection.TAKE_COMMAND);
+            connection.execute(s, SshConnection.TAKE_CODE);
         }
     }
 
@@ -164,39 +164,27 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
             progressBar.setVisibility(View.GONE);
         }
 
+        else if(resultCode == TaskCode.UPDATE_STM_VERSION_CODE){
+            version = result;
+            versionLabel.setText(result);
+        }
 
+        else if(resultCode == TaskCode.UPDATE_STM_DOWNLOAD_CODE){
+            Logger.d(Logger.UPDATE_OS_LOG, "ip: " + ip + ", filepath: " + bundle.getString("filePath"));
+            SshConnection connection = new SshConnection(this);
+            String filePath = bundle.getString("filePath");
+            connection.execute(ip, SshConnection.UPDATE_STM_UPLOAD_CODE, filePath);
+            progressBar.setVisibility(View.GONE);
+        }
 
+        else if(resultCode == TaskCode.UPDATE_STM_UPLOAD_CODE){
+            Transiver transiver = utils.getTransiverByIp(ip);
+            utils.removeTransiver(transiver);
+            scannerAdapter.notifyDataSetChanged();
+            Toast.makeText(context, "Uploaded", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.GONE);
+        }
 
-            if(result.contains("Downloaded")){
-                Transiver transiver = utils.getTransiverByIp(bundle.getString("ip"));
-                utils.removeTransiver(transiver);
-                scannerAdapter.notifyDataSetChanged();
-                Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show();
-                progressBar.setVisibility(View.GONE);
-
-            }
-
-            else if(result.contains("stm downloaded")){
-                Logger.d(Logger.UPDATE_OS_LOG, "ip: " + bundle.getString("ip") + ", filepath: " + bundle.getString("filePath"));
-                SshConnection connection = new SshConnection(this);
-                String filePath = bundle.getString("filePath");
-                connection.execute(bundle.getString("ip"), SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, filePath);
-                progressBar.setVisibility(View.GONE);
-
-            }
-
-            else if(result.contains("content")){
-                Logger.d(Logger.UPDATE_OS_LOG, "content files transport: " + Downloader.tempUpdateTransportContentFiles);
-                Logger.d(Logger.UPDATE_OS_LOG, "content files stationary: " + Downloader.tempUpdateStationaryContentFiles);
-            }
-
-            else {
-                Logger.d(Logger.UPDATE_OS_LOG, "notifyDataSetChanged, transivers: " + utils.getTransivers().size());
-                if (result.split("\n").length > 10) {
-                    utils.addTakeInfo(result, true);
-                }
-                scannerAdapter.notifyDataSetChanged();
-            }
     }
 
     @Override

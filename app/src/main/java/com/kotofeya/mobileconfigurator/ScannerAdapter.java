@@ -295,7 +295,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                     p.setVisibility(View.VISIBLE);
 
                     SshConnection connection = new SshConnection(((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()));
-                    connection.execute(ip, SshConnection.UPDATE_OS_LOAD_FILE_COMMAND);
+                    connection.execute(ip, SshConnection.UPDATE_OS_UPLOAD_CODE);
                 }
             });
             builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {

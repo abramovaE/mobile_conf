@@ -32,17 +32,12 @@ import java.util.Properties;
 
 public class SshConnection extends AsyncTask<Object, Object, String> implements TaskCode{
 
-    public static final String TAKE_COMMAND = "take command";
-    public static final String UPDATE_OS_LOAD_FILE_COMMAND = "update os command";
-    public static final String UPDATE_STM_LOAD_FILE_COMMAND = "update stm command";
 
-    public static final String REBOOT_COMMAND = "sudo reboot";
-    public static final String REBOOT_STM_COMMAND =  "/usr/local/bin/call --cmd REST 0";
-
-    public static final String CLEAR_RASP_COMMAND = "/sudo rm - f /var/www/html/data/*/* /var/www/html/data/*";
-
-    public static final String SEND_TRANSPORT_CONTENT_COMMAND = "/user/local/bin/call --cmd TSCFG";
-    public static final String SEND_STATION_CONTENT_COMMAND = "send station content command";
+    private static final String REBOOT_COMMAND = "sudo reboot";
+    private static final String REBOOT_STM_COMMAND =  "/usr/local/bin/call --cmd REST 0";
+    private static final String CLEAR_RASP_COMMAND = "/sudo rm - f /var/www/html/data/*/* /var/www/html/data/*";
+    private static final String SEND_TRANSPORT_CONTENT_COMMAND = "/user/local/bin/call --cmd TSCFG";
+    private static final String SEND_STATION_CONTENT_COMMAND = "send station content command";
 
     public static final String FLOOR_COMMAND = "/user/local/bin/call --cmd FLOOR";
     public static final String ZUMMER_TYPE_COMMAND = "/user/local/bin/call --cmd SNDTYPE";
@@ -92,8 +87,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             session.connect();
             Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());
 
-            switch ((String) req[1]) {
-                case TAKE_COMMAND:
+            switch ((Integer) req[1]) {
+                case TAKE_CODE:
                     channel = session.openChannel("shell");
                     baos = new ByteArrayOutputStream();
                     OutputStream inputstream_for_the_channel = channel.getOutputStream();
@@ -114,16 +109,15 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     this.resultCode = TAKE_CODE;
                     break;
 
-                case UPDATE_OS_LOAD_FILE_COMMAND:
+                case UPDATE_OS_UPLOAD_CODE:
                     transferred = 0;
                     uploadToOverlayUpdate(session, new File(App.get().getUpdateOsFilePath()));
                     Logger.d(Logger.SSH_CONNECTION_LOG, "updateOsFile completed");
                     execCommand(session, REBOOT_COMMAND);
-                    res = "Downloaded:" + ip;
                     this.resultCode = UPDATE_OS_UPLOAD_CODE;
                     break;
 
-                case UPDATE_STM_LOAD_FILE_COMMAND:
+                case UPDATE_STM_UPLOAD_CODE:
                     execCommand(session, CLEAR_ARCHIVE_DIR_COMMAND);
                     String archiveDir = execCommand(session, "ls /var/www/html/data/archive/");
                     Logger.d(Logger.SSH_CONNECTION_LOG, "ls /var/www/html/data/archive/ result: " + archiveDir);
@@ -149,30 +143,28 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     String aftClearLogFileSize = execCommand(session, "du -h /var/www/html/data/stm_update_log");
                     Logger.d(Logger.SSH_CONNECTION_LOG, "log file size after clearing: " + aftClearLogFileSize);
                     execCommand(session, REBOOT_COMMAND);
-                    res = "Downloaded" + ip;
                     this.resultCode = UPDATE_STM_UPLOAD_CODE;
                     break;
 
-                case REBOOT_COMMAND:
+                case REBOOT_CODE:
                     execCommand(session, REBOOT_COMMAND);
-                    res = "reboot:" + ip;
                     this.resultCode = REBOOT_CODE;
                     break;
 
-                case REBOOT_STM_COMMAND:
-                    execCommand(session, REBOOT_STM_COMMAND);
+                case REBOOT_STM_CODE:
+                    res = execCommand(session, REBOOT_STM_COMMAND);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "reboot stm res" + res);
                     this.resultCode = REBOOT_STM_CODE;
                     break;
 
-                case CLEAR_RASP_COMMAND:
+                case CLEAR_RASP_CODE:
                     execCommand(session, CLEAR_RASP_COMMAND);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "clear rasp res" + res);
                     this.resultCode = CLEAR_RASP_CODE;
 
                     break;
 
-                case SEND_TRANSPORT_CONTENT_COMMAND:
+                case SEND_TRANSPORT_CONTENT_CODE:
                     String command = SEND_TRANSPORT_CONTENT_COMMAND + " " + req[2] + " " + req[3] + " " + req[4] + " " + req[5];
                     execCommand(session, command);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "send transport content res" + res);
@@ -180,17 +172,18 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
 
                     break;
 
-                case SEND_STATION_CONTENT_COMMAND:
+                case SEND_STATION_CONTENT_CODE:
                     String comm = (String) req[2];
                     execCommand(session, comm);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "send station content" + res);
                     this.resultCode = SEND_STATION_CONTENT_CODE;
-
                     break;
             }
         }
         catch (Exception e){
                 Logger.d(Logger.SSH_CONNECTION_LOG, "error: " + e.getMessage() + ", cause: " + e.getCause());
+                this.resultCode = SSH_ERROR_CODE;
+                res = e.getMessage();
         }
 
         finally {

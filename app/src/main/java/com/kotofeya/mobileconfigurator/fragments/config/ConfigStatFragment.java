@@ -64,7 +64,7 @@ public class ConfigStatFragment extends ConfigFragment {
         List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
         for(String s: clients){
             SshConnection connection = new SshConnection(this);
-            connection.execute(s, SshConnection.TAKE_COMMAND);
+            connection.execute(s, SshConnection.TAKE_CODE);
         }
     }
 

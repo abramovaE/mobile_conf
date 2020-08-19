@@ -4,6 +4,7 @@ public interface TaskCode {
     int TAKE_CODE = 0;
     int UPDATE_OS_UPLOAD_CODE = 1;
     int UPDATE_STM_UPLOAD_CODE = 2;
+
     int REBOOT_CODE = 3;
     int REBOOT_STM_CODE = 4;
     int CLEAR_RASP_CODE = 5;
@@ -15,4 +16,6 @@ public interface TaskCode {
     int UPDATE_OS_DOWNLOAD_CODE = 11;
     int TRANSPORT_CONTENT_VERSION_CODE = 12;
     int STATION_CONTENT_VERSION_CODE = 13;
+    int SSH_ERROR_CODE = 14;
+    int DOWNLOADER_ERROR_CODE = 15;
 }

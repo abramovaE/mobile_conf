@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
@@ -78,13 +79,14 @@ public class BasicScannerFragment extends Fragment implements OnTaskCompleted {
     @Override
     public void onTaskCompleted(Bundle result) {
         int resultCode = result.getInt("resultCode");
+        String res = result.getString("result");
+
         Logger.d(Logger.UPDATE_OS_LOG, "resultCode: " + resultCode);
 
-        String res = result.getString("result");
-        if (res.split("\n").length > 10) {
+        if(resultCode == TaskCode.TAKE_CODE){
             utils.addTakeInfo(res, true);
+            scannerAdapter.notifyDataSetChanged();
         }
-        scannerAdapter.notifyDataSetChanged();
     }
 
 
@@ -105,11 +107,8 @@ public class BasicScannerFragment extends Fragment implements OnTaskCompleted {
     private void scan(){
         List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
         for(String s: clients){
-//            Transiver transiver = new Transiver(s);
-//            utils.addSshTransiver(transiver);
             SshConnection connection = new SshConnection(this);
-//            utils.setCurrentTransiver(transiver);
-            connection.execute(s, SshConnection.TAKE_COMMAND);
+            connection.execute(s, SshConnection.TAKE_CODE);
         }
     }
 
