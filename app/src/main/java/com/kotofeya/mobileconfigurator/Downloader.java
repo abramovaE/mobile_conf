@@ -23,7 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class Downloader extends AsyncTask<String, Integer, Bundle> {
+public class Downloader extends AsyncTask<String, Integer, Bundle> implements TaskCode{
 
 
     public static final String OS_VERSION_URL = "http://95.161.210.44/update/rootimg";
@@ -42,6 +42,8 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
 
     public static List<String> tempUpdateTransportContentFiles;
     public static List<String> tempUpdateStationaryContentFiles;
+
+
 
 //    // TODO: 18.08.2020 for test, delete in release
 //    static {
@@ -188,11 +190,11 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
                     }
 //                output.close();
 
+                bundle.putInt("resultCode", UPDATE_STM_DOWNLOAD_CODE);
                 bundle.putString("result", "stm downloaded");
                 bundle.putString("filePath", file.getAbsolutePath());
                 bundle.putString("ip", currentIp);
                 return bundle;
-//                    return "stm downloaded";
             }
 
             else {
@@ -214,6 +216,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
                     }
                     reader.close();
                     bundle.putString("result", "Release OS: " + osVersion);
+                    bundle.putInt("resultCode", UPDATE_OS_VERSION_CODE);
                     return bundle;
 //                    return ;
 
@@ -235,6 +238,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
 
                     }
                     r.close();
+                    bundle.putInt("resultCode", UPDATE_STM_VERSION_CODE);
                     bundle.putString("result", "Release: " + stmVersion);
                     bundle.putString("ip", currentIp);
                     return  bundle;
@@ -252,6 +256,8 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
 //                    output.close();
                     bundle.putString("result", "Downloaded");
                     bundle.putString("ip", currentIp);
+                    bundle.putInt("resultCode", UPDATE_OS_DOWNLOAD_CODE);
+
                     App.get().setUpdateOsFileVersion(osVersion);
                     App.get().setUpdateOsFilePath(tempUpdateOsFile.getAbsolutePath());
 
@@ -276,6 +282,8 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
 //
                     }
                     r1.close();
+                    bundle.putInt("resultCode", TRANSPORT_CONTENT_VERSION_CODE);
+
                     bundle.putString("result", "transport content");
                     bundle.putString("ip", currentIp);
                     return bundle;
@@ -299,7 +307,9 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> {
 //
                 }
                 r2.close();
-                bundle.putString("result", "stationary content");
+                    bundle.putInt("resultCode", STATION_CONTENT_VERSION_CODE);
+
+                    bundle.putString("result", "stationary content");
                 bundle.putString("ip", currentIp);
                 return bundle;
 

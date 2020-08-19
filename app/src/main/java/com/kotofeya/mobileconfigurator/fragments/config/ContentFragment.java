@@ -120,6 +120,9 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
     @Override
     public void onTaskCompleted(Bundle result) {
+        int resultCode = result.getInt("resultCode");
+        Logger.d(Logger.UPDATE_OS_LOG, "resultCode: " + resultCode);
+
         Logger.d(Logger.CONTENT_LOG, "result: " + result);
         Logger.d(Logger.CONTENT_LOG, "currentTransiver: " + currentTransiver);
         if(result.getString("result").contains("reboot")){

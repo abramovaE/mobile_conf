@@ -17,6 +17,7 @@ import androidx.fragment.app.Fragment;
 
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
@@ -133,20 +134,46 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     @Override
     public void onTaskCompleted(Bundle bundle) {
-        if (bundle != null && bundle.containsKey("result")){
-            String result = bundle.getString("result");
-            Logger.d(Logger.UPDATE_OS_LOG, "result: " + result);
+        int resultCode = bundle.getInt("resultCode");
+        String result = bundle.getString("result");
+        String ip = bundle.getString("ip");
 
-            if(result.contains("Release")){
-                version = result;
-                versionLabel.setText(result);
-            }
+        Logger.d(Logger.UPDATE_OS_LOG, "resultCode: " + resultCode);
+        Logger.d(Logger.UPDATE_OS_LOG, "ip: " + ip);
 
-            else if(result.contains("Downloaded")){
+        if(resultCode == TaskCode.TAKE_CODE){
+            utils.addTakeInfo(result, true);
+            scannerAdapter.notifyDataSetChanged();
+        }
+
+        else if(resultCode == TaskCode.UPDATE_OS_UPLOAD_CODE){
+            Transiver transiver = utils.getTransiverByIp(ip);
+            utils.removeTransiver(transiver);
+            scannerAdapter.notifyDataSetChanged();
+            Toast.makeText(context, "Uploaded", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.GONE);
+        }
+
+        else if(resultCode == TaskCode.UPDATE_OS_VERSION_CODE){
+            version = result;
+            versionLabel.setText(result);
+        }
+
+        else if(resultCode == TaskCode.UPDATE_OS_DOWNLOAD_CODE){
+            Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show();
+            progressBar.setVisibility(View.GONE);
+        }
+
+
+
+
+            if(result.contains("Downloaded")){
                 Transiver transiver = utils.getTransiverByIp(bundle.getString("ip"));
                 utils.removeTransiver(transiver);
                 scannerAdapter.notifyDataSetChanged();
                 Toast.makeText(context, "Downloaded", Toast.LENGTH_SHORT).show();
+                progressBar.setVisibility(View.GONE);
+
             }
 
             else if(result.contains("stm downloaded")){
@@ -154,15 +181,13 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 SshConnection connection = new SshConnection(this);
                 String filePath = bundle.getString("filePath");
                 connection.execute(bundle.getString("ip"), SshConnection.UPDATE_STM_LOAD_FILE_COMMAND, filePath);
+                progressBar.setVisibility(View.GONE);
+
             }
 
             else if(result.contains("content")){
                 Logger.d(Logger.UPDATE_OS_LOG, "content files transport: " + Downloader.tempUpdateTransportContentFiles);
                 Logger.d(Logger.UPDATE_OS_LOG, "content files stationary: " + Downloader.tempUpdateStationaryContentFiles);
-
-
-
-
             }
 
             else {
@@ -172,12 +197,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 }
                 scannerAdapter.notifyDataSetChanged();
             }
-        }
-        else {
-            Logger.d(Logger.UPDATE_OS_LOG, "notifyDataSetChanged, transivers: " + utils.getTransivers().size());
-            scannerAdapter.notifyDataSetChanged();
-        }
-        progressBar.setVisibility(View.GONE);
     }
 
     @Override

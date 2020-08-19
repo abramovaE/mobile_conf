@@ -22,7 +22,7 @@ public class Logger {
     public static final int CONTENT_LOG = 12;
     public static final int WIFI_LOG = 13;
     public static final int UPDATE_CONTENT_LOG = 14;
-
+    public static final int APP_LOG = 15;
 
 
 
@@ -49,7 +49,7 @@ public class Logger {
         mType.put(CONTENT_LOG, "Content_task");
         mType.put(WIFI_LOG, "Wifi_task");
         mType.put(UPDATE_CONTENT_LOG, "Update content log");
-
+        mType.put(APP_LOG, "App_task");
 
 
 

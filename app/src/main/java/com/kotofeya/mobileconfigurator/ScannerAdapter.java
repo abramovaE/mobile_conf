@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -21,6 +22,7 @@ import com.kotofeya.mobileconfigurator.fragments.update.UpdateStmFragment;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -120,9 +122,9 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                 public void onClick(View v) {
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
                     Transiver transiver = getTransiver(position);
-                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateOsFileLength: " + Downloader.tempUpdateOsFile.length());
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateOsFileLength: " + new File(App.get().getUpdateOsFilePath()).length());
 
-                    if (Downloader.tempUpdateOsFile.length() > 1000) {
+                    if (new File(App.get().getUpdateOsFilePath()).length() > 1000) {
                         Bundle bundle = new Bundle();
                         bundle.putString("ip", transiver.getIp());
                         UpdateOsConfDialog dialog = new UpdateOsConfDialog();
@@ -288,6 +290,10 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             builder.setMessage("Confirm the upload of the updates");
             builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
+                    View view = ((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()).getView();
+                    ProgressBar p = view.findViewById(R.id.scanner_progressBar);
+                    p.setVisibility(View.VISIBLE);
+
                     SshConnection connection = new SshConnection(((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()));
                     connection.execute(ip, SshConnection.UPDATE_OS_LOAD_FILE_COMMAND);
                 }

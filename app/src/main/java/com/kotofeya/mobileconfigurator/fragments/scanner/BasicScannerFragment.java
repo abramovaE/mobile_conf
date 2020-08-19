@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
@@ -76,6 +77,9 @@ public class BasicScannerFragment extends Fragment implements OnTaskCompleted {
 
     @Override
     public void onTaskCompleted(Bundle result) {
+        int resultCode = result.getInt("resultCode");
+        Logger.d(Logger.UPDATE_OS_LOG, "resultCode: " + resultCode);
+
         String res = result.getString("result");
         if (res.split("\n").length > 10) {
             utils.addTakeInfo(res, true);

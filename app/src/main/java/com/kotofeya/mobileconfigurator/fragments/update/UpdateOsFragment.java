@@ -18,26 +18,7 @@ import com.kotofeya.mobileconfigurator.ScannerAdapter;
 
 public class UpdateOsFragment extends UpdateFragment {
 
-    String storageVersion = "storage version";
     TextView storageVersionTxt;
-
-//    @Nullable
-//    @Override
-//    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-//        View view = super.onCreateView(inflater, container, savedInstanceState);
-//        mainTxtLabel.setText(R.string.update_os_main_txt_label);
-//
-//        scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_OS_TYPE);
-//        lvScanner.setAdapter(scannerAdapter);
-//
-//        utils.getBluetooth().stopScan(true);
-//        utils.clearTransivers();
-//        scannerAdapter.notifyDataSetChanged();
-//        loadVersion();
-//        scan();
-//        return view;
-//    }
-
 
     @Nullable
     @Override
@@ -45,7 +26,7 @@ public class UpdateOsFragment extends UpdateFragment {
         View view =  super.onCreateView(inflater, container, savedInstanceState);
         storageVersionTxt = view.findViewById(R.id.scanner_label1);
         storageVersionTxt.setVisibility(View.VISIBLE);
-        storageVersionTxt.setText(App.get().getUpdateOsFileVersion());
+        storageVersionTxt.setText("Storage OS: " + App.get().getUpdateOsFileVersion());
         return view;
     }
 
@@ -73,6 +54,7 @@ public class UpdateOsFragment extends UpdateFragment {
     @Override
     public void onTaskCompleted(Bundle bundle) {
         super.onTaskCompleted(bundle);
-        storageVersionTxt.setText(App.get().getUpdateOsFileVersion());
+        storageVersionTxt.setText("Storage OS: " + App.get().getUpdateOsFileVersion());
     }
+
 }

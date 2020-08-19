@@ -30,7 +30,7 @@ import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Properties;
 
-public class SshConnection extends AsyncTask<Object, Object, String> {
+public class SshConnection extends AsyncTask<Object, Object, String> implements TaskCode{
 
     public static final String TAKE_COMMAND = "take command";
     public static final String UPDATE_OS_LOAD_FILE_COMMAND = "update os command";
@@ -56,11 +56,19 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
 
     private OnTaskCompleted listener;
     private String ip;
+    private int resultCode;
+
+
+
+
+
+
 
     public SshConnection(OnTaskCompleted listener){
             this.listener = listener;
     }
 
+    int transferred;
         // req[0] - ip
         //req[1] - command
 
@@ -103,13 +111,16 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                     reader.close();
                     commander.close();
                     res = baos.toString().substring(baos.toString().lastIndexOf("$load") + 6, baos.toString().lastIndexOf("$ exit"));
+                    this.resultCode = TAKE_CODE;
                     break;
 
                 case UPDATE_OS_LOAD_FILE_COMMAND:
-                    uploadToOverlayUpdate(session, Downloader.tempUpdateOsFile);
+                    transferred = 0;
+                    uploadToOverlayUpdate(session, new File(App.get().getUpdateOsFilePath()));
                     Logger.d(Logger.SSH_CONNECTION_LOG, "updateOsFile completed");
                     execCommand(session, REBOOT_COMMAND);
-                    res = "updateos:" + ip;
+                    res = "Downloaded:" + ip;
+                    this.resultCode = UPDATE_OS_UPLOAD_CODE;
                     break;
 
                 case UPDATE_STM_LOAD_FILE_COMMAND:
@@ -139,33 +150,42 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                     Logger.d(Logger.SSH_CONNECTION_LOG, "log file size after clearing: " + aftClearLogFileSize);
                     execCommand(session, REBOOT_COMMAND);
                     res = "Downloaded" + ip;
+                    this.resultCode = UPDATE_STM_UPLOAD_CODE;
                     break;
 
                 case REBOOT_COMMAND:
                     execCommand(session, REBOOT_COMMAND);
                     res = "reboot:" + ip;
+                    this.resultCode = REBOOT_CODE;
                     break;
 
                 case REBOOT_STM_COMMAND:
                     execCommand(session, REBOOT_STM_COMMAND);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "reboot stm res" + res);
+                    this.resultCode = REBOOT_STM_CODE;
                     break;
 
                 case CLEAR_RASP_COMMAND:
                     execCommand(session, CLEAR_RASP_COMMAND);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "clear rasp res" + res);
+                    this.resultCode = CLEAR_RASP_CODE;
+
                     break;
 
                 case SEND_TRANSPORT_CONTENT_COMMAND:
                     String command = SEND_TRANSPORT_CONTENT_COMMAND + " " + req[2] + " " + req[3] + " " + req[4] + " " + req[5];
                     execCommand(session, command);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "send transport content res" + res);
+                    this.resultCode = SEND_TRANSPORT_CONTENT_CODE;
+
                     break;
 
                 case SEND_STATION_CONTENT_COMMAND:
                     String comm = (String) req[2];
                     execCommand(session, comm);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "send station content" + res);
+                    this.resultCode = SEND_STATION_CONTENT_CODE;
+
                     break;
             }
         }
@@ -194,8 +214,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
         Logger.d(Logger.SSH_CONNECTION_LOG, "result: " + result);
         if (listener != null) {
             Bundle bundle = new Bundle();
-            bundle.putString("result", result);
             bundle.putString("ip", this.ip);
+            bundle.putInt("resultCode", this.resultCode);
+            bundle.putString("result", result);
             listener.onTaskCompleted(bundle);
         }
     }
@@ -233,6 +254,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
         return res;
     }
 
+
+
     private void uploadToOverlayUpdate(Session session, File file){
         ChannelSftp channelSftp = null;
         try {
@@ -244,7 +267,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
                 }
                 @Override
                 public boolean count(long count) {
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "transfered: " + count);
+                    transferred += count;
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "transfered: " + transferred);
+                    listener.onProgressUpdate((int) (100 * (transferred / 40755927.0)));
                     return true;
                 }
                 @Override
@@ -303,8 +328,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> {
             e.printStackTrace();
         }
         return binFile;
-
-//        "mobile_chislovaya_versia_.bin"
     }
 
 

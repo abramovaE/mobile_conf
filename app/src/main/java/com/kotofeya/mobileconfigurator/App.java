@@ -4,6 +4,7 @@ package com.kotofeya.mobileconfigurator;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
 
 import androidx.fragment.app.Fragment;
 
@@ -33,9 +34,16 @@ public class App extends Application {
         instance = this;
         preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         updateOsFilePath = preferences.getString("updateOsFilePath", "");
-        updateOsFilePath = preferences.getString("updateOsFileVersion", "");
-        Downloader.tempUpdateOsFile = new File(updateOsFilePath);
+        updateOsFileVersion = preferences.getString("updateOsFileVersion", "");
 
+        if(!new File(updateOsFilePath).exists()){
+            setUpdateOsFileVersion("");
+            setUpdateOsFilePath("");
+            Downloader.tempUpdateOsFile = new File(updateOsFilePath);
+        }
+
+        Logger.d(Logger.APP_LOG, "updateOsVersion: " + updateOsFileVersion);
+        Logger.d(Logger.APP_LOG, "updateOsFilePath: " + updateOsFilePath + ", isExist: " + new File(updateOsFilePath).exists());
     }
 
 
