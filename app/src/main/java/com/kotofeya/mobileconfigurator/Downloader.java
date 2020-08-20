@@ -3,13 +3,7 @@ package com.kotofeya.mobileconfigurator;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Environment;
-import android.widget.Toast;
 
-
-import com.kotofeya.mobileconfigurator.activities.MainActivity;
-
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
@@ -29,16 +23,13 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     public static final String OS_VERSION_URL = "http://95.161.210.44/update/rootimg";
     public static final String STM_VERSION_URL = "http://95.161.210.44/update/data/stm";
 
-
     public static final String TRANSPORT_CONTENT_VERSION_URL = "http://95.161.210.44/update/content/transp";
     public static final String STATION_CONTENT_VERSION_URL = "http://95.161.210.44/update/content/station";
-
 
     public static final String OS_URL = "http://95.161.210.44/update/rootimg/root.img.bz2";
 
     public static File tempUpdateOsFile;
     public static List<String> tempUpdateStmFiles;
-
 
     public static List<String> tempUpdateTransportContentFiles;
     public static List<String> tempUpdateStationaryContentFiles;
@@ -77,9 +68,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
             return getContent(url[0]);
         }
         catch (Exception ex) {
-//            Toast.makeText((MainActivity)App.get().getContext(), ex.getMessage(), Toast.LENGTH_SHORT).show();
             Logger.d(Logger.DOWNLOAD_LOG, "getContentException: " + ex.getMessage() + " " + ex.getCause());
-
             Bundle bundle = new Bundle();
             bundle.putString("result", ex.getMessage());
             bundle.putString("ip", currentIp);
@@ -89,35 +78,20 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     }
 
 
-    @Override
-    protected void onPreExecute() {
-//        createTempUpdateOsFile();
-        try {
-            createUpdateOsFile();
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            Bundle bundle = new Bundle();
-            bundle.putString("result", ex.getMessage());
-            bundle.putString("ip", currentIp);
-            bundle.putInt("resultCode", DOWNLOADER_ERROR_CODE);
-        }
-    }
+//    private void createTempUpdateOsFile() {
+//        File outputDir = App.get().getCacheDir();
+//        Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateOsFile: " + tempUpdateOsFile);
+//        if(tempUpdateOsFile != null && tempUpdateOsFile.exists()){
+//            Logger.d(Logger.DOWNLOAD_LOG, "delete exist file");
+//            tempUpdateOsFile.delete();
+//        }
+//        Logger.d(Logger.DOWNLOAD_LOG, " creating new temp file");
+//        tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
+//        tempUpdateOsFile.deleteOnExit();
+//    }
 
 
-    private void createTempUpdateOsFile() throws Exception{
-        File outputDir = App.get().getCacheDir();
-        Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateOsFile: " + tempUpdateOsFile);
-        if(tempUpdateOsFile != null && tempUpdateOsFile.exists()){
-            Logger.d(Logger.DOWNLOAD_LOG, "delete exist file");
-            tempUpdateOsFile.delete();
-        }
-        Logger.d(Logger.DOWNLOAD_LOG, " creating new temp file");
-        tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
-        tempUpdateOsFile.deleteOnExit();
-    }
-
-
-    private void createUpdateOsFile() throws Exception{
+    private void createUpdateOsFile() {
         File outputDir = App.get().getContext().getExternalFilesDir(null);
         Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateOsFile: " + tempUpdateOsFile);
         if(tempUpdateOsFile != null && tempUpdateOsFile.exists()){
@@ -159,8 +133,6 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         URL url;
         HttpURLConnection c = null;
         InputStream input = null;
-
-
 
         try {
             if(tempUpdateStmFiles != null && tempUpdateStmFiles.contains(stringUrl)){
@@ -224,17 +196,14 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                             String sub = s.substring(s.lastIndexOf("S"));
                             tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
                         }
-
-
                     }
                     r.close();
                     bundle.putInt("resultCode", UPDATE_STM_VERSION_CODE);
                     bundle.putString("result", "Release: " + stmVersion);
                     return  bundle;
-//                    return "Release: " + stmVersion;
-
 
                 case OS_URL:
+                    createUpdateOsFile();
                     output = new FileOutputStream(tempUpdateOsFile);
                     byte data[] = new byte[4096];
                     int count;
@@ -244,12 +213,9 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                     }
 //                    output.close();
                     bundle.putInt("resultCode", UPDATE_OS_DOWNLOAD_CODE);
-
                     App.get().setUpdateOsFileVersion(osVersion);
                     App.get().setUpdateOsFilePath(tempUpdateOsFile.getAbsolutePath());
-
                     return bundle;
-
 
                 case TRANSPORT_CONTENT_VERSION_URL:
                     tempUpdateTransportContentFiles = new ArrayList<>();
@@ -266,7 +232,6 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 //                        }
 //
                         tempUpdateTransportContentFiles.add(s);
-//
                     }
                     r1.close();
                     bundle.putInt("resultCode", TRANSPORT_CONTENT_VERSION_CODE);
@@ -289,14 +254,11 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 //                        }
 //
                     tempUpdateStationaryContentFiles.add(s);
-//
                 }
                 r2.close();
                     bundle.putInt("resultCode", STATION_CONTENT_VERSION_CODE);
-
                     bundle.putString("result", "stationary content");
                 return bundle;
-
             }
         }
 
@@ -313,11 +275,8 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         return bundle;
     }
 
-
-
     @Override
     protected void onProgressUpdate(Integer... values) {
-//        Logger.d(Logger.DOWNLOAD_LOG, "progress count: " + values[0]);
         listener.onProgressUpdate(values[0]);
         super.onProgressUpdate(values);
     }

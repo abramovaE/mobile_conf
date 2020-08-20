@@ -52,12 +52,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
     private String ip;
     private int resultCode;
 
-
-
-
-
-
-
     public SshConnection(OnTaskCompleted listener){
             this.listener = listener;
     }
@@ -111,35 +105,17 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                 case UPDATE_OS_UPLOAD_CODE:
                     transferred = 0;
                     uploadToOverlayUpdate(session, new File(App.get().getUpdateOsFilePath()));
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "updateOsFile completed");
                     execCommand(session, REBOOT_COMMAND);
                     break;
 
                 case UPDATE_STM_UPLOAD_CODE:
                     execCommand(session, CLEAR_ARCHIVE_DIR_COMMAND);
-//                    String archiveDir = execCommand(session, "ls /var/www/html/data/archive/");
-//                    Logger.d(Logger.SSH_CONNECTION_LOG, "ls /var/www/html/data/archive/ result: " + archiveDir);
-
                     String filePath = (String) req[2];
                     File file = new File(filePath);
                     File binFile = getBinFromArchive(file);
-
-//                    Logger.d(Logger.SSH_CONNECTION_LOG, "file size: " + binFile.length() + ", file name: " + binFile.getName());
                     uploadToOverlayUpdate(session, binFile);
-//                    String moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/data.tar.bz2";
-//                    execCommand(session, moveCommand + ";" + REBOOT_COMMAND);
-//                    String h = execCommand(session, "ls /overlay/update");
-//                    Logger.d(Logger.SSH_CONNECTION_LOG, "ls /overlay/update res: " + h);
                     String moveCommand = "sudo mv " + "/overlay/update/" + binFile.getName() + " /var/www/html/data/archive/" + binFile.getName();
-                    String s = execCommand(session, moveCommand);
-//                    String r = execCommand(session, "ls /var/www/html/data/archive/");
-//                    Logger.d(Logger.SSH_CONNECTION_LOG, "ls /var/www/html/data/archive/ res: " + r);
-
-                    execCommand(session, DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND);
-
-//                    String aftClearLogFileSize = execCommand(session, "du -h /var/www/html/data/stm_update_log");
-//                    Logger.d(Logger.SSH_CONNECTION_LOG, "log file size after clearing: " + aftClearLogFileSize);
-                    execCommand(session, REBOOT_COMMAND);
+                    execCommand(session, moveCommand + ";" + DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND);
                     break;
 
                 case REBOOT_CODE:
@@ -148,32 +124,26 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
 
                 case REBOOT_STM_CODE:
                     res = execCommand(session, REBOOT_STM_COMMAND);
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "reboot stm res" + res);
                     break;
 
                 case CLEAR_RASP_CODE:
                     res = execCommand(session, CLEAR_RASP_COMMAND);
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "clear rasp res" + res);
                     break;
 
                 case SEND_TRANSPORT_CONTENT_CODE:
                     String command = SEND_TRANSPORT_CONTENT_COMMAND + " " + req[2] + " " + req[3] + " " + req[4] + " " + req[5];
-                    execCommand(session, command);
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "send transport content res" + res);
+                    res = execCommand(session, command);
                     break;
 
                 case SEND_STATION_CONTENT_CODE:
                     String comm = (String) req[2];
-                    execCommand(session, comm);
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "send station content" + res);
+                    res = execCommand(session, comm);
                     break;
             }
         }
         catch (Exception e){
-                Logger.d(Logger.SSH_CONNECTION_LOG, "error: " + e.getMessage() + ", cause: " + e.getCause());
                 res = e.getMessage();
                 this.resultCode = SSH_ERROR_CODE;
-
         }
 
         finally {
@@ -194,7 +164,10 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
     }
 
     protected void onPostExecute(String result) {
-        Logger.d(Logger.SSH_CONNECTION_LOG, "result: " + result);
+        if(resultCode != 0){
+            Logger.d(Logger.SSH_CONNECTION_LOG, "resultCode: " + resultCode + ", result: " + result);
+        }
+
         if (listener != null) {
             Bundle bundle = new Bundle();
             bundle.putString("ip", this.ip);
@@ -203,8 +176,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             listener.onTaskCompleted(bundle);
         }
     }
-
-
 
 
     private String execCommand(Session session, String command) throws IOException {

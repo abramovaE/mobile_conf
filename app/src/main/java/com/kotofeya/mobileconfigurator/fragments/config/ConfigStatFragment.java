@@ -46,7 +46,9 @@ public class ConfigStatFragment extends ConfigFragment {
 
     @Override
     public void onTaskCompleted(Bundle result) {
-        Logger.d(Logger.CONTENT_LOG, "result: " + result);
+        if(result.getInt("resultCode") != 0){
+            Logger.d(Logger.CONTENT_LOG, "result: " + result);
+        }
         String res = result.getString("result");
         if (res.split("\n").length > 10) {
             utils.addTakeInfo(res, false);

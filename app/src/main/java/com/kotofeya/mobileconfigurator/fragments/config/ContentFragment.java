@@ -52,6 +52,8 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     Button btnRebootStm;
     Button btnClearRasp;
 
+    Button mainBtnRescan;
+
     Transiver currentTransiver;
 
     ContentClickListener contentClickListener;
@@ -100,7 +102,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.content_fragment, container, false);
-        Button mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
+        mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
         mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
         btnRebootRasp = view.findViewById(R.id.content_btn_rasp);
         btnRebootStm = view.findViewById(R.id.content_btn_stm);
@@ -108,7 +110,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         btnClearRasp = view.findViewById(R.id.content_btn_clear);
         String ssid = getArguments().getString("ssid");
         currentTransiver = utils.getBySsid(ssid);
-        contentClickListener = new ContentClickListener(currentTransiver);
+        contentClickListener = new ContentClickListener(currentTransiver, utils);
         btnRebootRasp.setOnClickListener(contentClickListener);
         btnRebootStm.setOnClickListener(contentClickListener);
         btnClearRasp.setOnClickListener(contentClickListener);
@@ -124,7 +126,9 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         String resultStr = result.getString("result");
 
         Logger.d(Logger.CONTENT_LOG, "resultCode: " + resultCode);
-        Logger.d(Logger.CONTENT_LOG, "result: " + result);
+        if(resultCode != 0) {
+            Logger.d(Logger.CONTENT_LOG, "result: " + result);
+        }
 
         if(resultCode == TaskCode.REBOOT_STM_CODE && resultStr.contains("Tested")){
             utils.showMessage("Stm rebooted");
@@ -165,10 +169,11 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         if(!refreshButtons()){
             basicScan();
         }
+        mainBtnRescan.setVisibility(View.GONE);
     }
 
     public boolean refreshButtons(){
-        Logger.d(Logger.CONTENT_LOG, "currentTransiverIp: " + currentTransiver.getIp());
+        Logger.d(Logger.CONTENT_LOG, "currentTransiverIp: " + currentTransiver.getIp() +" " + utils.getIp(currentTransiver.getSsid()));
         if(currentTransiver.getIp() != null || utils.getIp(currentTransiver.getSsid()) != null){
             btnRebootRasp.setEnabled(true);
             btnRebootStm.setEnabled(true);
@@ -189,6 +194,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
             String rebootType = getArguments().getString("rebootType");
             String ip = getArguments().getString("ip");
 
+            Logger.d(Logger.CONTENT_LOG, "ip: " + ip);
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("Confirmation is required");
 
@@ -230,15 +236,21 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
 class ContentClickListener implements View.OnClickListener{
     private Transiver transiver;
-    public ContentClickListener(Transiver transiver){
+    private Utils utils;
+    public ContentClickListener(Transiver transiver, Utils utils){
         this.transiver = transiver;
+        this.utils = utils;
     }
 
     @Override
     public void onClick(View v) {
-        Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + transiver.getIp());
+        String ip = transiver.getIp();
+        if(ip == null){
+            ip = utils.getIp(transiver.getSsid());
+        }
+        Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + ip);
         Bundle bundle = new Bundle();
-        bundle.putString("ip", transiver.getIp());
+        bundle.putString("ip", ip);
         DialogFragment dialog = null;
         switch (v.getId()) {
             case R.id.content_btn_rasp:

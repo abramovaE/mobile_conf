@@ -190,7 +190,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         }
 
         else if(resultCode == TaskCode.SSH_ERROR_CODE || resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
-            utils.showMessage("Error");
+            utils.showMessage("Error: " + result);
+            progressBar.setVisibility(View.GONE);
         }
     }
 
@@ -203,9 +204,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     abstract void loadVersion();
     abstract void setMainTextLabelText();
     abstract ScannerAdapter getScannerAdapter();
-
-
-
 
 
 }

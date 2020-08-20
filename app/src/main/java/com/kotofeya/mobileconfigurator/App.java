@@ -39,11 +39,11 @@ public class App extends Application {
         if(!new File(updateOsFilePath).exists()){
             setUpdateOsFileVersion("");
             setUpdateOsFilePath("");
-            Downloader.tempUpdateOsFile = new File(updateOsFilePath);
         }
 
+        Downloader.tempUpdateOsFile = new File(updateOsFilePath);
         Logger.d(Logger.APP_LOG, "updateOsVersion: " + updateOsFileVersion);
-        Logger.d(Logger.APP_LOG, "updateOsFilePath: " + updateOsFilePath + ", isExist: " + new File(updateOsFilePath).exists());
+        Logger.d(Logger.APP_LOG, "updateOsFilePath: " + updateOsFilePath + ", isExist: " + Downloader.tempUpdateOsFile.exists());
     }
 
 

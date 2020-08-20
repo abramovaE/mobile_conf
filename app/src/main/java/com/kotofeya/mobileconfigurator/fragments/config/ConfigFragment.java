@@ -17,9 +17,7 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
-import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.Utils;
-import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 
 
@@ -43,9 +41,7 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
     public void onStart() {
         super.onStart();
         setMainTextLabel();
-        mainBtnRescan.setVisibility(View.VISIBLE);
-
-//        rescan();
+        mainBtnRescan.setVisibility(View.GONE);
     }
 
     @Nullable
@@ -73,8 +69,6 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
         scan();
         return view;
     }
-
-
 
     public abstract ScannerAdapter getScannerAdapter();
     public abstract void setMainTextLabel();
