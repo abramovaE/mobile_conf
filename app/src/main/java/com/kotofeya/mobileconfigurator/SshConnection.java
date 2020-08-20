@@ -11,7 +11,6 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import com.jcraft.jsch.SftpProgressMonitor;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -35,11 +34,11 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
     private static final String REBOOT_COMMAND = "sudo reboot";
     private static final String REBOOT_STM_COMMAND =  "/usr/local/bin/call --cmd REST 0";
     private static final String CLEAR_RASP_COMMAND = "/sudo rm - f /var/www/html/data/*/* /var/www/html/data/*";
-    private static final String SEND_TRANSPORT_CONTENT_COMMAND = "/user/local/bin/call --cmd TSCFG";
+    private static final String SEND_TRANSPORT_CONTENT_COMMAND = "/usr/local/bin/call --cmd TSCFG";
     private static final String SEND_STATION_CONTENT_COMMAND = "send station content command";
 
-    public static final String FLOOR_COMMAND = "/user/local/bin/call --cmd FLOOR";
-    public static final String ZUMMER_TYPE_COMMAND = "/user/local/bin/call --cmd SNDTYPE";
+    public static final String FLOOR_COMMAND = "/usr/local/bin/call --cmd FLOOR";
+    public static final String ZUMMER_TYPE_COMMAND = "/usr/local/bin/call --cmd SNDTYPE";
     public static final String ZUMMER_VOLUME_COMMAND = "";
     public static final String MODEM_CONFIG_MEGAF_BEELINE_COMMAND = "sudo sed -I ’s/megafon-m2m/beeline-m2m/g’ /etc/init.d/S99stp-tools";
     public static final String MODEM_CONFIG_BEELINE_MEGAF_COMMAND = "sudo sed -I ’s/beeline-m2m/megafon-m2m/g’ /etc/init.d/S99stp-tools";

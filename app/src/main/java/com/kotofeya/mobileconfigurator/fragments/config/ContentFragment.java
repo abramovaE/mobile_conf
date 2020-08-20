@@ -150,6 +150,14 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
             utils.showMessage("Error");
         }
 
+        else if(resultCode == TaskCode.SEND_TRANSPORT_CONTENT_CODE && resultStr.contains("Tested")){
+            utils.showMessage("Content updated");
+        }
+
+        else if(resultCode == TaskCode.SEND_STATION_CONTENT_CODE && resultStr.contains("Tested")){
+            utils.showMessage("Content updated");
+        }
+
         refreshButtons();
     }
 

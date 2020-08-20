@@ -148,7 +148,11 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
             }
         }
         Logger.d(Logger.STATION_CONTEN_LOG, "send command: " + command.toString());
+        String ip = statTransiver.getIp();
+        if(ip == null){
+            ip = utils.getIp(statTransiver.getSsid());
+        }
         SshConnection connection = new SshConnection(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()));
-        connection.execute(statTransiver.getIp(), SshConnection.SEND_STATION_CONTENT_CODE, command.toString());
+        connection.execute(ip, SshConnection.SEND_STATION_CONTENT_CODE, command.toString());
     }
 }
