@@ -1,8 +1,6 @@
 package com.kotofeya.mobileconfigurator.fragments.update;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -14,20 +12,18 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
-import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.TaskCode;
+import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
+import com.kotofeya.mobileconfigurator.fragments.scanner.ScannerFragment;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
-import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 
 import java.util.List;
@@ -35,11 +31,22 @@ import java.util.List;
 
 public abstract class UpdateFragment extends Fragment implements OnTaskCompleted {
 
-    protected Context context;
-    protected Utils utils;
+    public Context context;
+    public Utils utils;
+    public Button mainBtnRescan;
+
+
+    @Override
+    public void onAttach(Context context) {
+        this.context = context;
+        this.utils = ((MainActivity) context).getUtils();
+        super.onAttach(context);
+
+    }
+
+
     ListView lvScanner;
     ScannerAdapter scannerAdapter;
-    Button mainBtnRescan;
 
     TextView versionLabel;
     Button checkVersionButton;
@@ -48,14 +55,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     TextView mainTxtLabel;
 
     ProgressBar progressBar;
-
-
-    @Override
-    public void onAttach(Context context) {
-        this.context = context;
-        this.utils = ((MainActivity) context).getUtils();
-        super.onAttach(context);
-    }
 
     @Override
     public void onStart() {

@@ -3,11 +3,9 @@ package com.kotofeya.mobileconfigurator.fragments.config;
 import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,7 +13,6 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -39,8 +36,12 @@ import java.util.List;
 
 public abstract class ContentFragment extends Fragment implements OnTaskCompleted {
 
-    protected Context context;
-    protected Utils utils;
+    public Context context;
+    public Utils utils;
+    public Button mainBtnRescan;
+
+
+
     protected View.OnKeyListener onKeyListener;
     protected AdapterView.OnItemSelectedListener onItemSelectedListener;
     protected TextWatcher textWatcher;
@@ -52,12 +53,9 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     Button btnRebootStm;
     Button btnClearRasp;
 
-    Button mainBtnRescan;
-
     Transiver currentTransiver;
 
     ContentClickListener contentClickListener;
-    String ssid;
 
     @Override
     public void onAttach(Context context) {

@@ -1,4 +1,4 @@
-package com.kotofeya.mobileconfigurator.fragments.config;
+package com.kotofeya.mobileconfigurator.fragments.scanner;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -13,71 +13,50 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 
-
-public abstract class ConfigFragment extends Fragment implements OnTaskCompleted {
-
-
-    ScannerAdapter scannerAdapter;
+public abstract class ScannerFragment extends Fragment {
+    Context context;
+    Utils utils;
+    Button mainBtnRescan;
     TextView mainTxtLabel;
-
-    public Context context;
-    public Utils utils;
-    public Button mainBtnRescan;
-
+    ListView lvScanner;
+    ScannerAdapter scannerAdapter;
 
     @Override
     public void onAttach(Context context) {
         this.context = context;
         this.utils = ((MainActivity) context).getUtils();
         super.onAttach(context);
-
     }
-
-
 
     @Override
     public void onStart() {
         super.onStart();
-        setMainTextLabel();
-        mainBtnRescan.setVisibility(View.GONE);
+        mainBtnRescan.setVisibility(View.VISIBLE);
+        utils.getBluetooth().stopScan(true);
+        utils.clearTransivers();
+        scannerAdapter.notifyDataSetChanged();
+        scan();
     }
+
+    abstract void scan();
+
+
+
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.scanner_fragment, container, false);
-        ListView lvScanner = view.findViewById(R.id.lv_scanner);
-
+        lvScanner = view.findViewById(R.id.lv_scanner);
         mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
         mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
-        mainBtnRescan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                rescan();
-            }
-        });
-
         utils.setTransiversLv(lvScanner);
-        scannerAdapter = getScannerAdapter();
-        lvScanner.setAdapter(scannerAdapter);
-        utils.getBluetooth().stopScan(true);
-        Logger.d(Logger.CONTENT_LOG, "clearTransivers");
-        utils.clearTransivers();
-        scannerAdapter.notifyDataSetChanged();
-        scan();
         return view;
     }
-
-    public abstract ScannerAdapter getScannerAdapter();
-    public abstract void setMainTextLabel();
-    public abstract void rescan();
-    public abstract void scan();
 
 }

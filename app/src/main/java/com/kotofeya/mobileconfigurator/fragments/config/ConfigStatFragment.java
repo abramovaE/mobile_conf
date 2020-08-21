@@ -41,7 +41,6 @@ public class ConfigStatFragment extends ConfigFragment {
     public void rescan(){
         utils.clearTransivers();
         scannerAdapter.notifyDataSetChanged();
-//        scan();
     }
 
     @Override
