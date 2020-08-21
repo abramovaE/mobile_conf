@@ -27,7 +27,7 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
     Spinner modemConfigSpn;
 
     StatTransiver statTransiver;
-
+    String[] modemConfigs;
 
     @Nullable
     @Override
@@ -67,19 +67,35 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
 
         modemConfigSpn = view.findViewById(R.id.content_spn_2);
         modemConfigSpn.setVisibility(View.VISIBLE);
-        String[] modemConfigs = getResources().getStringArray(R.array.modem_types);
+        modemConfigs = getResources().getStringArray(R.array.modem_types);
         ArrayAdapter<String> modemConfigAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, modemConfigs);
         modemConfigAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         modemConfigSpn.setAdapter(modemConfigAdapter);
         modemConfigSpn.setVisibility(View.VISIBLE);
         modemConfigSpn.setOnItemSelectedListener(onItemSelectedListener);
 
+        setModem();
         updateBtnCotentSendState();
         btnContntSend.setOnClickListener(this);
         return view;
     }
 
+    private void setModem(){
+        if(statTransiver.getModem() != null){
+            for(int i = 0; i < modemConfigs.length; i++){
+                if(modemConfigs[i].equalsIgnoreCase(statTransiver.getModem())){
+                    modemConfigSpn.setSelection(i);
+                }
+            }
+        } else {
+            String ip = statTransiver.getIp();
+            if(ip == null){
+                ip = utils.getIp(statTransiver.getSsid());
+            }
+            SshConnection connection = new SshConnection(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()));
+            connection.execute(ip, SshConnection.TAKE_CODE);        }
 
+    }
     protected void updateBtnCotentSendState(){
         if((!floorTxt.getText().toString().isEmpty() || zummerTypesSpn.getSelectedItemPosition()> 0
                 || zummerVolumeSpn.getSelectedItemPosition() > 0 || modemConfigSpn.getSelectedItemPosition() > 0)
@@ -89,6 +105,11 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
         else {
             btnContntSend.setEnabled(false);
         }
+    }
+
+    @Override
+    public void updateFields() {
+        setModem();
     }
 
     @Override

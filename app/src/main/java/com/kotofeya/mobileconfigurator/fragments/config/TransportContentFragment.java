@@ -18,7 +18,9 @@ import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.math.BigInteger;
+import java.util.Arrays;
 
 public class TransportContentFragment extends ContentFragment implements View.OnClickListener {
 
@@ -88,6 +90,11 @@ public class TransportContentFragment extends ContentFragment implements View.On
     }
 
     @Override
+    public void updateFields() {
+
+    }
+
+    @Override
     public void stopScan() {
         utils.getBluetooth().stopScan(true);
     }
@@ -115,19 +122,16 @@ public class TransportContentFragment extends ContentFragment implements View.On
         int dir = spnDir.getSelectedItemPosition();
         String dirHex = Integer.toHexString(dir);
 
-        String litt = "";
-
         try {
                 // TODO: 16.08.2020 третья и четвертая литеры?
             if(!lit.isEmpty()){
                 if(lit.toCharArray().length == 1){
-                    litHex = toHex(lit);
-                    litt = Integer.parseInt(litHex, 16) + "";
-                    Logger.d(Logger.TRANSPORT_CONTENT_LOG, "litera1: " + litHex);
+                    litHex = Integer.parseInt(toHex(lit), 16) + "";
                 } else if(lit.toCharArray().length == 2){
-                    litHex = toHex(lit.substring(0, 1)) + toHex(lit.substring(1, 2));
-                    Logger.d(Logger.TRANSPORT_CONTENT_LOG, "litera2: " + litHex);
-                    litt = (Integer.parseInt(toHex(lit.substring(0, 1)), 16) + "") + (Integer.parseInt(toHex(lit.substring(1, 2)), 16) +"");
+                    litHex = Integer.parseInt(toHex(lit.substring(0, 1)) + toHex(lit.substring(1, 2)), 16) + "";
+                }
+                else if(lit.toCharArray().length == 3){
+                    litHex = Integer.parseInt(toHex(lit.substring(0, 1)) + toHex(lit.substring(1, 2) + lit.substring(2,3)), 16) + "";
                 }
             }
             else {
@@ -142,11 +146,11 @@ public class TransportContentFragment extends ContentFragment implements View.On
         if(ip == null){
             ip = utils.getIp(transportTransiver.getSsid());
         }
-        connection.execute(ip, SshConnection.SEND_TRANSPORT_CONTENT_CODE, typeHex, numHex, litt, dirHex);
+        connection.execute(ip, SshConnection.SEND_TRANSPORT_CONTENT_CODE, typeHex, numHex, litHex, dirHex);
     }
 
     public String toHex(String arg) throws UnsupportedEncodingException {
-        return String.format("%x", new BigInteger(1, arg.getBytes("cp1251")));
+        return String.format("%x", new BigInteger(1, arg.getBytes("cp1251"))).toUpperCase();
     }
 
 

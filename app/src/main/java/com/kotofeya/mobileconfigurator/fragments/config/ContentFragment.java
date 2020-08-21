@@ -140,6 +140,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
         else if(resultCode == TaskCode.TAKE_CODE){
             utils.addTakeInfo(resultStr, true);
+            updateFields();
         }
 
         else if(resultCode == TaskCode.CLEAR_RASP_CODE){
@@ -152,10 +153,14 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
         else if(resultCode == TaskCode.SEND_TRANSPORT_CONTENT_CODE && resultStr.contains("Tested")){
             utils.showMessage("Content updated");
+            ((MainActivity)context).onBackPressed();
+
         }
 
         else if(resultCode == TaskCode.SEND_STATION_CONTENT_CODE && resultStr.contains("Tested")){
             utils.showMessage("Content updated");
+            ((MainActivity)context).onBackPressed();
+
         }
 
         refreshButtons();
@@ -187,11 +192,14 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
             btnRebootStm.setEnabled(true);
             btnClearRasp.setEnabled(true);
             btnContntSend.setEnabled(true);
+            updateFields();
             return true;
         }
         return false;
+
     }
 
+    public abstract void updateFields();
 
     public abstract void stopScan();
 

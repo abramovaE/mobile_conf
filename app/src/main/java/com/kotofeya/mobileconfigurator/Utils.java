@@ -46,6 +46,8 @@ public class Utils {
     private ListView transiversLv;
     private Map<String, String> transMap;
 
+    
+
     public List<Transiver> getTransivers() {
         return transivers;
     }
