@@ -1,15 +1,27 @@
 package com.kotofeya.mobileconfigurator;
 
-
+import android.os.AsyncTask;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 public class WiFiLocalHotspot {
+    int counter = 0;
 
+    boolean isPinging;
+
+//    [/192.168.43.1, /192.168.43.54, /192.168.43.73, /192.168.43.155]
     private static WiFiLocalHotspot instance = new WiFiLocalHotspot();
     private WiFiLocalHotspot(){}
 
@@ -17,31 +29,223 @@ public class WiFiLocalHotspot {
         return instance;
     }
 
+    List<String> clients;
+    CountDownLatch latch;
     public List<String> getClientList() {
-        List<String> connectedTransivers = new ArrayList<>();
-        BufferedReader br = null;
-        String flushCmd = "sh ip -s -s neigh flush all";
-        Runtime runtime = Runtime.getRuntime();
-        try {
-            runtime.exec(flushCmd, null, new File("/proc/net"));
-        } catch (IOException e) {
-            e.printStackTrace();
+        clients = new ArrayList<>();
+        isPinging = true;
+
+        ExecutorService executorService = Executors.newFixedThreadPool(300);
+        latch = new CountDownLatch(256);
+
+        CompletableFuture<Void>[] futures = new CompletableFuture[256];
+        for (int i = 0; i < 256; i++) {
+            futures[i] = CompletableFuture.runAsync(new PingIp(i), executorService);
         }
+        CompletableFuture.allOf(futures)
+                .thenRun(() -> {
+                    Logger.d(Logger.WIFI_LOG, "clients res: " + clients);
+                    executorService.shutdown();
+                    // Здесь выполнить действие
+                });
+
+//        for (int i = 0; i < 256; i++) {
+
+
+
+//            ScanIpTask scanIpTask = new ScanIpTask();
+//            scanIpTask.executeOnExecutor(executorService, i);
+//            latch.countDown();
+
+//        }
+
+//        try {
+//            latch.await();
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+
+
+
+        Logger.d(Logger.WIFI_LOG, "clients return: " + clients);
+
+        return clients;
+
+
+//        for(int i = 0; i< 256; i++){
+//            ScanIpTask scanIpTask = new ScanIpTask();
+//            scanIpTask.executeOnExecutor(executorService, i);
+//        }
+
+
+
+
+//            while (true){
+//                if(counter > 255){
+//
+//                }
+//            }
+//        return new ArrayList<>();
+    }
+
+//    public List<String> getClientList() {
+//        Logger.d(Logger.WIFI_LOG, "getting clients list");
+//        List<String> connectedTransivers = new ArrayList<>();
+//
+////        StringBuilder cmdReturn = new StringBuilder();
+////
+//////        String[] command = {"cat", "/proc/net/arp"};
+////        String[] command = {"netstat"};
+////
+////        InputStream inputStream = null;
+////        try {
+////            ProcessBuilder processBuilder = new ProcessBuilder(command);
+////            Process process = processBuilder.start();
+////            inputStream = process.getInputStream();
+////            int c;
+////            while ((c = inputStream.read()) != -1) {
+////                cmdReturn.append((char) c);
+////            }
+////        } catch (IOException e) {
+////            e.printStackTrace();
+////            Logger.d(Logger.WIFI_LOG, "error: " + e.getMessage());
+////        }
+////        finally {
+////            if(inputStream != null){
+////                try {
+////                    inputStream.close();
+////                } catch (IOException e) {
+////                    e.printStackTrace();
+////                }
+////            }
+////        }
+////        Logger.d(Logger.WIFI_LOG, "cmd: " + cmdReturn.toString());
+//
+////        if(isReadStoragePermissionGranted()){
+////            runAsRoot("arp -a");
+////        }
+//
+//
+//
+//            BufferedReader br = null;
+//
+//            try {
+//                br = new BufferedReader(new FileReader("/proc/net/arp"));
+//                String line;
+//                while ((line = br.readLine()) != null) {
+//                    Logger.d(Logger.WIFI_LOG, "client: " + line);
+//
+//                    String[] splitted = line.split(" +");
+//                    if (splitted != null) {
+//                        String mac = splitted[3];
+//                        if (mac.matches("b8:27:..:..:..:..")) {
+//                            connectedTransivers.add(splitted[0]);
+//                        }
+//                    }
+//                }
+//            } catch (Exception e) {
+//                Logger.d(Logger.WIFI_LOG, "exception2: " + e.getMessage());
+//            } finally {
+//                try {
+//                    if(br != null) {
+//                        br.close();
+//                    }
+//                } catch (IOException e) {
+//
+//                }
+//            }
+//        return connectedTransivers;
+//    }
+
+    private static boolean runAsRoot(final String command) {
         try {
-            br = new BufferedReader(new FileReader("/proc/net/arp"));
-            String line;
-            while ((line = br.readLine()) != null) {
-//                Logger.d(Logger.WIFI_LOG, line);
-                String[] splitted = line.split(" +");
-                if (splitted != null) {
-                    String mac = splitted[3];
-                    if (mac.matches("b8:27:..:..:..:..")) {
-                        connectedTransivers.add(splitted[0]);
-                    }
-                }
-            }
+            Process pro = Runtime.getRuntime().exec(command);
+            DataOutputStream outStr = new DataOutputStream(pro.getOutputStream());
+            DataInputStream inputStream = new DataInputStream(pro.getInputStream());
+            StringBuilder sb = new StringBuilder();
+            outStr.writeBytes(command);
+//            int i =0;
+//            while ((i = inputStream.read()) != -1){
+//                sb.append(i);
+//            }
+
+//            sb.append(new BufferedReader(new InputStreamReader(inputStream)));
+            Logger.d(Logger.WIFI_LOG, "sb: " + new BufferedReader(new InputStreamReader(inputStream)).lines()
+                    .parallel().collect(Collectors.joining("\n")));
+            outStr.writeBytes("\nexit\n");
+            outStr.flush();
+            int retval = pro.waitFor();
+            return (retval == 0);
         } catch (Exception e) {
+            Logger.d(Logger.WIFI_LOG, "e: " + e.getLocalizedMessage());
+            return false;
         }
-        return connectedTransivers;
+    }
+
+    public boolean clearArpTable(){
+        return runAsRoot("ip -s -s neigh flush all");
+    }
+
+//    class ScanIpTask extends AsyncTask<Integer, String, String> {
+//        static final String subnet = "192.168.43.";
+//        static final int timeout = 5000;
+//        @Override
+//        protected String doInBackground(Integer... params) {
+//                String host = subnet + params[0];
+//                Logger.d(Logger.WIFI_LOG, "doing: " + host);
+//                try {
+//                    InetAddress inetAddress = InetAddress.getByName(host);
+//                    if (inetAddress.isReachable(timeout)){
+//                        publishProgress(inetAddress.toString());
+//                    }
+//                } catch (UnknownHostException e) {
+//                    e.printStackTrace();
+//                    Logger.d(Logger.WIFI_LOG, "exception: " + e.getLocalizedMessage());
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                    Logger.d(Logger.WIFI_LOG, "exception: " + e.getLocalizedMessage());
+//                }
+//            return "";
+//        }
+//
+//        @Override
+//        protected void onProgressUpdate(String... values) {
+//            clients.add(values[0]);
+//        }
+//
+//        @Override
+//        protected void onPostExecute(String aVoid) {
+//            counter++;
+//            Logger.d(Logger.WIFI_LOG, "on post execute, counter: " + counter + ", clients: " + clients);
+//        }
+//    }
+
+    public class PingIp implements Runnable{
+
+        private int ipSuff;
+        static final String subnet = "192.168.43.";
+        static final int timeout = 5000;
+
+        public PingIp(int ipSuff) {
+            this.ipSuff = ipSuff;
+        }
+
+        @Override
+        public void run() {
+            String host = subnet + ipSuff;
+//            Logger.d(Logger.WIFI_LOG, "doing: " + host);
+            try {
+                InetAddress inetAddress = InetAddress.getByName(host);
+                if (inetAddress.isReachable(timeout)){
+                    clients.add(host);
+                }
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+                Logger.d(Logger.WIFI_LOG, "exception: " + e.getLocalizedMessage());
+            } catch (IOException e) {
+                e.printStackTrace();
+                Logger.d(Logger.WIFI_LOG, "exception: " + e.getLocalizedMessage());
+            }
+        }
     }
 }

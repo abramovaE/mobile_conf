@@ -180,7 +180,6 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                     bundle.putString("result", "Release OS: " + osVersion);
                     bundle.putInt("resultCode", UPDATE_OS_VERSION_CODE);
                     return bundle;
-//                    return ;
 
                 case STM_VERSION_URL:
                     tempUpdateStmFiles = new ArrayList<>();

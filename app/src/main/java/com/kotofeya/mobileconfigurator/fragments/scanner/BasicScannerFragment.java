@@ -4,16 +4,12 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.TaskCode;
-import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
@@ -45,9 +41,7 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
     public void onTaskCompleted(Bundle result) {
         int resultCode = result.getInt("resultCode");
         String res = result.getString("result");
-
         Logger.d(Logger.UPDATE_OS_LOG, "resultCode: " + resultCode);
-
         if(resultCode == TaskCode.TAKE_CODE){
             utils.addTakeInfo(res, true);
             scannerAdapter.notifyDataSetChanged();

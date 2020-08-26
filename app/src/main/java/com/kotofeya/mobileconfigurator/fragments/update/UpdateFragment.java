@@ -22,7 +22,6 @@ import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
-import com.kotofeya.mobileconfigurator.fragments.scanner.ScannerFragment;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 
