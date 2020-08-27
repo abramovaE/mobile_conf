@@ -30,7 +30,6 @@ import java.util.Properties;
 
 public class SshConnection extends AsyncTask<Object, Object, String> implements TaskCode{
 
-
     private static final String REBOOT_COMMAND = "sudo reboot";
     private static final String REBOOT_STM_COMMAND =  "/usr/local/bin/call --cmd REST 0";
     private static final String CLEAR_RASP_COMMAND = "/sudo rm - f /var/www/html/data/*/* /var/www/html/data/*";
@@ -164,7 +163,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
 
     protected void onPostExecute(String result) {
         if(resultCode != 0){
-            Logger.d(Logger.SSH_CONNECTION_LOG, "resultCode: " + resultCode + ", result: " + result);
+            Logger.d(Logger.SSH_CONNECTION_LOG, "resultCode: " + resultCode + ", result: " + result + ",ip: " + ip);
+            Logger.d(Logger.SSH_CONNECTION_LOG, "listener != null: " + listener);
+
         }
 
         if (listener != null) {

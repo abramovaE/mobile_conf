@@ -25,6 +25,7 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.SshConnection;
+import com.kotofeya.mobileconfigurator.SshConnectionRunnable;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
@@ -167,6 +168,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     private void basicScan(){
         List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
         for(String s: clients){
+//            new SshConnectionRunnable(this, s, SshConnection.TAKE_CODE).run();
             SshConnection connection = new SshConnection(this);
             connection.execute(s, SshConnection.TAKE_CODE);
         }

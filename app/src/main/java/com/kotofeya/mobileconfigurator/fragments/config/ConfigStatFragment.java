@@ -10,6 +10,7 @@ import androidx.annotation.Nullable;
 
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.SshConnection;
+import com.kotofeya.mobileconfigurator.SshConnectionRunnable;
 import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;

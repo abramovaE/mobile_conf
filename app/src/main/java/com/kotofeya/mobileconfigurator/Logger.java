@@ -24,6 +24,7 @@ public class Logger {
     public static final int UPDATE_CONTENT_LOG = 14;
     public static final int APP_LOG = 15;
     public static final int UPDATE_STM_LOG = 16;
+    public static final int CONFIG_LOG = 17;
 
 
 
@@ -53,6 +54,7 @@ public class Logger {
         mType.put(UPDATE_CONTENT_LOG, "Update_content_task");
         mType.put(APP_LOG, "App_task");
         mType.put(UPDATE_STM_LOG, "Update_stm_task");
+        mType.put(CONFIG_LOG, "Config_task");
 
 
 

@@ -9,6 +9,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
@@ -35,5 +36,26 @@ public class BleScannerFragment extends ScannerFragment {
     public void onStart() {
         super.onStart();
         mainBtnRescan.setVisibility(View.GONE);
+        utils.getBluetooth().stopScan(true);
+        utils.clearTransivers();
+        scannerAdapter.notifyDataSetChanged();
+        scan();
+    }
+
+//    @Override
+//    public void onDestroyView() {
+//        super.onDestroyView();
+//        utils.clearTransivers();
+//        scannerAdapter.notifyDataSetChanged();
+//    }
+
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        Logger.d(Logger.BLE_SCANNER_LOG, "onStop");
+        utils.getBluetooth().stopScan(false);
+        utils.clearTransivers();
+        scannerAdapter.notifyDataSetChanged();
     }
 }

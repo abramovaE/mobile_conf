@@ -86,6 +86,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         mainBtnRescan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                utils.clearClients();
+                utils.clearMap();
                 utils.clearTransivers();
                 scannerAdapter.notifyDataSetChanged();
                 scan();
@@ -107,10 +109,16 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         scannerAdapter = getScannerAdapter();
         lvScanner.setAdapter(scannerAdapter);
         utils.getBluetooth().stopScan(true);
-        utils.clearTransivers();
-        scannerAdapter.notifyDataSetChanged();
+
+//        utils.clearTransivers();
+//        scannerAdapter.notifyDataSetChanged();
         loadVersion();
-        scan();
+//        scan();
+
+        if(utils.getTransivers().isEmpty()) {
+            scan();
+        }
+
         return view;
     }
 
@@ -125,8 +133,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
 
     protected void scan(){
-        List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
-        for(String s: clients){
+        utils.setClients(WiFiLocalHotspot.getInstance().getClientList());
+        for(String s: utils.getClients()){
             SshConnection connection = new SshConnection(this);
             connection.execute(s, SshConnection.TAKE_CODE);
         }
@@ -187,7 +195,14 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
             progressBar.setVisibility(View.GONE);
         }
 
-        else if(resultCode == TaskCode.SSH_ERROR_CODE || resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
+        else if(resultCode == TaskCode.SSH_ERROR_CODE){
+            progressBar.setVisibility(View.GONE);
+            if(result.contains("Connection refused")){
+                utils.removeClient(ip);
+            }
+            else {utils.showMessage("Error: " + result);}
+        }
+        else if(resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
             utils.showMessage("Error: " + result);
             progressBar.setVisibility(View.GONE);
         }

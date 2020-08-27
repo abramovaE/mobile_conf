@@ -28,6 +28,9 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 
 public class Utils {
@@ -36,6 +39,9 @@ public class Utils {
     public static final int STAT_RADIO_TYPE = 0x40;
     public static final int ALL_RADIO_TYPE = 0;
 
+
+
+    private List<String> clients;
     private List<Transiver> transivers;
     private Set<String> ssidListRunTime;
     private List<Transiver> forDel;
@@ -44,8 +50,35 @@ public class Utils {
     private InformerFilter filter;
     private Timer updateLv;
     private ListView transiversLv;
-    private Map<String, String> transMap;
 
+    private Map<String, String> ssidIpMap;
+
+
+
+
+    public List<String> getClients() {
+        return clients;
+    }
+
+    public void setClients(List<String> clients) {
+        this.clients = clients;
+    }
+
+
+//    public void getTakeInfo(OnTaskCompleted listener){
+//        clients = WiFiLocalHotspot.getInstance().getClientList();
+//        ExecutorService executorService = Executors.newFixedThreadPool(clients.size());
+//        CompletableFuture<Void>[] futures = new CompletableFuture[clients.size()];
+//
+//        for (int i = 0; i < clients.size(); i++) {
+//            futures[i] = CompletableFuture.runAsync(new SshConnectionRunnable(listener, clients.get(i), SshConnection.TAKE_CODE), executorService);
+//        }
+//        CompletableFuture.allOf(futures).thenRun(() -> {
+//                        Logger.d(Logger.WIFI_LOG, "clients res: " + clients);
+//                        executorService.shutdown();
+//                        return;
+//        });
+//    }
 
 
     public List<Transiver> getTransivers() {
@@ -57,7 +90,7 @@ public class Utils {
         this.transivers = new ArrayList<>();
         filter = new InformerFilter(this);
         ssidListRunTime = new HashSet<>();
-        transMap = new HashMap<>();
+        ssidIpMap = new HashMap<>();
     }
 
     public ListView getTransiversLv() {
@@ -203,8 +236,10 @@ public class Utils {
                         stmFirmware, stmBootloader, core, modem, incrementOfContent,
                         uptime, cpuTemp, load);
             transivers.add(transiver);
+            Logger.d(Logger.UTILS_LOG, "transivers: " + transivers);
+
         }
-        transMap.put(ssid, ip);
+        ssidIpMap.put(ssid, ip);
     }
 
     public void removeTransiver(Transiver transiver){
@@ -258,10 +293,19 @@ public class Utils {
     }
 
 
+    public void removeClient(String ip){
+        Logger.d(Logger.UTILS_LOG, "remove: " + ip);
+        clients.remove(ip);
+    }
 
     public void clearTransivers(){
         transivers.clear();
     }
+    public void clearClients(){
+        clients.clear();
+    }
+    public void clearMap(){ ssidIpMap.clear(); }
+
 
     public static String byteArrayToBitString(byte b) {
         return String.format("%8s", Integer.toBinaryString(b)).replace(' ', '0');
@@ -272,7 +316,7 @@ public class Utils {
     }
 
     public String getIp(String ssid){
-        return transMap.get(ssid);
+        return ssidIpMap.get(ssid);
     }
 
     public static class MessageDialog extends DialogFragment {

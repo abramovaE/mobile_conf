@@ -33,20 +33,9 @@ public abstract class ScannerFragment extends Fragment {
         super.onAttach(context);
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-        mainBtnRescan.setVisibility(View.VISIBLE);
-        utils.getBluetooth().stopScan(true);
-        utils.clearTransivers();
-        scannerAdapter.notifyDataSetChanged();
-        scan();
-    }
+
 
     abstract void scan();
-
-
-
 
     @Nullable
     @Override
@@ -58,5 +47,4 @@ public abstract class ScannerFragment extends Fragment {
         utils.setTransiversLv(lvScanner);
         return view;
     }
-
 }

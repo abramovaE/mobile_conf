@@ -20,9 +20,6 @@ public class Transiver {
     int BUZZER_ON_NEW = 0b10;
     int BUZZER_BUSY_NEW = 0b11;
 
-
-
-
     private String ssid;
     private String ip;
     private String macWifi;
@@ -38,24 +35,11 @@ public class Transiver {
     private String cpuTemp;
     private String load;
 
-
-//    private String version;
-    private String basicScanInfo;
-
-
-
-
-
-
-
     private String address;
     private int rssi;
     private byte[] rawData;
-//    private String addInfo;
     private boolean delFlag;
     private int delCount;
-//    private int sayCounter;
-//    private String content;
 
     private int transVersion;
     int VERSION_OLD = 1;
@@ -83,31 +67,11 @@ public class Transiver {
         this.cpuTemp = cpuTemp;
         this.load = load;
     }
-//
-//    public Transiver(String ip, String result){
-//        String[] info = result.split("\n");
-//        this.ip = info[2].trim();
-//        this.ssid = info[1].trim();
-//        this.macWifi = info[3].trim();
-//        this.macBt = info[4].trim();
-//        this.boardVersion = info[5].trim();
-//        this.osVersion = info[6].trim();
-//        this.stmFirmware = info[7].trim();
-//        this.stmBootloader = info[8].trim();
-//        this.core = info[9].trim();
-//        this.modem = info[10].trim();
-//        this.incrementOfContent = info[11].trim();
-//        this.uptime = info[12].trim();
-//        this.cpuTemp = info[13].trim();
-//        this.load = info[14].trim();
-//    }
-
 
     public Transiver(ScanResult result) {
         rssi = result.getRssi();
         address = result.getDevice().getAddress();
         rawData = result.getScanRecord().getManufacturerSpecificData(0xffff);
-
         if(result.getScanRecord().getDeviceName().equals("stp")){
             int i = (((rawData[2] & 0xFF) << 16) + ((rawData[3] & 0xFF) << 8) + (rawData[4] & 0xFF));
             ssid = String.valueOf(i);
@@ -217,14 +181,6 @@ public class Transiver {
         this.transVersion = transVersion;
     }
 
-//    public String getVersion() {
-//        return version;
-//    }
-//
-//    public void setVersion(String version) {
-//        this.version = version;
-//    }
-
     public String getStmFirmware() {
         return stmFirmware;
     }
@@ -241,13 +197,6 @@ public class Transiver {
         this.stmBootloader = stmBootloader;
     }
 
-    public String getBasicScanInfo() {
-        return basicScanInfo;
-    }
-
-    public void setBasicScanInfo(String basicScanInfo) {
-        this.basicScanInfo = basicScanInfo;
-    }
 
     public String getUptime() {
         return uptime;
@@ -514,5 +463,4 @@ public class Transiver {
                 return null;
         }
     }
-
 }
