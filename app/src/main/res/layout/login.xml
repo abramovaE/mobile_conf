@@ -20,6 +20,7 @@
         android:layout_height="wrap_content"
         android:text="@string/login_txt_label"
         android:textSize="@dimen/login_txt"
+        android:textStyle="bold"
         android:layout_marginBottom="200px"
         android:gravity="center"
 
