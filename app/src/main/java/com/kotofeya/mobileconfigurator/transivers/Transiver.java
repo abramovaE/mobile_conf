@@ -4,11 +4,13 @@ import android.bluetooth.le.ScanResult;
 import android.content.Context;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.Utils;
 
-public class Transiver {
+import java.io.UnsupportedEncodingException;
 
+public class Transiver {
 
     int BUZZER_DISABLED = 3;
     int BUZZER_READY = 0;
@@ -42,12 +44,9 @@ public class Transiver {
     private int delCount;
 
     private int transVersion;
-    int VERSION_OLD = 1;
-    int VERSION_NEW = 2;
+    public static final int VERSION_OLD = 1;
+    public static final int VERSION_NEW = 2;
 
-    public Transiver(String ip) {
-        this.ip = ip;
-    }
 
     public Transiver(String ssid, String ip, String macWifi, String macBt, String boardVersion, String osVersion,
                      String stmFirmware, String stmBootloader, String core, String modem, String incrementOfContent,
@@ -463,4 +462,9 @@ public class Transiver {
                 return null;
         }
     }
+
+
+
+
+
 }

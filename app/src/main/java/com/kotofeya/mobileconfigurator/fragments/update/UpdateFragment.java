@@ -2,6 +2,7 @@ package com.kotofeya.mobileconfigurator.fragments.update;
 
 import android.content.Context;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +34,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     public Context context;
     public Utils utils;
     public Button mainBtnRescan;
+
+    private final Handler myHandler = new Handler();
 
 
     @Override
@@ -133,11 +136,12 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
 
     protected void scan(){
-        utils.setClients(WiFiLocalHotspot.getInstance().getClientList());
-        for(String s: utils.getClients()){
-            SshConnection connection = new SshConnection(this);
-            connection.execute(s, SshConnection.TAKE_CODE);
-        }
+        utils.getTakeInfo(this);
+//        utils.setClients(WiFiLocalHotspot.getInstance().getClientList());
+//        for(String s: utils.getClients()){
+//            SshConnection connection = new SshConnection(this);
+//            connection.execute(s, SshConnection.TAKE_CODE);
+//        }
     }
 
 
@@ -152,7 +156,9 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
         if(resultCode == TaskCode.TAKE_CODE){
             utils.addTakeInfo(result, true);
-            scannerAdapter.notifyDataSetChanged();
+            myHandler.post(updateRunnable);
+
+//            scannerAdapter.notifyDataSetChanged();
         }
 
         else if(resultCode == TaskCode.UPDATE_OS_UPLOAD_CODE){
@@ -218,5 +224,16 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     abstract void setMainTextLabelText();
     abstract ScannerAdapter getScannerAdapter();
 
+    private void updateUI()
+    {
+        scannerAdapter.notifyDataSetChanged();
+    }
+
+
+    final Runnable updateRunnable = new Runnable() {
+        public void run() {
+            updateUI();
+        }
+    };
 
 }

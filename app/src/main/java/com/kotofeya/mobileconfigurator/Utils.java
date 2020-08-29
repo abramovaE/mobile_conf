@@ -2,6 +2,7 @@ package com.kotofeya.mobileconfigurator;
 
 
 import android.app.Dialog;
+import android.bluetooth.le.ScanResult;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -12,7 +13,9 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -56,28 +59,39 @@ public class Utils {
 
 
 
-    public List<String> getClients() {
-        return clients;
-    }
+//    public List<String> getClients() {
+//        return clients;
+//    }
+//
+//    public void setClients(List<String> clients) {
+//        this.clients = clients;
+//    }
 
-    public void setClients(List<String> clients) {
-        this.clients = clients;
+
+    public void getTakeInfo(OnTaskCompleted listener){
+        clients = WiFiLocalHotspot.getInstance().getClientList();
+        Logger.d(Logger.UTILS_LOG, "getClientList: " + clients);
+        ExecutorService executorService = Executors.newFixedThreadPool(clients.size());
+        CompletableFuture<Void>[] futures = new CompletableFuture[clients.size()];
+        for (int i = 0; i < clients.size(); i++) {
+            futures[i] = CompletableFuture.runAsync(new SshConnectionRunnable(listener, clients.get(i), SshConnection.TAKE_CODE), executorService);
+        }
+        CompletableFuture.allOf(futures).thenRun(() -> {
+                        Logger.d(Logger.UTILS_LOG, "clients res: " + clients);
+                        executorService.shutdown();
+                        return;
+        });
     }
 
 
 //    public void getTakeInfo(OnTaskCompleted listener){
 //        clients = WiFiLocalHotspot.getInstance().getClientList();
-//        ExecutorService executorService = Executors.newFixedThreadPool(clients.size());
-//        CompletableFuture<Void>[] futures = new CompletableFuture[clients.size()];
 //
-//        for (int i = 0; i < clients.size(); i++) {
-//            futures[i] = CompletableFuture.runAsync(new SshConnectionRunnable(listener, clients.get(i), SshConnection.TAKE_CODE), executorService);
+//        for(String s: clients){
+////            new SshConnectionRunnable(this, s, SshConnection.TAKE_CODE).run();
+//            SshConnection connection = new SshConnection(listener);
+//            connection.execute(s, SshConnection.TAKE_CODE);
 //        }
-//        CompletableFuture.allOf(futures).thenRun(() -> {
-//                        Logger.d(Logger.WIFI_LOG, "clients res: " + clients);
-//                        executorService.shutdown();
-//                        return;
-//        });
 //    }
 
 
@@ -91,6 +105,7 @@ public class Utils {
         filter = new InformerFilter(this);
         ssidListRunTime = new HashSet<>();
         ssidIpMap = new HashMap<>();
+        clients = new ArrayList<>();
     }
 
     public ListView getTransiversLv() {
@@ -165,6 +180,7 @@ public class Utils {
                         });
                     }
                 }
+
             }
 //            }
         }, 0, 1000);
@@ -182,10 +198,12 @@ public class Utils {
                     }
                 }
                 if (!isContains) {
+//                    Logger.d(Logger.UTILS_LOG, "add transiver: ");
                     transivers.add(transiver);
                     ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
                 }
                 else {
+//                    Logger.d(Logger.UTILS_LOG, "update transiver: ");
                     updateTransiver(transiver);
                 }
             }
@@ -193,7 +211,7 @@ public class Utils {
     }
 
 
-    public void addTakeInfo(String takeInfo, boolean createNew){
+    public synchronized void addTakeInfo(String takeInfo, boolean createNew){
         boolean isExist = false;
         String[] info = takeInfo.split("\n");
         String ip = info[2].trim();
@@ -231,12 +249,12 @@ public class Utils {
             }
         }
         if(!isExist && createNew) {
-            Logger.d(Logger.UTILS_LOG, "add new transiver");
+            Logger.d(Logger.UTILS_LOG, "add new transiver, transivers: " + transivers.size());
             Transiver transiver = new Transiver(ssid, ip, macWifi, macBt, boardVersion, osVersion,
                         stmFirmware, stmBootloader, core, modem, incrementOfContent,
                         uptime, cpuTemp, load);
             transivers.add(transiver);
-            Logger.d(Logger.UTILS_LOG, "transivers: " + transivers);
+            Logger.d(Logger.UTILS_LOG, "transivers: " + transivers.size());
 
         }
         ssidIpMap.put(ssid, ip);
@@ -269,7 +287,48 @@ public class Utils {
         Transiver informerFromList = getBySsid(transiver.getSsid());
         if(!Arrays.equals(informerFromList.getRawData(), transiver.getRawData())){
             informerFromList.setRawData(transiver.getRawData());
+
+            if(informerFromList.isTransport()){
+                try{
+                    TransportTransiver t = (TransportTransiver) informerFromList;
+                }
+                catch (ClassCastException e){
+                    TransportTransiver transportTransiver = new TransportTransiver(informerFromList.getSsid(),
+                            informerFromList.getIp(), informerFromList.getMacWifi(), informerFromList.getMacBt(),
+                            informerFromList.getBoardVersion(), informerFromList.getOsVersion(),
+                            informerFromList.getStmFirmware(), informerFromList.getStmBootloader(),
+                            informerFromList.getCore(), informerFromList.getModem(), informerFromList.getIncrementOfContent(),
+                            informerFromList.getUptime(), informerFromList.getCpuTemp(), informerFromList.getLoad());
+
+                    transportTransiver.setRawData(transiver.getRawData());
+                    transportTransiver.setTransVersion(transiver.getTransVersion());
+                    transivers.remove(informerFromList);
+                    transivers.add(transportTransiver);
+                }
+
+            }
+
+            else if(informerFromList.isStationary()){
+                try{
+                    StatTransiver s = (StatTransiver) informerFromList;
+                }
+                catch (ClassCastException e){
+
+                    StatTransiver s  = new StatTransiver(informerFromList.getSsid(),
+                            informerFromList.getIp(), informerFromList.getMacWifi(), informerFromList.getMacBt(),
+                            informerFromList.getBoardVersion(), informerFromList.getOsVersion(),
+                            informerFromList.getStmFirmware(), informerFromList.getStmBootloader(),
+                            informerFromList.getCore(), informerFromList.getModem(), informerFromList.getIncrementOfContent(),
+                            informerFromList.getUptime(), informerFromList.getCpuTemp(), informerFromList.getLoad());
+
+                    s.setRawData(transiver.getRawData());
+                    s.setTransVersion(transiver.getTransVersion());
+                    transivers.remove(informerFromList);
+                    transivers.add(s);
+                }
+            }
             ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
+
         }
         if((Math.abs(informerFromList.getRssi() - transiver.getRssi())) > 20){
             informerFromList.setDelFlag(true);
@@ -277,15 +336,19 @@ public class Utils {
     }
 
     public void stopLVTimer() {
-        Logger.d(Logger.UTILS_LOG, "updateLvTimer: " + updateLv);
+        Logger.d(Logger.UTILS_LOG, "stopLvTimer: " + updateLv);
         if(updateLv != null) {
             updateLv.cancel();
         }
     }
 
     public Transiver getBySsid(String ssid) {
+//        Logger.d(Logger.UTILS_LOG, "getBySsid: " + ssid);
+//        Logger.d(Logger.UTILS_LOG, "transivers: " + transivers);
+
         for(Transiver transiver: transivers){
             if(transiver.getSsid() != null && transiver.getSsid().equals(ssid)){
+//                Logger.d(Logger.UTILS_LOG, "getByssid: " + transiver);
                 return transiver;
             }
         }
@@ -317,6 +380,47 @@ public class Utils {
 
     public String getIp(String ssid){
         return ssidIpMap.get(ssid);
+    }
+
+    public void updateBleInfo(Transiver transiver, ScanResult result) {
+        Integer rssi = result.getRssi();
+        String address = result.getDevice().getAddress();
+        String ssid;
+        byte[] rawData = result.getScanRecord().getManufacturerSpecificData(0xffff);
+        transiver.setRawData(rawData);
+        if(result.getScanRecord().getDeviceName().equals("stp")){
+            int i = (((rawData[2] & 0xFF) << 16) + ((rawData[3] & 0xFF) << 8) + (rawData[4] & 0xFF));
+            ssid = String.valueOf(i);
+            transiver.setTransVersion(Transiver.VERSION_NEW);
+        }
+        else {
+            ssid = result.getScanRecord().getDeviceName();
+            transiver.setTransVersion(Transiver.VERSION_OLD);
+        }
+        transiver.setSsid(ssid);
+        transiver.setDelFlag(false);
+        updateTransiver(transiver);
+    }
+
+    public boolean needScanStationaryTransivers() {
+        Logger.d(Logger.UTILS_LOG, "needScanStationaryTransivers: " + transivers);
+        if(transivers.size() == 0){
+            return true;
+        }
+        for(Transiver t: transivers){
+            Logger.d(Logger.UTILS_LOG, "t is transport: " + t.isTransport() + ", t is stat: " + t.isStationary());
+            Logger.d(Logger.UTILS_LOG, "t: " + t + ", t.getIp(): " + t.getIp() + ", map.getIp(): " + ssidIpMap.get(t.getSsid()));
+
+            if(t.isStationary() || !t.isTransport()){
+                if(t.getIp() == null || ssidIpMap.get(t.getSsid()) == null){
+                    Logger.d(Logger.UTILS_LOG, "needScanStationaryTransivers: " + true);
+                    return true;
+                }
+            }
+        }
+
+        Logger.d(Logger.UTILS_LOG, "needScanStationaryTransivers: " + false);
+        return false;
     }
 
     public static class MessageDialog extends DialogFragment {

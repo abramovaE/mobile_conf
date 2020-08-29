@@ -1,21 +1,29 @@
 package com.kotofeya.mobileconfigurator.transivers;
 
 import android.bluetooth.le.ScanResult;
+import android.content.Context;
 
+import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.Utils;
 
 import java.io.UnsupportedEncodingException;
 
 public class TransportTransiver extends Transiver {
 
-    public TransportTransiver(String ip) {
-        super(ip);
-    }
 
     public TransportTransiver(ScanResult result) {
         super(result);
     }
 
+    public TransportTransiver(String ssid, String ip, String macWifi, String macBt, String boardVersion, String osVersion,
+                     String stmFirmware, String stmBootloader, String core, String modem, String incrementOfContent,
+                     String uptime, String cpuTemp, String load) {
+        super(ssid, ip, macWifi, macBt, boardVersion, osVersion,
+                 stmFirmware, stmBootloader, core, modem, incrementOfContent,
+                 uptime, cpuTemp, load);
+    }
 
 
         public static final int PARK = 0;

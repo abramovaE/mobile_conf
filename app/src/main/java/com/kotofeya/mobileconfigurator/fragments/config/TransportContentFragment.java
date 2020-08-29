@@ -37,7 +37,9 @@ public class TransportContentFragment extends ContentFragment implements View.On
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         String ssid = getArguments().getString("ssid");
+
         transportTransiver = (TransportTransiver) utils.getBySsid(ssid);
+        Logger.d(Logger.TRANSPORT_CONTENT_LOG, "getbyssid: " + transportTransiver);
 
         mainTxtLabel.setText(transportTransiver.getSsid() + "\n (" + transportTransiver.getTransportType() + "/" + transportTransiver.getFullNumber() + "/" + transportTransiver.getDirection() + ")");
 
@@ -153,6 +155,10 @@ public class TransportContentFragment extends ContentFragment implements View.On
         return String.format("%x", new BigInteger(1, arg.getBytes("cp1251"))).toUpperCase();
     }
 
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
 
 }
 

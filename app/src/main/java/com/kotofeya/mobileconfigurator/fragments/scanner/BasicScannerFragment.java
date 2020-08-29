@@ -1,6 +1,7 @@
 package com.kotofeya.mobileconfigurator.fragments.scanner;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,6 +19,7 @@ import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 
 public class BasicScannerFragment extends ScannerFragment implements OnTaskCompleted {
+    private final Handler myHandler = new Handler();
 
     @Nullable
     @Override
@@ -59,7 +61,8 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         Logger.d(Logger.BASIC_SCANNER_LOG, "resultCode: " + resultCode);
         if(resultCode == TaskCode.TAKE_CODE){
             utils.addTakeInfo(res, true);
-            scannerAdapter.notifyDataSetChanged();
+//            scannerAdapter.notifyDataSetChanged();
+            myHandler.post(updateRunnable);
         }
         else if(resultCode == TaskCode.SSH_ERROR_CODE){
             if(res.contains("Connection refused")){
@@ -70,7 +73,21 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         else if(resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
             utils.showMessage("Error: " + result);
         }
+
     }
+
+
+    private void updateUI()
+    {
+        scannerAdapter.notifyDataSetChanged();
+    }
+
+
+    final Runnable updateRunnable = new Runnable() {
+        public void run() {
+            updateUI();
+        }
+    };
 
     @Override
     public void onProgressUpdate(Integer downloaded) {
@@ -85,10 +102,6 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
     }
 
     public void scan(){
-        utils.setClients(WiFiLocalHotspot.getInstance().getClientList());
-        for(String s: utils.getClients()){
-            SshConnection connection = new SshConnection(this);
-            connection.execute(s, SshConnection.TAKE_CODE);
-        }
+        utils.getTakeInfo(this);
     }
 }

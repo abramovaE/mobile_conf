@@ -22,7 +22,7 @@ public class UpdateContentFragment extends UpdateFragment {
     @Override
     public void onTaskCompleted(Bundle bundle) {
         super.onTaskCompleted(bundle);
-        scannerAdapter.notifyDataSetChanged();
+//        scannerAdapter.notifyDataSetChanged();
     }
 
     @Override

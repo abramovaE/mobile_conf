@@ -219,13 +219,16 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             });
 
         } else if (scannerType == CONFIG_TRANSPORT) {
+            Logger.d(Logger.SCANNER_ADAPTER_LOG, "config transport");
             if (p.isTransport()) {
-                TransportTransiver transportTransiver = (TransportTransiver) p;
-                textItem0.setText(transportTransiver.getTransportType() + " / " + transportTransiver.getFullNumber());
-                textItem0.setVisibility(View.VISIBLE);
-                textItem1.setText(transportTransiver.getDirection() + "");
-                textItem1.setVisibility(View.VISIBLE);
-                view.setOnClickListener(configListener(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT, p.getSsid()));
+                try {
+                    TransportTransiver transportTransiver = (TransportTransiver) p;
+                    textItem0.setText(transportTransiver.getTransportType() + " / " + transportTransiver.getFullNumber());
+                    textItem0.setVisibility(View.VISIBLE);
+                    textItem1.setText(transportTransiver.getDirection() + "");
+                    textItem1.setVisibility(View.VISIBLE);
+                    view.setOnClickListener(configListener(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT, p.getSsid()));
+                } catch (ClassCastException e){}
             }
         } else if (scannerType == CONFIG_STATION) {
             if (p.isStationary()) {

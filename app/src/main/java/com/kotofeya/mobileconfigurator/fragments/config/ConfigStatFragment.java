@@ -1,6 +1,7 @@
 package com.kotofeya.mobileconfigurator.fragments.config;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -9,8 +10,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.SshConnectionRunnable;
+import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
@@ -20,6 +23,8 @@ import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import java.util.List;
 
 public class ConfigStatFragment extends ConfigFragment {
+
+    private final Handler myHandler = new Handler();
 
     @Override
     public ScannerAdapter getScannerAdapter() {
@@ -34,8 +39,13 @@ public class ConfigStatFragment extends ConfigFragment {
     @Override
     public void scan(){
         utils.setRadioType(Utils.STAT_RADIO_TYPE);
-        utils.getBluetooth().startScan(false);
+        utils.getBluetooth().startScan(true);
+
+
     }
+
+
+
 
 
     @Override
@@ -46,14 +56,18 @@ public class ConfigStatFragment extends ConfigFragment {
 
     @Override
     public void onTaskCompleted(Bundle result) {
+        Logger.d(Logger.CONTENT_LOG, "resultCode: " + result.getInt("resultCode"));
+
         if(result.getInt("resultCode") != 0){
             Logger.d(Logger.CONTENT_LOG, "result: " + result);
         }
         String res = result.getString("result");
-        if (res.split("\n").length > 10) {
+        if(result.getInt("resultCode") == TaskCode.TAKE_CODE){
             utils.addTakeInfo(res, false);
+            myHandler.post(updateRunnable);
         }
-        scannerAdapter.notifyDataSetChanged();
+
+//        scannerAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -61,22 +75,43 @@ public class ConfigStatFragment extends ConfigFragment {
 
     }
 
-
     public void basicScan(){
-        List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
-        for(String s: clients){
-            SshConnection connection = new SshConnection(this);
-            connection.execute(s, SshConnection.TAKE_CODE);
-        }
+        utils.getTakeInfo(this);
+//        List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
+//        for(String s: clients){
+//            SshConnection connection = new SshConnection(this);
+//            connection.execute(s, SshConnection.TAKE_CODE);
+//        }
     }
-
-
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        basicScan();
+//        if(utils.needScanStationaryTransivers()){
+//            Logger.d(Logger.CONFIG_LOG, "scan for ip");
+//            basicScan();
+//        }
+
+
+        if(utils.needScanStationaryTransivers()){
+            Logger.d(Logger.CONFIG_LOG, "scan for ip");
+            basicScan();
+        }
+
+
         return view;
     }
+
+
+    private void updateUI()
+    {
+        scannerAdapter.notifyDataSetChanged();
+    }
+
+    final Runnable updateRunnable = new Runnable() {
+        public void run() {
+            updateUI();
+        }
+    };
 }

@@ -25,7 +25,7 @@ public class MainActivity extends AppCompatActivity {
 //        mainBtnRescan.setVisibility(View.GONE);
 //        label.setText(R.string.main_menu_main_label);
         utils.getBluetooth().stopScan(true);
-        utils.clearTransivers();
+//        utils.clearTransivers();
     }
 
 

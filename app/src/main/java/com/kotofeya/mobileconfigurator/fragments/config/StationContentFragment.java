@@ -89,11 +89,15 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
             }
         } else {
             String ip = statTransiver.getIp();
-            if(ip == null){
+            if (ip == null) {
                 ip = utils.getIp(statTransiver.getSsid());
             }
-            SshConnection connection = new SshConnection(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()));
-            connection.execute(ip, SshConnection.TAKE_CODE);        }
+            try {
+                SshConnection connection = new SshConnection(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()));
+                connection.execute(ip, SshConnection.TAKE_CODE);
+            }
+            catch (ClassCastException e){}
+        }
 
     }
     protected void updateBtnCotentSendState(){
@@ -115,6 +119,7 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
     @Override
     public void stopScan() {
         utils.getBluetooth().stopScan(true);
+
     }
 
 
@@ -175,5 +180,11 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
         }
         SshConnection connection = new SshConnection(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()));
         connection.execute(ip, SshConnection.SEND_STATION_CONTENT_CODE, command.toString());
+    }
+
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 }

@@ -56,25 +56,41 @@ class BTScannerCB extends ScanCallback {
 
 
     private void addResult(ScanResult result) {
-//        Logger.d(Logger.BT_HANDLER_LOG, "radioType: " + utils.getRadioType());
         if (utils.getFilter().filter(result)) {
+
+//            byte[] rawData = result.getScanRecord().getManufacturerSpecificData(0xffff);
+//            int i = (((rawData[2] & 0xFF) << 16) + ((rawData[3] & 0xFF) << 8) + (rawData[4] & 0xFF));
+//            String ssid = String.valueOf(i);
             Transiver transiver;
-            if (utils.getRadioType() == Utils.TRANSP_RADIO_TYPE) {
-                transiver = new TransportTransiver(result);
-            } else if(utils.getRadioType() == Utils.STAT_RADIO_TYPE) {
-                transiver = new StatTransiver(result);
-            }
-            else {
-                transiver = new Transiver(result);
-                if(transiver.isTransport()){
-                    transiver = new TransportTransiver(result);
-                }
-                else if (transiver.isStationary()){
-                    transiver = new StatTransiver(result);
-                }
-            }
-            utils.addToSsidRunTimeSet(transiver.getSsid());
-            utils.addTransiver(transiver);
+//
+//            if(transiver != null){
+////                Logger.d(Logger.BT_HANDLER_LOG, "update transiver");
+//                utils.updateBleInfo(transiver, result);
+//                utils.addToSsidRunTimeSet(transiver.getSsid());
+//            }
+//                else {
+////                Logger.d(Logger.BT_HANDLER_LOG, "add new transiver");
+
+                if (utils.getRadioType() == Utils.TRANSP_RADIO_TYPE) {
+                        transiver = new TransportTransiver(result);
+                    }
+
+                    else if(utils.getRadioType() == Utils.STAT_RADIO_TYPE) {
+                        transiver = new StatTransiver(result);
+                    }
+
+                    else {
+                        transiver = new Transiver(result);
+                        if(transiver.isTransport()){
+                            transiver = new TransportTransiver(result);
+                        }
+                        else if (transiver.isStationary()){
+                            transiver = new StatTransiver(result);
+                        }
+                    }
+                utils.addToSsidRunTimeSet(transiver.getSsid());
+                utils.addTransiver(transiver);
+//                }
 
         } else {
             utils.addTransiver(null);

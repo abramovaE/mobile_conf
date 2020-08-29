@@ -6,7 +6,6 @@ import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -21,14 +20,19 @@ public class WiFiLocalHotspot {
     }
 
     List<String> clients;
-//    CountDownLatch latch;
+
     public List<String> getClientList() {
         clients = new ArrayList<>();
         ExecutorService executorService = Executors.newFixedThreadPool(300);
-//        latch = new CountDownLatch(256);
         CompletableFuture<Void>[] futures = new CompletableFuture[256];
         for (int i = 0; i < 256; i++) {
             futures[i] = CompletableFuture.runAsync(new PingIp(i), executorService);
+        }
+
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
         CompletableFuture.allOf(futures)
                 .thenRun(() -> {
@@ -36,6 +40,7 @@ public class WiFiLocalHotspot {
                     executorService.shutdown();
                     // Здесь выполнить действие
                 });
+
         Logger.d(Logger.WIFI_LOG, "clients return: " + clients);
         return clients;
     }

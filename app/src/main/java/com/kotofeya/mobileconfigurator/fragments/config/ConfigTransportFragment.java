@@ -34,7 +34,7 @@ public class ConfigTransportFragment extends ConfigFragment {
     @Override
     public void scan(){
         utils.setRadioType(Utils.TRANSP_RADIO_TYPE);
-        utils.getBluetooth().startScan(false);
+        utils.getBluetooth().startScan(true);
     }
 
 
@@ -52,8 +52,11 @@ public class ConfigTransportFragment extends ConfigFragment {
 
     @Override
     public void onTaskCompleted(Bundle result) {}
+
     @Override
     public void onProgressUpdate(Integer downloaded) {
 
     }
+
+
 }

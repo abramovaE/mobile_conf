@@ -139,6 +139,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
         else if(resultCode == TaskCode.TAKE_CODE){
             utils.addTakeInfo(resultStr, true);
+
             updateFields();
         }
 
@@ -166,22 +167,26 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     }
 
     private void basicScan(){
-        List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
-        for(String s: clients){
-//            new SshConnectionRunnable(this, s, SshConnection.TAKE_CODE).run();
-            SshConnection connection = new SshConnection(this);
-            connection.execute(s, SshConnection.TAKE_CODE);
-        }
+        utils.getTakeInfo(this);
+
+//        List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
+//        for(String s: clients){
+////            new SshConnectionRunnable(this, s, SshConnection.TAKE_CODE).run();
+//            SshConnection connection = new SshConnection(this);
+//            connection.execute(s, SshConnection.TAKE_CODE);
+//        }
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        Logger.d(Logger.CONTENT_LOG, "contentFragment onStart");
         String ssid = getArguments().getString("ssid");
         currentTransiver = utils.getBySsid(ssid);
         if(!refreshButtons()){
             basicScan();
         }
+        stopScan();
         mainBtnRescan.setVisibility(View.GONE);
     }
 
@@ -196,8 +201,20 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
             return true;
         }
         return false;
-
     }
+
+//    private void updateUI()
+//    {
+//        scannerAdapter.notifyDataSetChanged();
+//    }
+//
+//
+//    final Runnable updateRunnable = new Runnable() {
+//        public void run() {
+//            updateUI();
+//        }
+//    };
+
 
     public abstract void updateFields();
 

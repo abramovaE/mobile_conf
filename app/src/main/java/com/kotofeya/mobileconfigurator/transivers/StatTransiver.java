@@ -4,14 +4,18 @@ import android.bluetooth.le.ScanResult;
 
 
 public class StatTransiver extends Transiver {
-    public StatTransiver(String ip) {
-        super(ip);
-    }
 
     public StatTransiver(ScanResult result) {
         super(result);
     }
 
+    public StatTransiver(String ssid, String ip, String macWifi, String macBt, String boardVersion, String osVersion,
+                              String stmFirmware, String stmBootloader, String core, String modem, String incrementOfContent,
+                              String uptime, String cpuTemp, String load) {
+        super(ssid, ip, macWifi, macBt, boardVersion, osVersion,
+            stmFirmware, stmBootloader, core, modem, incrementOfContent,
+            uptime, cpuTemp, load);
+    }
     @Override
     String getFirstPartExpInfo() {
         return "";

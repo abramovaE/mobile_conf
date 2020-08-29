@@ -68,9 +68,9 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
         scannerAdapter = getScannerAdapter();
         lvScanner.setAdapter(scannerAdapter);
         utils.getBluetooth().stopScan(true);
-        Logger.d(Logger.CONFIG_LOG, "clearTransivers");
-        utils.clearTransivers();
-        scannerAdapter.notifyDataSetChanged();
+//        Logger.d(Logger.CONFIG_LOG, "clearTransivers");
+//        utils.clearTransivers();
+//        scannerAdapter.notifyDataSetChanged();
         scan();
         return view;
     }
@@ -80,12 +80,12 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
     public abstract void rescan();
     public abstract void scan();
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        Logger.d(Logger.CONFIG_LOG, "onStop");
-        utils.getBluetooth().stopScan(false);
-        utils.clearTransivers();
-        scannerAdapter.notifyDataSetChanged();
-    }
+//    @Override
+//    public void onStop() {
+//        super.onStop();
+//        Logger.d(Logger.CONFIG_LOG, "onStop");
+//        utils.getBluetooth().stopScan(false);
+//        utils.clearTransivers();
+//        scannerAdapter.notifyDataSetChanged();
+//    }
 }

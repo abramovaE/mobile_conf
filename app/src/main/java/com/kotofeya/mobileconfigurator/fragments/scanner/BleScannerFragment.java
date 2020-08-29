@@ -29,7 +29,7 @@ public class BleScannerFragment extends ScannerFragment {
 
     public void scan(){
         utils.setRadioType(Utils.ALL_RADIO_TYPE);
-        utils.getBluetooth().startScan(false);
+        utils.getBluetooth().startScan(true);
     }
 
     @Override
