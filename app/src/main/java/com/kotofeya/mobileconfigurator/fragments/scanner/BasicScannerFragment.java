@@ -10,13 +10,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.SshConnectionRunnable;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
-import com.kotofeya.mobileconfigurator.SshConnection;
-import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
+
 
 public class BasicScannerFragment extends ScannerFragment implements OnTaskCompleted {
     private final Handler myHandler = new Handler();
@@ -38,6 +36,7 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
 //        utils.clearTransivers();
 //        scannerAdapter.notifyDataSetChanged();
 
+        Logger.d(Logger.UTILS_LOG, "transivers: " + utils.getTransivers());
         if(utils.getTransivers().isEmpty()) {
             scan();
         }

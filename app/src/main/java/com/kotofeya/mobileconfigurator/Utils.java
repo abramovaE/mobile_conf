@@ -69,18 +69,21 @@ public class Utils {
 
 
     public void getTakeInfo(OnTaskCompleted listener){
+
         clients = WiFiLocalHotspot.getInstance().getClientList();
         Logger.d(Logger.UTILS_LOG, "getClientList: " + clients);
-        ExecutorService executorService = Executors.newFixedThreadPool(clients.size());
-        CompletableFuture<Void>[] futures = new CompletableFuture[clients.size()];
-        for (int i = 0; i < clients.size(); i++) {
-            futures[i] = CompletableFuture.runAsync(new SshConnectionRunnable(listener, clients.get(i), SshConnection.TAKE_CODE), executorService);
+        if(clients.size() > 0){
+            ExecutorService executorService = Executors.newFixedThreadPool(clients.size());
+            CompletableFuture<Void>[] futures = new CompletableFuture[clients.size()];
+            for (int i = 0; i < clients.size(); i++) {
+                futures[i] = CompletableFuture.runAsync(new SshConnectionRunnable(listener, clients.get(i), SshConnection.TAKE_CODE), executorService);
+            }
+            CompletableFuture.allOf(futures).thenRun(() -> {
+                Logger.d(Logger.UTILS_LOG, "clients res: " + clients);
+                executorService.shutdown();
+                return;
+            });
         }
-        CompletableFuture.allOf(futures).thenRun(() -> {
-                        Logger.d(Logger.UTILS_LOG, "clients res: " + clients);
-                        executorService.shutdown();
-                        return;
-        });
     }
 
 

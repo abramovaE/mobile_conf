@@ -40,19 +40,17 @@ public class ConfigStatFragment extends ConfigFragment {
     public void scan(){
         utils.setRadioType(Utils.STAT_RADIO_TYPE);
         utils.getBluetooth().startScan(true);
-
-
     }
 
 
 
 
 
-    @Override
-    public void rescan(){
-        utils.clearTransivers();
-        scannerAdapter.notifyDataSetChanged();
-    }
+//    @Override
+//    public void rescan(){
+//        utils.clearTransivers();
+//        scannerAdapter.notifyDataSetChanged();
+//    }
 
     @Override
     public void onTaskCompleted(Bundle result) {

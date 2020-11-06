@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -41,6 +42,24 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     public Utils utils;
     public Button mainBtnRescan;
 
+    private final Handler myHandler = new Handler();
+    private void updateUI()
+    {
+        btnRebootRasp.setEnabled(true);
+        btnRebootStm.setEnabled(true);
+        btnClearRasp.setEnabled(true);
+        btnContntSend.setEnabled(true);
+        updateFields();
+
+
+    }
+
+
+    final Runnable updateRunnable = new Runnable() {
+        public void run() {
+            updateUI();
+        }
+    };
 
 
     protected View.OnKeyListener onKeyListener;
@@ -148,7 +167,9 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         }
 
         else if(resultCode == TaskCode.SSH_ERROR_CODE || resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
-            utils.showMessage("Error");
+            if(!resultStr.contains("Connection refused")) {
+                utils.showMessage("Error");
+            }
         }
 
         else if(resultCode == TaskCode.SEND_TRANSPORT_CONTENT_CODE && resultStr.contains("Tested")){
@@ -167,6 +188,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     }
 
     private void basicScan(){
+        Logger.d(Logger.CONTENT_LOG, "basic scan");
         utils.getTakeInfo(this);
 
 //        List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
@@ -193,11 +215,13 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     public boolean refreshButtons(){
         Logger.d(Logger.CONTENT_LOG, "currentTransiverIp: " + currentTransiver.getIp() +" " + utils.getIp(currentTransiver.getSsid()));
         if(currentTransiver.getIp() != null || utils.getIp(currentTransiver.getSsid()) != null){
-            btnRebootRasp.setEnabled(true);
-            btnRebootStm.setEnabled(true);
-            btnClearRasp.setEnabled(true);
-            btnContntSend.setEnabled(true);
-            updateFields();
+
+//            btnRebootRasp.setEnabled(true);
+//            btnRebootStm.setEnabled(true);
+//            btnClearRasp.setEnabled(true);
+//            btnContntSend.setEnabled(true);
+//            updateFields();
+            myHandler.post(updateRunnable);
             return true;
         }
         return false;

@@ -17,8 +17,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import com.kotofeya.mobileconfigurator.fragments.update.UpdateContentFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateStmFragment;
+import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
 
@@ -142,6 +144,9 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                         Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateStmFilesSize: " + Downloader.tempUpdateStmFiles.size());
                         Bundle bundle = new Bundle();
                         bundle.putString("ip", transiver.getIp());
+                        Logger.d(Logger.UPDATE_STM_LOG, "isTransport: " + transiver.isTransport());
+                        Logger.d(Logger.UPDATE_STM_LOG, "isStationary: " + transiver.isStationary());
+
                         bundle.putBoolean("isTransport", transiver.isTransport());
                         bundle.putBoolean("isStationary", transiver.isStationary());
                         UpdateStmFragment.UpdateStmConfDialog dialog = new UpdateStmFragment.UpdateStmConfDialog();
@@ -153,6 +158,8 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
         } else if (scannerType == UPDATE_CONTENT_TYPE) {
             // TODO: 18.07.20  set increment
 
+            utils.getBluetooth().stopScan(false);
+
             textItem0.setVisibility(View.VISIBLE);
             if(p.getIncrementOfContent() != null && p.getIncrementOfContent().isEmpty()){
                 textItem0.setText("no incr");
@@ -162,20 +169,20 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             }
 
             StringBuilder sb = new StringBuilder();
-            boolean isTransport = p.isTransport();
-            boolean isStationary = p.isStationary();
 
-            if(p.getSsid().equalsIgnoreCase("6424")){
-                isStationary = true;
-            }
-            else {
-                isTransport = true;
-            }
+
+            // TODO: 05.11.2020
+            boolean isTransport = true;
+            boolean isStationary = true;
+
+            Transiver transiver = getTransiver(position);
+            Logger.d(Logger.SCANNER_ADAPTER_LOG, "p: " + p.getSsid() + " isTransport: " + isTransport);
+            Logger.d(Logger.SCANNER_ADAPTER_LOG, "p: " + p.getSsid() + " isStationary: " + isStationary);
 
             if(isTransport){
                 if(Downloader.tempUpdateTransportContentFiles != null){
                     for(String s: Downloader.tempUpdateTransportContentFiles){
-                        sb.append(s.substring(0, s.indexOf(".tar")));
+                        sb.append(s.substring(0, s.indexOf("/")));
                         sb.append(", ");
                     }
                     sb.delete(sb.lastIndexOf(","), sb.length());
@@ -205,6 +212,22 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                 public void onClick(View v) {
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
                     Transiver transiver = getTransiver(position);
+//                    if(transiver.isTransport()){
+//                        if (Downloader.tempUpdateTransportContentFiles != null && !Downloader.tempUpdateTransportContentFiles.isEmpty()) {
+//                            Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateContentFilesSize: " + Downloader.tempUpdateStmFiles.size());
+                            Bundle bundle = new Bundle();
+                            bundle.putString("ip", transiver.getIp());
+                            bundle.putBoolean("isTransport", isTransport);
+                            bundle.putBoolean("isStationary", isStationary);
+                            UpdateContentFragment.UpdateContentConfDialog dialog = new UpdateContentFragment.UpdateContentConfDialog();
+                            dialog.setArguments(bundle);
+                            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+//                        }
+//                    }
+
+
+
+
 //                    utils.setCurrentTransiver(transiver);
 //                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateContentFileLength: " + Downloader.tempUpdateOsFile.length());
 
@@ -230,7 +253,9 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                     view.setOnClickListener(configListener(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT, p.getSsid()));
                 } catch (ClassCastException e){}
             }
+
         } else if (scannerType == CONFIG_STATION) {
+            Logger.d(Logger.SCANNER_ADAPTER_LOG, "p.isstationary: " + p.isStationary() + " " + p.getSsid());
             if (p.isStationary()) {
                 if(p.getIncrementOfContent() != null && p.getIncrementOfContent().isEmpty()){
                     textItem0.setText("no incr");

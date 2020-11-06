@@ -15,6 +15,8 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
@@ -37,16 +39,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     private final Handler myHandler = new Handler();
 
-
-    @Override
-    public void onAttach(Context context) {
-        this.context = context;
-        this.utils = ((MainActivity) context).getUtils();
-        super.onAttach(context);
-
-    }
-
-
     ListView lvScanner;
     ScannerAdapter scannerAdapter;
 
@@ -57,6 +49,13 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     TextView mainTxtLabel;
 
     ProgressBar progressBar;
+
+    @Override
+    public void onAttach(Context context) {
+        this.context = context;
+        this.utils = ((MainActivity) context).getUtils();
+        super.onAttach(context);
+    }
 
     @Override
     public void onStart() {
@@ -73,7 +72,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         Logger.d(Logger.UPDATE_OS_LOG, "onCreate");
         super.onCreate(savedInstanceState);
     }
-
 
     @Nullable
     @Override
@@ -112,21 +110,13 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         scannerAdapter = getScannerAdapter();
         lvScanner.setAdapter(scannerAdapter);
         utils.getBluetooth().stopScan(true);
-
-//        utils.clearTransivers();
-//        scannerAdapter.notifyDataSetChanged();
         loadVersion();
-//        scan();
 
         if(utils.getTransivers().isEmpty()) {
             scan();
         }
-
         return view;
     }
-
-
-
 
     @Override
     public void onResume() {
@@ -137,11 +127,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     protected void scan(){
         utils.getTakeInfo(this);
-//        utils.setClients(WiFiLocalHotspot.getInstance().getClientList());
-//        for(String s: utils.getClients()){
-//            SshConnection connection = new SshConnection(this);
-//            connection.execute(s, SshConnection.TAKE_CODE);
-//        }
     }
 
 
@@ -150,72 +135,56 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         int resultCode = bundle.getInt("resultCode");
         String result = bundle.getString("result");
         String ip = bundle.getString("ip");
+        Logger.d(Logger.UPDATE_LOG, "ip: " + ip + ", resultCode: " + resultCode);
 
-        Logger.d(Logger.UPDATE_OS_LOG, "resultCode: " + resultCode);
-        Logger.d(Logger.UPDATE_OS_LOG, "ip: " + ip);
+        switch (resultCode){
+            case TaskCode.TAKE_CODE:
+                utils.addTakeInfo(result, true);
+                myHandler.post(updateRunnable);
+                break;
 
-        if(resultCode == TaskCode.TAKE_CODE){
-            utils.addTakeInfo(result, true);
-            myHandler.post(updateRunnable);
+            case TaskCode.UPDATE_OS_UPLOAD_CODE:
+            case TaskCode.UPDATE_STM_UPLOAD_CODE:
+            case TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE:
+                uploaded(ip);
+                break;
 
-//            scannerAdapter.notifyDataSetChanged();
-        }
+            case TaskCode.UPDATE_OS_VERSION_CODE:
+            case TaskCode.UPDATE_STM_VERSION_CODE:
+                setVersion(result);
+                break;
 
-        else if(resultCode == TaskCode.UPDATE_OS_UPLOAD_CODE){
-            Transiver transiver = utils.getTransiverByIp(ip);
-            utils.removeTransiver(transiver);
-            scannerAdapter.notifyDataSetChanged();
-            progressBar.setVisibility(View.GONE);
-            utils.showMessage("Uploaded");
+            case TaskCode.UPDATE_OS_DOWNLOAD_CODE:
+                progressBar.setVisibility(View.GONE);
+                utils.showMessage("Downloaded");
+                break;
 
-        }
+            case TaskCode.UPDATE_STM_DOWNLOAD_CODE:
+                downloadBySsh(ip, SshConnection.UPDATE_STM_UPLOAD_CODE, bundle, View.GONE);
+                break;
 
-        else if(resultCode == TaskCode.UPDATE_OS_VERSION_CODE){
-            version = result;
-            versionLabel.setText(result);
-        }
+            case TaskCode.UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE:
+                downloadBySsh(ip, SshConnection.UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE, bundle, View.VISIBLE);
+                break;
 
-        else if(resultCode == TaskCode.UPDATE_OS_DOWNLOAD_CODE){
-            progressBar.setVisibility(View.GONE);
-            utils.showMessage("Downloaded");
-        }
+            case TaskCode.SSH_ERROR_CODE:
+                progressBar.setVisibility(View.GONE);
+                if(result.contains("Connection refused")){
+                    utils.removeClient(ip);
+                }
+                else {utils.showMessage("Error: " + result);}
+                break;
 
-        else if(resultCode == TaskCode.UPDATE_STM_VERSION_CODE){
-            version = result;
-            versionLabel.setText(result);
-        }
-
-        else if(resultCode == TaskCode.UPDATE_STM_DOWNLOAD_CODE){
-            Logger.d(Logger.UPDATE_OS_LOG, "ip: " + ip + ", filepath: " + bundle.getString("filePath"));
-            SshConnection connection = new SshConnection(this);
-            String filePath = bundle.getString("filePath");
-            connection.execute(ip, SshConnection.UPDATE_STM_UPLOAD_CODE, filePath);
-            progressBar.setVisibility(View.GONE);
-        }
-
-        else if(resultCode == TaskCode.UPDATE_STM_UPLOAD_CODE){
-            Transiver transiver = utils.getTransiverByIp(ip);
-            utils.removeTransiver(transiver);
-            scannerAdapter.notifyDataSetChanged();
-            utils.showMessage("Uploaded");
-            progressBar.setVisibility(View.GONE);
-        }
-
-        else if(resultCode == TaskCode.SSH_ERROR_CODE){
-            progressBar.setVisibility(View.GONE);
-            if(result.contains("Connection refused")){
-                utils.removeClient(ip);
-            }
-            else {utils.showMessage("Error: " + result);}
-        }
-        else if(resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
-            utils.showMessage("Error: " + result);
-            progressBar.setVisibility(View.GONE);
+            case TaskCode.DOWNLOADER_ERROR_CODE:
+                utils.showMessage("Error: " + result);
+                progressBar.setVisibility(View.GONE);
+                break;
         }
     }
 
     @Override
     public void onProgressUpdate(Integer downloaded) {
+        Logger.d(Logger.UPDATE_LOG, "onProgressUpdate: " + downloaded);
         progressBar.setProgress(downloaded);
     }
 
@@ -236,4 +205,24 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         }
     };
 
+    private void uploaded(String ip){
+        Transiver transiver = utils.getTransiverByIp(ip);
+        utils.removeTransiver(transiver);
+        scannerAdapter.notifyDataSetChanged();
+        utils.showMessage("Uploaded");
+        progressBar.setVisibility(View.GONE);
+    }
+
+    private void downloadBySsh(String ip, int taskCode, Bundle bundle, int progressBarVisibility){
+        String filePath = bundle.getString("filePath");
+        Logger.d(Logger.UPDATE_CONTENT_LOG, "ip: " + ip + ", filepath: " + filePath);
+        progressBar.setVisibility(progressBarVisibility);
+        SshConnection connection = new SshConnection(this);
+        connection.execute(ip, taskCode, filePath);
+    }
+
+    private void setVersion(String version){
+        this.version = version;
+        versionLabel.setText(version);
+    }
 }

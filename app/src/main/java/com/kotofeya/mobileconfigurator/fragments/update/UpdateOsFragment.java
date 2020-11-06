@@ -94,6 +94,4 @@ public class UpdateOsFragment extends UpdateFragment {
             return builder.create();
         }
     }
-
-
 }

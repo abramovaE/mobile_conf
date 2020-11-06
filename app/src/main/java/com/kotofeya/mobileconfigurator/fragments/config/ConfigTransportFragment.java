@@ -37,13 +37,13 @@ public class ConfigTransportFragment extends ConfigFragment {
         utils.getBluetooth().startScan(true);
     }
 
-
-    @Override
-    public void rescan(){
-        utils.clearTransivers();
-        scannerAdapter.notifyDataSetChanged();
-//        scan();
-    }
+//
+//    @Override
+//    public void rescan(){
+//        utils.clearTransivers();
+//        scannerAdapter.notifyDataSetChanged();
+////        scan();
+//    }
 
     @Override
     public void setMainTextLabel() {

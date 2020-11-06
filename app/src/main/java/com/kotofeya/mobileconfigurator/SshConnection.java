@@ -64,6 +64,10 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
         ChannelSftp channelSftp = null;
         ChannelExec channelExec = null;
         Channel channel = null;
+        String filePath;
+        File file;
+        File binFile;
+        String moveCommand;
 
         try {
             JSch jsch = new JSch();
@@ -108,13 +112,27 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
 
                 case UPDATE_STM_UPLOAD_CODE:
                     execCommand(session, CLEAR_ARCHIVE_DIR_COMMAND);
-                    String filePath = (String) req[2];
-                    File file = new File(filePath);
-                    File binFile = getBinFromArchive(file);
+                    filePath = (String) req[2];
+                    file = new File(filePath);
+                    binFile = getBinFromArchive(file);
                     uploadToOverlayUpdate(session, binFile);
-                    String moveCommand = "sudo mv " + "/overlay/update/" + binFile.getName() + " /var/www/html/data/archive/" + binFile.getName();
+                    moveCommand = "sudo mv " + "/overlay/update/" + binFile.getName() + " /var/www/html/data/archive/" + binFile.getName();
                     execCommand(session, moveCommand + ";" + DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND);
                     break;
+
+
+                // TODO: 05.11.2020 where move? how we check updating?
+                case UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE:
+                    transferred = 0;
+                    filePath = (String) req[2];
+                    file = new File(filePath);
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "update transport upload file: " + file);
+                    uploadToOverlayUpdate(session, file);
+                    moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/" + file.getName();
+                    execCommand(session, moveCommand + ";" + REBOOT_COMMAND);
+                    break;
+
+
 
                 case REBOOT_CODE:
                     execCommand(session, REBOOT_COMMAND);
@@ -212,6 +230,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
 
 
     private void uploadToOverlayUpdate(Session session, File file){
+        Logger.d(Logger.SSH_CONNECTION_LOG, "uploading file: " + file.getName() +" length: " + file.length());
+
         ChannelSftp channelSftp = null;
         try {
             channelSftp = (ChannelSftp) session.openChannel("sftp");
@@ -224,7 +244,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                 public boolean count(long count) {
                     transferred += count;
                     Logger.d(Logger.SSH_CONNECTION_LOG, "transfered: " + transferred);
-                    listener.onProgressUpdate((int) (100 * (transferred / 40755927.0)));
+                    Double fileLength = Double.valueOf(file.length());
+                    listener.onProgressUpdate((int) (100 * (transferred / fileLength)));
                     return true;
                 }
                 @Override

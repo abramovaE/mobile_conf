@@ -88,7 +88,6 @@ public class UpdateStmFragment extends UpdateFragment {
             } else if (isStationary) {
                 content = stationaryContent.keySet().toArray(new String[stationaryContent.size()]);
             } else {
-
                 content = commonContent.keySet().toArray(new String[commonContent.size()]);
             }
 

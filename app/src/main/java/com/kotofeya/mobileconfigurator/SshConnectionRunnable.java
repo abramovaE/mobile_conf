@@ -229,6 +229,7 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
     }
 
     private void uploadToOverlayUpdate(Session session, File file){
+        Logger.d(Logger.SSH_CONNECTION_LOG, "uploading file: " + file.getName() +" length: " + file.length());
         ChannelSftp channelSftp = null;
         try {
             channelSftp = (ChannelSftp) session.openChannel("sftp");

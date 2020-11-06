@@ -33,6 +33,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 
     public static List<String> tempUpdateTransportContentFiles;
     public static List<String> tempUpdateStationaryContentFiles;
+//    public static List<String> tempUpdate
 
 
 
@@ -117,6 +118,21 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         return file;
     }
 
+    private File createTempUpdateTransportContentFile(String fileName) throws Exception{
+        Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateTransportContentFileName: " + fileName);
+
+        File outputDir = App.get().getCacheDir();
+        File file = new File(outputDir + "/" + fileName.substring(4));
+        Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateTransportContentFile: " + file);
+        if(file.exists()){
+            Logger.d(Logger.DOWNLOAD_LOG, "delete exist file");
+            file.delete();
+        }
+        Logger.d(Logger.DOWNLOAD_LOG, " creating new temp transport content file");
+        file = new File(outputDir + "/" + fileName.substring(4));
+        file.deleteOnExit();
+        return file;
+    }
     @Override
     protected void onPostExecute(Bundle result) {
         Logger.d(Logger.DOWNLOAD_LOG, "onPostExecute");
@@ -157,6 +173,31 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                 bundle.putInt("resultCode", UPDATE_STM_DOWNLOAD_CODE);
                 bundle.putString("filePath", file.getAbsolutePath());
                 return bundle;
+            }
+
+            else if(tempUpdateTransportContentFiles != null && tempUpdateTransportContentFiles.contains(stringUrl)){
+                    url = new URL(TRANSPORT_CONTENT_VERSION_URL + "/" + stringUrl);
+                    Logger.d(Logger.DOWNLOAD_LOG, "url: " + url);
+                    c = (HttpURLConnection) url.openConnection();
+                    c.setRequestMethod("GET");
+                    c.setConnectTimeout(12000);
+                    c.setReadTimeout(15000);
+                    c.connect();
+                    input = c.getInputStream();
+                    File file = createTempUpdateTransportContentFile(stringUrl);
+                    file.deleteOnExit();
+                    output = new FileOutputStream(file);
+                    byte data[] = new byte[4096];
+                    int count;
+                    while ((count = input.read(data)) != -1) {
+                        output.write(data, 0, count);
+                        publishProgress((int) (100 * (file.length() / 40755927.0)));
+                    }
+//                output.close();
+
+                    bundle.putInt("resultCode", UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE);
+                    bundle.putString("filePath", file.getAbsolutePath());
+                    return bundle;
             }
 
             else {
@@ -220,44 +261,32 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                     tempUpdateTransportContentFiles = new ArrayList<>();
                     BufferedReader r1 = new BufferedReader(new InputStreamReader(input));
                     while ((s = r1.readLine()) != null) {
-//                        if (s.contains("ver.")) {
-//                            stmVersion = s.substring(0, s.indexOf("<"));
-//                        } else if (s.contains("M")) {
-//                            String sub = s.substring(s.lastIndexOf("M"));
-//                            tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
-//                        } else if (s.contains("S")) {
-//                            String sub = s.substring(s.lastIndexOf("S"));
-//                            tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
-//                        }
-//
-                        tempUpdateTransportContentFiles.add(s);
+                        if(s.contains("href")){
+                            Logger.d(Logger.DOWNLOAD_LOG, "s transp: " + s);
+                            Logger.d(Logger.DOWNLOAD_LOG, "sub s transp: " + s.substring(s.indexOf("./") + 2, s.indexOf("\">")));
+                            tempUpdateTransportContentFiles.add(s.substring(s.indexOf("./") + 2, s.indexOf("\">")));
+                        }
                     }
+
                     r1.close();
                     bundle.putInt("resultCode", TRANSPORT_CONTENT_VERSION_CODE);
                     bundle.putString("result", "transport content");
                     return bundle;
 
                 case STATION_CONTENT_VERSION_URL:
-
                     tempUpdateStationaryContentFiles = new ArrayList<>();
-                BufferedReader r2 = new BufferedReader(new InputStreamReader(input));
-                while ((s = r2.readLine()) != null) {
-//                        if (s.contains("ver.")) {
-//                            stmVersion = s.substring(0, s.indexOf("<"));
-//                        } else if (s.contains("M")) {
-//                            String sub = s.substring(s.lastIndexOf("M"));
-//                            tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
-//                        } else if (s.contains("S")) {
-//                            String sub = s.substring(s.lastIndexOf("S"));
-//                            tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
-//                        }
-//
-                    tempUpdateStationaryContentFiles.add(s);
-                }
-                r2.close();
+                    BufferedReader r2 = new BufferedReader(new InputStreamReader(input));
+                    while ((s = r2.readLine()) != null) {
+                        if(s.contains("href")){
+                            Logger.d(Logger.DOWNLOAD_LOG, "s station: " + s);
+
+                            tempUpdateStationaryContentFiles.add(s);
+                        }
+                    }
+                    r2.close();
                     bundle.putInt("resultCode", STATION_CONTENT_VERSION_CODE);
                     bundle.putString("result", "stationary content");
-                return bundle;
+                    return bundle;
             }
         }
 
