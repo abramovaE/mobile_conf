@@ -8,7 +8,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -20,7 +19,6 @@ import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
-import com.kotofeya.mobileconfigurator.SshConnection;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -32,14 +30,6 @@ public class UpdateContentFragment extends UpdateFragment {
     @Override
     public void onTaskCompleted(Bundle bundle) {
         super.onTaskCompleted(bundle);
-
-
-
-
-
-
-
-//        scannerAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -66,13 +56,11 @@ public class UpdateContentFragment extends UpdateFragment {
         return new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_CONTENT_TYPE);
     }
 
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         label = view.findViewById(R.id.update_content_label);
-
         return view;
     }
 
@@ -92,61 +80,14 @@ public class UpdateContentFragment extends UpdateFragment {
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             boolean isTransport = getArguments().getBoolean("isTransport");
-            boolean isStationary = getArguments().getBoolean("isStationary");
             Logger.d(Logger.UPDATE_CONTENT_LOG, "isTransport: " + isTransport);
-
-
             String ip = getArguments().getString("ip");
-
             Map<String, String> transportContent = new HashMap<>();
-            Map<String, String> stationaryContent = new HashMap<>();
-
-            String[] content;
             for (String s : Downloader.tempUpdateTransportContentFiles) {
                 Logger.d(Logger.TRANSPORT_CONTENT_LOG, "transport content file: " + s);
                 transportContent.put(s.substring(0, s.indexOf("/")), s);
             }
-
-//            Map<String, String> commonContent = new HashMap<>();
-//            commonContent.putAll(transportContent);
-//            commonContent.putAll(stationaryContent);
-
-            if (isTransport) {
-                content = transportContent.keySet().toArray(new String[transportContent.size()]);
-
-//                content = Downloader.tempUpdateTransportContentFiles.toArray(new String[Downloader.tempUpdateTransportContentFiles.size()]);
-            } else if (isStationary) {
-                content = new String[1];
-
-//                content = Downloader.tempUpdateStationaryContentFiles.toArray(new String[Downloader.tempUpdateStationaryContentFiles.size()]);
-            } else {
-                content = new String[1];
-            }
-
-//            Logger.d(Logger.UPDATE_CONTENT_LOG, "transport content: " + Downloader.tempUpdateTransportContentFiles);
-//            Logger.d(Logger.UPDATE_CONTENT_LOG, "stationary content: " + Downloader.tempUpdateStationaryContentFiles);
-
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Choose the city for upload");
-            builder.setItems(content,
-                    new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Logger.d(Logger.UPDATE_CONTENT_LOG, "dialogContent: " + content[which]);
-                            Bundle bundle = new Bundle();
-                            bundle.putString("key", "transp " + content[which]);
-                            bundle.putString("value", transportContent.get(content[which]));
-                            bundle.putString("ip", ip);
-
-                            UploadContentConfDialog d = new UploadContentConfDialog();
-                            d.setArguments(bundle);
-                            d.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
-
-
-
-
-                        }
-                    });
+            AlertDialog.Builder builder = createUpdateContentConfDialog(ip, transportContent);
             builder.setCancelable(true);
             return builder.create();
         }
@@ -165,11 +106,6 @@ public class UpdateContentFragment extends UpdateFragment {
                     public void onClick(DialogInterface dialog, int id) {
                         Downloader downloader = new Downloader((UpdateContentFragment) App.get().getFragmentHandler().getCurrentFragment());
                         downloader.execute(value, ip);
-
-
-
-
-
                     }
                 });
                 builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -179,6 +115,29 @@ public class UpdateContentFragment extends UpdateFragment {
                 builder.setCancelable(true);
                 return builder.create();
             }
+        }
+
+
+
+        private AlertDialog.Builder createUpdateContentConfDialog(String ip, Map<String, String> contentMap){
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Choose the city for upload");
+            String[] content = contentMap.keySet().toArray(new String[contentMap.size()]);
+            builder.setItems(content,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            Logger.d(Logger.UPDATE_CONTENT_LOG, "dialogContent: " + content[which]);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("key", "transp " + content[which]);
+                            bundle.putString("value", contentMap.get(content[which]));
+                            bundle.putString("ip", ip);
+                            UploadContentConfDialog d = new UploadContentConfDialog();
+                            d.setArguments(bundle);
+                            d.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+                        }
+                    });
+            return builder;
         }
     }
 }

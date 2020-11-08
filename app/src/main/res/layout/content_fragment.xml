@@ -18,13 +18,15 @@
         android:textSize="@dimen/content_txt"
         android:padding="5dp"
         android:visibility="gone"
-        android:maxLines="1"/>
+        android:maxLines="1"
+        android:layout_margin="15dp"/>
 
     <Spinner
         android:id="@+id/content_spn_0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:layout_margin="15dp"/>
 
     <EditText
         android:id="@+id/content_txt_1"
@@ -32,7 +34,8 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/content_txt"
         android:padding="5dp"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:layout_margin="15dp"/>
 
     <EditText
         android:id="@+id/content_txt_2"
@@ -40,27 +43,31 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/content_txt"
         android:padding="5dp"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:layout_margin="15dp"/>
 
     <Spinner
         android:id="@+id/content_spn_1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:layout_margin="15dp"/>
 
 
     <Spinner
         android:id="@+id/content_spn_2"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:layout_margin="15dp"/>
 
 
     <Spinner
         android:id="@+id/content_spn_3"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:visibility="gone"/>
+        android:visibility="gone"
+        android:layout_margin="15dp"/>
 
 
     <TextView

@@ -122,43 +122,43 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                         res = baos.toString().substring(baos.toString().lastIndexOf("$load") + 6, baos.toString().lastIndexOf("$ exit"));
                         break;
 
-                    case UPDATE_OS_UPLOAD_CODE:
-                        transferred = 0;
-                        uploadToOverlayUpdate(session, new File(App.get().getUpdateOsFilePath()));
-                        execCommand(session, REBOOT_COMMAND);
-                        break;
+//                    case UPDATE_OS_UPLOAD_CODE:
+//                        transferred = 0;
+//                        uploadToOverlayUpdate(session, new File(App.get().getUpdateOsFilePath()));
+//                        execCommand(session, REBOOT_COMMAND);
+//                        break;
 
-                    case UPDATE_STM_UPLOAD_CODE:
-                        execCommand(session, CLEAR_ARCHIVE_DIR_COMMAND);
-                        String filePath = req2;
-                        File file = new File(filePath);
-                        File binFile = getBinFromArchive(file);
-                        uploadToOverlayUpdate(session, binFile);
-                        String moveCommand = "sudo mv " + "/overlay/update/" + binFile.getName() + " /var/www/html/data/archive/" + binFile.getName();
-                        execCommand(session, moveCommand + ";" + DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND);
-                        break;
+//                    case UPDATE_STM_UPLOAD_CODE:
+//                        execCommand(session, CLEAR_ARCHIVE_DIR_COMMAND);
+//                        String filePath = req2;
+//                        File file = new File(filePath);
+//                        File binFile = getBinFromArchive(file);
+//                        uploadToOverlayUpdate(session, binFile);
+//                        String moveCommand = "sudo mv " + "/overlay/update/" + binFile.getName() + " /var/www/html/data/archive/" + binFile.getName();
+//                        execCommand(session, moveCommand + ";" + DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND);
+//                        break;
 
-                    case REBOOT_CODE:
-                        execCommand(session, REBOOT_COMMAND);
-                        break;
+//                    case REBOOT_CODE:
+//                        execCommand(session, REBOOT_COMMAND);
+//                        break;
 
-                    case REBOOT_STM_CODE:
-                        res = execCommand(session, REBOOT_STM_COMMAND);
-                        break;
+//                    case REBOOT_STM_CODE:
+//                        res = execCommand(session, REBOOT_STM_COMMAND);
+//                        break;
 
-                    case CLEAR_RASP_CODE:
-                        res = execCommand(session, CLEAR_RASP_COMMAND);
-                        break;
+//                    case CLEAR_RASP_CODE:
+//                        res = execCommand(session, CLEAR_RASP_COMMAND);
+//                        break;
 
-                    case SEND_TRANSPORT_CONTENT_CODE:
-                        String command = SEND_TRANSPORT_CONTENT_COMMAND + " " + req2 + " " + req3 + " " + req4 + " " + req5;
-                        res = execCommand(session, command);
-                        break;
-
-                    case SEND_STATION_CONTENT_CODE:
-                        String comm = req2;
-                        res = execCommand(session, comm);
-                        break;
+//                    case SEND_TRANSPORT_CONTENT_CODE:
+//                        String command = SEND_TRANSPORT_CONTENT_COMMAND + " " + req2 + " " + req3 + " " + req4 + " " + req5;
+//                        res = execCommand(session, command);
+//                        break;
+//
+//                    case SEND_STATION_CONTENT_CODE:
+//                        String comm = req2;
+//                        res = execCommand(session, comm);
+//                        break;
                 }
             }
             catch (Exception e){
@@ -197,109 +197,109 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
             }
     }
 
-    private String execCommand(Session session, String command) throws IOException {
-        String res = "";
-        ChannelExec channelExec = null;
-        InputStream commandOutput = null;
-        try {
-            channelExec = (ChannelExec) session.openChannel("exec");
-            channelExec.setCommand(command);
-            StringBuilder sb = new StringBuilder();
-            channelExec.connect();
-            commandOutput = channelExec.getInputStream();
-            Thread.sleep(2000);
-            int readByte = 0;
-            while ((readByte = commandOutput.read()) != -1) {
-                sb.append((char) readByte);
-            }
-            res = sb.toString();
-        } catch (JSchException | IOException | InterruptedException e) {
-            e.printStackTrace();
-            this.resultCode = SSH_ERROR_CODE;
-        }
-        finally {
-            if(commandOutput != null){
-                commandOutput.close();
-            }
-            if(channelExec != null){
-                channelExec.disconnect();
-            }
-        }
-        return res;
-    }
-
-    private void uploadToOverlayUpdate(Session session, File file){
-        Logger.d(Logger.SSH_CONNECTION_LOG, "uploading file: " + file.getName() +" length: " + file.length());
-        ChannelSftp channelSftp = null;
-        try {
-            channelSftp = (ChannelSftp) session.openChannel("sftp");
-            channelSftp.connect();
-            channelSftp.put(file.getAbsolutePath(), "/overlay/update", new SftpProgressMonitor() {
-                @Override
-                public void init(int op, String src, String dest, long max) {
-                }
-                @Override
-                public boolean count(long count) {
-                    transferred += count;
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "transfered: " + transferred);
-                    listener.onProgressUpdate((int) (100 * (transferred / 40755927.0)));
-                    return true;
-                }
-                @Override
-                public void end() {
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "end transfering");
-                }
-            });
-        } catch (JSchException | SftpException e) {
-            e.printStackTrace();
-            this.resultCode = SSH_ERROR_CODE;
-        }
-        finally {
-            if(channelSftp != null){
-                channelSftp.disconnect();
-            }
-        }
-    }
-
-    private File getBinFromArchive(File file){
-        File binFile = null;
-        try (FileInputStream in = new FileInputStream(file);
-             BZip2CompressorInputStream bzIn = new BZip2CompressorInputStream(in);
-             TarArchiveInputStream tarIn = new TarArchiveInputStream(bzIn)){
-            ArchiveEntry entry = null;
-
-            while (null != (entry = tarIn.getNextEntry())){
-                if (entry.getSize() < 1){
-                    continue;
-                }
-                Logger.d(Logger.SSH_CONNECTION_LOG, "tar entry: " + entry.getName() + ", isContainsBin: " + entry.getName().contains(".bin"));
-
-                if(entry.getName().contains(".bin")){
-                    if(entry.getName().contains("static")){
-                        binFile = new File(file.getParent() + "/mobile" + entry.getName().substring(entry.getName().lastIndexOf("_")));
-                    }
-                    else if(entry.getName().contains("mobile")){
-                        String s = entry.getName().substring(entry.getName().indexOf("ver.") + 4);
-                        if(s.contains("_")){
-                            s = s.replace("_", ".");
-                        }
-                        binFile = new File(file.getParent() + "/mobile_" + s);
-                    }
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "bin file size: " + binFile.length() + ", bin file name: " + binFile.getName());
-
-                    FileOutputStream fileOutputStream = new FileOutputStream(binFile);
-                    int i = 0;
-                    while ((i = tarIn.read()) > 0){
-                        fileOutputStream.write(i);
-                    }
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "bin file size: " + binFile.length() + ", bin file name: " + binFile.getName());
-                    fileOutputStream.close();
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            this.resultCode = SSH_ERROR_CODE;
-        }
-        return binFile;
-    }
+//    private String execCommand(Session session, String command) throws IOException {
+//        String res = "";
+//        ChannelExec channelExec = null;
+//        InputStream commandOutput = null;
+//        try {
+//            channelExec = (ChannelExec) session.openChannel("exec");
+//            channelExec.setCommand(command);
+//            StringBuilder sb = new StringBuilder();
+//            channelExec.connect();
+//            commandOutput = channelExec.getInputStream();
+//            Thread.sleep(2000);
+//            int readByte = 0;
+//            while ((readByte = commandOutput.read()) != -1) {
+//                sb.append((char) readByte);
+//            }
+//            res = sb.toString();
+//        } catch (JSchException | IOException | InterruptedException e) {
+//            e.printStackTrace();
+//            this.resultCode = SSH_ERROR_CODE;
+//        }
+//        finally {
+//            if(commandOutput != null){
+//                commandOutput.close();
+//            }
+//            if(channelExec != null){
+//                channelExec.disconnect();
+//            }
+//        }
+//        return res;
+//    }
+//
+//    private void uploadToOverlayUpdate(Session session, File file){
+//        Logger.d(Logger.SSH_CONNECTION_LOG, "uploading file: " + file.getName() +" length: " + file.length());
+//        ChannelSftp channelSftp = null;
+//        try {
+//            channelSftp = (ChannelSftp) session.openChannel("sftp");
+//            channelSftp.connect();
+//            channelSftp.put(file.getAbsolutePath(), "/overlay/update", new SftpProgressMonitor() {
+//                @Override
+//                public void init(int op, String src, String dest, long max) {
+//                }
+//                @Override
+//                public boolean count(long count) {
+//                    transferred += count;
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "transfered: " + transferred);
+//                    listener.onProgressUpdate((int) (100 * (transferred / 40755927.0)));
+//                    return true;
+//                }
+//                @Override
+//                public void end() {
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "end transfering");
+//                }
+//            });
+//        } catch (JSchException | SftpException e) {
+//            e.printStackTrace();
+//            this.resultCode = SSH_ERROR_CODE;
+//        }
+//        finally {
+//            if(channelSftp != null){
+//                channelSftp.disconnect();
+//            }
+//        }
+//    }
+//
+//    private File getBinFromArchive(File file){
+//        File binFile = null;
+//        try (FileInputStream in = new FileInputStream(file);
+//             BZip2CompressorInputStream bzIn = new BZip2CompressorInputStream(in);
+//             TarArchiveInputStream tarIn = new TarArchiveInputStream(bzIn)){
+//            ArchiveEntry entry = null;
+//
+//            while (null != (entry = tarIn.getNextEntry())){
+//                if (entry.getSize() < 1){
+//                    continue;
+//                }
+//                Logger.d(Logger.SSH_CONNECTION_LOG, "tar entry: " + entry.getName() + ", isContainsBin: " + entry.getName().contains(".bin"));
+//
+//                if(entry.getName().contains(".bin")){
+//                    if(entry.getName().contains("static")){
+//                        binFile = new File(file.getParent() + "/mobile" + entry.getName().substring(entry.getName().lastIndexOf("_")));
+//                    }
+//                    else if(entry.getName().contains("mobile")){
+//                        String s = entry.getName().substring(entry.getName().indexOf("ver.") + 4);
+//                        if(s.contains("_")){
+//                            s = s.replace("_", ".");
+//                        }
+//                        binFile = new File(file.getParent() + "/mobile_" + s);
+//                    }
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "bin file size: " + binFile.length() + ", bin file name: " + binFile.getName());
+//
+//                    FileOutputStream fileOutputStream = new FileOutputStream(binFile);
+//                    int i = 0;
+//                    while ((i = tarIn.read()) > 0){
+//                        fileOutputStream.write(i);
+//                    }
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "bin file size: " + binFile.length() + ", bin file name: " + binFile.getName());
+//                    fileOutputStream.close();
+//                }
+//            }
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//            this.resultCode = SSH_ERROR_CODE;
+//        }
+//        return binFile;
+//    }
 }

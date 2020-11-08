@@ -120,8 +120,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     execCommand(session, moveCommand + ";" + DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND);
                     break;
 
-
-                // TODO: 05.11.2020 where move? how we check updating?
                 case UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE:
                     transferred = 0;
                     filePath = (String) req[2];
@@ -131,8 +129,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/" + file.getName();
                     execCommand(session, moveCommand + ";" + REBOOT_COMMAND);
                     break;
-
-
 
                 case REBOOT_CODE:
                     execCommand(session, REBOOT_COMMAND);
@@ -148,6 +144,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
 
                 case SEND_TRANSPORT_CONTENT_CODE:
                     String command = SEND_TRANSPORT_CONTENT_COMMAND + " " + req[2] + " " + req[3] + " " + req[4] + " " + req[5];
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "send command: " + command);
                     res = execCommand(session, command);
                     break;
 

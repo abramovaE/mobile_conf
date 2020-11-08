@@ -1,7 +1,5 @@
 package com.kotofeya.mobileconfigurator.fragments.update;
 
-
-
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;

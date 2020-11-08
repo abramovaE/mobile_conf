@@ -81,8 +81,9 @@ public class TransportContentFragment extends ContentFragment implements View.On
 
 
     protected void updateBtnCotentSendState(){
-        if(spnType.getSelectedItemPosition()> 0 && !number.getText().toString().isEmpty()
-                && !liter.getText().toString().isEmpty() && spnDir.getSelectedItemPosition() > 0
+        if(spnType.getSelectedItemPosition() > 0 && !number.getText().toString().isEmpty()
+//                && !liter.getText().toString().isEmpty()
+                && spnDir.getSelectedItemPosition() > 0
                 && utils.getIp(transportTransiver.getSsid()) != null){
                 btnContntSend.setEnabled(true);
         }
@@ -112,20 +113,24 @@ public class TransportContentFragment extends ContentFragment implements View.On
     @Override
     public void onClick(View v) {
         int type = spnType.getSelectedItemPosition();
-        String typeHex = Integer.toHexString(type);
+//        String typeHex = Integer.toHexString(type);
+        String typeHex = type + "";
 
         int num = Integer.parseInt(number.getText().toString());
-        String numHex = Integer.toHexString(num);
+//        String numHex = Integer.toHexString(num);
+        String numHex = num + "";
 
         String lit = liter.getText().toString().toLowerCase();
+
         String litHex = "";
 
 
         int dir = spnDir.getSelectedItemPosition();
-        String dirHex = Integer.toHexString(dir);
-
+//        String dirHex = Integer.toHexString(dir);
+        String dirHex = dir + "";
         try {
-                // TODO: 16.08.2020 третья и четвертая литеры?
+            // TODO: 16.08.2020 третья и четвертая литеры?
+
             if(!lit.isEmpty()){
                 if(lit.toCharArray().length == 1){
                     litHex = Integer.parseInt(toHex(lit), 16) + "";
@@ -137,7 +142,8 @@ public class TransportContentFragment extends ContentFragment implements View.On
                 }
             }
             else {
-                litHex = toHex(0 + "");
+                Logger.d(Logger.CONTENT_LOG, "lit is empty");
+                litHex = 0 + "";
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();

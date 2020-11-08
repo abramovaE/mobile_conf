@@ -213,7 +213,8 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     }
 
     public boolean refreshButtons(){
-        Logger.d(Logger.CONTENT_LOG, "currentTransiverIp: " + currentTransiver.getIp() +" " + utils.getIp(currentTransiver.getSsid()));
+        Logger.d(Logger.CONTENT_LOG, "currentTransiverIp: " +
+                currentTransiver.getIp() +" " + utils.getIp(currentTransiver.getSsid()));
         if(currentTransiver.getIp() != null || utils.getIp(currentTransiver.getSsid()) != null){
 
 //            btnRebootRasp.setEnabled(true);

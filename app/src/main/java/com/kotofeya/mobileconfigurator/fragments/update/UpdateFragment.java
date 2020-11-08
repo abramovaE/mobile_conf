@@ -198,7 +198,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         scannerAdapter.notifyDataSetChanged();
     }
 
-
     final Runnable updateRunnable = new Runnable() {
         public void run() {
             updateUI();
