@@ -6,6 +6,7 @@ import android.os.Bundle;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
@@ -90,7 +91,6 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
 
             try {
                 JSch jsch = new JSch();
-
                 session = jsch.getSession("staff", ip, 22);
                 session.setPassword("staff");
                 ByteArrayOutputStream baos = null;
@@ -103,6 +103,7 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
 
                 switch (resultCode) {
                     case TAKE_CODE:
+
                         channel = session.openChannel("shell");
                         baos = new ByteArrayOutputStream();
                         OutputStream inputstream_for_the_channel = channel.getOutputStream();
@@ -119,8 +120,17 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                         } while (!channel.isEOF());
                         reader.close();
                         commander.close();
-                        res = baos.toString().substring(baos.toString().lastIndexOf("$load") + 6, baos.toString().lastIndexOf("$ exit"));
+                        res = baos.toString().substring(baos.toString().lastIndexOf("$typeT") + 7, baos.toString().lastIndexOf("$ exit"));
+//                        Logger.d(Logger.SSH_CONNECTION_LOG, "baos: " + baos.toString());
                         break;
+
+
+//                    res: n$ipETH\n$macETH\
+//                    n$typeT"
+//                    6867
+
+
+
 
 //                    case UPDATE_OS_UPLOAD_CODE:
 //                        transferred = 0;
@@ -196,6 +206,31 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                 }
             }
     }
+
+
+//    private String getTakeInfo(){
+//        String res = "";
+//        channel = session.openChannel("shell");
+//        baos = new ByteArrayOutputStream();
+//        OutputStream inputstream_for_the_channel = channel.getOutputStream();
+//        PrintStream commander = new PrintStream(inputstream_for_the_channel, true);
+//        channel.setOutputStream(baos, true);
+//        channel.connect();
+//        BufferedReader reader = new BufferedReader(new InputStreamReader(App.get().getAssets().open("take.sh")));
+//        String e;
+//        while ((e = reader.readLine()) != null) {
+//            commander.println(e);
+//        }
+//        do {
+//            Thread.sleep(2000);
+//        } while (!channel.isEOF());
+//        reader.close();
+//        commander.close();
+//        res = baos.toString().substring(baos.toString().lastIndexOf("$typeT") + 7, baos.toString().lastIndexOf("$ exit"));
+//        return res;
+//    }
+//
+//
 
 //    private String execCommand(Session session, String command) throws IOException {
 //        String res = "";

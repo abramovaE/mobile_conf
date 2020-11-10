@@ -160,46 +160,55 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
 
             utils.getBluetooth().stopScan(false);
 
+//            StringBuilder sb = new StringBuilder();
+//            boolean isTransport = p.getTType().equals("transport");
+//            boolean isStationary = p.getTType().equals("stationary");
+
+
+            boolean isTransport = p.isTransport();
+            boolean isStationary = p.isStationary();
+
+
+            Logger.d(Logger.SCANNER_ADAPTER_LOG, p.getSsid() + " isTransport: " + isTransport + ", isStationary: " + isStationary);
+
             textItem0.setVisibility(View.VISIBLE);
-            if(p.getIncrementOfContent() != null && p.getIncrementOfContent().isEmpty()){
+            Logger.d(Logger.SCANNER_ADAPTER_LOG, "increement of content: " + p.getIncrementOfContent());
+            if(p.getIncrementOfContent() == null|| p.getIncrementOfContent().isEmpty()){
                 textItem0.setText("no incr");
             }
+
             else {
-                textItem0.setText(p.getIncrementOfContent());
+                if(isTransport){
+                    TransportTransiver t = (TransportTransiver) p;
+                    textItem0.setText(t.getCityCode(t.getCity()) + " " + p.getIncrementOfContent());
+                }
+                else {
+                    textItem0.setText(p.getIncrementOfContent());
+                }
             }
 
-            StringBuilder sb = new StringBuilder();
 
-
-            // TODO: 05.11.2020
-            boolean isTransport = true;
-            boolean isStationary = true;
-
-            Transiver transiver = getTransiver(position);
             Logger.d(Logger.SCANNER_ADAPTER_LOG, "p: " + p.getSsid() + " isTransport: " + isTransport);
             Logger.d(Logger.SCANNER_ADAPTER_LOG, "p: " + p.getSsid() + " isStationary: " + isStationary);
+            textItem1.setText("no updates");
 
             if(isTransport){
                 if(Downloader.tempUpdateTransportContentFiles != null){
-                    for(String s: Downloader.tempUpdateTransportContentFiles){
-                        sb.append(s.substring(0, s.indexOf("/")));
-                        sb.append(", ");
-                    }
-                    sb.delete(sb.lastIndexOf(","), sb.length());
-                    textItem1.setText(sb.toString());
-                }
-                else {
-                    textItem1.setText("no updates");
+                    textItem1.setText("          ");
+
+//                    for(String s: Downloader.tempUpdateTransportContentFiles){
+//                        sb.append(s.substring(0, s.indexOf("/")));
+//                        sb.append(", ");
+//                    }
+//                    sb.delete(sb.lastIndexOf(","), sb.length());
+//                    textItem1.setText(sb.toString());
                 }
             }
 
             else if(isStationary){
-                if(Downloader.tempUpdateStationaryContentFiles != null){
-                    for(String s: Downloader.tempUpdateStationaryContentFiles){
-                        if(s.contains(p.getSsid())){
-                            textItem1.setText(s.substring(s.indexOf(".") + 1, s.indexOf(".tar")));
-                        }
-                    }
+                if(Downloader.tempUpdateStationaryContentFiles != null
+                        && Downloader.tempUpdateStationaryContentFiles.containsKey(ssid.getText())){
+                    textItem1.setText(Downloader.tempUpdateStationaryContentFiles.get(ssid.getText()));
                 }
                 else {
                     textItem1.setText("no updates");
@@ -212,32 +221,28 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                 public void onClick(View v) {
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
                     Transiver transiver = getTransiver(position);
-//                    if(transiver.isTransport()){
-//                        if (Downloader.tempUpdateTransportContentFiles != null && !Downloader.tempUpdateTransportContentFiles.isEmpty()) {
-//                            Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateContentFilesSize: " + Downloader.tempUpdateStmFiles.size());
-                            Bundle bundle = new Bundle();
-                            bundle.putString("ip", transiver.getIp());
-                            bundle.putBoolean("isTransport", isTransport);
-                            bundle.putBoolean("isStationary", isStationary);
-                            UpdateContentFragment.UpdateContentConfDialog dialog = new UpdateContentFragment.UpdateContentConfDialog();
-                            dialog.setArguments(bundle);
-                            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
-//                        }
-//                    }
+                    Bundle bundle = new Bundle();
+                    bundle.putString("ip", transiver.getIp());
+                    bundle.putBoolean("isTransport", isTransport);
+                    bundle.putBoolean("isStationary", isStationary);
+                    DialogFragment dialogFragment = null;
+                    if(isTransport){
+                        dialogFragment = new UpdateContentFragment.UpdateContentConfDialog();
+                    }
+                    else if(isStationary){
 
-
-
-
-//                    utils.setCurrentTransiver(transiver);
-//                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateContentFileLength: " + Downloader.tempUpdateOsFile.length());
-
-//                    if(Downloader.tempUpdateOsFile.length() > 1000){
-//                        Bundle bundle = new Bundle();
-//                        bundle.putString("transIp", transiver.getIp());
-//                        UpdateOsConfDialog dialog = new UpdateOsConfDialog();
-//                        dialog.setArguments(bundle);
-//                        dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
-//                    }
+                        String key = p.getSsid();
+                        if(Downloader.tempUpdateStationaryContentFiles.containsKey(key)){
+                            bundle.putString("key", key);
+                            bundle.putString("value", key + "/data.tar.bz2");
+                            dialogFragment = new UpdateContentFragment.UpdateContentConfDialog.UploadContentConfDialog();
+                        }
+                    }
+                    if(dialogFragment != null){
+                        dialogFragment.setArguments(bundle);
+                        dialogFragment.show(App.get().getFragmentHandler().getFragmentManager(),
+                                App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+                    }
                 }
             });
 

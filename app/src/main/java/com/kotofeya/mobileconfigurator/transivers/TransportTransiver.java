@@ -19,10 +19,10 @@ public class TransportTransiver extends Transiver {
 
     public TransportTransiver(String ssid, String ip, String macWifi, String macBt, String boardVersion, String osVersion,
                      String stmFirmware, String stmBootloader, String core, String modem, String incrementOfContent,
-                     String uptime, String cpuTemp, String load) {
+                     String uptime, String cpuTemp, String load, String tType) {
         super(ssid, ip, macWifi, macBt, boardVersion, osVersion,
                  stmFirmware, stmBootloader, core, modem, incrementOfContent,
-                 uptime, cpuTemp, load);
+                 uptime, cpuTemp, load, tType);
     }
 
 
@@ -185,6 +185,14 @@ public class TransportTransiver extends Transiver {
         text.append(" ");
         text.append(getFullNumber());
         return text.toString();
+    }
+
+
+    public String getCityCode(int cityIndex){
+            switch (cityIndex){
+                case 2: return "spb";
+            }
+            return "";
     }
 }
 

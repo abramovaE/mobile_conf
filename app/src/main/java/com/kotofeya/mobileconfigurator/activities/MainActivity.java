@@ -37,6 +37,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         utils.getBluetooth().stopScan(true);
 //        utils.getTakeInfo(this);
 //        utils.clearTransivers();
+
+
     }
 
 
@@ -47,13 +49,11 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 
         utils = new Utils();
 
-
         FragmentHandler fragmentHandler = new FragmentHandler(this);
         App.get().setFragmentHandler(fragmentHandler);
         fragmentHandler.changeFragment(FragmentHandler.MAIN_FRAGMENT_TAG);
 
         label = findViewById(R.id.main_txt_label);
-
 
         mainBtnRescan = findViewById(R.id.main_btn_rescan);
         mainBtnRescan.setVisibility(View.GONE);

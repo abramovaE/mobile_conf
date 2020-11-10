@@ -14,7 +14,9 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class Downloader extends AsyncTask<String, Integer, Bundle> implements TaskCode{
@@ -32,10 +34,8 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     public static List<String> tempUpdateStmFiles;
 
     public static List<String> tempUpdateTransportContentFiles;
-    public static List<String> tempUpdateStationaryContentFiles;
+    public static Map<String, String> tempUpdateStationaryContentFiles;
 //    public static List<String> tempUpdate
-
-
 
 //    // TODO: 18.08.2020 for test, delete in release
 //    static {
@@ -46,24 +46,25 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 //        tempUpdateStationaryContentFiles.add("6424.1.tar.bz2");
 //    }
 
-
-
     private static String osVersion;
     private String stmVersion;
-
     private OnTaskCompleted listener;
     private String currentIp;
 
+    private int currentAction;
 
     public Downloader(OnTaskCompleted listener) {
         this.listener = listener;
-
     }
 
     @Override
     protected Bundle doInBackground(String... url) {
         if(url.length > 1) {
             currentIp = url[1];
+        }
+
+        if (url.length > 2){
+            currentAction = Integer.parseInt(url[2]);
         }
         try {
             return getContent(url[0]);
@@ -199,7 +200,29 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                     bundle.putString("filePath", file.getAbsolutePath());
                     return bundle;
             }
-
+            else if(currentAction == UPDATE_STATION_CONTENT_DOWNLOAD_CODE){
+//                stringUrl = stringUrl.
+                url = new URL(STATION_CONTENT_VERSION_URL + "/" + stringUrl);
+                Logger.d(Logger.DOWNLOAD_LOG, "url: " + url);
+                c = (HttpURLConnection) url.openConnection();
+                c.setRequestMethod("GET");
+                c.setConnectTimeout(12000);
+                c.setReadTimeout(15000);
+                c.connect();
+                input = c.getInputStream();
+                File file = createTempUpdateTransportContentFile(stringUrl);
+                file.deleteOnExit();
+                output = new FileOutputStream(file);
+                byte data[] = new byte[4096];
+                int count;
+                while ((count = input.read(data)) != -1) {
+                    output.write(data, 0, count);
+                    publishProgress((int) (100 * (file.length() / 40755927.0)));
+                }
+                bundle.putInt("resultCode", UPDATE_STATION_CONTENT_DOWNLOAD_CODE);
+                bundle.putString("filePath", file.getAbsolutePath());
+                return bundle;
+            }
             else {
                 url = new URL(stringUrl);
                 c = (HttpURLConnection) url.openConnection();
@@ -274,15 +297,15 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                     return bundle;
 
                 case STATION_CONTENT_VERSION_URL:
-                    tempUpdateStationaryContentFiles = new ArrayList<>();
+                    tempUpdateStationaryContentFiles = new HashMap<>();
                     BufferedReader r2 = new BufferedReader(new InputStreamReader(input));
                     while ((s = r2.readLine()) != null) {
                         if(s.contains("href")){
-                            Logger.d(Logger.DOWNLOAD_LOG, "s station: " + s);
-
-                            tempUpdateStationaryContentFiles.add(s);
+                            String serial_incr = s.substring(s.indexOf(".bz2>") + 5, s.indexOf("</a>"));
+                            tempUpdateStationaryContentFiles.put(serial_incr.split("_")[0], serial_incr.split("_")[1]);
                         }
                     }
+//                    tempUpdateStationaryContentFiles.put("6578", "1");
                     r2.close();
                     bundle.putInt("resultCode", STATION_CONTENT_VERSION_CODE);
                     bundle.putString("result", "stationary content");

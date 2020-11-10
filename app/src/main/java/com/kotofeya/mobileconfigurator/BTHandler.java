@@ -140,6 +140,13 @@ public class BTHandler {
     }
 
     public void stopScan(boolean disableRescan) {
+
+
+//        Exception e = new Exception();
+//        e.printStackTrace();
+
+
+
         utils.stopLVTimer();
         if (mScanning.get()) {
             if (disableRescan) {

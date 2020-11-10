@@ -42,8 +42,6 @@ public class Utils {
     public static final int STAT_RADIO_TYPE = 0x40;
     public static final int ALL_RADIO_TYPE = 0;
 
-
-
     private List<String> clients;
     private List<Transiver> transivers;
     private Set<String> ssidListRunTime;
@@ -56,20 +54,7 @@ public class Utils {
 
     private Map<String, String> ssidIpMap;
 
-
-
-
-//    public List<String> getClients() {
-//        return clients;
-//    }
-//
-//    public void setClients(List<String> clients) {
-//        this.clients = clients;
-//    }
-
-
     public void getTakeInfo(OnTaskCompleted listener){
-
         clients = WiFiLocalHotspot.getInstance().getClientList();
         Logger.d(Logger.UTILS_LOG, "getClientList: " + clients);
         if(clients.size() > 0){
@@ -78,11 +63,13 @@ public class Utils {
             for (int i = 0; i < clients.size(); i++) {
                 futures[i] = CompletableFuture.runAsync(new SshConnectionRunnable(listener, clients.get(i), SshConnection.TAKE_CODE), executorService);
             }
-            CompletableFuture.allOf(futures).thenRun(() -> {
-                Logger.d(Logger.UTILS_LOG, "clients res: " + clients);
-                executorService.shutdown();
-                return;
-            });
+            if(futures != null){
+                CompletableFuture.allOf(futures).thenRun(() -> {
+                    executorService.shutdown();
+                    return;
+                });
+            }
+
         }
     }
 
@@ -179,7 +166,9 @@ public class Utils {
                             transivers.removeAll(forDel);
                             forDel.clear();
                         new Handler(Looper.getMainLooper()).post(() -> {
-                            ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
+                            if(transiversLv != null && transiversLv.getAdapter() != null) {
+                                ((ScannerAdapter) transiversLv.getAdapter()).notifyDataSetChanged();
+                            }
                         });
                     }
                 }
@@ -201,12 +190,13 @@ public class Utils {
                     }
                 }
                 if (!isContains) {
-//                    Logger.d(Logger.UTILS_LOG, "add transiver: ");
+                    Logger.d(Logger.UTILS_LOG, "add transiver: ");
                     transivers.add(transiver);
-                    ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
+                    if(transiversLv != null && transiversLv.getAdapter() != null){
+                        ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
+                    }
                 }
                 else {
-//                    Logger.d(Logger.UTILS_LOG, "update transiver: ");
                     updateTransiver(transiver);
                 }
             }
@@ -216,7 +206,20 @@ public class Utils {
 
     public synchronized void addTakeInfo(String takeInfo, boolean createNew){
         boolean isExist = false;
+
+        Logger.d(Logger.UTILS_LOG, "takeInfo: " + takeInfo);
+
         String[] info = takeInfo.split("\n");
+
+        for(String s: info){
+            Logger.d(Logger.UTILS_LOG, "info s: " + s);
+        }
+
+
+        Logger.d(Logger.UTILS_LOG, "info s[1]: " + info[1]);
+
+
+
         String ip = info[2].trim();
         String ssid = info[1].trim();
         String macWifi = info[3].trim();
@@ -231,6 +234,8 @@ public class Utils {
         String uptime = info[12].trim();
         String cpuTemp = info[13].trim();
         String load = info[14].trim();
+        String tType = info[17].trim();
+
 
         for(Transiver t: transivers){
             if(t.getSsid() != null && t.getSsid().equals(ssid)){
@@ -248,6 +253,7 @@ public class Utils {
                 t.setUptime(uptime);
                 t.setCpuTemp(cpuTemp);
                 t.setLoad(load);
+                t.setTType(tType);
                 isExist = true;
             }
         }
@@ -255,7 +261,7 @@ public class Utils {
             Logger.d(Logger.UTILS_LOG, "add new transiver, transivers: " + transivers.size());
             Transiver transiver = new Transiver(ssid, ip, macWifi, macBt, boardVersion, osVersion,
                         stmFirmware, stmBootloader, core, modem, incrementOfContent,
-                        uptime, cpuTemp, load);
+                        uptime, cpuTemp, load, tType);
             transivers.add(transiver);
             Logger.d(Logger.UTILS_LOG, "transivers: " + transivers.size());
 
@@ -289,8 +295,8 @@ public class Utils {
     private void updateTransiver(Transiver transiver){
         Transiver informerFromList = getBySsid(transiver.getSsid());
         if(!Arrays.equals(informerFromList.getRawData(), transiver.getRawData())){
+            Logger.d(Logger.UTILS_LOG, "update transiver: ");
             informerFromList.setRawData(transiver.getRawData());
-
             if(informerFromList.isTransport()){
                 try{
                     TransportTransiver t = (TransportTransiver) informerFromList;
@@ -301,7 +307,7 @@ public class Utils {
                             informerFromList.getBoardVersion(), informerFromList.getOsVersion(),
                             informerFromList.getStmFirmware(), informerFromList.getStmBootloader(),
                             informerFromList.getCore(), informerFromList.getModem(), informerFromList.getIncrementOfContent(),
-                            informerFromList.getUptime(), informerFromList.getCpuTemp(), informerFromList.getLoad());
+                            informerFromList.getUptime(), informerFromList.getCpuTemp(), informerFromList.getLoad(), informerFromList.getTType());
 
                     transportTransiver.setRawData(transiver.getRawData());
                     transportTransiver.setTransVersion(transiver.getTransVersion());
@@ -322,7 +328,7 @@ public class Utils {
                             informerFromList.getBoardVersion(), informerFromList.getOsVersion(),
                             informerFromList.getStmFirmware(), informerFromList.getStmBootloader(),
                             informerFromList.getCore(), informerFromList.getModem(), informerFromList.getIncrementOfContent(),
-                            informerFromList.getUptime(), informerFromList.getCpuTemp(), informerFromList.getLoad());
+                            informerFromList.getUptime(), informerFromList.getCpuTemp(), informerFromList.getLoad(), informerFromList.getTType());
 
                     s.setRawData(transiver.getRawData());
                     s.setTransVersion(transiver.getTransVersion());
@@ -330,7 +336,9 @@ public class Utils {
                     transivers.add(s);
                 }
             }
-            ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
+            if(transiversLv != null && transiversLv.getAdapter() != null) {
+                ((ScannerAdapter) transiversLv.getAdapter()).notifyDataSetChanged();
+            }
 
         }
         if((Math.abs(informerFromList.getRssi() - transiver.getRssi())) > 20){

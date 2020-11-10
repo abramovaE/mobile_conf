@@ -29,6 +29,7 @@ import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 
 import java.util.List;
+import java.util.Map;
 
 
 public abstract class UpdateFragment extends Fragment implements OnTaskCompleted {
@@ -136,6 +137,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         String result = bundle.getString("result");
         String ip = bundle.getString("ip");
         Logger.d(Logger.UPDATE_LOG, "ip: " + ip + ", resultCode: " + resultCode);
+        StringBuilder sbt = new StringBuilder();
+        StringBuilder sbs = new StringBuilder();
 
         switch (resultCode){
             case TaskCode.TAKE_CODE:
@@ -154,6 +157,14 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 setVersion(result);
                 break;
 
+            case TaskCode.TRANSPORT_CONTENT_VERSION_CODE:
+                Logger.d(Logger.UPDATE_LOG, "transportContent: " + result);
+                break;
+
+            case TaskCode.STATION_CONTENT_VERSION_CODE:
+                Logger.d(Logger.UPDATE_LOG, "stationContent: " + result);
+                break;
+
             case TaskCode.UPDATE_OS_DOWNLOAD_CODE:
                 progressBar.setVisibility(View.GONE);
                 utils.showMessage("Downloaded");
@@ -166,7 +177,9 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
             case TaskCode.UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE:
                 downloadBySsh(ip, SshConnection.UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE, bundle, View.VISIBLE);
                 break;
-
+            case TaskCode.UPDATE_STATION_CONTENT_DOWNLOAD_CODE:
+                downloadBySsh(ip, SshConnection.UPDATE_STATION_CONTENT_UPLOAD_CODE, bundle, View.VISIBLE);
+                break;
             case TaskCode.SSH_ERROR_CODE:
                 progressBar.setVisibility(View.GONE);
                 if(result.contains("Connection refused")){

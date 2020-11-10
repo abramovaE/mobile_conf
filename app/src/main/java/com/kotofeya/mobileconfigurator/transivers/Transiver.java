@@ -36,6 +36,7 @@ public class Transiver {
     private String uptime;
     private String cpuTemp;
     private String load;
+    private String tType;
 
     private String address;
     private int rssi;
@@ -50,7 +51,7 @@ public class Transiver {
 
     public Transiver(String ssid, String ip, String macWifi, String macBt, String boardVersion, String osVersion,
                      String stmFirmware, String stmBootloader, String core, String modem, String incrementOfContent,
-                     String uptime, String cpuTemp, String load) {
+                     String uptime, String cpuTemp, String load, String tType) {
         this.ssid = ssid;
         this.ip = ip;
         this.macWifi = macWifi;
@@ -65,6 +66,7 @@ public class Transiver {
         this.uptime = uptime;
         this.cpuTemp = cpuTemp;
         this.load = load;
+        this.tType = tType;
     }
 
     public Transiver(ScanResult result) {
@@ -378,11 +380,12 @@ public class Transiver {
                 return true;
             }
         }
-
         return false;
     }
 
     public String getExpBasicScanInfo(){
+
+//        Logger.d(Logger.APP_LOG, "tType: " + tType);
         StringBuilder sb = new StringBuilder();
         sb.append("ssid: ");
         sb.append(ssid);
@@ -426,6 +429,9 @@ public class Transiver {
         sb.append("load: ");
         sb.append(load);
         sb.append("\n");
+        sb.append("type: ");
+        sb.append(tType);
+        sb.append("\n");
         return sb.toString();
     }
 
@@ -464,7 +470,11 @@ public class Transiver {
     }
 
 
+    public String getTType() {
+        return tType;
+    }
 
-
-
+    public void setTType(String type) {
+        this.tType = type;
+    }
 }

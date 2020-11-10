@@ -11,10 +11,10 @@ public class StatTransiver extends Transiver {
 
     public StatTransiver(String ssid, String ip, String macWifi, String macBt, String boardVersion, String osVersion,
                               String stmFirmware, String stmBootloader, String core, String modem, String incrementOfContent,
-                              String uptime, String cpuTemp, String load) {
+                              String uptime, String cpuTemp, String load, String tType) {
         super(ssid, ip, macWifi, macBt, boardVersion, osVersion,
             stmFirmware, stmBootloader, core, modem, incrementOfContent,
-            uptime, cpuTemp, load);
+            uptime, cpuTemp, load, tType);
     }
     @Override
     String getFirstPartExpInfo() {

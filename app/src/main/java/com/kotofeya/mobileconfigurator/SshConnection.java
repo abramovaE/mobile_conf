@@ -101,7 +101,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     } while (!channel.isEOF());
                     reader.close();
                     commander.close();
-                    res = baos.toString().substring(baos.toString().lastIndexOf("$load") + 6, baos.toString().lastIndexOf("$ exit"));
+                    res = baos.toString().substring(baos.toString().lastIndexOf("$typeT") + 7, baos.toString().lastIndexOf("$ exit"));
                     break;
 
                 case UPDATE_OS_UPLOAD_CODE:
@@ -125,6 +125,16 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     filePath = (String) req[2];
                     file = new File(filePath);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "update transport upload file: " + file);
+                    uploadToOverlayUpdate(session, file);
+                    moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/" + file.getName();
+                    execCommand(session, moveCommand + ";" + REBOOT_COMMAND);
+                    break;
+
+                case UPDATE_STATION_CONTENT_UPLOAD_CODE:
+                    transferred = 0;
+                    filePath = (String) req[2];
+                    file = new File(filePath);
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "update station upload file: " + file);
                     uploadToOverlayUpdate(session, file);
                     moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/" + file.getName();
                     execCommand(session, moveCommand + ";" + REBOOT_COMMAND);

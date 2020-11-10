@@ -19,6 +19,7 @@ import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
+import com.kotofeya.mobileconfigurator.TaskCode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -30,6 +31,7 @@ public class UpdateContentFragment extends UpdateFragment {
     @Override
     public void onTaskCompleted(Bundle bundle) {
         super.onTaskCompleted(bundle);
+
     }
 
     @Override
@@ -42,8 +44,8 @@ public class UpdateContentFragment extends UpdateFragment {
         Downloader transpDownloader = new Downloader(this);
         transpDownloader.execute(Downloader.TRANSPORT_CONTENT_VERSION_URL);
 
-//        Downloader stationDownloader = new Downloader(this);
-//        stationDownloader.execute(Downloader.STATION_CONTENT_VERSION_URL);
+        Downloader stationDownloader = new Downloader(this);
+        stationDownloader.execute(Downloader.STATION_CONTENT_VERSION_URL);
     }
 
     @Override
@@ -72,6 +74,9 @@ public class UpdateContentFragment extends UpdateFragment {
         checkVersionButton.setVisibility(View.GONE);
         mainBtnRescan.setVisibility(View.VISIBLE);
         label.setVisibility(View.VISIBLE);
+
+        utils.getBluetooth().startScan(true);
+
     }
 
     public static class UpdateContentConfDialog extends DialogFragment {
@@ -105,7 +110,7 @@ public class UpdateContentFragment extends UpdateFragment {
                 builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
                         Downloader downloader = new Downloader((UpdateContentFragment) App.get().getFragmentHandler().getCurrentFragment());
-                        downloader.execute(value, ip);
+                        downloader.execute(value, ip, TaskCode.UPDATE_STATION_CONTENT_DOWNLOAD_CODE + "");
                     }
                 });
                 builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
