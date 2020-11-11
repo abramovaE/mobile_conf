@@ -116,7 +116,7 @@ public class Utils {
 
     public Transiver getTransiverByIp(String ip){
         for(Transiver transiver: transivers){
-            if(transiver.getIp().equalsIgnoreCase(ip)){
+            if(transiver != null && transiver.getIp().equalsIgnoreCase(ip)){
                 return transiver;
             }
         }

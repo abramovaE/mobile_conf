@@ -65,8 +65,10 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         loginTxt.setText("Abramov");
 
         Runnable runnable = new CountDownRunner();
-        Thread myThread= new Thread(runnable);
-        myThread.start();
+        Thread timerThread= new Thread(runnable);
+        timerThread.start();
+
+
 
     }
 
@@ -105,7 +107,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         runOnUiThread(new Runnable() {
             public void run() {
                 try{
-                    TextView txtCurrentTime= (TextView)findViewById(R.id.main_txt_date);
+                    TextView txtCurrentTime = findViewById(R.id.main_txt_date);
                     SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy/HH:mm:ss", Locale.getDefault());
                     String currentDateandTime = sdf.format(new Date());
                     txtCurrentTime.setText(currentDateandTime);

@@ -158,7 +158,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
         } else if (scannerType == UPDATE_CONTENT_TYPE) {
             // TODO: 18.07.20  set increment
 
-            utils.getBluetooth().stopScan(false);
+            utils.getBluetooth().stopScan(true);
 
 //            StringBuilder sb = new StringBuilder();
 //            boolean isTransport = p.getTType().equals("transport");

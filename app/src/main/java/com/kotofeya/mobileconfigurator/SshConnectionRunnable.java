@@ -28,7 +28,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Properties;
-
+import java.util.Timer;
 
 
 public class SshConnectionRunnable implements Runnable, TaskCode {
@@ -103,6 +103,8 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
 
                 switch (resultCode) {
                     case TAKE_CODE:
+                        long start = System.currentTimeMillis();
+                        Logger.d(Logger.SSH_CONNECTION_LOG, "start: " + start);
 
                         channel = session.openChannel("shell");
                         baos = new ByteArrayOutputStream();
@@ -122,12 +124,10 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                         commander.close();
                         res = baos.toString().substring(baos.toString().lastIndexOf("$typeT") + 7, baos.toString().lastIndexOf("$ exit"));
 //                        Logger.d(Logger.SSH_CONNECTION_LOG, "baos: " + baos.toString());
+                        long end = System.currentTimeMillis() - start;
+                        Logger.d(Logger.SSH_CONNECTION_LOG, "end: " + end);
+
                         break;
-
-
-//                    res: n$ipETH\n$macETH\
-//                    n$typeT"
-//                    6867
 
 
 

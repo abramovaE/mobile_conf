@@ -54,7 +54,7 @@ public class BleScannerFragment extends ScannerFragment {
     public void onStop() {
         super.onStop();
         Logger.d(Logger.BLE_SCANNER_LOG, "onStop");
-        utils.getBluetooth().stopScan(false);
+        utils.getBluetooth().stopScan(true);
         utils.clearTransivers();
         scannerAdapter.notifyDataSetChanged();
     }
