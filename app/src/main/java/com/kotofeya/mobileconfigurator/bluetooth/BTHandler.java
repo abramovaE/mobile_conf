@@ -1,12 +1,8 @@
-package com.kotofeya.mobileconfigurator;
+package com.kotofeya.mobileconfigurator.bluetooth;
 
 import android.Manifest;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothManager;
-import android.bluetooth.le.AdvertiseCallback;
-import android.bluetooth.le.AdvertiseData;
-import android.bluetooth.le.AdvertiseSettings;
-import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanFilter;
@@ -18,9 +14,11 @@ import android.os.Build;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import java.nio.charset.Charset;
+import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.Utils;
+
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Random;
 import java.util.Timer;
@@ -32,8 +30,6 @@ public class BTHandler {
     private static final int REQUEST_FINE_LOCATION = 2;
     public static final int REQUEST_ENABLE_BT = 1;
 
-    public static final int ADV_TIMEOUT = 5; //seconds
-
     private Utils utils;
 
     private BluetoothAdapter mBluetoothAdapter;
@@ -44,7 +40,6 @@ public class BTHandler {
     private AtomicBoolean mRequested;
     private AtomicBoolean mRescan;
     private Timer rescanTimer;
-    private AtomicBoolean IsTextFromBT;
 
     public BTHandler(Utils utils) {
         Random r = new Random();
@@ -57,7 +52,6 @@ public class BTHandler {
         mScanning = new AtomicBoolean(false);
         mRequested = new AtomicBoolean(false);
         mRescan = new AtomicBoolean(false);
-        IsTextFromBT = new AtomicBoolean(false);
     }
 
 
@@ -67,15 +61,12 @@ public class BTHandler {
     }
 
     public boolean startScan(boolean force) {
-
-
+        Logger.d(Logger.BT_HANDLER_LOG, "mRescan.get(): " + mRescan.get());
         if (!hasPermissions()){
             Logger.d(Logger.BT_HANDLER_LOG, "no permissions");
-
             mScanning.set(false);
             return false;
         }
-
         Logger.d(Logger.BT_HANDLER_LOG, "!mScanning.get(): " + !mScanning.get());
         Logger.d(Logger.BT_HANDLER_LOG, "force: " + force);
         if (!mScanning.get() || force) {

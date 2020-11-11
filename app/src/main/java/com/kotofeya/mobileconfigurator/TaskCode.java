@@ -28,4 +28,6 @@ public interface TaskCode {
 
     int SSH_ERROR_CODE = 14;
     int DOWNLOADER_ERROR_CODE = 15;
+
+    int DOWNLOAD_CITIES_CODE = 20;
 }

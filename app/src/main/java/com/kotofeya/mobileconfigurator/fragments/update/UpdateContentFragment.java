@@ -20,6 +20,7 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.TaskCode;
+import com.kotofeya.mobileconfigurator.activities.MainActivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -36,6 +37,12 @@ public class UpdateContentFragment extends UpdateFragment {
 
     @Override
     void loadUpdates() {
+    }
+
+    @Override
+    protected void scan() {
+        super.scan();
+        utils.getBluetooth().startScan(true);
     }
 
     @Override
@@ -77,6 +84,8 @@ public class UpdateContentFragment extends UpdateFragment {
 
         utils.getBluetooth().startScan(true);
 
+
+
     }
 
     public static class UpdateContentConfDialog extends DialogFragment {
@@ -97,7 +106,7 @@ public class UpdateContentFragment extends UpdateFragment {
             return builder.create();
         }
 
-        public static class UploadContentConfDialog extends DialogFragment {
+        public static class UploadContentConfDialog extends DialogFragment{
             @NonNull
             public Dialog onCreateDialog(Bundle savedInstanceState) {
                 String key = getArguments().getString("key");
@@ -132,7 +141,11 @@ public class UpdateContentFragment extends UpdateFragment {
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
+
                             Logger.d(Logger.UPDATE_CONTENT_LOG, "dialogContent: " + content[which]);
+//                            ((MainActivity)App.get().getContext()).getUtils().getBluetooth().stopScan(true);
+
+
                             Bundle bundle = new Bundle();
                             bundle.putString("key", "transp " + content[which]);
                             bundle.putString("value", contentMap.get(content[which]));

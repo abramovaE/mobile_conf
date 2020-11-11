@@ -24,7 +24,6 @@ public class FragmentHandler {
 
     private FragmentManager fragmentManager;
     private Fragment currentFragment;
-    private View containerView;
 
     public final static String MAIN_FRAGMENT_TAG = "MAIN_FRAGMENT";
     final static String BASIC_SCANNER_FRAGMENT = "BASIC_SCANNER_FRAGMENT";
@@ -34,13 +33,10 @@ public class FragmentHandler {
     final static String UPDATE_CONTENT_FRAGMENT = "UPDATE_CONTENT_FRAGMENT";
     final static String CONFIG_TRANSPORT_FRAGMENT = "CONFIG_TRANSPORT_FRAGMENT";
     final static String CONFIG_STATION_FRAGMENT = "CONFIG_STATION_FRAGMENT";
-
     final static String TRANSPORT_CONTENT_FRAGMENT = "TRANSPORT_CONTENT_FRAGMENT";
     final static String STATION_CONTENT_FRAGMENT = "STATION_CONTENT_FRAGMENT";
 
-
     public final static String CONFIRMATION_DIALOG_TAG = "CONFIRMATION_DIALOG";
-
 
     public FragmentManager getFragmentManager() {
         return fragmentManager;
@@ -50,131 +46,58 @@ public class FragmentHandler {
         fragmentManager = ((MainActivity) context).getSupportFragmentManager();
     }
 
-
-    public void changeFragmentBundle(String fragmentTag, Bundle bundle){
+    private Fragment getFragment(String fragmentTag){
         Fragment fragment = fragmentManager.findFragmentByTag(fragmentTag);
-
         if(fragment == null){
             switch (fragmentTag){
                 case MAIN_FRAGMENT_TAG:
-                    fragment = new MainMenuFragment();
-                    break;
-
+                    return new MainMenuFragment();
                 case BASIC_SCANNER_FRAGMENT:
-                    fragment = new BasicScannerFragment();
-                    break;
-
+                    return new BasicScannerFragment();
                 case BLE_SCANNER_FRAGMENT:
-                    fragment = new BleScannerFragment();
-                    break;
-
+                    return new BleScannerFragment();
                 case UPDATE_OS_FRAGMENT:
-                    fragment = new UpdateOsFragment();
-                    break;
-
+                    return new UpdateOsFragment();
                 case UPDATE_STM_FRAGMENT:
-                    fragment = new UpdateStmFragment();
-                    break;
-
+                    return new UpdateStmFragment();
                 case UPDATE_CONTENT_FRAGMENT:
-                    fragment = new UpdateContentFragment();
-                    break;
-
+                    return new UpdateContentFragment();
                 case CONFIG_TRANSPORT_FRAGMENT:
-                    fragment = new ConfigTransportFragment();
-                    break;
-
+                    return new ConfigTransportFragment();
                 case CONFIG_STATION_FRAGMENT:
-                    fragment = new ConfigStatFragment();
-                    break;
-
+                    return new ConfigStatFragment();
                 case TRANSPORT_CONTENT_FRAGMENT:
-                    fragment = new TransportContentFragment();
-                    break;
-
+                    return new TransportContentFragment();
                 case STATION_CONTENT_FRAGMENT:
-                    fragment = new StationContentFragment();
-                    break;
+                    return new StationContentFragment();
             }
         }
+        return fragment;
+    }
+
+    public void changeFragmentBundle(String fragmentTag, Bundle bundle){
+        Fragment fragment = getFragment(fragmentTag);
         fragment.setArguments(bundle);
         setFragment(fragment, fragmentTag, true);
-
-//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//        fragmentTransaction.replace(R.id.fragment_container, fragment, fragmentTag);
-//        fragmentTransaction.commit();
     }
+
     public void changeFragment(String fragmentTag){
-        Fragment fragment = fragmentManager.findFragmentByTag(fragmentTag);
-
-        if(fragment == null){
-         switch (fragmentTag){
-             case MAIN_FRAGMENT_TAG:
-                 fragment = new MainMenuFragment();
-                 break;
-
-             case BASIC_SCANNER_FRAGMENT:
-                 fragment = new BasicScannerFragment();
-                 break;
-
-             case BLE_SCANNER_FRAGMENT:
-                 fragment = new BleScannerFragment();
-                 break;
-
-             case UPDATE_OS_FRAGMENT:
-                 fragment = new UpdateOsFragment();
-                 break;
-
-             case UPDATE_STM_FRAGMENT:
-                 fragment = new UpdateStmFragment();
-                 break;
-
-             case UPDATE_CONTENT_FRAGMENT:
-                 fragment = new UpdateContentFragment();
-                 break;
-
-             case CONFIG_TRANSPORT_FRAGMENT:
-                 fragment = new ConfigTransportFragment();
-                 break;
-
-             case CONFIG_STATION_FRAGMENT:
-                 fragment = new ConfigStatFragment();
-                 break;
-
-             case TRANSPORT_CONTENT_FRAGMENT:
-                 fragment = new TransportContentFragment();
-                 break;
-
-             case STATION_CONTENT_FRAGMENT:
-                 fragment = new StationContentFragment();
-                 break;
-         }
-        }
+        Fragment fragment = getFragment(fragmentTag);
         setFragment(fragment, fragmentTag, true);
-
-//        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-//        fragmentTransaction.replace(R.id.fragment_container, fragment, fragmentTag);
-//        fragmentTransaction.commit();
     }
-
-
 
     private void setFragment(Fragment fragment, String tag, boolean stacked){
-
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment, tag);
-
         if (stacked) {
             fragmentTransaction.addToBackStack(tag);
         }
-
         fragmentTransaction.commit();
         try {
             Thread.sleep(100);
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         currentFragment = fragment;
     }
 

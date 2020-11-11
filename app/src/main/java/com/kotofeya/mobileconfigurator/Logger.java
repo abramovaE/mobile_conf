@@ -27,16 +27,7 @@ public class Logger {
     public static final int CONFIG_LOG = 17;
     public static final int UPDATE_LOG = 18;
 
-
-
-
-
-
-
-
     private static final  SparseArray<String> mType = new SparseArray<>();
-
-
 
     static {
         mType.put(MAIN_LOG,"Main_task");
@@ -58,10 +49,6 @@ public class Logger {
         mType.put(UPDATE_STM_LOG, "Update_stm_task");
         mType.put(CONFIG_LOG, "Config_task");
         mType.put(UPDATE_LOG, "Update_task");
-
-
-
-
     }
 
     public static void d(int type, String message){

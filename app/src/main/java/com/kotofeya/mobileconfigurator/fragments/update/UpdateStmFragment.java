@@ -19,6 +19,8 @@ import java.util.Map;
 
 public class UpdateStmFragment extends UpdateFragment {
 
+    private static final String PREF_TRANSP = "mobile";
+    private static final String PREF_STAT = "stationary";
 
     @Override
     void loadVersion(){
@@ -42,11 +44,26 @@ public class UpdateStmFragment extends UpdateFragment {
     }
 
     public static class UpdateStmConfDialog extends DialogFragment {
+        private String getKey(String s, String prefix){
+            String key;
+            key = prefix + getCity(s.charAt(1)) + s.substring(2, s.indexOf(".tar.bz2")) + ((s.endsWith("b.tar.bz2")) ? "bootloader" : "");
+            return key;
+        }
+
+        private String getCity(char ch){
+            switch (ch){
+                case 'P':
+                    return " Spb ";
+                case 'R':
+                    return " Rostov ";
+                default:
+                    return "";
+            }
+        }
 
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-
             boolean isTransport = getArguments().getBoolean("isTransport");
             boolean isStationary = getArguments().getBoolean("isStationary");
             String ip = getArguments().getString("ip");
@@ -55,27 +72,9 @@ public class UpdateStmFragment extends UpdateFragment {
             String[] content;
             for (String s : Downloader.tempUpdateStmFiles) {
                 if (s.startsWith("M")) {
-                    String key = "";
-                    if (s.startsWith("MP")) {
-                        key = "mobile Spb " + s.substring(2, s.indexOf(".tar.bz2"));
-                    } else if (s.startsWith("MR")) {
-                        key = "mobile Rostov " + s.substring(2, s.indexOf(".tar.bz2"));
-                    }
-                    if (s.endsWith("b.tar.bz2")) {
-                        key = key + " bootloader";
-                    }
-                    transportContent.put(key, s);
+                    transportContent.put(getKey(s, PREF_TRANSP), s);
                 } else if (s.startsWith("S")) {
-                    String key = "";
-                    if (s.startsWith("SP")) {
-                        key = "stationary Spb " + s.substring(2, s.indexOf(".tar.bz2"));
-                    } else if (s.startsWith("SR")) {
-                        key = "stationary Rostov " + s.substring(2, s.indexOf(".tar.bz2"));
-                    }
-                    if (s.endsWith("b.tar.bz2")) {
-                        key = key + " bootloader";
-                    }
-                    stationaryContent.put(key, s);
+                    stationaryContent.put(getKey(s, PREF_STAT), s);
                 }
             }
 
@@ -90,7 +89,6 @@ public class UpdateStmFragment extends UpdateFragment {
             } else {
                 content = commonContent.keySet().toArray(new String[commonContent.size()]);
             }
-
 
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle("Choose the stm version for upload");
@@ -111,8 +109,6 @@ public class UpdateStmFragment extends UpdateFragment {
             builder.setCancelable(true);
             return builder.create();
         }
-
-
     }
 
     public static class UploadStmConfDialog extends DialogFragment {

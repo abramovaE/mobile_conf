@@ -4,9 +4,11 @@ import android.bluetooth.le.ScanResult;
 import android.content.Context;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.City;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.activities.MainActivity;
 
 import java.io.UnsupportedEncodingException;
 
@@ -188,11 +190,13 @@ public class TransportTransiver extends Transiver {
     }
 
 
-    public String getCityCode(int cityIndex){
-            switch (cityIndex){
-                case 2: return "spb";
+    public String getCityCode(int cityId) {
+            for(City c: MainActivity.cities){
+                if(c.getId() == cityId){
+                    return c.getIndex();
+                }
             }
-            return "";
+        return "";
     }
 }
 

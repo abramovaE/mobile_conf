@@ -11,7 +11,6 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 
 public class MainMenuFragment extends Fragment implements View.OnClickListener {
-
     private Button basicScannerbtn;
     private Button bleScannerBtn;
     private Button updateOSBtn;
@@ -19,10 +18,6 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
     private Button updateContentBtn;
     private Button configTransportBtn;
     private Button configStationBtn;
-
-//    TextView statusTxt;
-
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -41,7 +36,6 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
         configTransportBtn.setOnClickListener(this);
         configStationBtn = view.findViewById(R.id.main_config_station_btn);
         configStationBtn.setOnClickListener(this);
-//        statusTxt = view.findViewById(R.id.status_txt);
         return view;
     }
 
@@ -82,5 +76,4 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
                 break;
         }
     }
-
 }

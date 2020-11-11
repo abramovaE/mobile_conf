@@ -13,6 +13,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
+import com.kotofeya.mobileconfigurator.bluetooth.BTHandler;
 import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
@@ -116,7 +117,7 @@ public class Utils {
 
     public Transiver getTransiverByIp(String ip){
         for(Transiver transiver: transivers){
-            if(transiver != null && transiver.getIp().equalsIgnoreCase(ip)){
+            if(transiver != null && transiver.getIp() != null && transiver.getIp().equalsIgnoreCase(ip)){
                 return transiver;
             }
         }
@@ -180,6 +181,7 @@ public class Utils {
 
     @SuppressWarnings("unchecked")
     public void addTransiver(Transiver transiver) {
+
         if(bluetooth.getmScanning().get()){
             if(transiver != null) {
                 boolean isContains = false;
@@ -197,6 +199,8 @@ public class Utils {
                     }
                 }
                 else {
+//                    Logger.d(Logger.UTILS_LOG, "update transiver: ");
+
                     updateTransiver(transiver);
                 }
             }
@@ -264,7 +268,6 @@ public class Utils {
                         uptime, cpuTemp, load, tType);
             transivers.add(transiver);
             Logger.d(Logger.UTILS_LOG, "transivers: " + transivers.size());
-
         }
         ssidIpMap.put(ssid, ip);
     }
@@ -293,6 +296,7 @@ public class Utils {
     }
 
     private void updateTransiver(Transiver transiver){
+
         Transiver informerFromList = getBySsid(transiver.getSsid());
         if(!Arrays.equals(informerFromList.getRawData(), transiver.getRawData())){
             Logger.d(Logger.UTILS_LOG, "update transiver: ");

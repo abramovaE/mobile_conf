@@ -1,10 +1,12 @@
-package com.kotofeya.mobileconfigurator;
+package com.kotofeya.mobileconfigurator.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
 
 
+import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;

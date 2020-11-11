@@ -8,13 +8,19 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import com.google.gson.Gson;
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.City;
+import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.FragmentHandler;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -28,6 +34,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 
     TextView loginTxt;
     TextView dateTxt;
+
+    public static City cities[];
 
     @Override
     public void onStart() {
@@ -68,8 +76,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         Thread timerThread= new Thread(runnable);
         timerThread.start();
 
-
-
+        Downloader cityDownloader = new Downloader(this);
+        cityDownloader.execute(Downloader.CITY_URL);
     }
 
     @Override
@@ -94,9 +102,25 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 //            myHandler.post(updateRunnable);
         }
 
+        else if(resultCode == TaskCode.DOWNLOAD_CITIES_CODE){
+            getCities(res);
+        }
+
         Logger.d(Logger.MAIN_LOG, "trans: " + utils.getTransivers());
 
     }
+
+
+    private void getCities(String res){
+        try {
+            JSONObject jObject = new JSONObject(res);
+            this.cities = new Gson().fromJson(jObject.get("city").toString(), City[].class);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+    }
+
+
 
     @Override
     public void onProgressUpdate(Integer downloaded) {

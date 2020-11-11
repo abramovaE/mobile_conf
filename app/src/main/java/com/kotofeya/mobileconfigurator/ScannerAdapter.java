@@ -117,7 +117,11 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             Logger.d(Logger.SCANNER_ADAPTER_LOG, "scanner " + p.getSsid() + " " + p.isTransport());
             expButton.setVisibility(View.VISIBLE);
             exp.setText(p.getBleExpText());
-        } else if (scannerType == UPDATE_OS_TYPE) {
+        }
+
+
+
+        else if (scannerType == UPDATE_OS_TYPE) {
             textItem0.setVisibility(View.VISIBLE);
             linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -156,27 +160,14 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                 }
             });
         } else if (scannerType == UPDATE_CONTENT_TYPE) {
-            // TODO: 18.07.20  set increment
-
-            utils.getBluetooth().stopScan(true);
-
-//            StringBuilder sb = new StringBuilder();
-//            boolean isTransport = p.getTType().equals("transport");
-//            boolean isStationary = p.getTType().equals("stationary");
-
-
             boolean isTransport = p.isTransport();
             boolean isStationary = p.isStationary();
-
-
             Logger.d(Logger.SCANNER_ADAPTER_LOG, p.getSsid() + " isTransport: " + isTransport + ", isStationary: " + isStationary);
-
             textItem0.setVisibility(View.VISIBLE);
             Logger.d(Logger.SCANNER_ADAPTER_LOG, "increement of content: " + p.getIncrementOfContent());
             if(p.getIncrementOfContent() == null|| p.getIncrementOfContent().isEmpty()){
                 textItem0.setText("no incr");
             }
-
             else {
                 if(isTransport){
                     TransportTransiver t = (TransportTransiver) p;
@@ -186,22 +177,10 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                     textItem0.setText(p.getIncrementOfContent());
                 }
             }
-
-
-            Logger.d(Logger.SCANNER_ADAPTER_LOG, "p: " + p.getSsid() + " isTransport: " + isTransport);
-            Logger.d(Logger.SCANNER_ADAPTER_LOG, "p: " + p.getSsid() + " isStationary: " + isStationary);
             textItem1.setText("no updates");
-
             if(isTransport){
                 if(Downloader.tempUpdateTransportContentFiles != null){
                     textItem1.setText("          ");
-
-//                    for(String s: Downloader.tempUpdateTransportContentFiles){
-//                        sb.append(s.substring(0, s.indexOf("/")));
-//                        sb.append(", ");
-//                    }
-//                    sb.delete(sb.lastIndexOf(","), sb.length());
-//                    textItem1.setText(sb.toString());
                 }
             }
 
@@ -220,6 +199,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                 @Override
                 public void onClick(View v) {
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
+                    utils.getBluetooth().stopScan(true);
                     Transiver transiver = getTransiver(position);
                     Bundle bundle = new Bundle();
                     bundle.putString("ip", transiver.getIp());
@@ -230,7 +210,6 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                         dialogFragment = new UpdateContentFragment.UpdateContentConfDialog();
                     }
                     else if(isStationary){
-
                         String key = p.getSsid();
                         if(Downloader.tempUpdateStationaryContentFiles.containsKey(key)){
                             bundle.putString("key", key);
@@ -295,12 +274,9 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
 
     @Override
     public void onTaskCompleted(Bundle result) {
-
     }
 
     @Override
     public void onProgressUpdate(Integer downloaded) {
-
     }
 }
-
