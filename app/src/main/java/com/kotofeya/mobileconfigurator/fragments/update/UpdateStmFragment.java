@@ -13,6 +13,7 @@ import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
+import com.kotofeya.mobileconfigurator.TaskCode;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -124,7 +125,7 @@ public class UpdateStmFragment extends UpdateFragment {
             builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     Downloader downloader = new Downloader((UpdateStmFragment) App.get().getFragmentHandler().getCurrentFragment());
-                    downloader.execute(value, ip);
+                    downloader.execute(value, ip, TaskCode.UPDATE_STM_DOWNLOAD_CODE + "");
                 }
             });
             builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {

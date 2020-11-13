@@ -90,11 +90,16 @@ public class UpdateContentFragment extends UpdateFragment {
 
     public static class UpdateContentConfDialog extends DialogFragment {
 
+        boolean isTransport;
+        boolean isStationary;
+
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            boolean isTransport = getArguments().getBoolean("isTransport");
-            Logger.d(Logger.UPDATE_CONTENT_LOG, "isTransport: " + isTransport);
+            this.isTransport = getArguments().getBoolean("isTransport");
+            this.isStationary = getArguments().getBoolean("isStationary");
+
+            Logger.d(Logger.UPDATE_CONTENT_LOG, "isTransport: " + isTransport +", isStationary: " + isStationary);
             String ip = getArguments().getString("ip");
             Map<String, String> transportContent = new HashMap<>();
             for (String s : Downloader.tempUpdateTransportContentFiles) {
@@ -112,14 +117,25 @@ public class UpdateContentFragment extends UpdateFragment {
                 String key = getArguments().getString("key");
                 String value = getArguments().getString("value");
                 String ip = getArguments().getString("ip");
-                Logger.d(Logger.UPDATE_CONTENT_LOG, "key: " + key);
+                boolean isStationary = getArguments().getBoolean("isStationary");
+                boolean isTransport = getArguments().getBoolean("isTransport");
+
+                Logger.d(Logger.UPDATE_CONTENT_LOG, "key: " + key + ", value: " + value +
+                        ", isStationary: " + isStationary + ", isTransport: " + isTransport);
                 AlertDialog.Builder builder = new AlertDialog.Builder((App.get().getFragmentHandler().getCurrentFragment()).getActivity());
                 builder.setTitle("Confirmation is required");
                 builder.setMessage("Confirm the upload of " + key);
                 builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int id) {
+                        String downloadCode = null;
+                        if(isStationary){
+                            downloadCode = TaskCode.UPDATE_STATION_CONTENT_DOWNLOAD_CODE + "";
+                        }
+                        else if(isTransport){
+                            downloadCode = TaskCode.UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE + "";
+                        }
                         Downloader downloader = new Downloader((UpdateContentFragment) App.get().getFragmentHandler().getCurrentFragment());
-                        downloader.execute(value, ip, TaskCode.UPDATE_STATION_CONTENT_DOWNLOAD_CODE + "");
+                        downloader.execute(value, ip, downloadCode);
                     }
                 });
                 builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -141,15 +157,13 @@ public class UpdateContentFragment extends UpdateFragment {
                     new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-
                             Logger.d(Logger.UPDATE_CONTENT_LOG, "dialogContent: " + content[which]);
-//                            ((MainActivity)App.get().getContext()).getUtils().getBluetooth().stopScan(true);
-
-
                             Bundle bundle = new Bundle();
                             bundle.putString("key", "transp " + content[which]);
                             bundle.putString("value", contentMap.get(content[which]));
                             bundle.putString("ip", ip);
+                            bundle.putBoolean("isTransport", isTransport);
+                            bundle.putBoolean("isStationary", isStationary);
                             UploadContentConfDialog d = new UploadContentConfDialog();
                             d.setArguments(bundle);
                             d.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);

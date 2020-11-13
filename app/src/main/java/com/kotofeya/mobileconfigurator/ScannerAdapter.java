@@ -53,7 +53,6 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
         objects = utils.getTransivers();
         lInflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.scannerType = scannerType;
-
     }
 
     @Override
@@ -99,11 +98,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
         expButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (exp.getVisibility() == View.GONE) {
-                    exp.setVisibility(View.VISIBLE);
-                } else {
-                    exp.setVisibility(View.GONE);
-                }
+                exp.setVisibility(exp.getVisibility() == View.GONE? View.VISIBLE : View.GONE);
             }
         });
 
@@ -118,9 +113,6 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             expButton.setVisibility(View.VISIBLE);
             exp.setText(p.getBleExpText());
         }
-
-
-
         else if (scannerType == UPDATE_OS_TYPE) {
             textItem0.setVisibility(View.VISIBLE);
             linearLayout.setOnClickListener(new View.OnClickListener() {
@@ -205,6 +197,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                     bundle.putString("ip", transiver.getIp());
                     bundle.putBoolean("isTransport", isTransport);
                     bundle.putBoolean("isStationary", isStationary);
+//                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "putToBundle: " + isTransport + " " + isStationary);
                     DialogFragment dialogFragment = null;
                     if(isTransport){
                         dialogFragment = new UpdateContentFragment.UpdateContentConfDialog();

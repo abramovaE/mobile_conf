@@ -13,6 +13,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -33,11 +34,12 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     public static List<String> tempUpdateTransportContentFiles;
     public static Map<String, String> tempUpdateStationaryContentFiles;
 
+    public static Map<String, String> tempUpdateContentFiles;
+
     private static String osVersion;
     private String stmVersion;
     private OnTaskCompleted listener;
     private String currentIp;
-
     private int currentAction;
 
     public Downloader(OnTaskCompleted listener) {
@@ -77,7 +79,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     }
 
 
-    private File createTempUpdateFile(String fileName) throws Exception{
+    private File createTempUpdateFile(String fileName){
         File outputDir = App.get().getCacheDir();
         File file = new File(outputDir + "/" + fileName);
         if(file.exists()){
@@ -88,17 +90,63 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         return file;
     }
 
-    private void writeToFile(InputStream input, File file) throws IOException {
-        OutputStream output = new FileOutputStream(file);
-        byte data[] = new byte[4096];
-        int count;
-        while ((count = input.read(data)) != -1) {
-            output.write(data, 0, count);
-            publishProgress((int) (100 * (file.length() / 40755927.0)));
-        }
-        output.close();
+    private HttpURLConnection getConnection(URL url) throws IOException {
+        HttpURLConnection c = (HttpURLConnection) url.openConnection();
+        c.setRequestMethod("GET");
+        c.setConnectTimeout(12000);
+        c.setReadTimeout(15000);
+        c.connect();
+        return c;
     }
 
+    private void writeToFile(InputStream input, File file) throws IOException {
+        try(OutputStream output = new FileOutputStream(file)) {
+            byte data[] = new byte[4096];
+            int count;
+            while ((count = input.read(data)) != -1) {
+                output.write(data, 0, count);
+                publishProgress((int) (100 * (file.length() / 40755927.0)));
+            }
+        }
+    }
+
+    private String downloadToFile(URL url, String tempFileName) throws IOException {
+        HttpURLConnection c = getConnection(url);
+        try (InputStream input = c.getInputStream()){
+            File file = createTempUpdateFile(tempFileName);
+            writeToFile(input, file);
+            return file.getAbsolutePath();
+        }
+        finally {
+            if(c != null) {
+                c.disconnect();
+            }
+        }
+    }
+
+
+    private URL getURL(int currentAction, String stringUrl) throws MalformedURLException {
+        switch (currentAction){
+            case UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE:
+                return new URL(TRANSPORT_CONTENT_VERSION_URL + "/" + stringUrl);
+            case UPDATE_STATION_CONTENT_DOWNLOAD_CODE:
+                return new URL(STATION_CONTENT_VERSION_URL + "/" + stringUrl);
+            case  UPDATE_STM_DOWNLOAD_CODE:
+                return new URL(STM_VERSION_URL + "/" + stringUrl);
+        }
+        return new URL(stringUrl);
+    }
+
+    private String getTempFileName(int currentAction, String stringUrl) throws MalformedURLException {
+        switch (currentAction){
+            case UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE:
+            case UPDATE_STATION_CONTENT_DOWNLOAD_CODE:
+                return stringUrl.substring(4);
+            case  UPDATE_STM_DOWNLOAD_CODE:
+                return stringUrl;
+        }
+        return stringUrl;
+    }
 
     @Override
     protected void onPostExecute(Bundle result) {
@@ -109,77 +157,52 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     private Bundle getContent(String stringUrl) throws Exception {
         Bundle bundle = new Bundle();
         bundle.putString("ip", currentIp);
-        Logger.d(Logger.DOWNLOAD_LOG, "getting version, string url: " + stringUrl);
+        Logger.d(Logger.DOWNLOAD_LOG, "getContent: " + stringUrl + ", action: " + currentAction);
         URL url;
-        HttpURLConnection c = null;
-        InputStream input = null;
-
         try {
-            if(tempUpdateStmFiles != null && tempUpdateStmFiles.contains(stringUrl)){
-                url = new URL(STM_VERSION_URL + "/" + stringUrl);
-                c = getConnection(url);
-                input = c.getInputStream();
-                File file = createTempUpdateFile(stringUrl);
-                writeToFile(input, file);
-                bundle.putInt("resultCode", UPDATE_STM_DOWNLOAD_CODE);
-                bundle.putString("filePath", file.getAbsolutePath());
+            if(currentAction == UPDATE_STM_DOWNLOAD_CODE ||
+                    currentAction == UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE ||
+                    currentAction == UPDATE_STATION_CONTENT_DOWNLOAD_CODE){
+                url = getURL(currentAction, stringUrl);
+                String tempFilePath = downloadToFile(url, getTempFileName(currentAction, stringUrl));
+                bundle.putInt("resultCode", currentAction);
+                bundle.putString("filePath", tempFilePath);
                 return bundle;
             }
 
-            else if(tempUpdateTransportContentFiles != null && tempUpdateTransportContentFiles.contains(stringUrl)){
-                url = new URL(TRANSPORT_CONTENT_VERSION_URL + "/" + stringUrl);
-                c = getConnection(url);
-                input = c.getInputStream();
-                File file = createTempUpdateFile(stringUrl.substring(4));
-                writeToFile(input, file);
-                bundle.putInt("resultCode", UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE);
-                bundle.putString("filePath", file.getAbsolutePath());
-                return bundle;
-            }
-            else if(currentAction == UPDATE_STATION_CONTENT_DOWNLOAD_CODE){
-                url = new URL(STATION_CONTENT_VERSION_URL + "/" + stringUrl);
-                Logger.d(Logger.DOWNLOAD_LOG, "url: " + url);
-                c = getConnection(url);
-                input = c.getInputStream();
-                File file = createTempUpdateFile(stringUrl.substring(4));
-                writeToFile(input, file);
-                bundle.putInt("resultCode", UPDATE_STATION_CONTENT_DOWNLOAD_CODE);
-                bundle.putString("filePath", file.getAbsolutePath());
-                return bundle;
-            }
             else {
                 url = new URL(stringUrl);
-                c = getConnection(url);
-                input = c.getInputStream();
+                HttpURLConnection c = getConnection(url);
+                InputStream input = c.getInputStream();
+                String s;
             switch (stringUrl) {
                 case OS_VERSION_URL:
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(input));
-                    String s;
-                    while ((s = reader.readLine()) != null) {
-                        if (s.contains("ver.")) {
-                            osVersion = s;
+                    try(BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
+                        while ((s = reader.readLine()) != null) {
+                            if (s.contains("ver.")) {
+                                osVersion = s;
+                            }
                         }
                     }
-                    reader.close();
                     bundle.putString("result", "Release OS: " + osVersion);
                     bundle.putInt("resultCode", UPDATE_OS_VERSION_CODE);
                     return bundle;
 
                 case STM_VERSION_URL:
                     tempUpdateStmFiles = new ArrayList<>();
-                    BufferedReader r = new BufferedReader(new InputStreamReader(input));
-                    while ((s = r.readLine()) != null) {
-                        if (s.contains("ver.")) {
-                            stmVersion = s.substring(0, s.indexOf("<"));
-                        } else if (s.contains("M")) {
-                            String sub = s.substring(s.lastIndexOf("M"));
-                            tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
-                        } else if (s.contains("S")) {
-                            String sub = s.substring(s.lastIndexOf("S"));
-                            tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
+                    try(BufferedReader r = new BufferedReader(new InputStreamReader(input))) {
+                        while ((s = r.readLine()) != null) {
+                            if (s.contains("ver.")) {
+                                stmVersion = s.substring(0, s.indexOf("<"));
+                            } else if (s.contains("M")) {
+                                String sub = s.substring(s.lastIndexOf("M"));
+                                tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
+                            } else if (s.contains("S")) {
+                                String sub = s.substring(s.lastIndexOf("S"));
+                                tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
+                            }
                         }
                     }
-                    r.close();
                     bundle.putInt("resultCode", UPDATE_STM_VERSION_CODE);
                     bundle.putString("result", "Release: " + stmVersion);
                     return  bundle;
@@ -194,29 +217,29 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 
                 case TRANSPORT_CONTENT_VERSION_URL:
                     tempUpdateTransportContentFiles = new ArrayList<>();
-                    BufferedReader r1 = new BufferedReader(new InputStreamReader(input));
-                    while ((s = r1.readLine()) != null) {
-                        if(s.contains("href")){
-                            Logger.d(Logger.DOWNLOAD_LOG, "s transp: " + s);
-                            Logger.d(Logger.DOWNLOAD_LOG, "sub s transp: " + s.substring(s.indexOf("./") + 2, s.indexOf("\">")));
-                            tempUpdateTransportContentFiles.add(s.substring(s.indexOf("./") + 2, s.indexOf("\">")));
+                    try(BufferedReader r1 = new BufferedReader(new InputStreamReader(input))) {
+                        while ((s = r1.readLine()) != null) {
+                            if (s.contains("href")) {
+                                Logger.d(Logger.DOWNLOAD_LOG, "s transp: " + s);
+                                Logger.d(Logger.DOWNLOAD_LOG, "sub s transp: " + s.substring(s.indexOf("./") + 2, s.indexOf("\">")));
+                                tempUpdateTransportContentFiles.add(s.substring(s.indexOf("./") + 2, s.indexOf("\">")));
+                            }
                         }
                     }
-                    r1.close();
                     bundle.putInt("resultCode", TRANSPORT_CONTENT_VERSION_CODE);
                     bundle.putString("result", "transport content");
                     return bundle;
 
                 case STATION_CONTENT_VERSION_URL:
                     tempUpdateStationaryContentFiles = new HashMap<>();
-                    BufferedReader r2 = new BufferedReader(new InputStreamReader(input));
-                    while ((s = r2.readLine()) != null) {
-                        if(s.contains("href")){
-                            String serial_incr = s.substring(s.indexOf(".bz2>") + 5, s.indexOf("</a>"));
-                            tempUpdateStationaryContentFiles.put(serial_incr.split("_")[0], serial_incr.split("_")[1]);
+                    try(BufferedReader r2 = new BufferedReader(new InputStreamReader(input))) {
+                        while ((s = r2.readLine()) != null) {
+                            if (s.contains("href")) {
+                                String serial_incr = s.substring(s.indexOf(".bz2>") + 5, s.indexOf("</a>"));
+                                tempUpdateStationaryContentFiles.put(serial_incr.split("_")[0], serial_incr.split("_")[1]);
+                            }
                         }
                     }
-                    r2.close();
                     bundle.putInt("resultCode", STATION_CONTENT_VERSION_CODE);
                     bundle.putString("result", "stationary content");
                     return bundle;
@@ -241,14 +264,9 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
             }
         }
 
-        }finally {
-            try {
-                if (input != null) input.close();
-            } catch (IOException e) {
-                Logger.d(Logger.DOWNLOAD_LOG, "exception: " + e);
-                bundle.putInt("resultCode", TaskCode.DOWNLOADER_ERROR_CODE);
-            }
-            if (c != null) c.disconnect();
+        } catch (IOException e) {
+            Logger.d(Logger.DOWNLOAD_LOG, "exception: " + e);
+            bundle.putInt("resultCode", TaskCode.DOWNLOADER_ERROR_CODE);
         }
         return bundle;
     }
@@ -257,14 +275,5 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     protected void onProgressUpdate(Integer... values) {
         listener.onProgressUpdate(values[0]);
         super.onProgressUpdate(values);
-    }
-
-    private HttpURLConnection getConnection(URL url) throws IOException {
-        HttpURLConnection c = (HttpURLConnection) url.openConnection();
-        c.setRequestMethod("GET");
-        c.setConnectTimeout(12000);
-        c.setReadTimeout(15000);
-        c.connect();
-        return c;
     }
 }

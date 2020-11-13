@@ -50,27 +50,21 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
             case R.id.main_basic_scanner_btn:
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.BASIC_SCANNER_FRAGMENT);
                 break;
-
             case R.id.main_ble_scanner_btn:
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.BLE_SCANNER_FRAGMENT);
                 break;
-
             case R.id.main_update_os_btn:
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.UPDATE_OS_FRAGMENT);
                 break;
-
             case R.id.main_update_stm_btn:
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.UPDATE_STM_FRAGMENT);
                 break;
-
             case R.id.main_update_content_btn:
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.UPDATE_CONTENT_FRAGMENT);
                 break;
-
             case R.id.main_config_transport_btn:
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_TRANSPORT_FRAGMENT);
                 break;
-
             case R.id.main_config_station_btn:
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_STATION_FRAGMENT);
                 break;

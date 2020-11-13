@@ -84,25 +84,25 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());
 
             switch (resultCode) {
-                case TAKE_CODE:
-                    channel = session.openChannel("shell");
-                    baos = new ByteArrayOutputStream();
-                    OutputStream inputstream_for_the_channel = channel.getOutputStream();
-                    PrintStream commander = new PrintStream(inputstream_for_the_channel, true);
-                    channel.setOutputStream(baos, true);
-                    channel.connect();
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(App.get().getAssets().open("take.sh")));
-                    String e;
-                    while ((e = reader.readLine()) != null) {
-                        commander.println(e);
-                    }
-                    do {
-                        Thread.sleep(2000);
-                    } while (!channel.isEOF());
-                    reader.close();
-                    commander.close();
-                    res = baos.toString().substring(baos.toString().lastIndexOf("$typeT") + 7, baos.toString().lastIndexOf("$ exit"));
-                    break;
+//                case TAKE_CODE:
+//                    channel = session.openChannel("shell");
+//                    baos = new ByteArrayOutputStream();
+//                    OutputStream inputstream_for_the_channel = channel.getOutputStream();
+//                    PrintStream commander = new PrintStream(inputstream_for_the_channel, true);
+//                    channel.setOutputStream(baos, true);
+//                    channel.connect();
+//                    BufferedReader reader = new BufferedReader(new InputStreamReader(App.get().getAssets().open("take.sh")));
+//                    String e;
+//                    while ((e = reader.readLine()) != null) {
+//                        commander.println(e);
+//                    }
+//                    do {
+//                        Thread.sleep(2000);
+//                    } while (!channel.isEOF());
+//                    reader.close();
+//                    commander.close();
+//                    res = baos.toString().substring(baos.toString().lastIndexOf("$typeT") + 7, baos.toString().lastIndexOf("$ exit"));
+//                    break;
 
                 case UPDATE_OS_UPLOAD_CODE:
                     transferred = 0;
@@ -121,16 +121,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     break;
 
                 case UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE:
-                    transferred = 0;
-                    filePath = (String) req[2];
-                    file = new File(filePath);
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "update transport upload file: " + file);
-                    uploadToOverlayUpdate(session, file);
-                    moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/" + file.getName();
-                    execCommand(session, moveCommand + ";" + REBOOT_COMMAND);
-                    break;
-
                 case UPDATE_STATION_CONTENT_UPLOAD_CODE:
+//                    uploadMoveReboot(session, (String) req[2]);
                     transferred = 0;
                     filePath = (String) req[2];
                     file = new File(filePath);
@@ -190,7 +182,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
         if(resultCode != 0){
             Logger.d(Logger.SSH_CONNECTION_LOG, "resultCode: " + resultCode + ", result: " + result + ",ip: " + ip);
             Logger.d(Logger.SSH_CONNECTION_LOG, "listener != null: " + listener);
-
         }
 
         if (listener != null) {
@@ -286,6 +277,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
 
             if(entry.getName().contains(".bin")){
                 if(entry.getName().contains("static")){
+                    // TODO: 13.11.2020 mobile? 
                     binFile = new File(file.getParent() + "/mobile" + entry.getName().substring(entry.getName().lastIndexOf("_")));
                 }
                 else if(entry.getName().contains("mobile")){
@@ -296,14 +288,13 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     binFile = new File(file.getParent() + "/mobile_" + s);
                 }
                 Logger.d(Logger.SSH_CONNECTION_LOG, "bin file size: " + binFile.length() + ", bin file name: " + binFile.getName());
-
-                FileOutputStream fileOutputStream = new FileOutputStream(binFile);
-                int i = 0;
-                while ((i = tarIn.read()) > 0){
-                    fileOutputStream.write(i);
+                try(FileOutputStream fileOutputStream = new FileOutputStream(binFile)) {
+                    int i = 0;
+                    while ((i = tarIn.read()) > 0) {
+                        fileOutputStream.write(i);
+                    }
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "bin file size: " + binFile.length() + ", bin file name: " + binFile.getName());
                 }
-                Logger.d(Logger.SSH_CONNECTION_LOG, "bin file size: " + binFile.length() + ", bin file name: " + binFile.getName());
-                fileOutputStream.close();
             }
         }
         } catch (Exception e) {
@@ -312,6 +303,4 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
         }
         return binFile;
     }
-
-
 }

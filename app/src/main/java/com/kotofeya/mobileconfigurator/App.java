@@ -11,18 +11,14 @@ import androidx.fragment.app.Fragment;
 import java.io.File;
 
 public class App extends Application {
-
     private static App instance;
-
     private Context context;
     private FragmentHandler fragmentHandler;
-
     private SharedPreferences preferences;
     private String updateOsFilePath;
     private String updateOsFileVersion;
 
     private static final String PREF_NAME = "mobile_conf_pref";
-
 
     public static App get() {
         return instance;

@@ -18,12 +18,13 @@ public class InformerFilter {
             if (data == null){
                 return false;
             }
-            if (utils.getRadioType() == Utils.TRANSP_RADIO_TYPE){
-                return filterTransport(data);
-            } else if (utils.getRadioType() == Utils.STAT_RADIO_TYPE){
-                return filterStationary(data);
-            } else if (utils.getRadioType() == Utils.ALL_RADIO_TYPE){
-                return true;
+            switch (utils.getRadioType()){
+                case Utils.TRANSP_RADIO_TYPE:
+                    return filterTransport(data);
+                case Utils.STAT_RADIO_TYPE:
+                    return filterStationary(data);
+                case Utils.ALL_RADIO_TYPE:
+                    return true;
             }
         }
         return false;

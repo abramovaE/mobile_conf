@@ -16,6 +16,7 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
+import com.kotofeya.mobileconfigurator.SshConnectionRunnable;
 import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
 import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
 
@@ -93,8 +94,11 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
                 ip = utils.getIp(statTransiver.getSsid());
             }
             try {
-                SshConnection connection = new SshConnection(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()));
-                connection.execute(ip, SshConnection.TAKE_CODE);
+                new SshConnectionRunnable(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()),
+                        ip, SshConnection.TAKE_CODE);
+
+//                SshConnection connection = new SshConnection(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()));
+//                connection.execute(ip, SshConnection.TAKE_CODE);
             }
             catch (ClassCastException e){}
         }

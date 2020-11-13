@@ -74,18 +74,6 @@ public class Utils {
         }
     }
 
-
-//    public void getTakeInfo(OnTaskCompleted listener){
-//        clients = WiFiLocalHotspot.getInstance().getClientList();
-//
-//        for(String s: clients){
-////            new SshConnectionRunnable(this, s, SshConnection.TAKE_CODE).run();
-//            SshConnection connection = new SshConnection(listener);
-//            connection.execute(s, SshConnection.TAKE_CODE);
-//        }
-//    }
-
-
     public List<Transiver> getTransivers() {
         return transivers;
     }
@@ -210,20 +198,7 @@ public class Utils {
 
     public synchronized void addTakeInfo(String takeInfo, boolean createNew){
         boolean isExist = false;
-
-        Logger.d(Logger.UTILS_LOG, "takeInfo: " + takeInfo);
-
         String[] info = takeInfo.split("\n");
-
-        for(String s: info){
-            Logger.d(Logger.UTILS_LOG, "info s: " + s);
-        }
-
-
-        Logger.d(Logger.UTILS_LOG, "info s[1]: " + info[1]);
-
-
-
         String ip = info[2].trim();
         String ssid = info[1].trim();
         String macWifi = info[3].trim();
@@ -239,7 +214,6 @@ public class Utils {
         String cpuTemp = info[13].trim();
         String load = info[14].trim();
         String tType = info[17].trim();
-
 
         for(Transiver t: transivers){
             if(t.getSsid() != null && t.getSsid().equals(ssid)){
@@ -343,7 +317,6 @@ public class Utils {
             if(transiversLv != null && transiversLv.getAdapter() != null) {
                 ((ScannerAdapter) transiversLv.getAdapter()).notifyDataSetChanged();
             }
-
         }
         if((Math.abs(informerFromList.getRssi() - transiver.getRssi())) > 20){
             informerFromList.setDelFlag(true);
@@ -358,12 +331,8 @@ public class Utils {
     }
 
     public Transiver getBySsid(String ssid) {
-//        Logger.d(Logger.UTILS_LOG, "getBySsid: " + ssid);
-//        Logger.d(Logger.UTILS_LOG, "transivers: " + transivers);
-
         for(Transiver transiver: transivers){
             if(transiver.getSsid() != null && transiver.getSsid().equals(ssid)){
-//                Logger.d(Logger.UTILS_LOG, "getByssid: " + transiver);
                 return transiver;
             }
         }
