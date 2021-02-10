@@ -72,7 +72,6 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         else if(resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
             utils.showMessage("Error: " + result);
         }
-
     }
 
 
@@ -101,6 +100,22 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
     }
 
     public void scan(){
-        utils.getTakeInfo(this);
+        boolean wifiPermission = checkPermission();
+        if(wifiPermission) {
+            utils.getTakeInfo(this);
+        }
+        else {
+            askPermission();
+        }
     }
+
+    private boolean checkPermission(){
+        return true;
+    }
+
+
+    private void askPermission(){
+
+    }
+
 }

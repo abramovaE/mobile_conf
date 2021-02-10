@@ -2,6 +2,7 @@ package com.kotofeya.mobileconfigurator.transivers;
 
 import android.bluetooth.le.ScanResult;
 import android.content.Context;
+import android.util.Log;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
@@ -9,6 +10,7 @@ import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.Utils;
 
 import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 
 public class Transiver {
 
@@ -72,7 +74,24 @@ public class Transiver {
     public Transiver(ScanResult result) {
         rssi = result.getRssi();
         address = result.getDevice().getAddress();
-        rawData = result.getScanRecord().getManufacturerSpecificData(0xffff);
+//        rawData = result.getScanRecord().getManufacturerSpecificData(0xffff);
+
+        byte[] pack1;
+        byte[] pack2 = new byte[0];
+        byte[] allBytes = result.getScanRecord().getBytes();
+        pack1 = Arrays.copyOfRange(allBytes, 9, 31);
+        if(allBytes.length > 35) {
+            pack2 = Arrays.copyOfRange(allBytes, 35, allBytes.length);
+        }
+        rawData = new byte[pack1.length + pack2.length];
+        System.arraycopy(pack1, 0, rawData, 0, pack1.length);
+        System.arraycopy(pack2, 0, rawData, pack1.length, pack2.length);
+
+
+
+
+
+        Logger.d(Logger.CONTENT_LOG, "rawData: " + Arrays.toString(rawData));
         if(result.getScanRecord().getDeviceName().equals("stp")){
             int i = (((rawData[2] & 0xFF) << 16) + ((rawData[3] & 0xFF) << 8) + (rawData[4] & 0xFF));
             ssid = String.valueOf(i);

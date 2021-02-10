@@ -37,6 +37,7 @@ public class UpdateOsFragment extends UpdateFragment {
 
     @Override
     void loadVersion() {
+//        boolean isWifiEnabled = utils.
         Downloader downloader = new Downloader(this);
         downloader.execute(Downloader.OS_VERSION_URL);
     }

@@ -366,25 +366,26 @@ public class Utils {
         return ssidIpMap.get(ssid);
     }
 
-    public void updateBleInfo(Transiver transiver, ScanResult result) {
-        Integer rssi = result.getRssi();
-        String address = result.getDevice().getAddress();
-        String ssid;
-        byte[] rawData = result.getScanRecord().getManufacturerSpecificData(0xffff);
-        transiver.setRawData(rawData);
-        if(result.getScanRecord().getDeviceName().equals("stp")){
-            int i = (((rawData[2] & 0xFF) << 16) + ((rawData[3] & 0xFF) << 8) + (rawData[4] & 0xFF));
-            ssid = String.valueOf(i);
-            transiver.setTransVersion(Transiver.VERSION_NEW);
-        }
-        else {
-            ssid = result.getScanRecord().getDeviceName();
-            transiver.setTransVersion(Transiver.VERSION_OLD);
-        }
-        transiver.setSsid(ssid);
-        transiver.setDelFlag(false);
-        updateTransiver(transiver);
-    }
+//    public void updateBleInfo(Transiver transiver, ScanResult result) {
+//        Integer rssi = result.getRssi();
+//        String address = result.getDevice().getAddress();
+//        String ssid;
+//        byte[] rawData = result.getScanRecord().getManufacturerSpecificData(0xffff);
+//
+//        transiver.setRawData(rawData);
+//        if(result.getScanRecord().getDeviceName().equals("stp")){
+//            int i = (((rawData[2] & 0xFF) << 16) + ((rawData[3] & 0xFF) << 8) + (rawData[4] & 0xFF));
+//            ssid = String.valueOf(i);
+//            transiver.setTransVersion(Transiver.VERSION_NEW);
+//        }
+//        else {
+//            ssid = result.getScanRecord().getDeviceName();
+//            transiver.setTransVersion(Transiver.VERSION_OLD);
+//        }
+//        transiver.setSsid(ssid);
+//        transiver.setDelFlag(false);
+//        updateTransiver(transiver);
+//    }
 
     public boolean needScanStationaryTransivers() {
         Logger.d(Logger.UTILS_LOG, "needScanStationaryTransivers: " + transivers);
