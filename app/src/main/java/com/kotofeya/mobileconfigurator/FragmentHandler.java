@@ -35,6 +35,7 @@ public class FragmentHandler {
     final static String CONFIG_STATION_FRAGMENT = "CONFIG_STATION_FRAGMENT";
     final static String TRANSPORT_CONTENT_FRAGMENT = "TRANSPORT_CONTENT_FRAGMENT";
     final static String STATION_CONTENT_FRAGMENT = "STATION_CONTENT_FRAGMENT";
+    public final static String ENABLE_MOBILE_DIALOG_TAG = "ENABLE_MOBILE_DIALOG";
 
     public final static String CONFIRMATION_DIALOG_TAG = "CONFIRMATION_DIALOG";
 

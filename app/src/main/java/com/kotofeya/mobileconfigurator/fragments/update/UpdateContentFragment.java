@@ -20,7 +20,6 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.TaskCode;
-import com.kotofeya.mobileconfigurator.activities.MainActivity;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -45,14 +44,24 @@ public class UpdateContentFragment extends UpdateFragment {
         utils.getBluetooth().startScan(true);
     }
 
+
+
+
+
     @Override
     void loadVersion() {
+        boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         Logger.d(Logger.UPDATE_CONTENT_LOG, "update content fragment load version");
-        Downloader transpDownloader = new Downloader(this);
-        transpDownloader.execute(Downloader.TRANSPORT_CONTENT_VERSION_URL);
+        if(isInternetEnabled) {
+            Downloader transpDownloader = new Downloader(this);
+            transpDownloader.execute(Downloader.TRANSPORT_CONTENT_VERSION_URL);
 
-        Downloader stationDownloader = new Downloader(this);
-        stationDownloader.execute(Downloader.STATION_CONTENT_VERSION_URL);
+            Downloader stationDownloader = new Downloader(this);
+            stationDownloader.execute(Downloader.STATION_CONTENT_VERSION_URL);
+        } else {
+            EnableMobileConfDialog dialog = new EnableMobileConfDialog();
+            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ENABLE_MOBILE_DIALOG_TAG);
+        }
     }
 
     @Override

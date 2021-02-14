@@ -39,5 +39,9 @@
 
 
     <string name="mobile_conf">Mobile configurator</string>
+    <string name="hotspot_dialog_title">Access point settings</string>
+    <string name="hotspot_dialog_message">To use all the features of the app, you need to enable the access point (named \"trpr\").
+        Set up the access point?</string>
+
 
 </resources>

@@ -110,6 +110,10 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
     }
 
     private boolean checkPermission(){
+
+
+
+
         return true;
     }
 

@@ -43,5 +43,7 @@ dependencies {
 
     implementation 'com.google.code.gson:gson:2.8.2'
 
+    def acra_version = '5.7.0'
+    implementation "ch.acra:acra-http:$acra_version"
 
 }

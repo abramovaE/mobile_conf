@@ -1,8 +1,13 @@
 package com.kotofeya.mobileconfigurator.fragments.update;
 
+import android.Manifest;
 import android.app.Dialog;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +17,7 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.App;
@@ -37,10 +43,18 @@ public class UpdateOsFragment extends UpdateFragment {
 
     @Override
     void loadVersion() {
-//        boolean isWifiEnabled = utils.
-        Downloader downloader = new Downloader(this);
-        downloader.execute(Downloader.OS_VERSION_URL);
+        boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
+        if(isInternetEnabled){
+            Downloader downloader = new Downloader(this);
+            downloader.execute(Downloader.OS_VERSION_URL);
+        } else {
+            EnableMobileConfDialog dialog = new EnableMobileConfDialog();
+            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ENABLE_MOBILE_DIALOG_TAG);
+        }
     }
+
+
+
 
     @Override
     void setMainTextLabelText() {
@@ -78,7 +92,7 @@ public class UpdateOsFragment extends UpdateFragment {
             builder.setMessage("Confirm the upload of the updates");
             builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    View view = ((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()).getView();
+                    View view = App.get().getFragmentHandler().getCurrentFragment().getView();
                     ProgressBar progressBar = view.findViewById(R.id.scanner_progressBar);
                     progressBar.setVisibility(View.VISIBLE);
                     SshConnection connection = new SshConnection(((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()));

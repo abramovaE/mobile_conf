@@ -23,10 +23,19 @@ public class UpdateStmFragment extends UpdateFragment {
     private static final String PREF_TRANSP = "mobile";
     private static final String PREF_STAT = "stationary";
 
-    @Override
-    void loadVersion(){
-        Downloader downloader = new Downloader(this);
-        downloader.execute(Downloader.STM_VERSION_URL);
+
+
+
+     @Override
+    void loadVersion() {
+        boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
+        if(isInternetEnabled){
+            Downloader downloader = new Downloader(this);
+            downloader.execute(Downloader.STM_VERSION_URL);
+        } else {
+            EnableMobileConfDialog dialog = new EnableMobileConfDialog();
+            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ENABLE_MOBILE_DIALOG_TAG);
+        }
     }
 
     @Override

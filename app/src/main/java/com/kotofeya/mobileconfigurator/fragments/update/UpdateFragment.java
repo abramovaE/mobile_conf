@@ -1,8 +1,12 @@
 package com.kotofeya.mobileconfigurator.fragments.update;
 
+import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,10 +17,10 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
-import com.kotofeya.mobileconfigurator.App;
-import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
@@ -26,10 +30,7 @@ import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
-import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 
-import java.util.List;
-import java.util.Map;
 
 
 public abstract class UpdateFragment extends Fragment implements OnTaskCompleted {
@@ -50,6 +51,9 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     TextView mainTxtLabel;
 
     ProgressBar progressBar;
+
+    protected static final int MOBILE_SETTINGS_RESULT = 0;
+
 
     @Override
     public void onAttach(Context context) {
@@ -197,7 +201,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     @Override
     public void onProgressUpdate(Integer downloaded) {
-        Logger.d(Logger.UPDATE_LOG, "onProgressUpdate: " + downloaded);
         progressBar.setProgress(downloaded);
     }
 
@@ -236,5 +239,35 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     private void setVersion(String version){
         this.version = version;
         versionLabel.setText(version);
+    }
+
+    public static class EnableMobileConfDialog extends DialogFragment {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle("Mobile internet required");
+            builder.setMessage("Please check the mobile internet");
+            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    startActivityForResult(new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS), MOBILE_SETTINGS_RESULT);
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                }
+            });
+            builder.setCancelable(true);
+            return builder.create();
+        }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        switch (requestCode){
+            case MOBILE_SETTINGS_RESULT:
+                loadVersion();
+                break;
+        }
     }
 }

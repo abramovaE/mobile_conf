@@ -1,11 +1,20 @@
 package com.kotofeya.mobileconfigurator.activities;
 
+import android.app.Dialog;
+import android.content.ComponentName;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
 import com.google.gson.Gson;
@@ -16,8 +25,10 @@ import com.kotofeya.mobileconfigurator.FragmentHandler;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -50,6 +61,25 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     }
 
 
+    private static final int TETHER_REQUEST_CODE = 1;
+    private static final String HOTSPOT_DIALOG_TAG = "HOTSPOT_DIALOG";
+
+    private void launchHotspotSettings(){
+        Intent tetherSettings = new Intent();
+        tetherSettings.setClassName("com.android.settings", "com.android.settings.TetherSettings");
+        startActivityForResult(tetherSettings, TETHER_REQUEST_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        switch (requestCode){
+            case TETHER_REQUEST_CODE:
+
+                break;
+        }
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,7 +108,38 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 
         Downloader cityDownloader = new Downloader(this);
         cityDownloader.execute(Downloader.CITY_URL);
+
+
+        HotSpotSettingsDialog dialog = new HotSpotSettingsDialog();
+        dialog.show(fragmentHandler.getFragmentManager(), HOTSPOT_DIALOG_TAG);
+
     }
+
+
+    public static class HotSpotSettingsDialog extends DialogFragment {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(getResources().getString(R.string.hotspot_dialog_title));
+            builder.setMessage(getResources().getString(R.string.hotspot_dialog_message));
+            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    ((MainActivity)getContext()).launchHotspotSettings();
+
+                }
+            });
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+
+                }
+            });
+            builder.setCancelable(true);
+            return builder.create();
+        }
+    }
+
+
 
     @Override
     public void onBackPressed() {

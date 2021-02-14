@@ -52,6 +52,7 @@ public class Utils {
     private InformerFilter filter;
     private Timer updateLv;
     private ListView transiversLv;
+    private InternetConn internetConnection;
 
     private Map<String, String> ssidIpMap;
 
@@ -85,6 +86,7 @@ public class Utils {
         ssidListRunTime = new HashSet<>();
         ssidIpMap = new HashMap<>();
         clients = new ArrayList<>();
+        internetConnection = new InternetConn();
     }
 
     public ListView getTransiversLv() {
@@ -432,4 +434,9 @@ public class Utils {
         dialog.setArguments(bundle);
         dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
     }
+
+    public InternetConn getInternetConnection() {
+        return internetConnection;
+    }
+
 }

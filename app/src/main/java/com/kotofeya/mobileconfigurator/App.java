@@ -8,8 +8,15 @@ import android.util.Log;
 
 import androidx.fragment.app.Fragment;
 
+import org.acra.annotation.AcraHttpSender;
+import org.acra.sender.HttpSender;
+
 import java.io.File;
 
+//@AcraHttpSender(uri = "http://yourserver.com/yourscript",
+//        basicAuthLogin = "yourlogin", // optional
+//        basicAuthPassword = "y0uRpa$$w0rd", // optional
+//        httpMethod = HttpSender.Method.POST)
 public class App extends Application {
     private static App instance;
     private Context context;
