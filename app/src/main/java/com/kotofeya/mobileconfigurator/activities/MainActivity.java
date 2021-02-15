@@ -126,12 +126,10 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
             builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     ((MainActivity)getContext()).launchHotspotSettings();
-
                 }
             });
             builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-
                 }
             });
             builder.setCancelable(true);
