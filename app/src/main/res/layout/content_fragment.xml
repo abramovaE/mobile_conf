@@ -70,6 +70,13 @@
         android:layout_margin="15dp"/>
 
 
+    <Button
+        android:id="@+id/spoilerBtn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/spoiler">
+    </Button>
+
     <TextView
         android:id="@+id/content_label"
         android:layout_width="match_parent"
@@ -79,12 +86,16 @@
         android:text="@string/content_label_reboot"
         android:gravity="center"
         android:layout_marginTop="100px"
-        android:layout_marginBottom="20px"/>
+        android:layout_marginBottom="20px"
+        android:visibility="gone"
+        />
 
     <LinearLayout
+        android:id="@+id/reboot_ll"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        android:orientation="horizontal"
+        android:visibility="gone">
 
         <Button
             android:id="@+id/content_btn_rasp"
@@ -113,7 +124,8 @@
         android:layout_height="wrap_content"
         android:text="@string/content_btn_clear"
         android:layout_marginTop="30px"
-        android:enabled="false"/>
+        android:enabled="false"
+        android:visibility="gone"/>
 
     <Button
         android:id="@+id/content_btn_send"

@@ -48,8 +48,8 @@ public class UpdateOsFragment extends UpdateFragment {
             Downloader downloader = new Downloader(this);
             downloader.execute(Downloader.OS_VERSION_URL);
         } else {
-            EnableMobileConfDialog dialog = new EnableMobileConfDialog();
-            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ENABLE_MOBILE_DIALOG_TAG);
+//            EnableMobileConfDialog dialog = new EnableMobileConfDialog();
+//            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ENABLE_MOBILE_DIALOG_TAG);
         }
     }
 

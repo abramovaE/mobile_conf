@@ -87,6 +87,11 @@ public class FragmentHandler {
         setFragment(fragment, fragmentTag, true);
     }
 
+    public void changeFragment(String fragmentTag, boolean stacked){
+        Fragment fragment = getFragment(fragmentTag);
+        setFragment(fragment, fragmentTag, stacked);
+    }
+
     private void setFragment(Fragment fragment, String tag, boolean stacked){
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment, tag);

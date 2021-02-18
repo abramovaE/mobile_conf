@@ -41,7 +41,7 @@ public class TransportContentFragment extends ContentFragment implements View.On
         transportTransiver = (TransportTransiver) utils.getBySsid(ssid);
         Logger.d(Logger.TRANSPORT_CONTENT_LOG, "getbyssid: " + transportTransiver);
 
-        mainTxtLabel.setText(transportTransiver.getSsid() + "\n (" + transportTransiver.getTransportType() + "/" + transportTransiver.getFullNumber() + "/" + transportTransiver.getDirection() + ")");
+        mainTxtLabel.setText(transportTransiver.getSsid() + "\n (" + transportTransiver.getTransportType() + "/" + transportTransiver.getFullNumber() + "/" + transportTransiver.getStringDirection() + ")");
 
         spnType = view.findViewById(R.id.content_spn_0);
         String[] transports = getResources().getStringArray(R.array.transports);

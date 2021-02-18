@@ -66,8 +66,8 @@
 
     <string-array name="direction">
         <item>No direction</item>
-        <item>Straight</item>
-        <item>Back</item>
+        <item>Direct</item>
+        <item>Reverse</item>
     </string-array>
 
 

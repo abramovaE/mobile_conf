@@ -14,6 +14,8 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -52,6 +54,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         updateFields();
 
 
+
     }
 
 
@@ -72,6 +75,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     Button btnRebootRasp;
     Button btnRebootStm;
     Button btnClearRasp;
+    Button spoilerBtn;
 
     Transiver currentTransiver;
 
@@ -132,6 +136,19 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         btnRebootRasp.setOnClickListener(contentClickListener);
         btnRebootStm.setOnClickListener(contentClickListener);
         btnClearRasp.setOnClickListener(contentClickListener);
+        spoilerBtn = view.findViewById(R.id.spoilerBtn);
+        spoilerBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (v.getId() == R.id.spoilerBtn) {
+                    TextView contentLabel = view.findViewById(R.id.content_label);
+                    LinearLayout rebootLl = view.findViewById(R.id.reboot_ll);
+                    contentLabel.setVisibility(contentLabel.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+                    rebootLl.setVisibility(rebootLl.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+                    btnClearRasp.setVisibility(btnClearRasp.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
+                }
+            }
+        });
         return view;
     }
 

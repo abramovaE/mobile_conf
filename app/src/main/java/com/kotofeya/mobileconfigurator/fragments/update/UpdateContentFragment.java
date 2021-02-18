@@ -59,8 +59,9 @@ public class UpdateContentFragment extends UpdateFragment {
             Downloader stationDownloader = new Downloader(this);
             stationDownloader.execute(Downloader.STATION_CONTENT_VERSION_URL);
         } else {
-            EnableMobileConfDialog dialog = new EnableMobileConfDialog();
-            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ENABLE_MOBILE_DIALOG_TAG);
+
+//            EnableMobileConfDialog dialog = new EnableMobileConfDialog();
+//            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ENABLE_MOBILE_DIALOG_TAG);
         }
     }
 

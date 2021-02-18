@@ -21,6 +21,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 
+import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
@@ -106,8 +107,16 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
             @Override
             public void onClick(View v) {
                 Logger.d(Logger.UPDATE_OS_LOG, "check updates button was pressed");
-                progressBar.setVisibility(View.VISIBLE);
-                loadUpdates();
+                boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
+                if(isInternetEnabled){
+                    progressBar.setVisibility(View.VISIBLE);
+                    loadUpdates();
+                }
+                else {
+                    EnableMobileConfDialog dialog = new EnableMobileConfDialog();
+                    dialog.show(App.get().getFragmentHandler().getFragmentManager(),
+                            App.get().getFragmentHandler().ENABLE_MOBILE_DIALOG_TAG);
+                }
             }
         });
 
@@ -246,14 +255,14 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Mobile internet required");
-            builder.setMessage("Please check the mobile internet");
-            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            builder.setTitle(R.string.mobile_internet_title);
+            builder.setMessage(R.string.mobile_internet_message);
+            builder.setPositiveButton(getString(R.string.ok), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     startActivityForResult(new Intent(Settings.ACTION_DATA_ROAMING_SETTINGS), MOBILE_SETTINGS_RESULT);
                 }
             });
-            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                 }
             });
@@ -270,4 +279,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 break;
         }
     }
+
+
 }

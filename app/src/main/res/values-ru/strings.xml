@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">MМобильный конфигуратор</string>
+    <string name="login_txt_login_hint">Логин</string>
+    <string name="login_txt_password_hint">Пароль</string>
+    <string name="login_btn">Войти</string>
+    <string name="login_txt_label">Сервис</string>
+    <string name="about_main_label">О программе</string>
+
+
+    <string name="main_basic_scanner_btn">Wifi сканер</string>
+    <string name="main_ble_scanner_btn">Ble сканер</string>
+    <string name="main_update_os_btn">Обновить ОС</string>
+    <string name="main_update_stm_btn">Обновить STM</string>
+    <string name="main_update_content_btn">Обновить контент</string>
+    <string name="main_config_transport_btn">Конфигурация транспорт</string>
+    <string name="main_config_station_btn">Конфигурация стационар</string>
+    <string name="main_menu_main_label">Главное меню</string>
+    <string name="update_btn_check">Загрузить обновления</string>
+    <string name="content_btn_send">Отправить</string>
+    <string name="content_btn_rasp">Rasp</string>
+    <string name="content_btn_stm">STM</string>
+    <string name="content_btn_clear">Clear rasp</string>
+    <string name="content_label_reboot">Перезагрузить</string>
+
+
+    <string name="basic_scan_main_txt_label">Wifi сканер</string>
+    <string name="ble_scan_main_txt_label">Ble сканер</string>
+    <string name="update_os_main_txt_label">Обновить ОС</string>
+    <string name="update_stm_main_txt_label">Обновить STM</string>
+    <string name="update_content_main_txt_label">Обновить контент</string>
+    <string name="config_transp_main_txt_label">Конфигурация транспорт</string>
+    <string name="config_stat_main_txt_label">Конфигурация стационар</string>
+
+    <string name="doorsOpened">Посадка разрешена</string>
+    <string name="doorsClosed">Двери закрыты</string>
+    <string name="doorsBroken">Состояние дверей не контролируется</string>
+    <string name="content_transport_number_hint">Номер</string>
+    <string name="content_transport_litera_hint">Литера</string>
+
+
+    <string name="mobile_conf">Мобильный конфигуратор</string>
+    <string name="hotspot_dialog_title">Настройки точки доступа</string>
+    <string name="hotspot_dialog_message">Чтобы использовать все функции приложения, вам необходимо включить точку доступа (с именем "trpr").
+Настроить точку доступа?</string>
+
+    <string name="spoiler">Перезагрузить / очистить</string>
+
+    <string name="do_not_ask_again">Не спрашивать снова</string>
+    <string name="cancel">Отмена</string>
+    <string name="ok">Ок</string>
+
+    <string name="mobile_internet_title">Требуется интернет</string>
+    <string name="mobile_internet_message">Пожалуйста, проверьте подключение к интернету</string>
+
+</resources>

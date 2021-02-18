@@ -1,13 +1,12 @@
 package com.kotofeya.mobileconfigurator.activities;
 
 import android.app.Dialog;
-import android.content.ComponentName;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ProgressBar;
+import android.widget.CompoundButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -15,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
 
 import com.google.gson.Gson;
 import com.kotofeya.mobileconfigurator.App;
@@ -25,10 +23,8 @@ import com.kotofeya.mobileconfigurator.FragmentHandler;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
-import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -75,7 +71,6 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         super.onActivityResult(requestCode, resultCode, data);
         switch (requestCode){
             case TETHER_REQUEST_CODE:
-
                 break;
         }
     }
@@ -89,7 +84,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 
         FragmentHandler fragmentHandler = new FragmentHandler(this);
         App.get().setFragmentHandler(fragmentHandler);
-        fragmentHandler.changeFragment(FragmentHandler.MAIN_FRAGMENT_TAG);
+        fragmentHandler.changeFragment(FragmentHandler.MAIN_FRAGMENT_TAG, false);
 
         label = findViewById(R.id.main_txt_label);
 
@@ -109,33 +104,42 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         Downloader cityDownloader = new Downloader(this);
         cityDownloader.execute(Downloader.CITY_URL);
 
-
-        HotSpotSettingsDialog dialog = new HotSpotSettingsDialog();
-        dialog.show(fragmentHandler.getFragmentManager(), HOTSPOT_DIALOG_TAG);
+        if(App.get().isAskForTeneth()) {
+            HotSpotSettingsDialog dialog = new HotSpotSettingsDialog();
+            dialog.show(fragmentHandler.getFragmentManager(), HOTSPOT_DIALOG_TAG);
+        }
 
     }
 
 
-    public static class HotSpotSettingsDialog extends DialogFragment {
+    public static class HotSpotSettingsDialog extends DialogFragment implements CompoundButton.OnCheckedChangeListener {
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(getResources().getString(R.string.hotspot_dialog_title));
-            builder.setMessage(getResources().getString(R.string.hotspot_dialog_message));
-            builder.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+            builder.setView(R.layout.access_point_dialog);
+
+            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     ((MainActivity)getContext()).launchHotspotSettings();
                 }
             });
-            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                 }
             });
             builder.setCancelable(true);
             return builder.create();
         }
+
+        @Override
+        public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                App.get().setAskForTeneth(isChecked);
+        }
     }
+
+
 
 
 
@@ -215,3 +219,18 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         }
     }
 }
+
+
+/*
+Правки в интерфейсе конфигурации:
+?        Транспорт - некорректно производится расшифровка номера маршрута
++       Заменить числовое представление направления движения сокращенными DIr и Rev
+        Кнопки Перезагрузки и очистки - спрятать за спойлером
++        Сделать возможным отправку конфигурации без литеры.
+        Добавить Title или disable поля в выпадающие меню, для обозначения назначения полей
+
+        Стационары - добавить расшифровку кода типа устройства в окне взаимодействия с ним.
+        Кнопки Перезагрузки и очистки - спрятать за спойлером
+        Добавить Title или disable поля в выпадающие меню, для обозначения назначения полей
+
+*/

@@ -71,7 +71,6 @@ public class Utils {
                     return;
                 });
             }
-
         }
     }
 
@@ -397,7 +396,6 @@ public class Utils {
         for(Transiver t: transivers){
             Logger.d(Logger.UTILS_LOG, "t is transport: " + t.isTransport() + ", t is stat: " + t.isStationary());
             Logger.d(Logger.UTILS_LOG, "t: " + t + ", t.getIp(): " + t.getIp() + ", map.getIp(): " + ssidIpMap.get(t.getSsid()));
-
             if(t.isStationary() || !t.isTransport()){
                 if(t.getIp() == null || ssidIpMap.get(t.getSsid()) == null){
                     Logger.d(Logger.UTILS_LOG, "needScanStationaryTransivers: " + true);
@@ -405,7 +403,6 @@ public class Utils {
                 }
             }
         }
-
         Logger.d(Logger.UTILS_LOG, "needScanStationaryTransivers: " + false);
         return false;
     }
@@ -438,5 +435,8 @@ public class Utils {
     public InternetConn getInternetConnection() {
         return internetConnection;
     }
+
+
+
 
 }

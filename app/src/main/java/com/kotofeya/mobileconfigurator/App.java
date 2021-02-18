@@ -13,6 +13,8 @@ import org.acra.sender.HttpSender;
 
 import java.io.File;
 
+import retrofit2.Retrofit;
+
 //@AcraHttpSender(uri = "http://yourserver.com/yourscript",
 //        basicAuthLogin = "yourlogin", // optional
 //        basicAuthPassword = "y0uRpa$$w0rd", // optional
@@ -24,6 +26,8 @@ public class App extends Application {
     private SharedPreferences preferences;
     private String updateOsFilePath;
     private String updateOsFileVersion;
+    private Retrofit retrofit;
+
 
     private static final String PREF_NAME = "mobile_conf_pref";
 
@@ -47,6 +51,21 @@ public class App extends Application {
         Downloader.tempUpdateOsFile = new File(updateOsFilePath);
         Logger.d(Logger.APP_LOG, "updateOsVersion: " + updateOsFileVersion);
         Logger.d(Logger.APP_LOG, "updateOsFilePath: " + updateOsFilePath + ", isExist: " + Downloader.tempUpdateOsFile.exists());
+
+
+
+//        retrofit = new Retrofit.Builder()
+//                .baseUrl("http://95.161.210.44/update/")
+//                .build();
+    }
+
+    public boolean isAskForTeneth(){
+        return preferences.getBoolean("isAskForTeneth", true);
+//        return true;
+    }
+
+    public void setAskForTeneth(boolean value) {
+        preferences.edit().putBoolean("isAskForTeneth", value).commit();
     }
 
 
@@ -82,5 +101,9 @@ public class App extends Application {
 
     public void setFragmentHandler(FragmentHandler fragmentHandler) {
         this.fragmentHandler = fragmentHandler;
+    }
+
+    public Retrofit getRetrofit() {
+        return retrofit;
     }
 }

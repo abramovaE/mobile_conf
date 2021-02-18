@@ -225,7 +225,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                     TransportTransiver transportTransiver = (TransportTransiver) p;
                     textItem0.setText(transportTransiver.getTransportType() + " / " + transportTransiver.getFullNumber());
                     textItem0.setVisibility(View.VISIBLE);
-                    textItem1.setText(transportTransiver.getDirection() + "");
+                    textItem1.setText(transportTransiver.getStringDirection());
                     textItem1.setVisibility(View.VISIBLE);
                     view.setOnClickListener(configListener(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT, p.getSsid()));
                 } catch (ClassCastException e){}

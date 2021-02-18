@@ -11,9 +11,15 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.server.AuthorizationApi;
 
 import java.util.List;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -51,6 +57,21 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         String login = loginTxt.getText().toString();
         String password = passwordTxt.getText().toString();
+
+//        AuthorizationApi authorizationApi = App.get().getRetrofit().create(AuthorizationApi.class);
+//        Call<Boolean> isAuthorized = authorizationApi.autorization(login, password);
+//
+//        isAuthorized.enqueue(new Callback<Boolean>() {
+//            @Override
+//            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
+//                Logger.d(Logger.APP_LOG, "response: " + response);
+//            }
+//
+//            @Override
+//            public void onFailure(Call<Boolean> call, Throwable t) {
+//                Logger.d(Logger.APP_LOG, "failure: " + t.getMessage());
+//            }
+//        });
 
         // TODO: 16.07.20 validate login and password with observer
         if(true){

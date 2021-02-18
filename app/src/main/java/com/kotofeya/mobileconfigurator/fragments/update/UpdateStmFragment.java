@@ -33,8 +33,8 @@ public class UpdateStmFragment extends UpdateFragment {
             Downloader downloader = new Downloader(this);
             downloader.execute(Downloader.STM_VERSION_URL);
         } else {
-            EnableMobileConfDialog dialog = new EnableMobileConfDialog();
-            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ENABLE_MOBILE_DIALOG_TAG);
+//            EnableMobileConfDialog dialog = new EnableMobileConfDialog();
+//            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ENABLE_MOBILE_DIALOG_TAG);
         }
     }
 

@@ -132,7 +132,6 @@ public class TransportTransiver extends Transiver {
             if(this.getNumber() == 0){
                 return PARK;
             }
-
             else {
                 int dir = getIntDirection();
                 switch (dir){
@@ -146,6 +145,13 @@ public class TransportTransiver extends Transiver {
                 return 0;
             }
         }
+
+    public String getStringDirection() {
+        if(this.getNumber() != 0){
+            return App.get().getResources().getStringArray(R.array.directions)[getIntDirection()];
+        }
+        return App.get().getResources().getStringArray(R.array.directions)[0];
+    }
 
         public int getIntDirection(){
             int dir;
@@ -173,7 +179,7 @@ public class TransportTransiver extends Transiver {
             StringBuilder text = new StringBuilder();
             text.append("doors status: " + getStringDoorStatus(this.getFloorOrDoorStatus()));
             text.append("\n");
-            text.append("direction: " + this.getDirection());
+            text.append("direction: " + this.getStringDirection());
             text.append("\n");
             text.append("city: " +  this.getCity());
             text.append("\n");

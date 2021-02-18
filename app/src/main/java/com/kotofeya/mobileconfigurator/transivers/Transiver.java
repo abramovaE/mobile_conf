@@ -382,7 +382,7 @@ public class Transiver {
             if(rawData.length == 3 && (rawData[0]&0xff) == Utils.STAT_RADIO_TYPE){
                 return true;
             }
-            else if(rawData.length == 22 && (rawData[5]&0xff) == Utils.STAT_RADIO_TYPE){
+            else if(rawData.length >= 22 && (rawData[5]&0xff) == Utils.STAT_RADIO_TYPE){
                 return true;
             }
         }
@@ -390,8 +390,9 @@ public class Transiver {
     }
 
     public boolean isTransport(){
+//        Logger.d(Logger.TRANSPORT_TRANSIVER_LOG, "isTransport: " + rawData.length);
         if(rawData != null){
-            if(rawData.length == 22 && (rawData[5]&0xff) == Utils.TRANSP_RADIO_TYPE) {
+            if(rawData.length >= 22 && (rawData[5] & 0xff) == Utils.TRANSP_RADIO_TYPE) {
                 return true;
             }
 

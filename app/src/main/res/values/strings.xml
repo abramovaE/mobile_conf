@@ -42,6 +42,19 @@
     <string name="hotspot_dialog_title">Access point settings</string>
     <string name="hotspot_dialog_message">To use all the features of the app, you need to enable the access point (named \"trpr\").
         Set up the access point?</string>
+    <string name="spoiler">Reboot / clear</string>
 
+
+    <array name="directions">
+        <item name="park">Park</item>
+        <item name="direct">Dir</item>
+        <item name="reverse">Rev</item>
+    </array>
+
+    <string name="do_not_ask_again">Do not ask again</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">Ok</string>
+    <string name="mobile_internet_title">Internet required</string>
+    <string name="mobile_internet_message">Please check the internet connection</string>
 
 </resources>
