@@ -88,9 +88,6 @@ public class Transiver {
         System.arraycopy(pack2, 0, rawData, pack1.length, pack2.length);
 
 
-
-
-
         Logger.d(Logger.CONTENT_LOG, "rawData: " + Arrays.toString(rawData));
         if(result.getScanRecord().getDeviceName().equals("stp")){
             int i = (((rawData[2] & 0xFF) << 16) + ((rawData[3] & 0xFF) << 8) + (rawData[4] & 0xFF));
@@ -272,6 +269,9 @@ public class Transiver {
     }
 
 
+    public int getBtPackVersion() {
+        return rawData[0] & 0xff;
+    }
 
 
     synchronized public boolean isCallReady(int BuzzerNumber) {

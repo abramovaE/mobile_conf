@@ -26,6 +26,7 @@ public class App extends Application {
     private SharedPreferences preferences;
     private String updateOsFilePath;
     private String updateOsFileVersion;
+    private boolean showAccessPointDialog;
     private Retrofit retrofit;
 
 
@@ -42,6 +43,7 @@ public class App extends Application {
         preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         updateOsFilePath = preferences.getString("updateOsFilePath", "");
         updateOsFileVersion = preferences.getString("updateOsFileVersion", "");
+        showAccessPointDialog = preferences.getBoolean("isAskForTeneth", true);
 
         if(!new File(updateOsFilePath).exists()){
             setUpdateOsFileVersion("");
@@ -51,6 +53,7 @@ public class App extends Application {
         Downloader.tempUpdateOsFile = new File(updateOsFilePath);
         Logger.d(Logger.APP_LOG, "updateOsVersion: " + updateOsFileVersion);
         Logger.d(Logger.APP_LOG, "updateOsFilePath: " + updateOsFilePath + ", isExist: " + Downloader.tempUpdateOsFile.exists());
+        Logger.d(Logger.APP_LOG, "is_ask_forteneth: " + isAskForTeneth());
 
 
 
@@ -61,11 +64,14 @@ public class App extends Application {
 
     public boolean isAskForTeneth(){
         return preferences.getBoolean("isAskForTeneth", true);
+
 //        return true;
     }
 
     public void setAskForTeneth(boolean value) {
+        Logger.d(Logger.APP_LOG, "set ask fort teneth: " + value);
         preferences.edit().putBoolean("isAskForTeneth", value).commit();
+        this.showAccessPointDialog = value;
     }
 
 

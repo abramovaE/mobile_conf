@@ -18,6 +18,7 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
     private Button updateContentBtn;
     private Button configTransportBtn;
     private Button configStationBtn;
+    private Button settingsBtn;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -36,6 +37,8 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
         configTransportBtn.setOnClickListener(this);
         configStationBtn = view.findViewById(R.id.main_config_station_btn);
         configStationBtn.setOnClickListener(this);
+        settingsBtn = view.findViewById(R.id.main_settings_btn);
+        settingsBtn.setOnClickListener(this);
         return view;
     }
 
@@ -67,6 +70,9 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
                 break;
             case R.id.main_config_station_btn:
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_STATION_FRAGMENT);
+                break;
+            case R.id.main_settings_btn:
+                App.get().getFragmentHandler().changeFragment(FragmentHandler.SETTINGS_FRAGMENT);
                 break;
         }
     }

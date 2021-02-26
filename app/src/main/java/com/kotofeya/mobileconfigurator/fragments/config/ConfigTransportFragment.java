@@ -1,36 +1,15 @@
 package com.kotofeya.mobileconfigurator.fragments.config;
 
-import android.content.Context;
 import android.os.Bundle;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.Button;
-import android.widget.ListView;
-import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-
-import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.SshConnection;
-import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
-import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
 
-import java.util.List;
-
 public class ConfigTransportFragment extends ConfigFragment {
-
-
     @Override
     public ScannerAdapter getScannerAdapter() {
         return new ScannerAdapter(context, utils, ScannerAdapter.CONFIG_TRANSPORT);
     }
-
     @Override
     public void scan(){
         utils.setRadioType(Utils.TRANSP_RADIO_TYPE);

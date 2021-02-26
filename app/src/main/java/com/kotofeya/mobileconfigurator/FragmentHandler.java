@@ -10,6 +10,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.fragments.SettingsFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.ConfigStatFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.ConfigTransportFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.StationContentFragment;
@@ -35,6 +36,8 @@ public class FragmentHandler {
     final static String CONFIG_STATION_FRAGMENT = "CONFIG_STATION_FRAGMENT";
     final static String TRANSPORT_CONTENT_FRAGMENT = "TRANSPORT_CONTENT_FRAGMENT";
     final static String STATION_CONTENT_FRAGMENT = "STATION_CONTENT_FRAGMENT";
+    final static String SETTINGS_FRAGMENT = "SETTINGS_FRAGMENT";
+
     public final static String ENABLE_MOBILE_DIALOG_TAG = "ENABLE_MOBILE_DIALOG";
 
     public final static String CONFIRMATION_DIALOG_TAG = "CONFIRMATION_DIALOG";
@@ -71,6 +74,8 @@ public class FragmentHandler {
                     return new TransportContentFragment();
                 case STATION_CONTENT_FRAGMENT:
                     return new StationContentFragment();
+                case SETTINGS_FRAGMENT:
+                    return new SettingsFragment();
             }
         }
         return fragment;

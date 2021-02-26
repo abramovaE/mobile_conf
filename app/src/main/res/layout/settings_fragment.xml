@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <CheckBox
+        android:id="@+id/settings_doNotAskCheckbox"
+        android:layout_width="50dp"
+        android:layout_height="wrap_content"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@id/settings_doNotAskLabel"
+        app:layout_constraintEnd_toStartOf="@id/settings_doNotAskLabel"
+        app:layout_constraintBottom_toBottomOf="@id/settings_doNotAskLabel"
+        android:textSize="@dimen/update_content_lv_item"
+        />
+    <TextView
+        android:id="@+id/settings_doNotAskLabel"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:text="@string/settings_show_access_point_dialog"
+        app:layout_constraintStart_toEndOf="@id/settings_doNotAskCheckbox"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:textSize="@dimen/update_content_lv_item"
+
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

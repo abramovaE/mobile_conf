@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="stationars">
+        <item>None</item>
+        <item>Public catering</item>
+        <item>Polyclinic</item>
+        <item>Hospital</item>
+        <item>Hospice</item>
+        <item>Dispensary</item>
+        <item>Pharmacy</item>
+        <item>Museum</item>
+        <item>Library</item>
+        <item>Theatre</item>
+        <!--      10-->
+        <item>Concert hall</item>
+        <item>Philharmonic hall</item>
+        <item>Movie theater</item>
+        <item>The Bank</item>
+        <item>Educational institution</item>
+        <item>rehabilitation Center</item>
+        <item>MFC</item>
+        <item>Mail</item>
+        <item>Business center</item>
+        <item>Shopping center</item>
+        <!--        20-->
+        <item>Public toilet</item>
+        <item>The separation of reception of payments</item>
+        <item>Religion</item>
+        <item>Industry</item>
+        <item>Administrative institution (Committees, family center)</item>
+        <item>Store</item>
+        <item>Metro</item>
+        <item>Train station</item>
+        <item>Bus station</item>
+        <item>The port (Maritime station, river station)</item>
+        <!--        30-->
+        <item>Airport</item>
+        <item>Stop</item>
+        <item>Leisure center</item>
+        <item>Library</item>
+        <item>Recreation area (beach, Playground)</item>
+        <item>Bath</item>
+        <item>Sauna</item>
+        <item>Residential building</item>
+        <item>Sports facility</item>
+        <item>Beauty (Barber shop)</item>
+        <item>Intercom Dom.ru</item>
+    </string-array>
+
+    <string-array name="zummer_types">
+        <item>Zummer type</item>
+        <item>Street</item>
+        <item>Room</item>
+    </string-array>
+
+    <string-array name="modem_types">
+        <item>Modem type</item>
+        <item>Megafon</item>
+        <item>MTS</item>
+        <item>BeeLine</item>
+    </string-array>
+</resources>

@@ -57,19 +57,22 @@ public class Utils {
     private Map<String, String> ssidIpMap;
 
     public void getTakeInfo(OnTaskCompleted listener){
-        clients = WiFiLocalHotspot.getInstance().getClientList();
-        Logger.d(Logger.UTILS_LOG, "getClientList: " + clients);
-        if(clients.size() > 0){
-            ExecutorService executorService = Executors.newFixedThreadPool(clients.size());
-            CompletableFuture<Void>[] futures = new CompletableFuture[clients.size()];
-            for (int i = 0; i < clients.size(); i++) {
-                futures[i] = CompletableFuture.runAsync(new SshConnectionRunnable(listener, clients.get(i), SshConnection.TAKE_CODE), executorService);
-            }
-            if(futures != null){
-                CompletableFuture.allOf(futures).thenRun(() -> {
-                    executorService.shutdown();
-                    return;
-                });
+        String deviceIp = internetConnection.getDeviceIp();
+        if(deviceIp != null){
+            clients = WiFiLocalHotspot.getInstance().getClientList(deviceIp);
+            Logger.d(Logger.UTILS_LOG, "getClientList: " + clients);
+            if (clients.size() > 0) {
+                ExecutorService executorService = Executors.newFixedThreadPool(clients.size());
+                CompletableFuture<Void>[] futures = new CompletableFuture[clients.size()];
+                for (int i = 0; i < clients.size(); i++) {
+                    futures[i] = CompletableFuture.runAsync(new SshConnectionRunnable(listener, clients.get(i), SshConnection.TAKE_CODE), executorService);
+                }
+                if (futures != null) {
+                    CompletableFuture.allOf(futures).thenRun(() -> {
+                        executorService.shutdown();
+                        return;
+                    });
+                }
             }
         }
     }

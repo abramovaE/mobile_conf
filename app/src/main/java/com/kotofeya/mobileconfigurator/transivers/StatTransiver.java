@@ -2,6 +2,9 @@ package com.kotofeya.mobileconfigurator.transivers;
 
 import android.bluetooth.le.ScanResult;
 
+import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.R;
+
 
 public class StatTransiver extends Transiver {
 
@@ -32,6 +35,10 @@ public class StatTransiver extends Transiver {
 
     public int getType() {
         return ((getRawData()[12] & 0xFF) << 8) + (getRawData()[13] & 0xFF);
+    }
+
+    public String getStringType(){
+        return App.get().getResources().getStringArray(R.array.stationars)[getType()];
     }
 
     public int getGroupId() {

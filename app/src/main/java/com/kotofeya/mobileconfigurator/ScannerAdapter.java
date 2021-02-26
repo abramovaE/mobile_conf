@@ -1,8 +1,6 @@
 package com.kotofeya.mobileconfigurator;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -10,31 +8,23 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateContentFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateStmFragment;
-import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
 
-import java.io.File;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
     Context ctx;
     LayoutInflater lInflater;
     List<Transiver> objects;
     Utils utils;
-
 
     private int scannerType;
 
@@ -45,7 +35,6 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
     public static final int UPDATE_CONTENT_TYPE = 4;
     public static final int CONFIG_TRANSPORT = 5;
     public static final int CONFIG_STATION = 6;
-
 
     public ScannerAdapter(Context context, Utils utils, int scannerType) {
         ctx = context;
@@ -142,7 +131,6 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                         bundle.putString("ip", transiver.getIp());
                         Logger.d(Logger.UPDATE_STM_LOG, "isTransport: " + transiver.isTransport());
                         Logger.d(Logger.UPDATE_STM_LOG, "isStationary: " + transiver.isStationary());
-
                         bundle.putBoolean("isTransport", transiver.isTransport());
                         bundle.putBoolean("isStationary", transiver.isStationary());
                         UpdateStmFragment.UpdateStmConfDialog dialog = new UpdateStmFragment.UpdateStmConfDialog();
@@ -232,7 +220,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             }
 
         } else if (scannerType == CONFIG_STATION) {
-            Logger.d(Logger.SCANNER_ADAPTER_LOG, "p.isstationary: " + p.isStationary() + " " + p.getSsid());
+            Logger.d(Logger.SCANNER_ADAPTER_LOG, "p.is stationary: " + p.isStationary() + " " + p.getSsid());
             if (p.isStationary()) {
                 if(p.getIncrementOfContent() != null && p.getIncrementOfContent().isEmpty()){
                     textItem0.setText("no incr");

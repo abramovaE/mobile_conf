@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="stationars">
+        <item>Тип не задан</item>
+        <item>Общественное питание</item>
+        <item>Поликлиника</item>
+        <item>Больница</item>
+        <item>Хоспис</item>
+        <item>Диспансер</item>
+        <item>Аптека</item>
+        <item>Музей</item>
+        <item>Библиотека</item>
+        <item>Театр</item>
+        <item>Концертный зал</item>
+        <item>Филармония</item>
+        <item>Кинотеатр</item>
+        <item>Банк</item>
+        <item>Образовательное учреждение</item>
+        <item>Центр реабилитации</item>
+        <item>МФЦ</item>
+        <item>Почта</item>
+        <item>Бизнес-центр</item>
+        <item>Торговый центр</item>
+        <item>Общественный туалет</item>
+        <item>Отделение приема платежей (Петроэлектросбыт и тд)</item>
+        <item>Религия</item>
+        <item>Промышленность</item>
+        <item>Административное учреждение (Комитеты, центр семьи)</item>
+        <item>Магазин</item>
+        <item>Метрополитен</item>
+        <item>Вокзал</item>
+        <item>Автовокзал</item>
+        <item>Порт (морской вокзал, речной вокзал)</item>
+        <item>Аэропорт</item>
+        <item>Остановка</item>
+        <item>Досуговый центр</item>
+        <item>Библиотека</item>
+        <item>Зона отдыха (пляж, детская площадка)</item>
+        <item>Баня</item>
+        <item>Сауна</item>
+        <item>Жилой дом</item>
+        <item>Спортивное сооружение</item>
+        <item>Красота (парикмахерская)</item>
+        <item>Домофон Дом.ру</item>
+    </string-array>
+
+    <string-array name="zummer_types">
+        <item>Тип звучка</item>
+        <item>Улица</item>
+        <item>Помещение</item>
+    </string-array>
+
+    <string-array name="modem_types">
+        <item>Тип модема</item>
+        <item>Мегафон</item>
+        <item>МТС</item>
+        <item>Билайн</item>
+    </string-array>
+</resources>

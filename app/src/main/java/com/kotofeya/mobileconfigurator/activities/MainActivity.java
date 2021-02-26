@@ -4,8 +4,10 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.TextView;
 
@@ -118,8 +120,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(getResources().getString(R.string.hotspot_dialog_title));
-            builder.setView(R.layout.access_point_dialog);
-
+            View dialogView = LayoutInflater.from(getActivity()).inflate(R.layout.access_point_dialog, null);
+            builder.setView(dialogView);
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     ((MainActivity)getContext()).launchHotspotSettings();
@@ -130,12 +132,15 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
                 }
             });
             builder.setCancelable(true);
+            CheckBox doNotAskAgain = dialogView.findViewById(R.id.doNotAskCheckbox);
+            doNotAskAgain.setOnCheckedChangeListener(this);
             return builder.create();
         }
 
         @Override
         public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                App.get().setAskForTeneth(isChecked);
+            Logger.d(Logger.MAIN_LOG, "on checked changed, is checked: " + isChecked);
+            App.get().setAskForTeneth(!isChecked);
         }
     }
 
@@ -221,16 +226,3 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 }
 
 
-/*
-Правки в интерфейсе конфигурации:
-?        Транспорт - некорректно производится расшифровка номера маршрута
-+       Заменить числовое представление направления движения сокращенными DIr и Rev
-        Кнопки Перезагрузки и очистки - спрятать за спойлером
-+        Сделать возможным отправку конфигурации без литеры.
-        Добавить Title или disable поля в выпадающие меню, для обозначения назначения полей
-
-        Стационары - добавить расшифровку кода типа устройства в окне взаимодействия с ним.
-        Кнопки Перезагрузки и очистки - спрятать за спойлером
-        Добавить Title или disable поля в выпадающие меню, для обозначения назначения полей
-
-*/

@@ -55,7 +55,6 @@ public class ConfigStatFragment extends ConfigFragment {
     @Override
     public void onTaskCompleted(Bundle result) {
         Logger.d(Logger.CONTENT_LOG, "resultCode: " + result.getInt("resultCode"));
-
         if(result.getInt("resultCode") != 0){
             Logger.d(Logger.CONTENT_LOG, "result: " + result);
         }
@@ -64,7 +63,9 @@ public class ConfigStatFragment extends ConfigFragment {
             utils.addTakeInfo(res, false);
             myHandler.post(updateRunnable);
         }
-
+        if(!utils.getBluetooth().getmScanning().get()) {
+            utils.getBluetooth().startScan(true);
+        }
 //        scannerAdapter.notifyDataSetChanged();
     }
 
@@ -94,6 +95,7 @@ public class ConfigStatFragment extends ConfigFragment {
 
         if(utils.needScanStationaryTransivers()){
             Logger.d(Logger.CONFIG_LOG, "scan for ip");
+            utils.getBluetooth().stopScan(true);
             basicScan();
         }
 

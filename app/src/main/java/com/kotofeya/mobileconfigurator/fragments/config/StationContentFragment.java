@@ -37,13 +37,15 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
         String ssid = getArguments().getString("ssid");
         statTransiver = (StatTransiver) utils.getBySsid(ssid);
 
-        mainTxtLabel.setText(statTransiver.getSsid() + " (" + statTransiver.getType() + ")");
+        mainTxtLabel.setText(statTransiver.getSsid() + " (" + statTransiver.getStringType() + ")");
 
         floorTxt = view.findViewById(R.id.content_txt_0);
         floorTxt.setText(statTransiver.getFloor() + "");
         floorTxt.setVisibility(View.VISIBLE);
         floorTxt.addTextChangedListener(textWatcher);
         floorTxt.setOnKeyListener(onKeyListener);
+        floorTxt.setHint(getString(R.string.floor_hint));
+
 
         zummerTypesSpn = view.findViewById(R.id.content_spn_0);
         String[] zummerTypes = getResources().getStringArray(R.array.zummer_types);
@@ -56,7 +58,7 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
         zummerVolumeSpn = view.findViewById(R.id.content_spn_1);
         zummerVolumeSpn.setVisibility(View.VISIBLE);
         String[] zummerVolume = new String[11];
-        zummerVolume[0] = "";
+        zummerVolume[0] = getResources().getString(R.string.zummer_volume_hint);
         for(int i = 1; i < 11; i++){
             zummerVolume[i] = i + "";
 ;        }
@@ -147,7 +149,8 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
             command.append(" ");
             command.append(floorSend);
         }
-        if(zummerTypeSend != null && !zummerTypeSend.isEmpty()){
+        if(zummerTypeSend != null && !zummerTypeSend.isEmpty()
+                && !zummerTypeSend.equals(getResources().getStringArray(R.array.zummer_types)[0])){
             if(!command.toString().isEmpty()){
                 command.append(";");
             }
@@ -166,7 +169,8 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
 //            command.append(" ");
 //            command.append(zummerVolumeSend);
 //        }
-        if(modemConfigSend != null && !modemConfigSend.isEmpty()){
+        if(modemConfigSend != null && !modemConfigSend.isEmpty()
+                && !modemConfigSend.equals(getResources().getStringArray(R.array.modem_types)[0])){
             if(!command.toString().isEmpty()){
                 command.append(";");
             }

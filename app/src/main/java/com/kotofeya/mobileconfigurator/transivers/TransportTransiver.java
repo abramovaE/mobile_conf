@@ -51,23 +51,91 @@ public class TransportTransiver extends Transiver {
         }
 
 
+//        public String getFullNumber() {
+//            StringBuilder sb = new StringBuilder();
+//            sb.append("\"");
+//            int number = getNumber();
+//            if (getTransVersion() == VERSION_NEW) {
+//                sb.append(getPreLitera());
+//                sb.append(number);
+//                sb.append(getPostLitera());
+//            }
+//            else {
+//                sb.append(number);
+//                sb.append(getPostLitera());
+//            }
+//            sb.append("\"");
+//            return sb.toString();
+//        }
 
-        public String getFullNumber() {
-            StringBuilder sb = new StringBuilder();
-            sb.append("\"");
-            int number = getNumber();
-            if (getTransVersion() == VERSION_NEW) {
-                sb.append(getPreLitera());
-                sb.append(number);
-                sb.append(getPostLitera());
-            }
-            else {
-                sb.append(number);
-                sb.append(getPostLitera());
-            }
-            sb.append("\"");
-            return sb.toString();
+    private String getFullNumnerVer0(){
+        byte[] rawData = getRawData();
+        StringBuilder sb = new StringBuilder();
+        int number = ((rawData[17] & 0xff) << 8) + (rawData[18] & 0xff);
+        String lit1 = getLitera(rawData[15]);
+        String lit2 = getLitera(rawData[16]);
+        String lit3 = getLitera(rawData[19]);
+        String lit4 = getLitera(rawData[20]);
+
+        String hard = "ъ";
+        if((lit1 + lit2 + lit3 + lit4).contains(hard) || (lit1 + lit2 + lit3).contains(hard.toUpperCase())){
+            return App.get().getResources().getString(R.string.transfer);
         }
+
+        sb.append(lit1);
+        sb.append(lit2);
+        sb.append(number);
+        sb.append(lit3);
+        sb.append(lit4);
+        if(number == 0xEEEE){
+            return App.get().getResources().getString(R.string.withoutNumber);
+        }
+        return sb.toString();
+    }
+
+    private String getFullNumnerVer1(){
+        byte[] rawData = getRawData();
+        StringBuilder sb = new StringBuilder();
+        int number = ((rawData[16] & 0xff) << 8) + (rawData[17] & 0xff);
+        String lit1 = getLitera(rawData[15]);
+        String lit2 = getLitera(rawData[18]);
+        String lit3 = getLitera(rawData[19]);
+        String hard = "ъ";
+        if((lit1 + lit2 + lit3).contains(hard) || (lit1 + lit2 + lit3).contains(hard.toUpperCase())){
+            return App.get().getResources().getString(R.string.transfer);
+        }
+
+        sb.append(lit1);
+        sb.append(number);
+        sb.append(lit2);
+        sb.append(lit3);
+        if(number == 0xEEEE){
+            return App.get().getResources().getString(R.string.withoutNumber);
+        }
+        return sb.toString();
+    }
+
+    public String getFullNumber() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\"");
+        if (getTransVersion() == VERSION_NEW) {
+            if(super.getBtPackVersion() == 0) {
+                sb.append(getFullNumnerVer0());
+            }
+            else if(super.getBtPackVersion() > 0){
+                sb.append(getFullNumnerVer1());
+            }
+        }
+        else {
+            byte[] rawData = getRawData();
+            int number = ((rawData[3] & 0xff) << 8) + (rawData[4] & 0xff);
+            sb.append(number);
+            sb.append(getLitera(rawData[5]));
+        }
+        sb.append("\"");
+        return sb.toString();
+    }
+
 
         public int getNumber(){
             byte[] rawData = getRawData();
@@ -80,53 +148,68 @@ public class TransportTransiver extends Transiver {
             }
             Logger.d(Logger.TRANSPORT_CONTENT_LOG, "number: " + number);
             return Integer.parseInt(number);
-
         }
 
-        public String getPreLitera() {
-            byte[] rawData = getRawData();
-            StringBuilder sb = new StringBuilder();
+    private String getLitera(byte b){
+        if((b & 0xff) != 0){
             try {
-                if (getTransVersion() == VERSION_NEW) {
-                    if ((rawData[15] & 0xff) != 0) {
-                        byte tmpArr15[] = {rawData[15]};
-                            sb.append(new String(tmpArr15, "Windows-1251").toUpperCase());
-                    }
-                    if ((rawData[16] & 0xff) != 0) {
-                        byte tmpArr16[] = {rawData[16]};
-                        sb.append(new String(tmpArr16, "Windows-1251").toUpperCase());
-                    }
-                }
+                return new String(new byte[]{b}, "Windows-1251").toUpperCase();
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
-            return sb.toString();
         }
+        return "";
+    }
 
-        public String getPostLitera(){
-            byte[] rawData = getRawData();
-            StringBuilder sb = new StringBuilder();
-            try {
-                if (getTransVersion() == VERSION_NEW) {
-                    if ((rawData[19] & 0xff) != 0) {
-                        byte tmpArr19[] = {rawData[19]};
-                        sb.append(new String(tmpArr19, "Windows-1251").toUpperCase());
-                    }
-                    if ((rawData[20] & 0xff) != 0) {
-                        byte tmpArr20[] = {rawData[20]};
-                        sb.append(new String(tmpArr20, "Windows-1251").toUpperCase());
-                    }
-                } else {
-                    if ((rawData[5] & 0xff) != 0) {
-                        byte tmpArr[] = {rawData[5]};
-                        sb.append(new String(tmpArr, "Windows-1251").toUpperCase());
-                    }
-                }
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
+
+//    public String getLitera() {
+//            byte[] rawData = getRawData();
+//            StringBuilder sb = new StringBuilder();
+//            if (getTransVersion() == VERSION_NEW) {
+//                    sb.append(getLitera(rawData[15]));
+//                    sb.append(getLitera(rawData[16]));
+//                    sb.append(getLitera(rawData[19]));
+//                    sb.append(getLitera(rawData[20]));
+//            } else {
+//                    sb.append(getLitera(rawData[15]));
+//                    sb.append(getLitera(rawData[18]));
+//                    sb.append(getLitera(rawData[19]));
+//                }
+//            return sb.toString();
+//        }
+
+    public String getLiteraN(int litNumber) {
+        byte[] rawData = getRawData();
+        StringBuilder sb = new StringBuilder();
+        if (getBtPackVersion() >= 1) {
+            switch (litNumber){
+                case 1:
+                    sb.append(getLitera(rawData[15]));
+                    break;
+                case 2:
+                    sb.append(getLitera(rawData[18]));
+                    break;
+                case 3:
+                    sb.append(getLitera(rawData[19]));
+                    break;
             }
-            return sb.toString();
+        } else {
+            switch (litNumber){
+                case 1:
+                    sb.append(getLitera(rawData[15]));
+                    break;
+                case 2:
+                    sb.append(getLitera(rawData[16]));
+                    break;
+                case 3:
+                    sb.append(getLitera(rawData[19]));
+                    break;
+            }
         }
+        return sb.toString();
+    }
+
+
 
         public int getDirection() {
             if(this.getNumber() == 0){

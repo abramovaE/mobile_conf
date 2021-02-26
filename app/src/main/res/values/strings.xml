@@ -6,7 +6,6 @@
     <string name="login_txt_label">Service</string>
     <string name="about_main_label">About a program</string>
 
-
     <string name="main_basic_scanner_btn">Basic scanner</string>
     <string name="main_ble_scanner_btn">BLE scanner</string>
     <string name="main_update_os_btn">Update OS</string>
@@ -35,7 +34,9 @@
     <string name="doorsClosed">The doors are closed</string>
     <string name="doorsBroken">Be careful, the condition of the doors is not monitoring </string>
     <string name="content_transport_number_hint">Number</string>
-    <string name="content_transport_litera_hint">Litera</string>
+    <string name="content_transport_litera1_hint">Litera1</string>
+    <string name="content_transport_litera2_hint">Litera2</string>
+    <string name="content_transport_litera3_hint">Litera3</string>
 
 
     <string name="mobile_conf">Mobile configurator</string>
@@ -56,5 +57,10 @@
     <string name="ok">Ok</string>
     <string name="mobile_internet_title">Internet required</string>
     <string name="mobile_internet_message">Please check the internet connection</string>
+    <string name="main_settings_btn">Settings</string>
+    <string name="settings_show_access_point_dialog">Show access point dialog</string>
+    <string name="zummer_type_hint">Zummer type</string>
+    <string name="zummer_volume_hint">Zummer volume</string>
+    <string name="floor_hint">Floor</string>
 
 </resources>

@@ -36,7 +36,9 @@
     <string name="doorsClosed">Двери закрыты</string>
     <string name="doorsBroken">Состояние дверей не контролируется</string>
     <string name="content_transport_number_hint">Номер</string>
-    <string name="content_transport_litera_hint">Литера</string>
+    <string name="content_transport_litera1_hint">Литера1</string>
+    <string name="content_transport_litera2_hint">Литера2</string>
+    <string name="content_transport_litera3_hint">Литера3</string>
 
 
     <string name="mobile_conf">Мобильный конфигуратор</string>
@@ -52,5 +54,10 @@
 
     <string name="mobile_internet_title">Требуется интернет</string>
     <string name="mobile_internet_message">Пожалуйста, проверьте подключение к интернету</string>
+    <string name="main_settings_btn">Настройки</string>
+    <string name="settings_show_access_point_dialog">Показывать диалог настройки точки доступа</string>
+    <string name="zummer_type_hint">Тип звучка</string>
+    <string name="zummer_volume_hint">Уровень громкости звучка</string>
+    <string name="floor_hint">Этаж</string>
 
 </resources>

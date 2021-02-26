@@ -1,6 +1,7 @@
 package com.kotofeya.mobileconfigurator.fragments.config;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,8 +28,12 @@ public class TransportContentFragment extends ContentFragment implements View.On
 
     Spinner spnType;
     EditText number;
-    EditText liter;
+//    EditText liter;
     Spinner spnDir;
+    EditText liter1;
+    EditText liter2;
+    EditText liter3;
+
 
     TransportTransiver transportTransiver;
 
@@ -52,19 +57,33 @@ public class TransportContentFragment extends ContentFragment implements View.On
         spnType.setVisibility(View.VISIBLE);
         spnType.setOnItemSelectedListener(onItemSelectedListener);
 
-        number = view.findViewById(R.id.content_txt_1);
+        liter1 = view.findViewById(R.id.content_txt_1);
+        liter1.setText(transportTransiver.getLiteraN(1));
+        liter1.setHint(R.string.content_transport_litera3_hint);
+        liter1.setVisibility(View.VISIBLE);
+        liter1.addTextChangedListener(textWatcher);
+        liter1.setOnKeyListener(onKeyListener);
+
+        number = view.findViewById(R.id.content_txt_2);
         number.setText(transportTransiver.getNumber() + "");
         number.setHint(R.string.content_transport_number_hint);
         number.setVisibility(View.VISIBLE);
         number.addTextChangedListener(textWatcher);
         number.setOnKeyListener(onKeyListener);
 
-        liter = view.findViewById(R.id.content_txt_2);
-        liter.setText(transportTransiver.getPreLitera() + transportTransiver.getPostLitera());
-        liter.setHint(R.string.content_transport_litera_hint);
-        liter.setVisibility(View.VISIBLE);
-        liter.addTextChangedListener(textWatcher);
-        liter.setOnKeyListener(onKeyListener);
+        liter2 = view.findViewById(R.id.content_txt_3);
+        liter2.setText(transportTransiver.getLiteraN(2));
+        liter2.setHint(R.string.content_transport_litera1_hint);
+        liter2.setVisibility(View.VISIBLE);
+        liter2.addTextChangedListener(textWatcher);
+        liter2.setOnKeyListener(onKeyListener);
+
+        liter3 = view.findViewById(R.id.content_txt_4);
+        liter3.setText(transportTransiver.getLiteraN(3));
+        liter3.setHint(R.string.content_transport_litera2_hint);
+        liter3.setVisibility(View.VISIBLE);
+        liter3.addTextChangedListener(textWatcher);
+        liter3.setOnKeyListener(onKeyListener);
 
         spnDir = view.findViewById(R.id.content_spn_1);
         String[] directions = getResources().getStringArray(R.array.direction);
@@ -81,9 +100,10 @@ public class TransportContentFragment extends ContentFragment implements View.On
 
 
     protected void updateBtnCotentSendState(){
-        if(spnType.getSelectedItemPosition() > 0 && !number.getText().toString().isEmpty()
+        if(spnType.getSelectedItemPosition() > 0
+//                && !number.getText().toString().isEmpty()
 //                && !liter.getText().toString().isEmpty()
-                && spnDir.getSelectedItemPosition() > 0
+//                && spnDir.getSelectedItemPosition() > 0
                 && utils.getIp(transportTransiver.getSsid()) != null){
                 btnContntSend.setEnabled(true);
         }
@@ -101,10 +121,7 @@ public class TransportContentFragment extends ContentFragment implements View.On
     public void stopScan() {
         utils.getBluetooth().stopScan(true);
     }
-
-
-
-
+    
     @Override
     public void onProgressUpdate(Integer downloaded) {
 
@@ -113,41 +130,33 @@ public class TransportContentFragment extends ContentFragment implements View.On
     @Override
     public void onClick(View v) {
         int type = spnType.getSelectedItemPosition();
-//        String typeHex = Integer.toHexString(type);
         String typeHex = type + "";
 
-        int num = Integer.parseInt(number.getText().toString());
-//        String numHex = Integer.toHexString(num);
+        int num = 61166;
+        try {
+            num = Integer.parseInt(number.getText().toString());
+        }catch (NumberFormatException e){
+        }
         String numHex = num + "";
 
-        String lit = liter.getText().toString().toLowerCase();
-
+        String lit1 = liter1.getText().toString().toLowerCase();
+        String lit2 = liter2.getText().toString().toLowerCase();
+        String lit3 = liter3.getText().toString().toLowerCase();
         String litHex = "";
-
-
-        int dir = spnDir.getSelectedItemPosition();
-//        String dirHex = Integer.toHexString(dir);
-        String dirHex = dir + "";
         try {
-            // TODO: 16.08.2020 третья и четвертая литеры?
-
+            String lit = toHex(lit1) + toHex(lit3) + toHex(lit2);
             if(!lit.isEmpty()){
-                if(lit.toCharArray().length == 1){
-                    litHex = Integer.parseInt(toHex(lit), 16) + "";
-                } else if(lit.toCharArray().length == 2){
-                    litHex = Integer.parseInt(toHex(lit.substring(0, 1)) + toHex(lit.substring(1, 2)), 16) + "";
-                }
-                else if(lit.toCharArray().length == 3){
-                    litHex = Integer.parseInt(toHex(lit.substring(0, 1)) + toHex(lit.substring(1, 2) + lit.substring(2,3)), 16) + "";
-                }
+                litHex = Long.parseLong(lit, 16) + "";
             }
             else {
-                Logger.d(Logger.CONTENT_LOG, "lit is empty");
                 litHex = 0 + "";
             }
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
+
+        int dir = spnDir.getSelectedItemPosition();
+        String dirHex = dir + "";
         Logger.d(Logger.TRANSPORT_CONTENT_LOG, "send: " + typeHex + " " + numHex + " " + litHex + " " + dirHex);
         SshConnection connection = new SshConnection(((TransportContentFragment) App.get().getFragmentHandler().getCurrentFragment()));
         String ip = transportTransiver.getIp();
@@ -158,6 +167,9 @@ public class TransportContentFragment extends ContentFragment implements View.On
     }
 
     public String toHex(String arg) throws UnsupportedEncodingException {
+        if(arg.trim().isEmpty()){
+            return "00";
+        }
         return String.format("%x", new BigInteger(1, arg.getBytes("cp1251"))).toUpperCase();
     }
 
@@ -165,6 +177,4 @@ public class TransportContentFragment extends ContentFragment implements View.On
     public void onStart() {
         super.onStart();
     }
-
 }
-

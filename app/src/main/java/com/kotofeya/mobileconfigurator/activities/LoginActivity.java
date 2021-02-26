@@ -11,6 +11,7 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.CheckUser;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.server.AuthorizationApi;
@@ -21,7 +22,7 @@ import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener, CheckUser.MyCustomCallBack {
 
     private EditText loginTxt;
     private EditText passwordTxt;
@@ -57,6 +58,7 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         String login = loginTxt.getText().toString();
         String password = passwordTxt.getText().toString();
+        new CheckUser(this, login, password, this).execute();
 
 //        AuthorizationApi authorizationApi = App.get().getRetrofit().create(AuthorizationApi.class);
 //        Call<Boolean> isAuthorized = authorizationApi.autorization(login, password);
@@ -73,11 +75,16 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
 //            }
 //        });
 
-        // TODO: 16.07.20 validate login and password with observer
-        if(true){
-            App.get().setContext(this);
-            Intent intent = new Intent(this, MainActivity.class);
-            startActivity(intent);
-        }
+//        // TODO: 16.07.20 validate login and password with observer
+//        if(true){
+//
+//        }
+    }
+
+    @Override
+    public void doIfUserValid() {
+        App.get().setContext(this);
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
     }
 }

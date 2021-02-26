@@ -18,12 +18,15 @@ public class WiFiLocalHotspot {
 
     List<String> clients;
 
-    public List<String> getClientList() {
+    public List<String> getClientList(String deviceIp) {
         clients = new ArrayList<>();
+        String host = deviceIp.substring(0, deviceIp.lastIndexOf("."));
+        Logger.d(Logger.WIFI_LOG, "device ip substring: " + host);
+
         ExecutorService executorService = Executors.newFixedThreadPool(300);
         CompletableFuture<Void>[] futures = new CompletableFuture[256];
         for (int i = 0; i < 256; i++) {
-            futures[i] = CompletableFuture.runAsync(new PingIp(i), executorService);
+            futures[i] = CompletableFuture.runAsync(new PingIp(host + "." + i), executorService);
         }
         try {
             Thread.sleep(1000);
@@ -34,25 +37,29 @@ public class WiFiLocalHotspot {
                 .thenRun(() -> {
                     Logger.d(Logger.WIFI_LOG, "clients res: " + clients);
                     executorService.shutdown();
-                    // Здесь выполнить действие
                 });
         Logger.d(Logger.WIFI_LOG, "clients return: " + clients);
         return clients;
     }
 
     public class PingIp implements Runnable{
-        private int ipSuff;
-        static final String subnet = "192.168.43.";
+//        private int ipSuff;
+//        String subnet;
         static final int timeout = 5000;
+        private String host;
 
-        public PingIp(int ipSuff) {
-            this.ipSuff = ipSuff;
+        public PingIp(String host) {
+            this.host = host;
         }
+
+//        public void setSubnet(String subnet){
+//            this.subnet = subnet;
+//        }
 
         @Override
         public void run() {
             try {
-                String host = subnet + ipSuff;
+//                String host = subnet + ipSuff;
                 InetAddress inetAddress = InetAddress.getByName(host);
                 if (inetAddress.isReachable(timeout)){
                     clients.add(host);
