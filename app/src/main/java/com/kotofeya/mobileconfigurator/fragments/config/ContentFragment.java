@@ -14,6 +14,7 @@ import android.view.ViewGroup;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -42,28 +43,22 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
     public Context context;
     public Utils utils;
-    public Button mainBtnRescan;
+    public ImageButton mainBtnRescan;
 
     private final Handler myHandler = new Handler();
-    private void updateUI()
-    {
+    private void updateUI() {
         btnRebootRasp.setEnabled(true);
         btnRebootStm.setEnabled(true);
         btnClearRasp.setEnabled(true);
         btnContntSend.setEnabled(true);
         updateFields();
-
-
-
     }
-
 
     final Runnable updateRunnable = new Runnable() {
         public void run() {
             updateUI();
         }
     };
-
 
     protected View.OnKeyListener onKeyListener;
     protected AdapterView.OnItemSelectedListener onItemSelectedListener;
@@ -159,14 +154,13 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     public void onTaskCompleted(Bundle result) {
         int resultCode = result.getInt("resultCode");
         String resultStr = result.getString("result");
-
         Logger.d(Logger.CONTENT_LOG, "resultCode: " + resultCode);
         if(resultCode != 0) {
             Logger.d(Logger.CONTENT_LOG, "result: " + result);
         }
 
         if(resultCode == TaskCode.REBOOT_STM_CODE && resultStr.contains("Tested")){
-            utils.showMessage("Stm rebooted");
+            utils.showMessage(getString(R.string.stm_rebooted));
         }
 
         else if(resultCode == TaskCode.REBOOT_CODE){
@@ -180,7 +174,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         }
 
         else if(resultCode == TaskCode.CLEAR_RASP_CODE){
-            utils.showMessage("Rasp was cleared");
+            utils.showMessage(getString(R.string.rasp_was_cleared));
         }
 
         else if(resultCode == TaskCode.SSH_ERROR_CODE || resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
@@ -190,30 +184,22 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         }
 
         else if(resultCode == TaskCode.SEND_TRANSPORT_CONTENT_CODE && resultStr.contains("Tested")){
-            utils.showMessage("Content updated");
+            utils.showMessage(getString(R.string.content_updated));
             ((MainActivity)context).onBackPressed();
 
         }
 
         else if(resultCode == TaskCode.SEND_STATION_CONTENT_CODE && resultStr.contains("Tested")){
-            utils.showMessage("Content updated");
+            utils.showMessage(getString(R.string.content_updated));
             ((MainActivity)context).onBackPressed();
 
         }
-
         refreshButtons();
     }
 
     private void basicScan(){
         Logger.d(Logger.CONTENT_LOG, "basic scan");
         utils.getTakeInfo(this);
-
-//        List<String> clients = WiFiLocalHotspot.getInstance().getClientList();
-//        for(String s: clients){
-////            new SshConnectionRunnable(this, s, SshConnection.TAKE_CODE).run();
-//            SshConnection connection = new SshConnection(this);
-//            connection.execute(s, SshConnection.TAKE_CODE);
-//        }
     }
 
     @Override
@@ -233,30 +219,11 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         Logger.d(Logger.CONTENT_LOG, "currentTransiverIp: " +
                 currentTransiver.getIp() +" " + utils.getIp(currentTransiver.getSsid()));
         if(currentTransiver.getIp() != null || utils.getIp(currentTransiver.getSsid()) != null){
-
-//            btnRebootRasp.setEnabled(true);
-//            btnRebootStm.setEnabled(true);
-//            btnClearRasp.setEnabled(true);
-//            btnContntSend.setEnabled(true);
-//            updateFields();
             myHandler.post(updateRunnable);
             return true;
         }
         return false;
     }
-
-//    private void updateUI()
-//    {
-//        scannerAdapter.notifyDataSetChanged();
-//    }
-//
-//
-//    final Runnable updateRunnable = new Runnable() {
-//        public void run() {
-//            updateUI();
-//        }
-//    };
-
 
     public abstract void updateFields();
 
@@ -271,13 +238,13 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
             Logger.d(Logger.CONTENT_LOG, "ip: " + ip);
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Confirmation is required");
+            builder.setTitle(R.string.confirmation_is_required);
 
             if(rebootType.equals("rasp") || rebootType.equals("stm")) {
-                builder.setMessage("Confirm the reboot of " + rebootType);
+                builder.setMessage(getString(R.string.confirm_reboot_of) + " " + rebootType);
             }
             else if(rebootType.equals("clear")){
-                builder.setMessage("Clear this transiver?");
+                builder.setMessage(R.string.ask_clear_the_transiver);
             }
 
             builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
@@ -295,7 +262,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
                 }
             });
 
-            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+            builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                 }
             });
@@ -304,8 +271,6 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
             return builder.create();
         }
     }
-
-
 }
 
 

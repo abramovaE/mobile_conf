@@ -6,15 +6,15 @@
     <string name="login_txt_label">Service</string>
     <string name="about_main_label">About a program</string>
 
-    <string name="main_basic_scanner_btn">Basic scanner</string>
-    <string name="main_ble_scanner_btn">BLE scanner</string>
-    <string name="main_update_os_btn">Update OS</string>
-    <string name="main_update_stm_btn">Update STM</string>
-    <string name="main_update_content_btn">Update content</string>
-    <string name="main_config_transport_btn">Config transport</string>
-    <string name="main_config_station_btn">Config station</string>
+    <string name="main_basic_scanner_btn">WiFi</string>
+    <string name="main_ble_scanner_btn">Bluetooth</string>
+    <string name="main_update_os_btn">OS</string>
+    <string name="main_update_stm_btn">STM</string>
+    <string name="main_update_content_btn">Content</string>
+    <string name="main_config_transport_btn">Transport</string>
+    <string name="main_config_station_btn">Objects</string>
     <string name="main_menu_main_label">Main menu</string>
-    <string name="update_btn_check">Download updates</string>
+    <string name="update_btn_check">Download the update</string>
     <string name="content_btn_send">Send</string>
     <string name="content_btn_rasp">Rasp</string>
     <string name="content_btn_stm">STM</string>
@@ -62,5 +62,26 @@
     <string name="zummer_type_hint">Zummer type</string>
     <string name="zummer_volume_hint">Zummer volume</string>
     <string name="floor_hint">Floor</string>
+    <string name="serial">Serial number</string>
+    <string name="current_incr">Current version</string>
+    <string name="server_incr">Actual version</string>
+    <string name="configuration">Configuration</string>
+    <string name="updating">Updating</string>
+    <string name="scanner">Scanner</string>
+    <string name="storage_os">Storage OS</string>
+    <string name="release_os">Release OS</string>
+    <string name="downloaded">Downloaded</string>
+    <string name="uploaded">Uploaded</string>
+    <string name="confirmation_is_required">Confirmation is required</string>
+    <string name="version">version</string>
+    <string name="confirm_reboot_of">Confirm the reboot of</string>
+    <string name="ask_clear_the_transiver">Clear this transiver?</string>
+    <string name="stm_rebooted">Stm rebooted</string>
+    <string name="content_updated">Content updated</string>
+    <string name="rasp_was_cleared">Rasp was cleared</string>
+    <string name="successful">Successful</string>
+    <string name="incorrect_autorization">Incorrect login or password</string>
+    <string name="server_not_response">The server do not response</string>
+
 
 </resources>

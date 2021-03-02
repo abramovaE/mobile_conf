@@ -61,23 +61,29 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="ssid"
+            android:text="@string/serial"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
             android:layout_weight="1"
             android:textAlignment="center"
             />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="current incr"
+            android:text="@string/current_incr"
             android:layout_weight="1"
             android:textAlignment="center"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
             />
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="server incr"
+            android:text="@string/server_incr"
             android:layout_weight="1"
             android:textAlignment="center"
+            android:paddingStart="5dp"
+            android:paddingEnd="5dp"
             />
     </LinearLayout>
 

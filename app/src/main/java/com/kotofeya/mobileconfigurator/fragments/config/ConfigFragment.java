@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -29,7 +30,7 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
 
     public Context context;
     public Utils utils;
-    public Button mainBtnRescan;
+    public ImageButton mainBtnRescan;
 
 
     @Override

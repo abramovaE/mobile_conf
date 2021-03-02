@@ -37,7 +37,7 @@ public class UpdateOsFragment extends UpdateFragment {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         storageVersionTxt = view.findViewById(R.id.scanner_label1);
         storageVersionTxt.setVisibility(View.VISIBLE);
-        storageVersionTxt.setText("Storage OS: " + App.get().getUpdateOsFileVersion());
+        storageVersionTxt.setText(getString(R.string.storage_os) + ": " + App.get().getUpdateOsFileVersion());
         return view;
     }
 
@@ -77,7 +77,7 @@ public class UpdateOsFragment extends UpdateFragment {
     public void onTaskCompleted(Bundle bundle) {
         super.onTaskCompleted(bundle);
         if (bundle.getInt("resultCode") == TaskCode.UPDATE_OS_DOWNLOAD_CODE) {
-            storageVersionTxt.setText("Storage OS: " + App.get().getUpdateOsFileVersion());
+            storageVersionTxt.setText(R.string.storage_os + ": " + App.get().getUpdateOsFileVersion());
         }
     }
 
@@ -88,7 +88,7 @@ public class UpdateOsFragment extends UpdateFragment {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             String ip = getArguments().getString("ip");
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle("Confirmation is required");
+            builder.setTitle(R.string.confirmation_is_required);
             builder.setMessage("Confirm the upload of the updates");
             builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {

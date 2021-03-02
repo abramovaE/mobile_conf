@@ -6,17 +6,33 @@
     <LinearLayout
         android:orientation="vertical" android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:padding="50px">
+        android:padding="20dp">
 
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@color/colorConfiguration"
+            >
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/scanner"
+                android:padding="5dp"
+                android:textSize="20dp"
+                android:gravity="center|center_vertical"/>
 
         <Button
             android:id="@+id/main_basic_scanner_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/main_basic_scanner_btn"
-            android:textSize="@dimen/main_menu_btn"
-            android:layout_marginBottom="20px"/>
+            style="@style/MainMenuBtnStyle"
+
+            />
 
 
         <Button
@@ -24,61 +40,88 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/main_ble_scanner_btn"
-            android:textSize="@dimen/main_menu_btn"
-            android:layout_marginBottom="20px"/>
+            style="@style/MainMenuBtnStyle"/>
+
+        </LinearLayout>
+
+
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@color/colorConfiguration">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/updating"
+                android:padding="5dp"
+                android:textSize="20dp"
+                android:gravity="center|center_vertical"/>
 
         <Button
             android:id="@+id/main_update_os_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/main_update_os_btn"
-            android:textSize="@dimen/main_menu_btn"
-            android:layout_marginBottom="20px"/>
+            style="@style/MainMenuBtnStyle" />
 
         <Button
             android:id="@+id/main_update_stm_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/main_update_stm_btn"
-            android:textSize="@dimen/main_menu_btn"
-            android:layout_marginBottom="20px"/>
+            style="@style/MainMenuBtnStyle"
+            android:visibility="gone"/>
 
         <Button
             android:id="@+id/main_update_content_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/main_update_content_btn"
-            android:textSize="@dimen/main_menu_btn"
-            android:layout_marginBottom="20px"/>
+            style="@style/MainMenuBtnStyle"/>
 
-        <Button
-            android:id="@+id/main_config_transport_btn"
+        </LinearLayout>
+
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/main_config_transport_btn"
-            android:textSize="@dimen/main_menu_btn"
-            android:layout_marginBottom="20px"/>
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@color/colorConfiguration">
 
-        <Button
-            android:id="@+id/main_config_station_btn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="@string/main_config_station_btn"
-            android:textSize="@dimen/main_menu_btn"
-            android:layout_marginBottom="20px"/>
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/configuration"
+                android:padding="5dp"
+                android:textSize="20dp"
+                android:gravity="center|center_vertical"/>
+            <Button
+                android:id="@+id/main_config_transport_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/main_config_transport_btn"
+                style="@style/MainMenuBtnStyle"/>
+            <Button
+                android:id="@+id/main_config_station_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/main_config_station_btn"
+                style="@style/MainMenuBtnStyle"/>
+        </LinearLayout>
 
         <Button
             android:id="@+id/main_settings_btn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/main_settings_btn"
-            android:textSize="@dimen/main_menu_btn"
-            android:layout_marginBottom="20px"/>
-
-
+            style="@style/MainMenuBtnStyle"/>
     </LinearLayout>
-
-
 
     </ScrollView>
 

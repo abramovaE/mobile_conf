@@ -33,8 +33,6 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.BASIC_SCANNER_TYPE);
         lvScanner.setAdapter(scannerAdapter);
         utils.getBluetooth().stopScan(true);
-//        utils.clearTransivers();
-//        scannerAdapter.notifyDataSetChanged();
 
         Logger.d(Logger.UTILS_LOG, "transivers: " + utils.getTransivers());
         if(utils.getTransivers().isEmpty()) {
@@ -47,10 +45,6 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
     public void onStart() {
         super.onStart();
         mainBtnRescan.setVisibility(View.VISIBLE);
-//        utils.getBluetooth().stopScan(true);
-//        utils.clearTransivers();
-//        scannerAdapter.notifyDataSetChanged();
-//        scan();
     }
 
     @Override
@@ -60,11 +54,10 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         Logger.d(Logger.BASIC_SCANNER_LOG, "resultCode: " + resultCode);
         if(resultCode == TaskCode.TAKE_CODE){
             utils.addTakeInfo(res, true);
-//            scannerAdapter.notifyDataSetChanged();
             myHandler.post(updateRunnable);
         }
         else if(resultCode == TaskCode.SSH_ERROR_CODE){
-            if(res.contains("Connection refused")){
+            if(res.contains("Connection refused") || res.contains("Auth fail")){
                 utils.removeClient(result.getString("ip"));
             }
             else {utils.showMessage("Error: " + result);}
@@ -110,16 +103,9 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
     }
 
     private boolean checkPermission(){
-
-
-
-
         return true;
     }
 
-
     private void askPermission(){
-
     }
-
 }

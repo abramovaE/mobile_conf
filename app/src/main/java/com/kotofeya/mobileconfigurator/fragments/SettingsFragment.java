@@ -49,10 +49,8 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
         View view = inflater.inflate(R.layout.settings_fragment, container, false);
         mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
         showAccessPointDialog = view.findViewById(R.id.settings_doNotAskCheckbox);
-
         showAccessPointDialog.setChecked(App.get().isAskForTeneth());
         showAccessPointDialog.setOnCheckedChangeListener(this);
-
         return view;
     }
 

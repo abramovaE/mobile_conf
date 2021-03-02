@@ -42,14 +42,6 @@ public class BleScannerFragment extends ScannerFragment {
         scan();
     }
 
-//    @Override
-//    public void onDestroyView() {
-//        super.onDestroyView();
-//        utils.clearTransivers();
-//        scannerAdapter.notifyDataSetChanged();
-//    }
-
-
     @Override
     public void onStop() {
         super.onStop();

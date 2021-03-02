@@ -4,7 +4,7 @@
     <dimen name="login_txt">20sp</dimen>
     <dimen name="about_txt">30sp</dimen>
     <dimen name="main_txt_label">40sp</dimen>
-    <dimen name="main_menu_btn">30sp</dimen>
+    <dimen name="main_menu_btn">20sp</dimen>
     <dimen name="update_content_lv_item">20sp</dimen>
     <dimen name="content_txt">20sp</dimen>
 

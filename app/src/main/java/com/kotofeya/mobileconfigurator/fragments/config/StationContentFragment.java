@@ -98,13 +98,9 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
             try {
                 new SshConnectionRunnable(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()),
                         ip, SshConnection.TAKE_CODE);
-
-//                SshConnection connection = new SshConnection(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()));
-//                connection.execute(ip, SshConnection.TAKE_CODE);
             }
             catch (ClassCastException e){}
         }
-
     }
     protected void updateBtnCotentSendState(){
         if((!floorTxt.getText().toString().isEmpty() || zummerTypesSpn.getSelectedItemPosition()> 0
@@ -121,18 +117,12 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
     public void updateFields() {
         setModem();
     }
-
     @Override
     public void stopScan() {
         utils.getBluetooth().stopScan(true);
-
     }
-
-
-
     @Override
     public void onProgressUpdate(Integer downloaded) {
-
     }
 
     @Override

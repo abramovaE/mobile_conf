@@ -77,46 +77,4 @@ public class InternetConn {
         }
         return null;
     }
-
-        private void turnOnHotspot() {
-        WifiManager manager = (WifiManager) App.get().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
-        manager.startLocalOnlyHotspot(new WifiManager.LocalOnlyHotspotCallback() {
-
-            @Override
-            public void onStarted(WifiManager.LocalOnlyHotspotReservation reservation) {
-                super.onStarted(reservation);
-                Log.d("uuu", "Wifi Hotspot is on now: " + manager.getConnectionInfo().getSSID());
-                mReservation = reservation;
-
-//                String deviceName = Settings.Global.getString(.getContentResolver(), Settings.Global.DEVICE_NAME);
-
-//                reservation.getWifiConfiguration().
-//                Log.d("uuu", "ssid: " + );
-
-            }
-
-            @Override
-            public void onStopped() {
-                super.onStopped();
-                Log.d("uuu", "onStopped: ");
-            }
-
-            @Override
-            public void onFailed(int reason) {
-                super.onFailed(reason);
-                Log.d("uuu", "onFailed: ");
-            }
-        }, new Handler());
-    }
-
-
-
-    private void turnOffHotspot() {
-        if (mReservation != null) {
-            mReservation.close();
-        }
-    }
-
-
-
 }

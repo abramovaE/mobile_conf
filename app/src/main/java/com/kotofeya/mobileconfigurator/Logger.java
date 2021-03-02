@@ -3,9 +3,14 @@ package com.kotofeya.mobileconfigurator;
 import android.util.Log;
 import android.util.SparseArray;
 
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+
 public class Logger {
 
     private static final String TAG = "MobileConfigurator";
+    private static List<String> serviceLog = new CopyOnWriteArrayList<>();
+
 
     public static final int MAIN_LOG = 0;
     public static final int BASIC_SCANNER_LOG = 1;
@@ -28,6 +33,7 @@ public class Logger {
     public static final int UPDATE_LOG = 18;
     public static final int INTERNET_CONN_LOG = 19;
     public static final int TRANSPORT_TRANSIVER_LOG = 20;
+    public static final int CHECK_USER_LOG = 21;
 
 
     private static final  SparseArray<String> mType = new SparseArray<>();
@@ -54,6 +60,7 @@ public class Logger {
         mType.put(UPDATE_LOG, "Update_task");
         mType.put(INTERNET_CONN_LOG, "Internet_connection_task");
         mType.put(TRANSPORT_TRANSIVER_LOG, "Transport_transiver_task");
+        mType.put(CHECK_USER_LOG, "Check_user_task");
 
 
     }
@@ -62,10 +69,19 @@ public class Logger {
         if (BuildConfig.DEBUG) {
             Log.d(TAG + "|| " + mType.get(type), message);
         }
+        serviceLog.add(mType.get(type) + ": " + message);
+
     }
     public static void e(int type, String message, Throwable throwable){
         if (BuildConfig.DEBUG) {
             Log.e(TAG + "|| " + mType.get(type), message, throwable);
         }
+        serviceLog.add(mType.get(type) + ": " + message);
+    }
+
+    public static String getServiceLogString(){
+        StringBuilder sb = new StringBuilder("mobile configurator log\n");
+        serviceLog.forEach(s -> sb.append(s + "\n"));
+        return sb.toString();
     }
 }

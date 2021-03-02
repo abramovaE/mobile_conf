@@ -86,5 +86,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         App.get().setContext(this);
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
+        App.get().setLogin(loginTxt.getText().toString());
     }
 }

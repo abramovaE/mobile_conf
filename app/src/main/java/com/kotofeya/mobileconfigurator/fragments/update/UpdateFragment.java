@@ -11,6 +11,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -38,7 +39,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     public Context context;
     public Utils utils;
-    public Button mainBtnRescan;
+    public ImageButton mainBtnRescan;
 
     private final Handler myHandler = new Handler();
 
@@ -48,7 +49,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     TextView versionLabel;
     Button checkVersionButton;
 
-    String version = "version";
+    String version = getString(R.string.version);
     TextView mainTxtLabel;
 
     ProgressBar progressBar;
@@ -180,7 +181,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
             case TaskCode.UPDATE_OS_DOWNLOAD_CODE:
                 progressBar.setVisibility(View.GONE);
-                utils.showMessage("Downloaded");
+                utils.showMessage(getString(R.string.downloaded));
                 break;
 
             case TaskCode.UPDATE_STM_DOWNLOAD_CODE:
@@ -195,7 +196,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 break;
             case TaskCode.SSH_ERROR_CODE:
                 progressBar.setVisibility(View.GONE);
-                if(result.contains("Connection refused")){
+                if(result.contains("Connection refused") || result.contains("Auth fail")){
                     utils.removeClient(ip);
                 }
                 else {utils.showMessage("Error: " + result);}
@@ -233,7 +234,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         Transiver transiver = utils.getTransiverByIp(ip);
         utils.removeTransiver(transiver);
         scannerAdapter.notifyDataSetChanged();
-        utils.showMessage("Uploaded");
+        utils.showMessage(getString(R.string.uploaded));
         progressBar.setVisibility(View.GONE);
     }
 
@@ -279,6 +280,4 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 break;
         }
     }
-
-
 }

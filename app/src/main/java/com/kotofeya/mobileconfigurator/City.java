@@ -19,10 +19,8 @@ public class City implements Serializable {
     @Expose
     private String fullname;
 
-
     public City() {
     }
-
 
     public int getId() {
         return id;

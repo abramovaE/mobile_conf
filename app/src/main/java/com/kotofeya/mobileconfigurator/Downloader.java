@@ -184,7 +184,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                             }
                         }
                     }
-                    bundle.putString("result", "Release OS: " + osVersion);
+                    bundle.putString("result", App.get().getString(R.string.release_os) +  ": " + osVersion);
                     bundle.putInt("resultCode", UPDATE_OS_VERSION_CODE);
                     return bundle;
 

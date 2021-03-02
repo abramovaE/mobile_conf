@@ -114,14 +114,13 @@ public class TransportContentFragment extends ContentFragment implements View.On
 
     @Override
     public void updateFields() {
-
     }
 
     @Override
     public void stopScan() {
         utils.getBluetooth().stopScan(true);
     }
-    
+
     @Override
     public void onProgressUpdate(Integer downloaded) {
 

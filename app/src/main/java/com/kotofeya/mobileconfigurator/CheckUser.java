@@ -47,8 +47,7 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
     }
 
     protected Void doInBackground(Void... voids) {
-
-        Logger.d(Logger.MAIN_LOG, "check user");
+        Logger.d(Logger.CHECK_USER_LOG, "Check user: login - " + login + ", password - " + password);
         URL u;
         try {
             u = new URL(url_checkUser);
@@ -65,22 +64,21 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
             while (null != (line = br.readLine())) {
                 content.append(line);
             }
-
-            Logger.d(Logger.MAIN_LOG, "check user response: " + response);
+            Logger.d(Logger.CHECK_USER_LOG, "Check user response: " + response);
             if(response == 200){
                 JSONObject jsonObject = new JSONObject(content.toString());
                 int code = Integer.parseInt(jsonObject.getString("code"));
                 if(code == 1){
                     isUserValid = true;
-                    message = "Успешно";
+                    message = context.getString(R.string.successful);
                 }
                 else if (code == 0){
                     isUserValid = false;
-                    message = "Неправильный логин или пароль";
+                    message = context.getString(R.string.incorrect_autorization);
                 }
             }
             else {
-                message = "Сервер не отвечает";
+                message = context.getString(R.string.server_not_response);
             }
 
             reader.close();
@@ -99,8 +97,8 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
 
     @Override
     protected void onPostExecute(Void s) {
-        Logger.d(Logger.MAIN_LOG, "is user valid: on post execute");
-        isUserValid = true;
+        Logger.d(Logger.CHECK_USER_LOG, "On post execute, is user valid: " + isUserValid);
+//        isUserValid = true;
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
         if(callback != null && isUserValid){
             callback.doIfUserValid();
@@ -143,3 +141,4 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
         return c;
     }
 }
+

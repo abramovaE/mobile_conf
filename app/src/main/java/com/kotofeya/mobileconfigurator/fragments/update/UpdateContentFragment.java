@@ -183,3 +183,10 @@ public class UpdateContentFragment extends UpdateFragment {
         }
     }
 }
+
+
+
+//update content -
+//ssid = серийцный номер
+//каррен инкр - текущая версия
+//сервер инкр = актуальная версия

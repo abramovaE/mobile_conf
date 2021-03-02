@@ -29,6 +29,7 @@ public class App extends Application {
     private boolean showAccessPointDialog;
     private Retrofit retrofit;
 
+    private String login;
 
     private static final String PREF_NAME = "mobile_conf_pref";
 
@@ -57,6 +58,7 @@ public class App extends Application {
 
 
 
+
 //        retrofit = new Retrofit.Builder()
 //                .baseUrl("http://95.161.210.44/update/")
 //                .build();
@@ -66,6 +68,14 @@ public class App extends Application {
         return preferences.getBoolean("isAskForTeneth", true);
 
 //        return true;
+    }
+
+    public String getLogin() {
+        return login;
+    }
+
+    public void setLogin(String login) {
+        this.login = login;
     }
 
     public void setAskForTeneth(boolean value) {
@@ -92,6 +102,15 @@ public class App extends Application {
         preferences.edit().putString("updateOsFileVersion", updateOsFileVersion).commit();
         this.updateOsFileVersion = updateOsFileVersion;
     }
+
+    public String getLogReport(){
+        return preferences.getString("logReport", "");
+    }
+
+    public void setLogReport(String logReport) {
+        preferences.edit().putString("logReport", logReport).commit();
+    }
+
 
     public Context getContext() {
         return context;

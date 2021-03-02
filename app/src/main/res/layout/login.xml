@@ -31,14 +31,17 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/login_txt"
-        android:hint="@string/login_txt_login_hint" />
+        android:hint="@string/login_txt_login_hint"
+        android:maxLines="1"/>
 
     <EditText
         android:id="@+id/login_txt_password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="@dimen/login_txt"
-        android:hint="@string/login_txt_password_hint" />
+        android:hint="@string/login_txt_password_hint"
+        android:maxLines="1"
+        android:inputType="textPassword"/>
 
     <Button
         android:id="@+id/login_btn"

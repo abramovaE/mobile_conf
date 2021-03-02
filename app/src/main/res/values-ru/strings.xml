@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">MМобильный конфигуратор</string>
+    <string name="app_name">Mобильный конфигуратор</string>
     <string name="login_txt_login_hint">Логин</string>
     <string name="login_txt_password_hint">Пароль</string>
     <string name="login_btn">Войти</string>
@@ -8,24 +8,24 @@
     <string name="about_main_label">О программе</string>
 
 
-    <string name="main_basic_scanner_btn">Wifi сканер</string>
-    <string name="main_ble_scanner_btn">Ble сканер</string>
-    <string name="main_update_os_btn">Обновить ОС</string>
-    <string name="main_update_stm_btn">Обновить STM</string>
-    <string name="main_update_content_btn">Обновить контент</string>
-    <string name="main_config_transport_btn">Конфигурация транспорт</string>
-    <string name="main_config_station_btn">Конфигурация стационар</string>
+    <string name="main_basic_scanner_btn">Wifi</string>
+    <string name="main_ble_scanner_btn">Bluetooth</string>
+    <string name="main_update_os_btn">ОС</string>
+    <string name="main_update_stm_btn">STM</string>
+    <string name="main_update_content_btn">Контент</string>
+    <string name="main_config_transport_btn">Транспорт</string>
+    <string name="main_config_station_btn">Стационар</string>
     <string name="main_menu_main_label">Главное меню</string>
-    <string name="update_btn_check">Загрузить обновления</string>
+    <string name="update_btn_check">Загрузить обновление</string>
     <string name="content_btn_send">Отправить</string>
     <string name="content_btn_rasp">Rasp</string>
     <string name="content_btn_stm">STM</string>
-    <string name="content_btn_clear">Clear rasp</string>
+    <string name="content_btn_clear">Очистить rasp</string>
     <string name="content_label_reboot">Перезагрузить</string>
 
 
     <string name="basic_scan_main_txt_label">Wifi сканер</string>
-    <string name="ble_scan_main_txt_label">Ble сканер</string>
+    <string name="ble_scan_main_txt_label">Bluetooth сканер</string>
     <string name="update_os_main_txt_label">Обновить ОС</string>
     <string name="update_stm_main_txt_label">Обновить STM</string>
     <string name="update_content_main_txt_label">Обновить контент</string>
@@ -59,5 +59,24 @@
     <string name="zummer_type_hint">Тип звучка</string>
     <string name="zummer_volume_hint">Уровень громкости звучка</string>
     <string name="floor_hint">Этаж</string>
-
+    <string name="serial">Серийный номер</string>
+    <string name="current_incr">Текущая версия</string>
+    <string name="server_incr">Актуальная версия</string>
+    <string name="configuration">Конфигурация</string>
+    <string name="updating">Обновление</string>
+    <string name="scanner">Сканер</string>
+    <string name="storage_os">Загруженная версия</string>
+    <string name="release_os">Актуальная версия</string>
+    <string name="downloaded">Загружено</string>
+    <string name="uploaded">Отправлено</string>
+    <string name="confirmation_is_required">Требуется подтверждение</string>
+    <string name="version">версия</string>
+    <string name="confirm_reboot_of">Подтвердите перезагрузку</string>
+    <string name="ask_clear_the_transiver">Очистить трансивер?</string>
+    <string name="stm_rebooted">Stm перезагружен</string>
+    <string name="content_updated">Контент обновлен</string>
+    <string name="rasp_was_cleared">Rasp очищено</string>
+    <string name="successful">Успешно</string>
+    <string name="incorrect_autorization">Неправильный логин или пароль</string>
+    <string name="server_not_response">Сервер не отвечает</string>
 </resources>

@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -21,10 +22,12 @@ import com.kotofeya.mobileconfigurator.activities.MainActivity;
 public abstract class ScannerFragment extends Fragment {
     Context context;
     Utils utils;
-    Button mainBtnRescan;
+    ImageButton mainBtnRescan;
     TextView mainTxtLabel;
     ListView lvScanner;
     ScannerAdapter scannerAdapter;
+
+    abstract void scan();
 
     @Override
     public void onAttach(Context context) {
@@ -32,10 +35,6 @@ public abstract class ScannerFragment extends Fragment {
         this.utils = ((MainActivity) context).getUtils();
         super.onAttach(context);
     }
-
-
-
-    abstract void scan();
 
     @Nullable
     @Override

@@ -3,12 +3,14 @@ package com.kotofeya.mobileconfigurator.activities;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
+import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -25,6 +27,7 @@ import com.kotofeya.mobileconfigurator.FragmentHandler;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.SendLogToServer;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
 
@@ -39,7 +42,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 
     Utils utils;
     TextView label;
-    Button mainBtnRescan;
+    ImageButton mainBtnRescan;
 
     TextView loginTxt;
     TextView dateTxt;
@@ -97,7 +100,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         loginTxt = findViewById(R.id.main_txt_login);
         dateTxt = findViewById(R.id.main_txt_date);
 
-        loginTxt.setText("Abramov");
+        loginTxt.setText(App.get().getLogin());
 
         Runnable runnable = new CountDownRunner();
         Thread timerThread= new Thread(runnable);
@@ -111,6 +114,11 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
             dialog.show(fragmentHandler.getFragmentManager(), HOTSPOT_DIALOG_TAG);
         }
 
+        boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
+        if(isInternetEnabled){
+            new Thread(new SendLogToServer(App.get().getLogReport())).start();
+            App.get().setLogReport("");
+        }
     }
 
 
@@ -223,6 +231,31 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
             }
         }
     }
+
+
+    @Override
+    protected void onDestroy() {
+        String logReport = Logger.getServiceLogString();
+        boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
+        if(isInternetEnabled){
+            new Thread(new SendLogToServer(App.get().getLogReport() + "\n" + logReport)).start();
+            App.get().setLogReport("");
+        }
+        else {
+            App.get().setLogReport(logReport);
+        }
+        super.onDestroy();
+    }
 }
 
 
+//    Некорректно отображается номер маршрута в поле ввода
+//
+//        Ммобильный конфигуратор
+//
+//        Абрамов у всех (исправлено)++
+//        Нужно доделать++
+//        Обновить заменить на обновление++
+//        Release os - актуальная версия++
+//        Storage os - загруженная версия++
+//        Загрузить обновление++
