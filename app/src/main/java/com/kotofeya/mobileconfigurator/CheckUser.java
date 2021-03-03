@@ -3,6 +3,7 @@ package com.kotofeya.mobileconfigurator;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.util.Base64;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
@@ -131,6 +132,7 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("login", login));
         params.add(new BasicNameValuePair("password", password));
+
         OutputStream os = c.getOutputStream();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
         writer.write(getQuery(params));

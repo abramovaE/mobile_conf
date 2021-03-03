@@ -1,5 +1,7 @@
 package com.kotofeya.mobileconfigurator;
 
+import android.os.Bundle;
+
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 import org.json.JSONException;
@@ -21,9 +23,11 @@ public class SendLogToServer implements Runnable {
 
     private static String url_post_log = "http://95.161.210.44/mobile_conf_post_log.php";
     private String logReport;
+    private OnTaskCompleted listener;
 
-    public SendLogToServer(String logReport) {
+    public SendLogToServer(String logReport, OnTaskCompleted listener) {
         this.logReport = logReport;
+        this.listener = listener;
     }
 
     @Override
@@ -47,23 +51,20 @@ public class SendLogToServer implements Runnable {
             }
 
             Logger.d(Logger.MAIN_LOG, "send log file response: " + response);
+            Bundle result = new Bundle();
+            result.putInt("resultCode", TaskCode.SEND_LOG_TO_SERVER_CODE);
+
+
             if(response == 200){
                 JSONObject jsonObject = new JSONObject(content.toString());
                 int code = Integer.parseInt(jsonObject.getString("code"));
-//                Logger.d(Logger.WIFI_LOG, "code: " + code + " " + jsonObject.getString("login") + " " + jsonObject.getString("password"));
-                if(code == 1){
-//                    isUserValid = true;
-//                    message = "Успешно";
-                }
-                else if (code == 0){
-//                    isUserValid = false;
-//                    message = "Неправильный логин или пароль";
-                }
+                result.putInt("code", code);
             }
             else {
-//                message = "Сервер не отвечает";
+                result.putInt("code", 0);
             }
 
+            listener.onTaskCompleted(result);
             reader.close();
 
         } catch (MalformedURLException e) {
@@ -84,7 +85,8 @@ public class SendLogToServer implements Runnable {
         c.setReadTimeout(15000);
         OutputStream os = c.getOutputStream();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-        writer.write(logReport.toString());
+
+        writer.write(logReport);
         writer.flush();
         writer.close();
         os.close();

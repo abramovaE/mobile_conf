@@ -84,4 +84,8 @@ public class Logger {
         serviceLog.forEach(s -> sb.append(s + "\n"));
         return sb.toString();
     }
+
+    public static void clearLogReport(){
+        serviceLog.clear();
+    }
 }

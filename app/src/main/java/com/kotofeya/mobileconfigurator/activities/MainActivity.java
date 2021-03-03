@@ -116,8 +116,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         if(isInternetEnabled){
-            new Thread(new SendLogToServer(App.get().getLogReport())).start();
-            App.get().setLogReport("");
+            new Thread(new SendLogToServer(App.get().getLogReport(), this)).start();
         }
     }
 
@@ -182,6 +181,19 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
             getCities(res);
         }
 
+        else if(resultCode == TaskCode.SEND_LOG_TO_SERVER_CODE){
+            int code = result.getInt("code");
+            if(code == 1){
+                App.get().setLogReport("");
+                Logger.clearLogReport();
+            }
+            else {
+                App.get().setLogReport(App.get().getLogReport() + "\n"+ Logger.getServiceLogString());
+                Logger.clearLogReport();
+            }
+        }
+
+
         Logger.d(Logger.MAIN_LOG, "trans: " + utils.getTransivers());
 
     }
@@ -238,24 +250,23 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         String logReport = Logger.getServiceLogString();
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         if(isInternetEnabled){
-            new Thread(new SendLogToServer(App.get().getLogReport() + "\n" + logReport)).start();
-            App.get().setLogReport("");
+            Logger.d(Logger.MAIN_LOG, "to server: " + logReport.length());
+            new Thread(new SendLogToServer(App.get().getLogReport() + "\n" + logReport, this)).start();
         }
         else {
-            App.get().setLogReport(logReport);
+            App.get().setLogReport(App.get().getLogReport() + "\n" + logReport);
         }
         super.onDestroy();
     }
 }
 
 
-//    Некорректно отображается номер маршрута в поле ввода
-//
-//        Ммобильный конфигуратор
-//
+//        Некорректно отображается номер маршрута в поле ввода++
 //        Абрамов у всех (исправлено)++
 //        Нужно доделать++
 //        Обновить заменить на обновление++
 //        Release os - актуальная версия++
 //        Storage os - загруженная версия++
 //        Загрузить обновление++
+//        Иконка поехала вниз, на рабочем столе++
+

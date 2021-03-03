@@ -18,6 +18,8 @@ public interface TaskCode {
 
     int TRANSPORT_CONTENT_VERSION_CODE = 12;
     int STATION_CONTENT_VERSION_CODE = 13;
+
+
     int UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE = 16;
     int UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE = 17;
 
@@ -30,4 +32,5 @@ public interface TaskCode {
     int DOWNLOADER_ERROR_CODE = 15;
 
     int DOWNLOAD_CITIES_CODE = 20;
+    int SEND_LOG_TO_SERVER_CODE = 21;
 }

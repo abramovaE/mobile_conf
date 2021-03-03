@@ -141,7 +141,13 @@ public class TransportTransiver extends Transiver {
             byte[] rawData = getRawData();
             String number = "";
             if (getTransVersion() == VERSION_NEW) {
-                number = ((rawData[17] & 0xff) << 8) + (rawData[18] & 0xff) + "";
+                if(getBtPackVersion() > 0){
+                    number = ((rawData[16] & 0xff) << 8) + (rawData[17] & 0xff) + "";
+                }
+                else {
+                    number = ((rawData[17] & 0xff) << 8) + (rawData[18] & 0xff) + "";
+                }
+
             }
             else {
                 number = ((rawData[3] & 0xff) << 8) + (rawData[4] & 0xff) + "";
