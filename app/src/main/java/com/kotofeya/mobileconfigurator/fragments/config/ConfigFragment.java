@@ -38,10 +38,7 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
         this.context = context;
         this.utils = ((MainActivity) context).getUtils();
         super.onAttach(context);
-
     }
-
-
 
     @Override
     public void onStart() {
@@ -58,35 +55,15 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
 
         mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
         mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
-//        mainBtnRescan.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                rescan();
-//            }
-//        });
-
         utils.getBluetooth().stopScan(true);
         utils.setTransiversLv(lvScanner);
         scannerAdapter = getScannerAdapter();
         lvScanner.setAdapter(scannerAdapter);
-//        Logger.d(Logger.CONFIG_LOG, "clearTransivers");
-//        utils.clearTransivers();
-//        scannerAdapter.notifyDataSetChanged();
         scan();
         return view;
     }
 
     public abstract ScannerAdapter getScannerAdapter();
     public abstract void setMainTextLabel();
-//    public abstract void rescan();
     public abstract void scan();
-
-//    @Override
-//    public void onStop() {
-//        super.onStop();
-//        Logger.d(Logger.CONFIG_LOG, "onStop");
-//        utils.getBluetooth().stopScan(false);
-//        utils.clearTransivers();
-//        scannerAdapter.notifyDataSetChanged();
-//    }
 }

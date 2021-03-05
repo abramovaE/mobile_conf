@@ -43,27 +43,17 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     Utils utils;
     TextView label;
     ImageButton mainBtnRescan;
-
     TextView loginTxt;
     TextView dateTxt;
-
     public static City cities[];
+    private static final int TETHER_REQUEST_CODE = 1;
+    private static final String HOTSPOT_DIALOG_TAG = "HOTSPOT_DIALOG";
 
     @Override
     public void onStart() {
         super.onStart();
-//        mainBtnRescan.setVisibility(View.GONE);
-//        label.setText(R.string.main_menu_main_label);
         utils.getBluetooth().stopScan(true);
-//        utils.getTakeInfo(this);
-//        utils.clearTransivers();
-
-
     }
-
-
-    private static final int TETHER_REQUEST_CODE = 1;
-    private static final String HOTSPOT_DIALOG_TAG = "HOTSPOT_DIALOG";
 
     private void launchHotspotSettings(){
         Intent tetherSettings = new Intent();
@@ -84,22 +74,17 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         utils = new Utils();
-
         FragmentHandler fragmentHandler = new FragmentHandler(this);
         App.get().setFragmentHandler(fragmentHandler);
         fragmentHandler.changeFragment(FragmentHandler.MAIN_FRAGMENT_TAG, false);
 
         label = findViewById(R.id.main_txt_label);
-
         mainBtnRescan = findViewById(R.id.main_btn_rescan);
         mainBtnRescan.setVisibility(View.GONE);
         label.setText(R.string.main_menu_main_label);
-
         loginTxt = findViewById(R.id.main_txt_login);
         dateTxt = findViewById(R.id.main_txt_date);
-
         loginTxt.setText(App.get().getLogin());
 
         Runnable runnable = new CountDownRunner();
@@ -113,7 +98,6 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
             HotSpotSettingsDialog dialog = new HotSpotSettingsDialog();
             dialog.show(fragmentHandler.getFragmentManager(), HOTSPOT_DIALOG_TAG);
         }
-
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         if(isInternetEnabled){
             new Thread(new SendLogToServer(App.get().getLogReport(), this)).start();
@@ -151,10 +135,6 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         }
     }
 
-
-
-
-
     @Override
     public void onBackPressed() {
         label.setText(R.string.main_menu_main_label);
@@ -170,11 +150,10 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     public void onTaskCompleted(Bundle result) {
         int resultCode = result.getInt("resultCode");
         String res = result.getString("result");
-        Logger.d(Logger.BASIC_SCANNER_LOG, "resultCode: " + resultCode);
+        Logger.d(Logger.MAIN_LOG, "resultCode: " + resultCode);
+
         if(resultCode == TaskCode.TAKE_CODE){
             utils.addTakeInfo(res, true);
-//            scannerAdapter.notifyDataSetChanged();
-//            myHandler.post(updateRunnable);
         }
 
         else if(resultCode == TaskCode.DOWNLOAD_CITIES_CODE){
@@ -192,12 +171,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
                 Logger.clearLogReport();
             }
         }
-
-
-        Logger.d(Logger.MAIN_LOG, "trans: " + utils.getTransivers());
-
+        Logger.d(Logger.MAIN_LOG, "transivers: " + utils.getTransivers());
     }
-
 
     private void getCities(String res){
         try {
@@ -208,11 +183,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         }
     }
 
-
-
     @Override
     public void onProgressUpdate(Integer downloaded) {
-
     }
 
     public void doWork() {
@@ -228,9 +200,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         });
     }
 
-
     class CountDownRunner implements Runnable{
-        // @Override
         public void run() {
             while(!Thread.currentThread().isInterrupted()){
                 try {
@@ -244,13 +214,11 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         }
     }
 
-
     @Override
     protected void onDestroy() {
         String logReport = Logger.getServiceLogString();
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         if(isInternetEnabled){
-            Logger.d(Logger.MAIN_LOG, "to server: " + logReport.length());
             new Thread(new SendLogToServer(App.get().getLogReport() + "\n" + logReport, this)).start();
         }
         else {
@@ -259,14 +227,3 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         super.onDestroy();
     }
 }
-
-
-//        Некорректно отображается номер маршрута в поле ввода++
-//        Абрамов у всех (исправлено)++
-//        Нужно доделать++
-//        Обновить заменить на обновление++
-//        Release os - актуальная версия++
-//        Storage os - загруженная версия++
-//        Загрузить обновление++
-//        Иконка поехала вниз, на рабочем столе++
-

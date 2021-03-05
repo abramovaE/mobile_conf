@@ -41,6 +41,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     private OnTaskCompleted listener;
     private String currentIp;
     private int currentAction;
+    private URL url;
 
     public Downloader(OnTaskCompleted listener) {
         this.listener = listener;
@@ -158,7 +159,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         Bundle bundle = new Bundle();
         bundle.putString("ip", currentIp);
         Logger.d(Logger.DOWNLOAD_LOG, "getContent: " + stringUrl + ", action: " + currentAction);
-        URL url;
+//        URL url;
         try {
             if(currentAction == UPDATE_STM_DOWNLOAD_CODE ||
                     currentAction == UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE ||
@@ -273,6 +274,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 
     @Override
     protected void onProgressUpdate(Integer... values) {
+        Logger.d(Logger.DOWNLOAD_LOG, "url: " + url + " on progress update: " + values[0]);
         listener.onProgressUpdate(values[0]);
         super.onProgressUpdate(values);
     }

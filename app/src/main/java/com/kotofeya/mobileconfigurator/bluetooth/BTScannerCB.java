@@ -53,7 +53,7 @@ class BTScannerCB extends ScanCallback {
             }
             utils.getBluetooth().startScan(true);
         }
-        Logger.d(2, "Error: " + errorCode);
+        Logger.d(Logger.BASIC_SCANNER_LOG, "Error: " + errorCode);
     }
 
 

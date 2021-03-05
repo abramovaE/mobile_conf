@@ -85,6 +85,7 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
     }
 
     private void rescan(){
+        Logger.d(Logger.BASIC_SCANNER_LOG, "rescan");
         utils.clearClients();
         utils.clearMap();
         utils.clearTransivers();

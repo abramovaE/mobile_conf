@@ -13,10 +13,13 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.util.ArrayList;
 import java.util.List;
 
 public class SendLogToServer implements Runnable {
@@ -83,14 +86,33 @@ public class SendLogToServer implements Runnable {
         c.setRequestMethod("POST");
         c.setConnectTimeout(12000);
         c.setReadTimeout(15000);
+        List<NameValuePair> params = new ArrayList<>();
+        params.add(new BasicNameValuePair("log", logReport));
+
         OutputStream os = c.getOutputStream();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
-
-        writer.write(logReport);
+        writer.write(getQuery(params));
         writer.flush();
         writer.close();
         os.close();
         c.connect();
         return c;
+    }
+
+    private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException
+    {
+        StringBuilder result = new StringBuilder();
+        boolean first = true;
+        for (NameValuePair pair : params)
+        {
+            if (first)
+                first = false;
+            else
+                result.append("&");
+            result.append(URLEncoder.encode(pair.getName(), "UTF-8"));
+            result.append("=");
+            result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
+        }
+        return result.toString();
     }
 }

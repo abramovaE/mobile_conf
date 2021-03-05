@@ -107,7 +107,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update os was pressed");
                     Transiver transiver = getTransiver(position);
                     if (Downloader.tempUpdateOsFile.length() > 1000) {
                         Bundle bundle = new Bundle();
@@ -123,7 +123,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update stm was pressed");
                     Transiver transiver = getTransiver(position);
                     if (Downloader.tempUpdateStmFiles != null && !Downloader.tempUpdateStmFiles.isEmpty()) {
                         Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateStmFilesSize: " + Downloader.tempUpdateStmFiles.size());
@@ -140,6 +140,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                 }
             });
         } else if (scannerType == UPDATE_CONTENT_TYPE) {
+
             boolean isTransport = p.isTransport();
             boolean isStationary = p.isStationary();
             Logger.d(Logger.SCANNER_ADAPTER_LOG, p.getSsid() + " isTransport: " + isTransport + ", isStationary: " + isStationary);
@@ -178,7 +179,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             linearLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "linear layout was pressed");
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update content was pressed");
                     utils.getBluetooth().stopScan(true);
                     Transiver transiver = getTransiver(position);
                     Bundle bundle = new Bundle();
@@ -207,7 +208,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             });
 
         } else if (scannerType == CONFIG_TRANSPORT) {
-            Logger.d(Logger.SCANNER_ADAPTER_LOG, "config transport");
+            Logger.d(Logger.SCANNER_ADAPTER_LOG, "Config transport");
             if (p.isTransport()) {
                 try {
                     TransportTransiver transportTransiver = (TransportTransiver) p;

@@ -49,7 +49,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     TextView versionLabel;
     Button checkVersionButton;
 
-    String version = getString(R.string.version);
+    String version = "version";
     TextView mainTxtLabel;
 
     ProgressBar progressBar;

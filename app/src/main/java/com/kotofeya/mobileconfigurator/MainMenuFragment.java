@@ -51,27 +51,35 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.main_basic_scanner_btn:
+                Logger.d(Logger.MAIN_LOG, "wifi scanner was pressed");
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.BASIC_SCANNER_FRAGMENT);
                 break;
             case R.id.main_ble_scanner_btn:
+                Logger.d(Logger.MAIN_LOG, "bluetooth scanner was pressed");
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.BLE_SCANNER_FRAGMENT);
                 break;
             case R.id.main_update_os_btn:
+                Logger.d(Logger.MAIN_LOG, "update os was pressed");
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.UPDATE_OS_FRAGMENT);
                 break;
             case R.id.main_update_stm_btn:
+                Logger.d(Logger.MAIN_LOG, "update stm was pressed");
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.UPDATE_STM_FRAGMENT);
                 break;
             case R.id.main_update_content_btn:
+                Logger.d(Logger.MAIN_LOG, "update content was pressed");
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.UPDATE_CONTENT_FRAGMENT);
                 break;
             case R.id.main_config_transport_btn:
+                Logger.d(Logger.MAIN_LOG, "config transport was pressed");
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_TRANSPORT_FRAGMENT);
                 break;
             case R.id.main_config_station_btn:
+                Logger.d(Logger.MAIN_LOG, "config station was pressed");
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_STATION_FRAGMENT);
                 break;
             case R.id.main_settings_btn:
+                Logger.d(Logger.MAIN_LOG, "settings was pressed");
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.SETTINGS_FRAGMENT);
                 break;
         }

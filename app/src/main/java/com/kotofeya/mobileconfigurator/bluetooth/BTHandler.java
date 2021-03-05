@@ -54,8 +54,6 @@ public class BTHandler {
         mRescan = new AtomicBoolean(false);
     }
 
-
-
     public AtomicBoolean getmScanning() {
         return mScanning;
     }
@@ -85,8 +83,6 @@ public class BTHandler {
         }
         return true;
     }
-
-
 
     private void setRescan(boolean set) {
         mRescan.set(set);
@@ -131,13 +127,6 @@ public class BTHandler {
     }
 
     public void stopScan(boolean disableRescan) {
-
-
-//        Exception e = new Exception();
-//        e.printStackTrace();
-
-
-
         utils.stopLVTimer();
         if (mScanning.get()) {
             if (disableRescan) {
@@ -146,7 +135,6 @@ public class BTHandler {
             mScanning.set(false);
             mBluetoothLeScanner.stopScan(scanCallback);
             Logger.d(Logger.BT_HANDLER_LOG, "Stop scanning...");
-//            utils.clearTransivers();
         }
     }
 
@@ -155,7 +143,6 @@ public class BTHandler {
     private boolean hasPermissions() {
         if (mBluetoothAdapter == null || !mBluetoothAdapter.isEnabled()) {
             requestBluetoothEnable();
-            //mBluetoothAdapter.enable();
             return false;
         } else if (!hasLocationPermissions()) {
             requestLocationPermission();

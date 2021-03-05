@@ -25,7 +25,6 @@ public class InternetConn {
     WifiManager.LocalOnlyHotspotReservation mReservation;
     private static final ConnectivityManager mConnectivityManager = (ConnectivityManager) App.get().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-
     public void bindToNetork() {
         if (mConnectivityManager.getActiveNetwork() != null) {
             mConnectivityManager.bindProcessToNetwork(mConnectivityManager.getActiveNetwork());
@@ -46,26 +45,19 @@ public class InternetConn {
         return hasConnection;
     }
 
-
-
-
     public String getDeviceIp() {
         try {
             List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
             Logger.d(Logger.WIFI_LOG, "network interfaces: " + interfaces);
 
             for (NetworkInterface intf : interfaces) {
-                Logger.d(Logger.WIFI_LOG, "network interface adresses: " + intf.getInterfaceAddresses());
-                Logger.d(Logger.WIFI_LOG, "inet adresses: " + Collections.list(intf.getInetAddresses()));
-                Logger.d(Logger.WIFI_LOG, "isub int: " + Collections.list(intf.getSubInterfaces()));
-
-
+//                Logger.d(Logger.WIFI_LOG, "network interface adresses: " + intf.getInterfaceAddresses());
+//                Logger.d(Logger.WIFI_LOG, "inet adresses: " + Collections.list(intf.getInetAddresses()));
+//                Logger.d(Logger.WIFI_LOG, "isub int: " + Collections.list(intf.getSubInterfaces()));
 
                 List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
                 for (InetAddress addr : addrs) {
                     String sAddr = addr.getHostAddress();
-
-
                     if (sAddr.startsWith("192")) {
                             Logger.d(Logger.WIFI_LOG, "addr: " + sAddr);
                                 return sAddr;

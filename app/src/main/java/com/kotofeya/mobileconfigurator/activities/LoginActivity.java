@@ -3,10 +3,13 @@ package com.kotofeya.mobileconfigurator.activities;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import android.content.Context;
 import android.content.Intent;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -16,43 +19,37 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.server.AuthorizationApi;
 
+import java.security.Key;
 import java.util.List;
 
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener, CheckUser.MyCustomCallBack {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener, CheckUser.MyCustomCallBack, View.OnKeyListener {
 
     private EditText loginTxt;
     private EditText passwordTxt;
     private Button signInBtn;
-
     private WifiManager.LocalOnlyHotspotReservation mReservation;
-
     private List<String> connectedTransivers;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.login);
-
         loginTxt = findViewById(R.id.login_txt_login);
         passwordTxt = findViewById(R.id.login_txt_password);
         signInBtn = findViewById(R.id.login_btn);
-
         signInBtn.setOnClickListener(this);
+        loginTxt.setOnKeyListener(this);
+        passwordTxt.setOnKeyListener(this);
     }
-
 
     @Override
     public void onAttachFragment(Fragment fragment) {
         super.onAttachFragment(fragment);
-
-
     }
-
-
 
     @Override
     public void onClick(View v) {
@@ -87,5 +84,17 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         App.get().setLogin(loginTxt.getText().toString());
+    }
+
+    @Override
+    public boolean onKey(View v, int keyCode, KeyEvent event) {
+        Logger.d(Logger.MAIN_LOG, "key pressed: " + keyCode);
+        if(keyCode == KeyEvent.KEYCODE_ENTER){
+            InputMethodManager imm = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+            imm.hideSoftInputFromWindow(v.getWindowToken(),
+                    InputMethodManager.HIDE_NOT_ALWAYS);
+            return true;
+        }
+        return false;
     }
 }
