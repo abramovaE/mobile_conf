@@ -17,8 +17,15 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.SshConnectionRunnable;
+import com.kotofeya.mobileconfigurator.network.NetworkService;
+import com.kotofeya.mobileconfigurator.network.PostCommand;
+import com.kotofeya.mobileconfigurator.network.PostResponse;
+import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
 import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
-import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 public class StationContentFragment extends ContentFragment implements View.OnClickListener {
 
@@ -96,10 +103,51 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
                 ip = utils.getIp(statTransiver.getSsid());
             }
             try {
+
                 new SshConnectionRunnable(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()),
                         ip, SshConnection.TAKE_CODE);
+
             }
             catch (ClassCastException e){}
+
+
+            final String finalIp = ip;
+
+            String command = "info";
+            NetworkService.getInstance()
+                    .getJsonApi().postCommand("14.04.21_16.32", "dirvion", "fasterAnDfaster",
+                    PostCommand.TAKE_INFO_FULL)
+                    .enqueue(new Callback<PostResponse>() {
+                        @Override
+                        public void onResponse(Call<PostResponse> call, Response<PostResponse> response) {
+                            PostResponse postResponse = response.body();
+                            Logger.d(Logger.UTILS_LOG, "on response: " + postResponse);
+                            switch (command){
+                                case PostCommand.TAKE_INFO_FULL:
+                                    TakeInfoFull takeInfoFull = postResponse.getTakeInfoFull();
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString("ip", finalIp);
+                                    bundle.putInt("resultCode", PostCommand.getResponseCode(PostCommand.TAKE_INFO_FULL));
+                                    bundle.putString("result", takeInfoFull.toString());
+                                    ((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()).onTaskCompleted(bundle);
+                            }
+                        }
+                        @Override
+                        public void onFailure(Call<PostResponse> call, Throwable t) {
+                            Logger.d(Logger.UTILS_LOG, "Error occurred while getting request!");
+                            t.printStackTrace();
+                            Bundle bundle = new Bundle();
+                            bundle.putString("ip", finalIp);
+                            bundle.putInt("resultCode", PostCommand.getResponseCode(PostCommand.TAKE_INFO_FULL_ERROR));
+                            bundle.putString("result", t.getMessage());
+                            ((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()).onTaskCompleted(bundle);
+                        }
+                    });
+
+
+
+
+
         }
     }
     protected void updateBtnCotentSendState(){
@@ -171,11 +219,11 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
                 command.append(SshConnection.MODEM_CONFIG_BEELINE_MEGAF_COMMAND);
             }
         }
-        Logger.d(Logger.STATION_CONTEN_LOG, "send command: " + command.toString());
         String ip = statTransiver.getIp();
         if(ip == null){
             ip = utils.getIp(statTransiver.getSsid());
         }
+        Logger.d(Logger.STATION_CONTEN_LOG, "send command: " + command.toString());
         SshConnection connection = new SshConnection(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()));
         connection.execute(ip, SshConnection.SEND_STATION_CONTENT_CODE, command.toString());
     }

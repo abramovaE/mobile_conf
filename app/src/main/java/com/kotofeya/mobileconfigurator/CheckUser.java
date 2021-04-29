@@ -99,7 +99,9 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPostExecute(Void s) {
         Logger.d(Logger.CHECK_USER_LOG, "On post execute, is user valid: " + isUserValid);
-//        isUserValid = true;
+
+//         TODO: 08.04.2021 autorization
+        isUserValid = true;
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
         if(callback != null && isUserValid){
             callback.doIfUserValid();

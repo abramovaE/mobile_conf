@@ -218,10 +218,10 @@ public class TransportTransiver extends Transiver {
 
 
         public int getDirection() {
-            if(this.getNumber() == 0){
-                return PARK;
-            }
-            else {
+//            if(this.getNumber() == 0){
+//                return PARK;
+//            }
+//            else {
                 int dir = getIntDirection();
                 switch (dir){
                     case 0:
@@ -232,14 +232,14 @@ public class TransportTransiver extends Transiver {
                         return  REVERSE;
                 }
                 return 0;
-            }
+//            }
         }
 
     public String getStringDirection() {
-        if(this.getNumber() != 0){
+//        if(this.getNumber() <!= 0>){
             return App.get().getResources().getStringArray(R.array.directions)[getIntDirection()];
-        }
-        return App.get().getResources().getStringArray(R.array.directions)[0];
+//        }
+//        return App.get().getResources().getStringArray(R.array.directions)[0];
     }
 
         public int getIntDirection(){

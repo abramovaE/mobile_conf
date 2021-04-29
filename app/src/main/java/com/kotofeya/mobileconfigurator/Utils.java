@@ -2,7 +2,6 @@ package com.kotofeya.mobileconfigurator;
 
 
 import android.app.Dialog;
-import android.bluetooth.le.ScanResult;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,6 +13,9 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.bluetooth.BTHandler;
+import com.kotofeya.mobileconfigurator.network.PostCommand;
+import com.kotofeya.mobileconfigurator.network.PostInfo;
+import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
 import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
@@ -37,7 +39,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 
-public class Utils {
+public class Utils implements OnTaskCompleted{
 
     public static final int TRANSP_RADIO_TYPE = 0x80;
     public static final int STAT_RADIO_TYPE = 0x40;
@@ -58,20 +60,19 @@ public class Utils {
 
     public void getTakeInfo(OnTaskCompleted listener){
         String deviceIp = internetConnection.getDeviceIp();
+        internetConnection.getDhcpAddr();
         if(deviceIp != null){
             clients = WiFiLocalHotspot.getInstance().getClientList(deviceIp);
             Logger.d(Logger.UTILS_LOG, "getClientList: " + clients);
             if (clients.size() > 0) {
+
+
                 ExecutorService executorService = Executors.newFixedThreadPool(clients.size());
                 CompletableFuture<Void>[] futures = new CompletableFuture[clients.size()];
                 for (int i = 0; i < clients.size(); i++) {
-                    futures[i] = CompletableFuture.runAsync(new SshConnectionRunnable(listener, clients.get(i), SshConnection.TAKE_CODE), executorService);
-                }
-                if (futures != null) {
-                    CompletableFuture.allOf(futures).thenRun(() -> {
-                        executorService.shutdown();
-                        return;
-                    });
+                    String ip = clients.get(i);
+                    new PostInfo(this, ip, PostCommand.VERSION).run();
+
                 }
             }
         }
@@ -173,32 +174,21 @@ public class Utils {
 
     @SuppressWarnings("unchecked")
     public void addTransiver(Transiver transiver) {
-
         if(bluetooth.getmScanning().get()){
             if(transiver != null) {
-                boolean isContains = false;
-//                Logger.d(Logger.UTILS_LOG, "transivers: " + transivers);
-                for(Transiver t: transivers){
-                    if(t.getSsid() != null && t.getSsid().equals(transiver.getSsid())){
-                        isContains = true;
-                    }
-                }
+                boolean isContains = transivers.stream().anyMatch(trans -> trans.getSsid().equals(transiver.getSsid()));
                 if (!isContains) {
                     Logger.d(Logger.UTILS_LOG, "add transiver: ");
                     transivers.add(transiver);
                     if(transiversLv != null && transiversLv.getAdapter() != null){
                         ((ScannerAdapter)transiversLv.getAdapter()).notifyDataSetChanged();
                     }
-                }
-                else {
-//                    Logger.d(Logger.UTILS_LOG, "update transiver: ");
-
+                } else {
                     updateTransiver(transiver);
                 }
             }
         }
     }
-
 
     public synchronized void addTakeInfo(String takeInfo, boolean createNew){
         boolean isExist = false;
@@ -249,6 +239,133 @@ public class Utils {
         }
         ssidIpMap.put(ssid, ip);
     }
+
+    public synchronized void addTakeInfoFull(String ip, TakeInfoFull takeInfoFull, boolean createNew){
+        boolean isExist = false;
+        String ssid = takeInfoFull.getSerial() + "";
+        for(Transiver t: transivers){
+            if(t.getSsid() != null && t.getSsid().equals(ssid)){
+                Logger.d(Logger.UTILS_LOG, "update transiver");
+                isExist = true;
+                t.setTakeInfoFull(takeInfoFull);
+            }
+        }
+        if(!isExist && createNew) {
+            Logger.d(Logger.UTILS_LOG, "add new transiver, transivers: " + transivers.size());
+            Transiver transiver = new Transiver(ssid, ip);
+            transiver.setTakeInfoFull(takeInfoFull);
+            transivers.add(transiver);
+            Logger.d(Logger.UTILS_LOG, "transivers: " + transivers.size());
+        }
+        ssidIpMap.put(ssid, ip);
+    }
+
+//    public synchronized void addPostTakeInfo(String takeInfo, boolean createNew){
+//        boolean isExist = false;
+
+
+//        Пример ответа на info-full:
+//
+//        Type = stationary
+//        Serial = 6523
+//        Follow server = 95.161.142.79
+//        Reply interval = 30
+//        Have ping = YES
+//
+//        System time = 12:40:42
+//        Uptime = 35
+//        Load 1min = 0.14,
+//                Load 5min = 0.08,
+//                Load 15min = 0.06
+//
+//        CPU freq = 700
+//        CPU Temperature = 38
+//        Free RAM = 339152
+//
+//        Interface BLE:
+//        MAC address = b8:27:eb:94:99:6b
+//        PID hci0 = 111
+//
+//        Interfase - wlan0:
+//        MAC address = b8:27:eb:6b:66:94
+//        IP address = 10.42.5.13/24
+//        Rent address = 598sec
+//
+//        SC_UART ver. = v2.0.0-core_test
+//        SC_UART PID = 294
+//        Board version = 3.2
+//        STM firmware = 5.50
+//        STM bootload = 3.5
+//        CORE Linux = stp--g3088c80aeb-dirty
+//        Compile date = 2021-04-12 16:23:45
+//
+//        Incriment CITY = 12
+//        STOP Transiver locate = spb
+//
+//        Date of content = 2021-04-16 09:24:33
+//        Locate marsh list = spb
+//        Incriment Marsh list = 119
+//
+//        Content ru.json
+//        Date of content = 2020-12-15 17:40:45
+//        Short info = Мебельная улица. Автобусная остановка.
+//
+//
+//        Path of log = /overlay/update/logLife
+//        Time for daily Reboot = 12 hour
+//        Critical CPU load = 3
+//        Critical RAM free = 50000 Kb
+//        Crontab tasks = * * * * * /usr/local/bin/log_script.sh * * * * * /usr/local/bin/wifiPriority.sh
+//        Last reboot = 2021-04-16_09:39:00 - Restarted system at 12 hours of work
+
+
+//        String[] info = takeInfo.split("\n");
+//        String ip = info[2].trim();
+//        String ssid = info[1].trim();
+//        String macWifi = info[3].trim();
+//        String macBt = info[4].trim();
+//        String boardVersion = info[5].trim();
+//        String osVersion = info[6].trim();
+//        String stmFirmware = info[7].trim();
+//        String stmBootloader = info[8].trim();
+//        String core = info[9].trim();
+//        String modem = info[10].trim();
+//        String incrementOfContent = info[11].trim();
+//        String uptime = info[12].trim();
+//        String cpuTemp = info[13].trim();
+//        String load = info[14].trim();
+//        String tType = info[17].trim();
+//
+//        for(Transiver t: transivers){
+//            if(t.getSsid() != null && t.getSsid().equals(ssid)){
+//                Logger.d(Logger.UTILS_LOG, "update transiver");
+//                t.setIp(ip);
+//                t.setMacWifi(macWifi);
+//                t.setMacBt(macBt);
+//                t.setBoardVersion(boardVersion);
+//                t.setOsVersion(osVersion);
+//                t.setStmFirmware(stmFirmware);
+//                t.setStmBootloader(stmBootloader);
+//                t.setCore(core);
+//                t.setModem(modem);
+//                t.setIncrementOfContent(incrementOfContent);
+//                t.setUptime(uptime);
+//                t.setCpuTemp(cpuTemp);
+//                t.setLoad(load);
+//                t.setTType(tType);
+//                isExist = true;
+//            }
+//        }
+//        if(!isExist && createNew) {
+//            Logger.d(Logger.UTILS_LOG, "add new transiver, transivers: " + transivers.size());
+//            Transiver transiver = new Transiver(ssid, ip, macWifi, macBt, boardVersion, osVersion,
+//                    stmFirmware, stmBootloader, core, modem, incrementOfContent,
+//                    uptime, cpuTemp, load, tType);
+//            transivers.add(transiver);
+//            Logger.d(Logger.UTILS_LOG, "transivers: " + transivers.size());
+//        }
+//        ssidIpMap.put(ssid, ip);
+//    }
 
     public void removeTransiver(Transiver transiver){
         transivers.remove(transiver);
@@ -408,6 +525,33 @@ public class Utils {
         }
         Logger.d(Logger.UTILS_LOG, "needScanStationaryTransivers: " + false);
         return false;
+    }
+
+    @Override
+    public void onTaskCompleted(Bundle result) {
+        String command = result.getString(PostInfo.COMMAND);
+        String ip = result.getString(PostInfo.IP);
+        String response = result.getString(PostInfo.RESPONSE);
+
+        switch (command){
+            case PostCommand.VERSION:
+                // TODO: 29.04.2021 проверка версии
+                if(response != null){
+                    futures[i] = CompletableFuture.runAsync(new PostInfo(listener, ip, PostCommand.TAKE_INFO_FULL), executorService);
+                } else {
+                    
+                }
+
+                break;
+
+
+
+        }
+    }
+
+    @Override
+    public void onProgressUpdate(Integer downloaded) {
+
     }
 
     public static class MessageDialog extends DialogFragment {

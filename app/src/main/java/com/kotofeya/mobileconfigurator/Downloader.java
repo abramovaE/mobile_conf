@@ -34,8 +34,6 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     public static List<String> tempUpdateTransportContentFiles;
     public static Map<String, String> tempUpdateStationaryContentFiles;
 
-    public static Map<String, String> tempUpdateContentFiles;
-
     private static String osVersion;
     private String stmVersion;
     private OnTaskCompleted listener;

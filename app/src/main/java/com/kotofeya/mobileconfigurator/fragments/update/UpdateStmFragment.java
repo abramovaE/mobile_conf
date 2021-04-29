@@ -28,7 +28,8 @@ public class UpdateStmFragment extends UpdateFragment {
 
      @Override
     void loadVersion() {
-        boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
+         Logger.d(Logger.UPDATE_STM_LOG, "load version");
+         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         if(isInternetEnabled){
             Downloader downloader = new Downloader(this);
             downloader.execute(Downloader.STM_VERSION_URL);

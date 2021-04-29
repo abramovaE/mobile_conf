@@ -18,6 +18,7 @@ import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import java.util.List;
@@ -62,6 +63,17 @@ public class ConfigStatFragment extends ConfigFragment {
         if(result.getInt("resultCode") == TaskCode.TAKE_CODE){
             utils.addTakeInfo(res, false);
             myHandler.post(updateRunnable);
+        }
+        else if(result.getInt("resultCode") == PostCommand.getResponseCode(PostCommand.TAKE_INFO_FULL)){
+            utils.addTakeInfoFull(result.getString("ip"), result.getParcelable(PostCommand.TAKE_INFO_FULL), false);
+            myHandler.post(updateRunnable);
+        } else if(result.getInt("resultCode") == PostCommand.getResponseCode(PostCommand.TAKE_INFO_FULL_ERROR)){
+            if(res.contains("Connection refused") || res.contains("Auth fail")){
+                utils.removeClient(result.getString("ip"));
+            }
+            else {
+            utils.showMessage("Error: " + result);
+            }
         }
         if(!utils.getBluetooth().getmScanning().get()) {
             utils.getBluetooth().startScan(true);

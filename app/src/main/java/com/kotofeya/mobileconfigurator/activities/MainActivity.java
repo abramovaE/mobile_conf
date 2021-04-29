@@ -18,6 +18,9 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
+import androidx.lifecycle.ViewModel;
+import androidx.lifecycle.ViewModelProvider;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.google.gson.Gson;
 import com.kotofeya.mobileconfigurator.App;
@@ -30,6 +33,7 @@ import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SendLogToServer;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.network.PostCommand;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -48,6 +52,10 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     public static City cities[];
     private static final int TETHER_REQUEST_CODE = 1;
     private static final String HOTSPOT_DIALOG_TAG = "HOTSPOT_DIALOG";
+//    private boolean isNeedDestroy = false;
+//    private boolean isReadyToDestroy = false;
+
+    private CustomViewModel viewModel;
 
     @Override
     public void onStart() {
@@ -100,9 +108,18 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         }
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         if(isInternetEnabled){
-            new Thread(new SendLogToServer(App.get().getLogReport(), this)).start();
+//            Intent intent = new Intent(MainActivity.this,
+//                    SendLogToServer.class);
+//            intent.putExtra("log", Logger.getServiceLogString());
+//            startService(intent);
+            new Thread(new SendLogToServer(Logger.getServiceLogString(), this)).start();
         }
+
+        viewModel = ViewModelProviders.of(this, new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
+
     }
+
+
 
 
     public static class HotSpotSettingsDialog extends DialogFragment implements CompoundButton.OnCheckedChangeListener {
@@ -151,25 +168,28 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         int resultCode = result.getInt("resultCode");
         String res = result.getString("result");
         Logger.d(Logger.MAIN_LOG, "resultCode: " + resultCode);
-
         if(resultCode == TaskCode.TAKE_CODE){
             utils.addTakeInfo(res, true);
-        }
-
-        else if(resultCode == TaskCode.DOWNLOAD_CITIES_CODE){
+        } else if(resultCode == PostCommand.getResponseCode(PostCommand.TAKE_INFO_FULL)){
+            utils.addTakeInfoFull(result.getString("ip"), result.getParcelable("takeInfoFull"), true);
+        } else if(resultCode == TaskCode.SEND_LOG_TO_SERVER_CODE){
+//            utils.addTakeInfo(res, true);
+        } else if(resultCode == TaskCode.DOWNLOAD_CITIES_CODE){
             getCities(res);
-        }
-
-        else if(resultCode == TaskCode.SEND_LOG_TO_SERVER_CODE){
+        } else if(resultCode == TaskCode.SEND_LOG_TO_SERVER_CODE){
             int code = result.getInt("code");
+            Logger.d(Logger.MAIN_LOG, "send log to server code: " + resultCode);
             if(code == 1){
-                App.get().setLogReport("");
+//                App.get().setLogReport("");
                 Logger.clearLogReport();
             }
-            else {
-                App.get().setLogReport(App.get().getLogReport() + "\n"+ Logger.getServiceLogString());
-                Logger.clearLogReport();
-            }
+//            else {
+//                App.get().setLogReport(App.get().getLogReport() + "\n"+ Logger.getServiceLogString());
+//                Logger.clearLogReport();
+//            }
+//            if(isNeedDestroy) {
+//                isReadyToDestroy = true;
+//            }
         }
         Logger.d(Logger.MAIN_LOG, "transivers: " + utils.getTransivers());
     }
@@ -216,14 +236,25 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 
     @Override
     protected void onDestroy() {
-        String logReport = Logger.getServiceLogString();
-        boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
-        if(isInternetEnabled){
-            new Thread(new SendLogToServer(App.get().getLogReport() + "\n" + logReport, this)).start();
-        }
-        else {
-            App.get().setLogReport(App.get().getLogReport() + "\n" + logReport);
-        }
+        Logger.d(Logger.MAIN_LOG, "main activity on destroy");
+//        boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
+//        Thread setnToServer = null;
+//        if(isInternetEnabled){
+//            setnToServer = new Thread(new SendLogToServer(Logger.getServiceLogString(), this));
+//            setnToServer.start();
+//        }
         super.onDestroy();
+    }
+
+    @Override
+    protected void onStop() {
+        Logger.d(Logger.MAIN_LOG, "main activity on stop");
+        boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
+        Thread setnToServer = null;
+        if(isInternetEnabled){
+            setnToServer = new Thread(new SendLogToServer(Logger.getServiceLogString(), this));
+            setnToServer.start();
+        }
+        super.onStop();
     }
 }

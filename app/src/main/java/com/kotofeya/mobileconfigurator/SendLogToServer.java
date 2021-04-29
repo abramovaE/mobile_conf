@@ -29,13 +29,14 @@ public class SendLogToServer implements Runnable {
     private OnTaskCompleted listener;
 
     public SendLogToServer(String logReport, OnTaskCompleted listener) {
+        Logger.d(Logger.MAIN_LOG, "sending log to server");
         this.logReport = logReport;
         this.listener = listener;
     }
 
     @Override
     public void run() {
-        Logger.d(Logger.MAIN_LOG, "check user");
+        Logger.d(Logger.MAIN_LOG, "user: " + App.get().getLogin());
         URL u;
         try {
             u = new URL(url_post_log);

@@ -26,11 +26,11 @@ public interface TaskCode {
     int UPDATE_STATION_CONTENT_DOWNLOAD_CODE = 18;
     int UPDATE_STATION_CONTENT_UPLOAD_CODE = 19;
 
-
-
     int SSH_ERROR_CODE = 14;
     int DOWNLOADER_ERROR_CODE = 15;
 
     int DOWNLOAD_CITIES_CODE = 20;
     int SEND_LOG_TO_SERVER_CODE = 21;
+
+
 }

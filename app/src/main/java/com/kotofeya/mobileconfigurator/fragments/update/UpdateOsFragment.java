@@ -22,6 +22,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Downloader;
+import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
@@ -43,6 +44,7 @@ public class UpdateOsFragment extends UpdateFragment {
 
     @Override
     void loadVersion() {
+        Logger.d(Logger.UPDATE_OS_LOG, "load version");
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         if(isInternetEnabled){
             Downloader downloader = new Downloader(this);

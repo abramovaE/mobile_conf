@@ -3,14 +3,23 @@ package com.kotofeya.mobileconfigurator;
 import android.util.Log;
 import android.util.SparseArray;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Logger {
 
     private static final String TAG = "MobileConfigurator";
-    private static List<String> serviceLog = new CopyOnWriteArrayList<>();
+//    private static List<String> serviceLog = new CopyOnWriteArrayList<>();
 
+    private static final String LOG_FILE = "mc_logReport.log";
 
     public static final int MAIN_LOG = 0;
     public static final int BASIC_SCANNER_LOG = 1;
@@ -69,23 +78,69 @@ public class Logger {
         if (BuildConfig.DEBUG) {
             Log.d(TAG + "|| " + mType.get(type), message);
         }
-        serviceLog.add(mType.get(type) + ": " + message);
+//        serviceLog.add(mType.get(type) + ": " + message);
+        appendLog(mType.get(type) + ": " + message);
 
     }
     public static void e(int type, String message, Throwable throwable){
         if (BuildConfig.DEBUG) {
             Log.e(TAG + "|| " + mType.get(type), message, throwable);
         }
-        serviceLog.add(mType.get(type) + ": " + message);
+//        serviceLog.add(mType.get(type) + ": " + message);
+        appendLog(mType.get(type) + ": " + message);
     }
 
     public static String getServiceLogString(){
         StringBuilder sb = new StringBuilder("mobile configurator log\n");
-        serviceLog.forEach(s -> sb.append(s + "\n"));
+        File file = getLogFile();
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(file));
+            String s = null;
+            while ((s = reader.readLine()) != null){
+                sb.append(s);
+                sb.append("\n");
+            }
+            reader.close();
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
         return sb.toString();
     }
 
     public static void clearLogReport(){
-        serviceLog.clear();
+        createLog();
+    }
+
+
+    private static File getLogFile() {
+        File file = new File(App.get().getCacheDir(), LOG_FILE);
+        return file;
+    }
+
+    private static void createLog() {
+        File file = getLogFile();
+        if (file.exists()) file.delete();
+        try {
+            file.createNewFile();
+            appendLog("Created at " + new Date().toString());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void appendLog(String line) {
+        File file = getLogFile();
+        if (!file.exists()) createLog();
+        try {
+            BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter(file, true));
+            bufferedWriter.write(line);
+            bufferedWriter.newLine();
+            bufferedWriter.flush();
+            bufferedWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

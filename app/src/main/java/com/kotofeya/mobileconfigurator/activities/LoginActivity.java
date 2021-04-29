@@ -17,14 +17,9 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.CheckUser;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.server.AuthorizationApi;
 
-import java.security.Key;
 import java.util.List;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, CheckUser.MyCustomCallBack, View.OnKeyListener {
 

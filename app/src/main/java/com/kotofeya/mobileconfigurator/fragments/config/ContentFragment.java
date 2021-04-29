@@ -35,9 +35,9 @@ import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
-import java.util.List;
 
 public abstract class ContentFragment extends Fragment implements OnTaskCompleted {
 
@@ -155,11 +155,13 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         int resultCode = result.getInt("resultCode");
         String resultStr = result.getString("result");
         Logger.d(Logger.CONTENT_LOG, "resultCode: " + resultCode);
+
         if(resultCode != 0) {
             Logger.d(Logger.CONTENT_LOG, "result: " + result);
         }
 
         if(resultCode == TaskCode.REBOOT_STM_CODE && resultStr.contains("Tested")){
+            Logger.d(Logger.CONTENT_LOG, "stm rebooted");
             utils.showMessage(getString(R.string.stm_rebooted));
         }
 
@@ -168,37 +170,53 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         }
 
         else if(resultCode == TaskCode.TAKE_CODE){
+            Logger.d(Logger.CONTENT_LOG, "update wifi scan info");
             utils.addTakeInfo(resultStr, true);
-
             updateFields();
         }
 
+
+        else if(result.getInt("resultCode") == PostCommand.getResponseCode(PostCommand.TAKE_INFO_FULL)){
+            utils.addTakeInfoFull(result.getString("ip"), result.getParcelable("takeInfoFull"), true);
+            updateFields();
+        } else if(result.getInt("resultCode") == PostCommand.getResponseCode(PostCommand.TAKE_INFO_FULL_ERROR)){
+            if(resultStr.contains("Connection refused") || resultStr.contains("Auth fail")){
+                utils.removeClient(result.getString("ip"));
+            }
+            else {
+            utils.showMessage("Error: " + result);
+            }
+        }
+
         else if(resultCode == TaskCode.CLEAR_RASP_CODE){
+            Logger.d(Logger.CONTENT_LOG, "rasp was cleared");
             utils.showMessage(getString(R.string.rasp_was_cleared));
         }
 
         else if(resultCode == TaskCode.SSH_ERROR_CODE || resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
             if(!resultStr.contains("Connection refused")) {
+                Logger.d(Logger.CONTENT_LOG, "Connection refused, error");
                 utils.showMessage("Error");
             }
         }
 
         else if(resultCode == TaskCode.SEND_TRANSPORT_CONTENT_CODE && resultStr.contains("Tested")){
+            Logger.d(Logger.CONTENT_LOG, "transport content updated");
             utils.showMessage(getString(R.string.content_updated));
             ((MainActivity)context).onBackPressed();
 
         }
 
         else if(resultCode == TaskCode.SEND_STATION_CONTENT_CODE && resultStr.contains("Tested")){
+            Logger.d(Logger.CONTENT_LOG, "station content updated");
             utils.showMessage(getString(R.string.content_updated));
             ((MainActivity)context).onBackPressed();
-
         }
         refreshButtons();
     }
 
     private void basicScan(){
-        Logger.d(Logger.CONTENT_LOG, "basic scan");
+        Logger.d(Logger.CONTENT_LOG, "wifi scan");
         utils.getTakeInfo(this);
     }
 
@@ -235,8 +253,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             String rebootType = getArguments().getString("rebootType");
             String ip = getArguments().getString("ip");
-
-            Logger.d(Logger.CONTENT_LOG, "ip: " + ip);
+            Logger.d(Logger.CONTENT_LOG, "show reboot/clear confirmation dialog: type - " + rebootType + ", ip: " + ip);
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.confirmation_is_required);
 
@@ -294,14 +311,17 @@ class ContentClickListener implements View.OnClickListener{
         DialogFragment dialog = null;
         switch (v.getId()) {
             case R.id.content_btn_rasp:
+                Logger.d(Logger.CONTENT_LOG, "reboot raspberry btn was pressed");
                 bundle.putString("rebootType", "raspberry");
                 dialog = new ContentFragment.RebootConfDialog();
                 break;
             case R.id.content_btn_stm:
+                Logger.d(Logger.CONTENT_LOG, "reboot stm btn was pressed");
                 bundle.putString("rebootType", "stm");
                 dialog = new ContentFragment.RebootConfDialog();
                 break;
             case R.id.content_btn_clear:
+                Logger.d(Logger.CONTENT_LOG, "clear btn was pressed");
                 bundle.putString("rebootType", "clear");
                 dialog = new ContentFragment.RebootConfDialog();
                 break;

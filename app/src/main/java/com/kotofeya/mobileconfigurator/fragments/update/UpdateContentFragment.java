@@ -50,8 +50,8 @@ public class UpdateContentFragment extends UpdateFragment {
 
     @Override
     void loadVersion() {
+        Logger.d(Logger.UPDATE_CONTENT_LOG, "load version");
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
-        Logger.d(Logger.UPDATE_CONTENT_LOG, "update content fragment load version");
         if(isInternetEnabled) {
             Downloader transpDownloader = new Downloader(this);
             transpDownloader.execute(Downloader.TRANSPORT_CONTENT_VERSION_URL);
@@ -130,7 +130,7 @@ public class UpdateContentFragment extends UpdateFragment {
                 boolean isStationary = getArguments().getBoolean("isStationary");
                 boolean isTransport = getArguments().getBoolean("isTransport");
 
-                Logger.d(Logger.UPDATE_CONTENT_LOG, "key: " + key + ", value: " + value +
+                Logger.d(Logger.UPDATE_CONTENT_LOG, "ip: " + ip + ", key: " + key + ", value: " + value +
                         ", isStationary: " + isStationary + ", isTransport: " + isTransport);
                 AlertDialog.Builder builder = new AlertDialog.Builder((App.get().getFragmentHandler().getCurrentFragment()).getActivity());
                 builder.setTitle("Confirmation is required");
@@ -144,8 +144,10 @@ public class UpdateContentFragment extends UpdateFragment {
                         else if(isTransport){
                             downloadCode = TaskCode.UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE + "";
                         }
-                        Downloader downloader = new Downloader((UpdateContentFragment) App.get().getFragmentHandler().getCurrentFragment());
-                        downloader.execute(value, ip, downloadCode);
+                        if(ip != null) {
+                            Downloader downloader = new Downloader((UpdateContentFragment) App.get().getFragmentHandler().getCurrentFragment());
+                            downloader.execute(value, ip, downloadCode);
+                        }
                     }
                 });
                 builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {

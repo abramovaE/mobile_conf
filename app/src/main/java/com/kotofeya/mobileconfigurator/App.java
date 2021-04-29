@@ -4,21 +4,20 @@ package com.kotofeya.mobileconfigurator;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.util.Log;
 
-import androidx.fragment.app.Fragment;
-
+import org.acra.ACRA;
+import org.acra.annotation.AcraCore;
 import org.acra.annotation.AcraHttpSender;
+import org.acra.data.StringFormat;
 import org.acra.sender.HttpSender;
 
 import java.io.File;
 
 import retrofit2.Retrofit;
 
-//@AcraHttpSender(uri = "http://yourserver.com/yourscript",
-//        basicAuthLogin = "yourlogin", // optional
-//        basicAuthPassword = "y0uRpa$$w0rd", // optional
-//        httpMethod = HttpSender.Method.POST)
+@AcraCore(buildConfigClass = BuildConfig.class, reportFormat = StringFormat.KEY_VALUE_LIST)
+@AcraHttpSender(uri = "http://95.161.210.44/mobile_conf_acra.php",
+        httpMethod = HttpSender.Method.POST)
 public class App extends Application {
     private static App instance;
     private Context context;
@@ -35,6 +34,12 @@ public class App extends Application {
 
     public static App get() {
         return instance;
+    }
+
+    @Override
+    protected void attachBaseContext(Context base) {
+        super.attachBaseContext(base);
+        ACRA.init(this);
     }
 
     @Override
@@ -55,9 +60,6 @@ public class App extends Application {
         Logger.d(Logger.APP_LOG, "updateOsVersion: " + updateOsFileVersion);
         Logger.d(Logger.APP_LOG, "updateOsFilePath: " + updateOsFilePath + ", isExist: " + Downloader.tempUpdateOsFile.exists());
         Logger.d(Logger.APP_LOG, "is_ask_forteneth: " + isAskForTeneth());
-
-
-
 
 //        retrofit = new Retrofit.Builder()
 //                .baseUrl("http://95.161.210.44/update/")
@@ -103,13 +105,13 @@ public class App extends Application {
         this.updateOsFileVersion = updateOsFileVersion;
     }
 
-    public String getLogReport(){
-        return preferences.getString("logReport", "");
-    }
-
-    public void setLogReport(String logReport) {
-        preferences.edit().putString("logReport", logReport).commit();
-    }
+//    public String getLogReport(){
+//        return preferences.getString("logReport", "");
+//    }
+//
+//    public void setLogReport(String logReport) {
+//        preferences.edit().putString("logReport", logReport).commit();
+//    }
 
 
     public Context getContext() {

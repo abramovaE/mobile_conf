@@ -14,6 +14,7 @@ import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
+import com.kotofeya.mobileconfigurator.network.PostCommand;
 
 
 public class BasicScannerFragment extends ScannerFragment implements OnTaskCompleted {
@@ -55,21 +56,29 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         if(resultCode == TaskCode.TAKE_CODE){
             utils.addTakeInfo(res, true);
             myHandler.post(updateRunnable);
+        } else if(resultCode == TaskCode.SSH_ERROR_CODE){
+            if(res.contains("Connection refused") || res.contains("Auth fail")){
+                utils.removeClient(result.getString("ip"));
+            } else {utils.showMessage("Error: " + result);}
+        } else if(resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
+            utils.showMessage("Error: " + result);
         }
-        else if(resultCode == TaskCode.SSH_ERROR_CODE){
+
+        else if(resultCode == PostCommand.getResponseCode(PostCommand.TAKE_INFO_FULL)){
+            utils.addTakeInfoFull(result.getString("ip"), result.getParcelable("takeInfoFull"), true);
+            myHandler.post(updateRunnable);
+        } else if(resultCode == PostCommand.getResponseCode(PostCommand.TAKE_INFO_FULL_ERROR)){
             if(res.contains("Connection refused") || res.contains("Auth fail")){
                 utils.removeClient(result.getString("ip"));
             }
-            else {utils.showMessage("Error: " + result);}
-        }
-        else if(resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
-            utils.showMessage("Error: " + result);
+            else {
+                utils.showMessage("Error: " + result);
+            }
         }
     }
 
 
-    private void updateUI()
-    {
+    private void updateUI() {
         scannerAdapter.notifyDataSetChanged();
     }
 

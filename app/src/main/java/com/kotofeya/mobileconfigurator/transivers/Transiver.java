@@ -8,6 +8,7 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -23,6 +24,8 @@ public class Transiver {
     int BUZZER_READY_NEW = 0b01;
     int BUZZER_ON_NEW = 0b10;
     int BUZZER_BUSY_NEW = 0b11;
+
+    private String phoneIp;
 
     private String ssid;
     private String ip;
@@ -50,6 +53,7 @@ public class Transiver {
     public static final int VERSION_OLD = 1;
     public static final int VERSION_NEW = 2;
 
+    private TakeInfoFull takeInfoFull;
 
     public Transiver(String ssid, String ip, String macWifi, String macBt, String boardVersion, String osVersion,
                      String stmFirmware, String stmBootloader, String core, String modem, String incrementOfContent,
@@ -69,6 +73,11 @@ public class Transiver {
         this.cpuTemp = cpuTemp;
         this.load = load;
         this.tType = tType;
+    }
+
+    public Transiver(String ssid, String ip) {
+        this.ssid = ssid;
+        this.ip = ip;
     }
 
     public Transiver(ScanResult result) {
@@ -496,5 +505,21 @@ public class Transiver {
 
     public void setTType(String type) {
         this.tType = type;
+    }
+
+    public TakeInfoFull getTakeInfoFull() {
+        return takeInfoFull;
+    }
+
+    public void setTakeInfoFull(TakeInfoFull takeInfoFull) {
+        this.takeInfoFull = takeInfoFull;
+    }
+
+    public String getPhoneIp() {
+        return phoneIp;
+    }
+
+    public void setPhoneIp(String phoneIp) {
+        this.phoneIp = phoneIp;
     }
 }

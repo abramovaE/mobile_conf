@@ -59,6 +59,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
         //req[1] - command
 
     protected String doInBackground(Object...req) {
+
         String res = "";
         Session session = null;
         ChannelSftp channelSftp = null;
@@ -84,27 +85,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());
 
             switch (resultCode) {
-//                case TAKE_CODE:
-//                    channel = session.openChannel("shell");
-//                    baos = new ByteArrayOutputStream();
-//                    OutputStream inputstream_for_the_channel = channel.getOutputStream();
-//                    PrintStream commander = new PrintStream(inputstream_for_the_channel, true);
-//                    channel.setOutputStream(baos, true);
-//                    channel.connect();
-//                    BufferedReader reader = new BufferedReader(new InputStreamReader(App.get().getAssets().open("take.sh")));
-//                    String e;
-//                    while ((e = reader.readLine()) != null) {
-//                        commander.println(e);
-//                    }
-//                    do {
-//                        Thread.sleep(2000);
-//                    } while (!channel.isEOF());
-//                    reader.close();
-//                    commander.close();
-//                    res = baos.toString().substring(baos.toString().lastIndexOf("$typeT") + 7, baos.toString().lastIndexOf("$ exit"));
-//                    break;
 
                 case UPDATE_OS_UPLOAD_CODE:
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + REBOOT_COMMAND);
                     transferred = 0;
                     uploadToOverlayUpdate(session, new File(App.get().getUpdateOsFilePath()));
                     execCommand(session, REBOOT_COMMAND);
@@ -117,6 +100,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     binFile = getBinFromArchive(file);
                     uploadToOverlayUpdate(session, binFile);
                     moveCommand = "sudo mv " + "/overlay/update/" + binFile.getName() + " /var/www/html/data/archive/" + binFile.getName();
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + moveCommand + ";" + DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND);
                     execCommand(session, moveCommand + ";" + DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND);
                     break;
 
@@ -129,29 +113,34 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     Logger.d(Logger.SSH_CONNECTION_LOG, "update station upload file: " + file);
                     uploadToOverlayUpdate(session, file);
                     moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/" + file.getName();
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + moveCommand + ";" + REBOOT_COMMAND);
                     execCommand(session, moveCommand + ";" + REBOOT_COMMAND);
                     break;
 
                 case REBOOT_CODE:
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + REBOOT_COMMAND);
                     execCommand(session, REBOOT_COMMAND);
                     break;
 
                 case REBOOT_STM_CODE:
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + REBOOT_STM_COMMAND);
                     res = execCommand(session, REBOOT_STM_COMMAND);
                     break;
 
                 case CLEAR_RASP_CODE:
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + CLEAR_RASP_COMMAND);
                     res = execCommand(session, CLEAR_RASP_COMMAND);
                     break;
 
                 case SEND_TRANSPORT_CONTENT_CODE:
                     String command = SEND_TRANSPORT_CONTENT_COMMAND + " " + req[2] + " " + req[3] + " " + req[4] + " " + req[5];
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "send command: " + command);
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + command);
                     res = execCommand(session, command);
                     break;
 
                 case SEND_STATION_CONTENT_CODE:
                     String comm = (String) req[2];
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + comm);
                     res = execCommand(session, comm);
                     break;
             }
