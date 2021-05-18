@@ -18,6 +18,8 @@
     <string name="content_btn_send">Send</string>
     <string name="content_btn_rasp">Rasp</string>
     <string name="content_btn_stm">STM</string>
+    <string name="content_btn_all">All</string>
+
     <string name="content_btn_clear">Clear rasp</string>
     <string name="content_label_reboot">Reboot</string>
 
@@ -77,6 +79,8 @@
     <string name="confirm_reboot_of">Confirm the reboot of</string>
     <string name="ask_clear_the_transiver">Clear this transiver?</string>
     <string name="stm_rebooted">Stm rebooted</string>
+    <string name="all_rebooted">All rebooted</string>
+
     <string name="content_updated">Content updated</string>
     <string name="rasp_was_cleared">Rasp was cleared</string>
     <string name="successful">Successful</string>

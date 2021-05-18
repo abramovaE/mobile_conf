@@ -2,6 +2,8 @@ package com.kotofeya.mobileconfigurator;
 
 public interface TaskCode {
     int TAKE_CODE = 0;
+
+
     int UPDATE_OS_UPLOAD_CODE = 1;
     int UPDATE_STM_UPLOAD_CODE = 2;
 

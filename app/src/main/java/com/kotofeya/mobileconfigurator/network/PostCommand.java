@@ -11,7 +11,11 @@ public interface PostCommand {
     String STM_UPDATE_LOG_CLEAR = "stm_update_log_clear";
 //    erase_content - удаление контента (очистка директорий data, рекурсивно)
     String ERASE_CONTENT = "erase_content";
-//    floor - установить этаж трансивера (пример: floor_1 - установит первый этаж)
+    String TRANSP_CONTENT = "transp";
+    String REBOOT = "reboot";
+
+
+    //    floor - установить этаж трансивера (пример: floor_1 - установит первый этаж)
     default String floor(int floorNumber){
         return "floor_" + floorNumber;
     }
@@ -41,8 +45,17 @@ public interface PostCommand {
 //    LIT - литера
 //    LIT - литера
 //    NAPR - направление (1 - прямо, 2 - обратно).
-    default String transpConfig(String lit1, String num, String lit2, String lit3, String dir){
-        return "transp_" + lit1 + "_" + num + "_" + lit2 + "_" + lit3 + "_" + dir;
+    default String transpConfig(String type, String lit1, String num, String lit2, String lit3, String dir){
+//        if(lit1 != null && !lit1.isEmpty()){
+            lit1 = lit1 + "_";
+//        }
+//        if(lit2 != null && !lit2.isEmpty()){
+            lit2 = lit2 + "_";
+//        }
+//        if(lit3 != null && !lit3.isEmpty()){
+            lit3 = lit3 + "_";
+//        }
+        return "transp_" + type + "_" + lit1 + num + "_" + lit2 + lit3 + dir;
     }
 //    static - настройка статического IP ethernet интерфейса
 //    clear - привести конфигурацию к стандартному виду (настройки примутся при перезапуске, он инициируется отдельно)
@@ -78,18 +91,5 @@ public interface PostCommand {
         return wifiCommand.toString();
     }
 
-
-    String TAKE_INFO_FULL_ERROR = "takeInfoFullError";
-
-
-    static int getResponseCode(String command) {
-        switch (command) {
-            case TAKE_INFO_FULL:
-                return 1001;
-            case TAKE_INFO_FULL_ERROR:
-                return 1002;
-
-        }
-        return 0;
-    }
+    String POST_COMMAND_ERROR = "postCommandError";
 }

@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -43,7 +42,6 @@ public abstract class ScannerFragment extends Fragment {
         lvScanner = view.findViewById(R.id.lv_scanner);
         mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
         mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
-        utils.setTransiversLv(lvScanner);
         return view;
     }
 }

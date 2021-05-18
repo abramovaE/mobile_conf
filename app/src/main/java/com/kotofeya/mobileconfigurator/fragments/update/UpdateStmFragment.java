@@ -15,6 +15,7 @@ import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.TaskCode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -22,9 +23,6 @@ public class UpdateStmFragment extends UpdateFragment {
 
     private static final String PREF_TRANSP = "mobile";
     private static final String PREF_STAT = "stationary";
-
-
-
 
      @Override
     void loadVersion() {
@@ -46,7 +44,7 @@ public class UpdateStmFragment extends UpdateFragment {
 
     @Override
     ScannerAdapter getScannerAdapter() {
-        return new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_STM_TYPE);
+        return new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_STM_TYPE, new ArrayList<>());
     }
 
     void loadUpdates(){

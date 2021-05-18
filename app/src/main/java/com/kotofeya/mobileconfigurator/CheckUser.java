@@ -55,7 +55,6 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
             HttpURLConnection httpsURLConnection = getConnection(u);
             httpsURLConnection.connect();
             int response = httpsURLConnection.getResponseCode();
-
             BufferedReader br;
             StringBuilder content;
             InputStreamReader reader = new InputStreamReader(httpsURLConnection.getInputStream());
@@ -81,7 +80,6 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
             else {
                 message = context.getString(R.string.server_not_response);
             }
-
             reader.close();
 
         } catch (MalformedURLException e) {
@@ -93,6 +91,10 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+
+
+
+
         return null;
     }
 
@@ -100,7 +102,8 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
     protected void onPostExecute(Void s) {
         Logger.d(Logger.CHECK_USER_LOG, "On post execute, is user valid: " + isUserValid);
 
-//         TODO: 08.04.2021 autorization
+
+//         TODO: 08.04.2021 remove
         isUserValid = true;
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
         if(callback != null && isUserValid){

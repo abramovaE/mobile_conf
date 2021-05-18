@@ -1,28 +1,27 @@
 package com.kotofeya.mobileconfigurator.fragments.config;
 
 import android.os.Bundle;
+import android.view.View;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
 
+import java.util.ArrayList;
+
 public class ConfigTransportFragment extends ConfigFragment {
     @Override
     public ScannerAdapter getScannerAdapter() {
-        return new ScannerAdapter(context, utils, ScannerAdapter.CONFIG_TRANSPORT);
+        return new ScannerAdapter(context, utils, ScannerAdapter.CONFIG_TRANSPORT, new ArrayList<>());
     }
     @Override
     public void scan(){
         utils.setRadioType(Utils.TRANSP_RADIO_TYPE);
-        utils.getBluetooth().startScan(true);
+        utils.getNewBleScanner().startScan();
     }
-
-//
-//    @Override
-//    public void rescan(){
-//        utils.clearTransivers();
-//        scannerAdapter.notifyDataSetChanged();
-////        scan();
-//    }
 
     @Override
     public void setMainTextLabel() {
@@ -33,9 +32,12 @@ public class ConfigTransportFragment extends ConfigFragment {
     public void onTaskCompleted(Bundle result) {}
 
     @Override
-    public void onProgressUpdate(Integer downloaded) {
+    public void onProgressUpdate(Integer downloaded) {}
 
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        viewModel.getTranspInformers().observe(getViewLifecycleOwner(), this::updateUI);
     }
-
-
 }

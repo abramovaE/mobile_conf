@@ -1,13 +1,8 @@
 package com.kotofeya.mobileconfigurator.fragments.update;
 
-import android.Manifest;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.ConnectivityManager;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +12,6 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.App;
@@ -27,6 +21,8 @@ import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
+
+import java.util.ArrayList;
 
 public class UpdateOsFragment extends UpdateFragment {
 
@@ -55,9 +51,6 @@ public class UpdateOsFragment extends UpdateFragment {
         }
     }
 
-
-
-
     @Override
     void setMainTextLabelText() {
         mainTxtLabel.setText(R.string.update_os_main_txt_label);
@@ -65,10 +58,8 @@ public class UpdateOsFragment extends UpdateFragment {
 
     @Override
     ScannerAdapter getScannerAdapter() {
-        return new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_OS_TYPE);
+        return new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_OS_TYPE, new ArrayList<>());
     }
-
-
 
     void loadUpdates() {
         Downloader downloader = new Downloader(this);

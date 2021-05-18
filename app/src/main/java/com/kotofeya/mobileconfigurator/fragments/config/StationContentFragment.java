@@ -1,81 +1,65 @@
 package com.kotofeya.mobileconfigurator.fragments.config;
 
+
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.FragmentHandler;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.SshConnectionRunnable;
-import com.kotofeya.mobileconfigurator.network.NetworkService;
+import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
-import com.kotofeya.mobileconfigurator.network.PostResponse;
-import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
+import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
 
-import retrofit2.Call;
-import retrofit2.Callback;
-import retrofit2.Response;
 
-public class StationContentFragment extends ContentFragment implements View.OnClickListener {
-
+public class StationContentFragment extends ContentFragment implements View.OnClickListener, PostCommand {
     EditText floorTxt;
     Spinner zummerTypesSpn;
     Spinner zummerVolumeSpn;
     Spinner modemConfigSpn;
-
-    StatTransiver statTransiver;
     String[] modemConfigs;
+    StatTransiver statTransiver;
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater, container, savedInstanceState);
-        String ssid = getArguments().getString("ssid");
-        statTransiver = (StatTransiver) utils.getBySsid(ssid);
+    protected void setFields() {
+        statTransiver = (StatTransiver) viewModel.getTransiverBySsid(ssid);
 
         mainTxtLabel.setText(statTransiver.getSsid() + " (" + statTransiver.getStringType() + ")");
-
-        floorTxt = view.findViewById(R.id.content_txt_0);
+        floorTxt = getView().findViewById(R.id.content_txt_0);
         floorTxt.setText(statTransiver.getFloor() + "");
         floorTxt.setVisibility(View.VISIBLE);
         floorTxt.addTextChangedListener(textWatcher);
         floorTxt.setOnKeyListener(onKeyListener);
         floorTxt.setHint(getString(R.string.floor_hint));
-
-
-        zummerTypesSpn = view.findViewById(R.id.content_spn_0);
+        zummerTypesSpn = getView().findViewById(R.id.content_spn_0);
         String[] zummerTypes = getResources().getStringArray(R.array.zummer_types);
         ArrayAdapter<String> zummerTypesAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, zummerTypes);
         zummerTypesAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         zummerTypesSpn.setAdapter(zummerTypesAdapter);
         zummerTypesSpn.setVisibility(View.VISIBLE);
         zummerTypesSpn.setOnItemSelectedListener(onItemSelectedListener);
-
-        zummerVolumeSpn = view.findViewById(R.id.content_spn_1);
+        zummerVolumeSpn = getView().findViewById(R.id.content_spn_1);
         zummerVolumeSpn.setVisibility(View.VISIBLE);
         String[] zummerVolume = new String[11];
         zummerVolume[0] = getResources().getString(R.string.zummer_volume_hint);
-        for(int i = 1; i < 11; i++){
-            zummerVolume[i] = i + "";
-;        }
+        for(int i = 1; i < 11; i ++){
+            zummerVolume[i] = i * 10 + "";
+        }
         ArrayAdapter<String> zummerVolumeAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, zummerVolume);
         zummerVolumeAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         zummerVolumeSpn.setAdapter(zummerVolumeAdapter);
         zummerVolumeSpn.setVisibility(View.VISIBLE);
         zummerVolumeSpn.setOnItemSelectedListener(onItemSelectedListener);
 
-        modemConfigSpn = view.findViewById(R.id.content_spn_2);
+        modemConfigSpn = getView().findViewById(R.id.content_spn_2);
         modemConfigSpn.setVisibility(View.VISIBLE);
         modemConfigs = getResources().getStringArray(R.array.modem_types);
         ArrayAdapter<String> modemConfigAdapter = new ArrayAdapter<String>(context, android.R.layout.simple_spinner_item, modemConfigs);
@@ -83,11 +67,9 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
         modemConfigSpn.setAdapter(modemConfigAdapter);
         modemConfigSpn.setVisibility(View.VISIBLE);
         modemConfigSpn.setOnItemSelectedListener(onItemSelectedListener);
-
         setModem();
         updateBtnCotentSendState();
         btnContntSend.setOnClickListener(this);
-        return view;
     }
 
     private void setModem(){
@@ -98,62 +80,27 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
                 }
             }
         } else {
-            String ip = statTransiver.getIp();
-            if (ip == null) {
-                ip = utils.getIp(statTransiver.getSsid());
-            }
+            String ip = utils.getIp(statTransiver.getSsid());
+            String version = utils.getVersion(statTransiver.getSsid());
+
             try {
-
-                new SshConnectionRunnable(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()),
-                        ip, SshConnection.TAKE_CODE);
-
+                if(version != null && version.equals("ssh_conn")) {
+                    new SshConnectionRunnable(((MainActivity) getActivity()), ip, SshConnection.TAKE_CODE);
+                }
             }
             catch (ClassCastException e){}
-
-
-            final String finalIp = ip;
-
-            String command = "info";
-            NetworkService.getInstance()
-                    .getJsonApi().postCommand("14.04.21_16.32", "dirvion", "fasterAnDfaster",
-                    PostCommand.TAKE_INFO_FULL)
-                    .enqueue(new Callback<PostResponse>() {
-                        @Override
-                        public void onResponse(Call<PostResponse> call, Response<PostResponse> response) {
-                            PostResponse postResponse = response.body();
-                            Logger.d(Logger.UTILS_LOG, "on response: " + postResponse);
-                            switch (command){
-                                case PostCommand.TAKE_INFO_FULL:
-                                    TakeInfoFull takeInfoFull = postResponse.getTakeInfoFull();
-                                    Bundle bundle = new Bundle();
-                                    bundle.putString("ip", finalIp);
-                                    bundle.putInt("resultCode", PostCommand.getResponseCode(PostCommand.TAKE_INFO_FULL));
-                                    bundle.putString("result", takeInfoFull.toString());
-                                    ((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()).onTaskCompleted(bundle);
-                            }
-                        }
-                        @Override
-                        public void onFailure(Call<PostResponse> call, Throwable t) {
-                            Logger.d(Logger.UTILS_LOG, "Error occurred while getting request!");
-                            t.printStackTrace();
-                            Bundle bundle = new Bundle();
-                            bundle.putString("ip", finalIp);
-                            bundle.putInt("resultCode", PostCommand.getResponseCode(PostCommand.TAKE_INFO_FULL_ERROR));
-                            bundle.putString("result", t.getMessage());
-                            ((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()).onTaskCompleted(bundle);
-                        }
-                    });
-
-
-
 
 
         }
     }
     protected void updateBtnCotentSendState(){
-        if((!floorTxt.getText().toString().isEmpty() || zummerTypesSpn.getSelectedItemPosition()> 0
+        String ip = utils.getIp(statTransiver.getSsid());
+        String version = utils.getVersion(statTransiver.getSsid());
+        Logger.d(Logger.STATION_CONTEN_LOG, "update btn content send state: ip - " + ip + ", version: " + version);
+
+        if((!floorTxt.getText().toString().isEmpty() || zummerTypesSpn.getSelectedItemPosition() > 0
                 || zummerVolumeSpn.getSelectedItemPosition() > 0 || modemConfigSpn.getSelectedItemPosition() > 0)
-                && utils.getIp(statTransiver.getSsid()) != null){
+                && ip != null && version != null){
             btnContntSend.setEnabled(true);
         }
         else {
@@ -167,7 +114,7 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
     }
     @Override
     public void stopScan() {
-        utils.getBluetooth().stopScan(true);
+        utils.getNewBleScanner().stopScan();
     }
     @Override
     public void onProgressUpdate(Integer downloaded) {
@@ -175,30 +122,34 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
 
     @Override
     public void onClick(View v) {
+        String version = utils.getVersion(currentTransiver.getSsid());
 
         String floorSend = floorTxt.getText().toString();
         String zummerTypeSend = zummerTypesSpn.getSelectedItem().toString();
         String zummerVolumeSend = zummerVolumeSpn.getSelectedItem().toString();
         String modemConfigSend = modemConfigSpn.getTransitionName();
+        if(version != null && version.equals("ssh_conn")){
 
-        StringBuilder command = new StringBuilder();
-        if(floorSend != null && !floorSend.isEmpty()){
-            command.append(SshConnection.FLOOR_COMMAND);
-            command.append(" ");
-            command.append(floorSend);
-        }
-        if(zummerTypeSend != null && !zummerTypeSend.isEmpty()
-                && !zummerTypeSend.equals(getResources().getStringArray(R.array.zummer_types)[0])){
-            if(!command.toString().isEmpty()){
-                command.append(";");
+
+
+            StringBuilder command = new StringBuilder();
+            if(floorSend != null && !floorSend.isEmpty()){
+                command.append(SshConnection.FLOOR_COMMAND);
+                command.append(" ");
+                command.append(floorSend);
             }
-            command.append(SshConnection.ZUMMER_TYPE_COMMAND);
-            command.append(" ");
-            if(zummerTypeSend.equalsIgnoreCase("room")){command.append(1);}
-            else if(zummerTypeSend.equalsIgnoreCase("street")){command.append(2);}
-        }
+            if(zummerTypeSend != null && !zummerTypeSend.isEmpty()
+                    && !zummerTypeSend.equals(getResources().getStringArray(R.array.zummer_types)[0])){
+                if(!command.toString().isEmpty()){
+                    command.append(";");
+                }
+                command.append(SshConnection.ZUMMER_TYPE_COMMAND);
+                command.append(" ");
+                if(zummerTypeSend.equalsIgnoreCase("room")){command.append(1);}
+                else if(zummerTypeSend.equalsIgnoreCase("street")){command.append(2);}
+            }
 
-        // TODO: 16.08.2020  need 
+            // TODO: 16.08.2020  need
 //        if(zummerVolumeSend != null && !zummerVolumeSend.isEmpty()){
 //        if(!command.toString().isEmpty()){
 //            command.append(";");
@@ -207,30 +158,97 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
 //            command.append(" ");
 //            command.append(zummerVolumeSend);
 //        }
-        if(modemConfigSend != null && !modemConfigSend.isEmpty()
-                && !modemConfigSend.equals(getResources().getStringArray(R.array.modem_types)[0])){
-            if(!command.toString().isEmpty()){
-                command.append(";");
+            if(modemConfigSend != null && !modemConfigSend.isEmpty()
+                    && !modemConfigSend.equals(getResources().getStringArray(R.array.modem_types)[0])){
+                if(!command.toString().isEmpty()){
+                    command.append(";");
+                }
+                if(statTransiver.getModem().equalsIgnoreCase("megafon") && modemConfigSend.equalsIgnoreCase("beeline")){
+                    command.append(SshConnection.MODEM_CONFIG_MEGAF_BEELINE_COMMAND);
+                }
+                else if(statTransiver.getModem().equalsIgnoreCase("beeline") && modemConfigSend.equalsIgnoreCase("megafon")){
+                    command.append(SshConnection.MODEM_CONFIG_BEELINE_MEGAF_COMMAND);
+                }
             }
-            if(statTransiver.getModem().equalsIgnoreCase("megafon") && modemConfigSend.equalsIgnoreCase("beeline")){
-                command.append(SshConnection.MODEM_CONFIG_MEGAF_BEELINE_COMMAND);
+            String ip = statTransiver.getIp();
+            if(ip == null){
+                ip = utils.getIp(statTransiver.getSsid());
             }
-            else if(statTransiver.getModem().equalsIgnoreCase("beeline") && modemConfigSend.equalsIgnoreCase("megafon")){
-                command.append(SshConnection.MODEM_CONFIG_BEELINE_MEGAF_COMMAND);
+            Logger.d(Logger.STATION_CONTEN_LOG, "send command: " + command.toString());
+
+            SshConnection connection = new SshConnection(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()));
+            connection.execute(ip, SshConnection.SEND_STATION_CONTENT_CODE, command.toString());
+        } else if(version != null && !version.equals("ssh_conn")){
+            int zummerType = 0;
+            if(zummerTypeSend.equals(getResources().getStringArray(R.array.zummer_types)[1])){
+                zummerType = 2;
             }
+            else if(zummerTypeSend.equals(getResources().getStringArray(R.array.zummer_types)[2])){
+                zummerType = 1;
+            }
+            Logger.d(Logger.STATION_CONTEN_LOG, "floor: " + floorSend);
+            Logger.d(Logger.STATION_CONTEN_LOG, "zummerType: " + zummerType);
+            Logger.d(Logger.STATION_CONTEN_LOG, "zummerVol: " + zummerVolumeSend);
+            Logger.d(Logger.STATION_CONTEN_LOG, "modem: " + modemConfigSend);
+
+
+//            Thread thread = new Thread(new PostInfo(this, ip, st(typeHex, lit1, numHex, lit2, lit3, dirHex)));
+//            thread.start();
+
         }
-        String ip = statTransiver.getIp();
-        if(ip == null){
-            ip = utils.getIp(statTransiver.getSsid());
-        }
-        Logger.d(Logger.STATION_CONTEN_LOG, "send command: " + command.toString());
-        SshConnection connection = new SshConnection(((StationContentFragment) App.get().getFragmentHandler().getCurrentFragment()));
-        connection.execute(ip, SshConnection.SEND_STATION_CONTENT_CODE, command.toString());
     }
 
 
     @Override
-    public void onStart() {
-        super.onStart();
+    public void onTaskCompleted(Bundle result) {
+        String command = result.getString(PostInfo.COMMAND);
+        String ip = result.getString(PostInfo.IP);
+        String response = result.getString(PostInfo.RESPONSE);
+        Logger.d(Logger.STATION_CONTEN_LOG, "on task completed, result: " + result);
+        Logger.d(Logger.STATION_CONTEN_LOG, "command: " + command);
+        Logger.d(Logger.STATION_CONTEN_LOG, "ip: " + ip);
+        Logger.d(Logger.STATION_CONTEN_LOG, "response: " + response);
+
+        if(command != null) {
+            switch (command) {
+                case PostCommand.REBOOT + "_" + ContentFragment.REBOOT_RASP:
+                    App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_STATION_FRAGMENT, false);
+                    break;
+
+                case PostCommand.REBOOT + "_" + ContentFragment.REBOOT_STM:
+                    if(response.startsWith("Ok")) {
+                        utils.showMessage(getString(R.string.stm_rebooted));
+                    }
+                    else {
+                        utils.showMessage("reboot stm error ");
+                    }
+                    break;
+                case PostCommand.REBOOT + "_" + ContentFragment.REBOOT_ALL:
+                    if(response.startsWith("Ok")) {
+                        utils.showMessage(getString(R.string.all_rebooted));
+                        App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_STATION_FRAGMENT, false);
+
+                    }
+                    else {
+                        utils.showMessage("reboot all error ");
+                    }
+                    break;
+                case PostCommand.ERASE_CONTENT:
+                    if(response.startsWith("Ok")) {
+                        utils.showMessage(getString(R.string.rasp_was_cleared));
+                        App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_STATION_FRAGMENT, false);
+                    }
+                    else {
+                        utils.showMessage("clear rasp error ");
+                    }
+                    break;
+
+                default:
+                    super.onTaskCompleted(result);
+            }
+
+        } else {
+            super.onTaskCompleted(result);
+        }
     }
 }

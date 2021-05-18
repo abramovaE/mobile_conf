@@ -3,11 +3,10 @@ package com.kotofeya.mobileconfigurator.activities;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
@@ -18,8 +17,6 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.DialogFragment;
-import androidx.lifecycle.ViewModel;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.google.gson.Gson;
@@ -34,6 +31,10 @@ import com.kotofeya.mobileconfigurator.SendLogToServer;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
+import com.kotofeya.mobileconfigurator.network.PostInfo;
+import com.kotofeya.mobileconfigurator.network.SshCommand;
+import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
+import com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -41,6 +42,9 @@ import org.json.JSONObject;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+
+import static com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth.REQUEST_BT_ENABLE;
+import static com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth.REQUEST_GPS_ENABLE;
 
 public class MainActivity extends AppCompatActivity  implements OnTaskCompleted {
 
@@ -52,6 +56,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     public static City cities[];
     private static final int TETHER_REQUEST_CODE = 1;
     private static final String HOTSPOT_DIALOG_TAG = "HOTSPOT_DIALOG";
+    private CustomBluetooth newBleScanner;
 //    private boolean isNeedDestroy = false;
 //    private boolean isReadyToDestroy = false;
 
@@ -60,10 +65,13 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     @Override
     public void onStart() {
         super.onStart();
-        utils.getBluetooth().stopScan(true);
+        utils.getNewBleScanner().stopScan();
+
+//        utils.getBluetooth().stopScan(true);
+        utils.startRvTimer();
     }
 
-    private void launchHotspotSettings(){
+    private void launchHotspotSettings() {
         Intent tetherSettings = new Intent();
         tetherSettings.setClassName("com.android.settings", "com.android.settings.TetherSettings");
         startActivityForResult(tetherSettings, TETHER_REQUEST_CODE);
@@ -72,17 +80,27 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode){
+        switch (requestCode) {
             case TETHER_REQUEST_CODE:
                 break;
+
+            case REQUEST_BT_ENABLE:
+                newBleScanner.startScan();
+                break;
+            case REQUEST_GPS_ENABLE:
+                newBleScanner.startScan();
+                break;
         }
+
+
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        utils = new Utils();
+        newBleScanner = new CustomBluetooth(this);
+        utils = new Utils(this, newBleScanner);
         FragmentHandler fragmentHandler = new FragmentHandler(this);
         App.get().setFragmentHandler(fragmentHandler);
         fragmentHandler.changeFragment(FragmentHandler.MAIN_FRAGMENT_TAG, false);
@@ -96,18 +114,18 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         loginTxt.setText(App.get().getLogin());
 
         Runnable runnable = new CountDownRunner();
-        Thread timerThread= new Thread(runnable);
+        Thread timerThread = new Thread(runnable);
         timerThread.start();
 
         Downloader cityDownloader = new Downloader(this);
         cityDownloader.execute(Downloader.CITY_URL);
 
-        if(App.get().isAskForTeneth()) {
+        if (App.get().isAskForTeneth()) {
             HotSpotSettingsDialog dialog = new HotSpotSettingsDialog();
             dialog.show(fragmentHandler.getFragmentManager(), HOTSPOT_DIALOG_TAG);
         }
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
-        if(isInternetEnabled){
+        if (isInternetEnabled) {
 //            Intent intent = new Intent(MainActivity.this,
 //                    SendLogToServer.class);
 //            intent.putExtra("log", Logger.getServiceLogString());
@@ -120,8 +138,6 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     }
 
 
-
-
     public static class HotSpotSettingsDialog extends DialogFragment implements CompoundButton.OnCheckedChangeListener {
         @NonNull
         @Override
@@ -132,7 +148,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
             builder.setView(dialogView);
             builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    ((MainActivity)getContext()).launchHotspotSettings();
+                    ((MainActivity) getContext()).launchHotspotSettings();
                 }
             });
             builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -159,27 +175,49 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         super.onBackPressed();
     }
 
-    public Utils getUtils(){
+    public Utils getUtils() {
         return utils;
     }
 
     @Override
     public void onTaskCompleted(Bundle result) {
+        String command = result.getString(PostInfo.COMMAND);
+        String ip = result.getString(PostInfo.IP);
+        String response = result.getString(PostInfo.RESPONSE);
+        Parcelable parcelableResponse = result.getParcelable(PostInfo.PARCELABLE_RESPONSE);
+        Logger.d(Logger.MAIN_LOG, "on task completed, command: " + command);
+
         int resultCode = result.getInt("resultCode");
         String res = result.getString("result");
-        Logger.d(Logger.MAIN_LOG, "resultCode: " + resultCode);
-        if(resultCode == TaskCode.TAKE_CODE){
-            utils.addTakeInfo(res, true);
-        } else if(resultCode == PostCommand.getResponseCode(PostCommand.TAKE_INFO_FULL)){
-            utils.addTakeInfoFull(result.getString("ip"), result.getParcelable("takeInfoFull"), true);
-        } else if(resultCode == TaskCode.SEND_LOG_TO_SERVER_CODE){
+
+        Logger.d(Logger.MAIN_LOG, "res: " + res);
+        Logger.d(Logger.MAIN_LOG, "resultcode: " + resultCode);
+
+
+        if(command == null){
+            command = "";
+        }
+        if (command.equals(PostCommand.POST_COMMAND_ERROR) || command.equals(SshCommand.SSH_COMMAND_ERROR)) {
+            if (response.contains("Connection refused") || response.contains("Auth fail")) {
+                utils.removeClient(ip);
+            } else {
+                utils.showMessage("Error: " + response);
+            }
+        } else if (command.equals(PostCommand.TAKE_INFO_FULL)) {
+            String version = result.getString(PostInfo.VERSION);
+            Logger.d(Logger.MAIN_LOG, "version: " + version);
+            viewModel.addTakeInfoFull(ip, version, (TakeInfoFull) parcelableResponse, true);
+
+        } else if (command.equals(SshCommand.SSH_TAKE_COMMAND)) {
+            viewModel.addTakeInfo(response, true);
+        } else if (resultCode == TaskCode.SEND_LOG_TO_SERVER_CODE) {
 //            utils.addTakeInfo(res, true);
-        } else if(resultCode == TaskCode.DOWNLOAD_CITIES_CODE){
+        } else if (resultCode == TaskCode.DOWNLOAD_CITIES_CODE) {
             getCities(res);
-        } else if(resultCode == TaskCode.SEND_LOG_TO_SERVER_CODE){
+        } else if (resultCode == TaskCode.SEND_LOG_TO_SERVER_CODE) {
             int code = result.getInt("code");
             Logger.d(Logger.MAIN_LOG, "send log to server code: " + resultCode);
-            if(code == 1){
+            if (code == 1) {
 //                App.get().setLogReport("");
                 Logger.clearLogReport();
             }
@@ -191,10 +229,9 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 //                isReadyToDestroy = true;
 //            }
         }
-        Logger.d(Logger.MAIN_LOG, "transivers: " + utils.getTransivers());
     }
 
-    private void getCities(String res){
+    private void getCities(String res) {
         try {
             JSONObject jObject = new JSONObject(res);
             this.cities = new Gson().fromJson(jObject.get("city").toString(), City[].class);
@@ -210,25 +247,26 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     public void doWork() {
         runOnUiThread(new Runnable() {
             public void run() {
-                try{
+                try {
                     TextView txtCurrentTime = findViewById(R.id.main_txt_date);
                     SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy/HH:mm:ss", Locale.getDefault());
                     String currentDateandTime = sdf.format(new Date());
                     txtCurrentTime.setText(currentDateandTime);
-                }catch (Exception e) {}
+                } catch (Exception e) {
+                }
             }
         });
     }
 
-    class CountDownRunner implements Runnable{
+    class CountDownRunner implements Runnable {
         public void run() {
-            while(!Thread.currentThread().isInterrupted()){
+            while (!Thread.currentThread().isInterrupted()) {
                 try {
                     doWork();
                     Thread.sleep(1000);
                 } catch (InterruptedException e) {
                     Thread.currentThread().interrupt();
-                }catch(Exception e){
+                } catch (Exception e) {
                 }
             }
         }
@@ -251,10 +289,39 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         Logger.d(Logger.MAIN_LOG, "main activity on stop");
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         Thread setnToServer = null;
-        if(isInternetEnabled){
+        if (isInternetEnabled) {
             setnToServer = new Thread(new SendLogToServer(Logger.getServiceLogString(), this));
             setnToServer.start();
         }
         super.onStop();
+        newBleScanner.stopScan();
     }
+
+
+    @Override
+    protected void onResume() {
+//        Logger.d(Logger.MAIN_LOG, "onResume: " + working.get());
+        super.onResume();
+//        startWork();
+        newBleScanner.startScan();
+    }
+
+    @Override
+    protected void onPause() {
+//        Logger.d(Logger.MAIN_LOG, "onPause: " + working.get());
+        super.onPause();
+//        pauseWork();
+        newBleScanner.stopScan();
+
+    }
+
+//    @Override
+//    protected void onStop() {
+////        Logger.d(Logger.MAIN_LOG, "onStop: " + working.get());
+//        super.onStop();
+////        stopWork();
+//        newBleScanner.stopScan();
+//    }
+
+
 }

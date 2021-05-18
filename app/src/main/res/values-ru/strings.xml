@@ -20,6 +20,8 @@
     <string name="content_btn_send">Отправить</string>
     <string name="content_btn_rasp">Rasp</string>
     <string name="content_btn_stm">STM</string>
+    <string name="content_btn_all">All</string>
+
     <string name="content_btn_clear">Очистить rasp</string>
     <string name="content_label_reboot">Перезагрузить</string>
 
@@ -74,6 +76,8 @@
     <string name="confirm_reboot_of">Подтвердите перезагрузку</string>
     <string name="ask_clear_the_transiver">Очистить трансивер?</string>
     <string name="stm_rebooted">Stm перезагружен</string>
+    <string name="all_rebooted">Rasp и stm перезагружены</string>
+
     <string name="content_updated">Контент обновлен</string>
     <string name="rasp_was_cleared">Rasp очищено</string>
     <string name="successful">Успешно</string>

@@ -72,4 +72,11 @@ public class TakeInfoStatContent implements Parcelable {
         shortInfo = parcel.readString();
     }
 
+    @Override
+    public String toString() {
+        return "StatContent: " +
+                "content: " + content + '\n' +
+                "date: " + date + '\n' +
+                "shortInfo: " + shortInfo + '\n';
+    }
 }

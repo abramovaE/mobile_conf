@@ -2,7 +2,6 @@ package com.kotofeya.mobileconfigurator;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -25,7 +24,10 @@ public class WiFiLocalHotspot {
 
         ExecutorService executorService = Executors.newFixedThreadPool(300);
         CompletableFuture<Void>[] futures = new CompletableFuture[256];
+
+
         for (int i = 0; i < 256; i++) {
+            Logger.d(Logger.WIFI_LOG, "i: " + i);
             futures[i] = CompletableFuture.runAsync(new PingIp(host + "." + i), executorService);
         }
         try {
@@ -33,11 +35,13 @@ public class WiFiLocalHotspot {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+
         CompletableFuture.allOf(futures)
                 .thenRun(() -> {
-                    Logger.d(Logger.WIFI_LOG, "clients res: " + clients);
+                    Logger.d(Logger.WIFI_LOG, "all clients pinged");
                     executorService.shutdown();
                 });
+
         Logger.d(Logger.WIFI_LOG, "clients return: " + clients);
         return clients;
     }
@@ -59,9 +63,11 @@ public class WiFiLocalHotspot {
         @Override
         public void run() {
             try {
+                Logger.d(Logger.WIFI_LOG, "ping: " + host);
 //                String host = subnet + ipSuff;
                 InetAddress inetAddress = InetAddress.getByName(host);
                 if (inetAddress.isReachable(timeout)){
+                    Logger.d(Logger.WIFI_LOG, host + " is reachable: " + true);
                     clients.add(host);
                 }
             } catch (IOException e) {

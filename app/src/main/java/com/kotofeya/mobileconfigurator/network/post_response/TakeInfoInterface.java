@@ -83,7 +83,14 @@ public class TakeInfoInterface implements Parcelable {
         mac = parcel.readString();
         ip = parcel.readString();
         rentAddr = parcel.readString();
-
     }
 
+    @Override
+    public String toString() {
+        return "Interface: " +
+                "name: " + name + '\n' +
+                "mac: " + mac + '\n' +
+                "ip: " + ip + '\n' +
+                "rentAddr: " + rentAddr + '\n';
+    }
 }

@@ -1,16 +1,12 @@
 package com.kotofeya.mobileconfigurator.network;
 
+
 import android.os.Bundle;
 
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonObject;
-import com.google.gson.internal.$Gson$Preconditions;
-import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
-import com.kotofeya.mobileconfigurator.TaskCode;
-import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.fragments.config.ContentFragment;
 import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
 
 import org.apache.http.NameValuePair;
@@ -19,13 +15,9 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
-import java.net.ConnectException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
@@ -39,19 +31,34 @@ public class PostInfo implements Runnable {
     private  String ip;
     private OnTaskCompleted listener;
     private String command;
+    private String version;
     public static String COMMAND = "command";
+    public static String VERSION = "version";
+
     public static String IP = "ip";
     public static String RESPONSE = "response";
+    public static String PARCELABLE_RESPONSE = "parc_response";
 
     public PostInfo(OnTaskCompleted listener, String ip, String command) {
+        Logger.d(Logger.POST_INFO_LOG, "new post: " + command + ", ip: " + ip);
+        this.listener = listener;
+
+        this.command = command;
+        this.ip = ip;
+
+    }
+    public PostInfo(OnTaskCompleted listener, String ip, String command, String version) {
+        Logger.d(Logger.POST_INFO_LOG, "new post: " + command + ", ip: " + ip + ", version: " + version);
         this.listener = listener;
         this.command = command;
         this.ip = ip;
+        this.version = version;
     }
+
 
     @Override
     public void run() {
-        Logger.d(Logger.MAIN_LOG, "user: " + App.get().getLogin());
+        Logger.d(Logger.POST_INFO_LOG, "post command: " +  command);
         Bundle result = new Bundle();
         URL u;
         try {
@@ -69,8 +76,20 @@ public class PostInfo implements Runnable {
                 content.append(line);
             }
 
-            result.putInt(COMMAND, PostCommand.getResponseCode(command));
+            Logger.d(Logger.POST_INFO_LOG, "post command: " +  command +", response: " + response);
+            if(command.startsWith(PostCommand.TRANSP_CONTENT)){
+                command = PostCommand.TRANSP_CONTENT;
+            }
+//            else if(command.startsWith(PostCommand.REBOOT)){
+//                command = PostCommand.REBOOT;
+//            }
+
+            result.putString(COMMAND, command);
             result.putString(IP, ip);
+
+
+
+            Logger.d(Logger.POST_INFO_LOG, "post command: " +  command +", response: " + response);
 
             if(response == 200){
                 switch (command){
@@ -78,82 +97,73 @@ public class PostInfo implements Runnable {
                         JSONObject jsonObject = new JSONObject(content.toString()
                                 .replace("<pre>", "")
                                 .replace("</pre>", ""));
-                        String command = jsonObject.getString("command");
+                        String command = jsonObject.getString(COMMAND);
                         JSONObject properties = jsonObject.getJSONObject("properties");
-                        Logger.d(Logger.UTILS_LOG, "command: " + command);
-                        Logger.d(Logger.UTILS_LOG, "properties: " + properties);
-                        TakeInfoFull takeInfoFull = new GsonBuilder().create().fromJson(properties.toString(),  TakeInfoFull.class);
-                        Logger.d(Logger.UTILS_LOG, "takeInfoFull: " + takeInfoFull);
+
+                        Logger.d(Logger.POST_INFO_LOG, COMMAND + " : " + command);
+                        Logger.d(Logger.POST_INFO_LOG, "properties: " + properties);
+                        double version = getVersion();
+                        Logger.d(Logger.POST_INFO_LOG, "version: " + version);
+                        TakeInfoFull takeInfoFull = new GsonBuilder().setVersion(version).create().fromJson(properties.toString(),  TakeInfoFull.class);
+                        Logger.d(Logger.POST_INFO_LOG, "takeInfoFull created: " + (takeInfoFull != null));
+                        Logger.d(Logger.POST_INFO_LOG, "takeInfoFull serial: " + takeInfoFull.getSerial());
+                        result.putParcelable(PARCELABLE_RESPONSE, takeInfoFull);
+                        result.putString(VERSION, this.version);
                         break;
-
-
-
                     case PostCommand.VERSION:
+                        String ver = content.toString().substring(content.lastIndexOf("version") + 8);
+                        Logger.d(Logger.POST_INFO_LOG, "version: " + ver);
+                        result.putString(RESPONSE, ver);
                         break;
                     case PostCommand.STM_UPDATE_LOG:
                         break;
                     case PostCommand.STM_UPDATE_LOG_CLEAR:
                         break;
                     case PostCommand.ERASE_CONTENT:
+                        result.putString(RESPONSE, content.toString());
                         break;
 //                    case PostCommand.HARD_RESET:
 //                        break;
 //                    case PostCommand.SC_UART:
 //                        break;
-//                        case PostCommand.
+                    case PostCommand.TRANSP_CONTENT:
+                        Logger.d(Logger.POST_INFO_LOG, "tr content response: " + content.toString());
+                        result.putString(RESPONSE, content.toString());
+                        break;
 
-
-
-
+                    case PostCommand.REBOOT + "_" + ContentFragment.REBOOT_RASP:
+                    case PostCommand.REBOOT + "_" + ContentFragment.REBOOT_STM:
+                    case PostCommand.REBOOT + "_" + ContentFragment.REBOOT_ALL:
+                        result.putString(RESPONSE, content.toString());
+                        break;
 
 
                 }
-
-//                PostResponse postResponse = new GsonBuilder().create().fromJson(content.toString()
-//                        .replace("<pre>", "")
-//                        .replace("</pre>", ""), PostResponse.class);
-
-
-
-//                int code = Integer.parseInt(jsonObject.getString("code"));
-//                result.putInt("code", code);
-//                String r = content.toString();
-//                result.putString("result", r);
-//                Logger.d(Logger.UTILS_LOG, "result: " + r);
+            } else {
+                result.putString(PostInfo.COMMAND, PostCommand.POST_COMMAND_ERROR);
             }
-            else {
-                result.putString(RESPONSE, PostCommand.TAKE_INFO_FULL_ERROR);
-            }
-
-
-
-
-
-
-
-
-
-            listener.onTaskCompleted(result);
+            Logger.d(Logger.POST_INFO_LOG, "listener: " + listener);
             reader.close();
+            listener.onTaskCompleted(result);
         } catch (MalformedURLException e) {
-            e.printStackTrace();
-            result.putString("result", e.getMessage());
+            Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage());
+            result.putString(PostInfo.COMMAND, PostCommand.POST_COMMAND_ERROR);
+            result.putString(RESPONSE, e.getMessage());
         } catch (ProtocolException e) {
-            e.printStackTrace();
-            result.putString("result", e.getMessage());
+            Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage());
+//            e.printStackTrace();
+            result.putString(PostInfo.COMMAND, PostCommand.POST_COMMAND_ERROR);
+            result.putString(RESPONSE, e.getMessage());
         } catch (IOException e) {
-            if(!(e instanceof ConnectException)){
-                e.printStackTrace();
-            }
-            result.putString("result", e.getMessage());
+            Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage());
+            e.printStackTrace();
+            result.putString(PostInfo.COMMAND, PostCommand.POST_COMMAND_ERROR);
+            result.putString(RESPONSE, e.getMessage());
         } catch (JSONException e) {
+            Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage());
             e.printStackTrace();
         }
-//        catch (JSONException e) {
-//            e.printStackTrace();
-//        }
     }
-
 
     private String getUrl(String ip, String command)  throws IOException{
         List<NameValuePair> params = new ArrayList<>();
@@ -164,7 +174,7 @@ public class PostInfo implements Runnable {
         return "http://" + ip + "/interface/index.php?" + getQuery(params);
     }
 
-    private HttpURLConnection getConnection(URL url) throws IOException {
+    private HttpURLConnection getConnection(URL url) throws IOException{
         HttpURLConnection c = (HttpURLConnection) url.openConnection();
         c.setRequestMethod("POST");
         c.setConnectTimeout(12000);
@@ -173,8 +183,7 @@ public class PostInfo implements Runnable {
         return c;
     }
 
-    private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException
-    {
+    private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
         StringBuilder result = new StringBuilder();
         boolean first = true;
         for (NameValuePair pair : params) {
@@ -187,5 +196,15 @@ public class PostInfo implements Runnable {
             result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
         }
         return result.toString();
+    }
+
+    private double getVersion(){
+        switch (version){
+            case "0.1.6":
+                return 1.6;
+            case "0.1.7":
+                return 1.7;
+        }
+        return 0.0;
     }
 }

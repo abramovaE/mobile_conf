@@ -15,9 +15,9 @@ import java.io.File;
 
 import retrofit2.Retrofit;
 
-@AcraCore(buildConfigClass = BuildConfig.class, reportFormat = StringFormat.KEY_VALUE_LIST)
-@AcraHttpSender(uri = "http://95.161.210.44/mobile_conf_acra.php",
-        httpMethod = HttpSender.Method.POST)
+//@AcraCore(buildConfigClass = BuildConfig.class, reportFormat = StringFormat.KEY_VALUE_LIST)
+//@AcraHttpSender(uri = "http://95.161.210.44/mobile_conf_acra.php",
+//        httpMethod = HttpSender.Method.POST)
 public class App extends Application {
     private static App instance;
     private Context context;

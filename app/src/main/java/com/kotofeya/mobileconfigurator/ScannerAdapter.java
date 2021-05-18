@@ -28,6 +28,14 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
 
     private int scannerType;
 
+    public List<Transiver> getObjects() {
+        return objects;
+    }
+
+    public void setObjects(List<Transiver> objects) {
+        this.objects = objects;
+    }
+
     public static final int BASIC_SCANNER_TYPE = 0;
     public static final int BLE_SCANNER_TYPE = 1;
     public static final int UPDATE_OS_TYPE = 2;
@@ -36,11 +44,11 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
     public static final int CONFIG_TRANSPORT = 5;
     public static final int CONFIG_STATION = 6;
 
-    public ScannerAdapter(Context context, Utils utils, int scannerType) {
-        ctx = context;
+    public ScannerAdapter(Context context, Utils utils, int scannerType, List<Transiver> objects) {
+        this.ctx = context;
         this.utils = utils;
-        objects = utils.getTransivers();
-        lInflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.objects = objects;
+        this.lInflater = (LayoutInflater) ctx.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.scannerType = scannerType;
     }
 
@@ -51,7 +59,9 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
 
     @Override
     public Object getItem(int position) {
+        if(objects.size() > position)
         return objects.get(position);
+        return null;
     }
 
     @Override
@@ -68,169 +78,168 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
 
         Transiver p = getTransiver(position);
         TextView ssid = view.findViewById(R.id.scanner_lv_item_ssid);
-        ssid.setText(p.getSsid());
-
         TextView textItem0 = view.findViewById(R.id.scanner_lv_item0);
-        textItem0.setText(p.getOsVersion());
-
         TextView textItem1 = view.findViewById(R.id.scanner_lv_item1);
-        textItem1.setText(p.getStmFirmware());
-
-        TextView textItem2 = view.findViewById(R.id.scanner_lv_item2);
-        textItem2.setText(p.getStmBootloader());
-
-        final TextView exp = view.findViewById(R.id.scanner_lv_item_txt_exp);
-
         LinearLayout linearLayout = view.findViewById(R.id.scanner_lv);
 
-        Button expButton = view.findViewById(R.id.scanner_lv_exp_btn);
-        expButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                exp.setVisibility(exp.getVisibility() == View.GONE? View.VISIBLE : View.GONE);
-            }
-        });
+        Logger.d(Logger.SCANNER_ADAPTER_LOG, "get view, p: " + p);
+        Logger.d(Logger.SCANNER_ADAPTER_LOG, "scanner type: " + scannerType);
 
-        if (scannerType == BASIC_SCANNER_TYPE) {
-            textItem0.setVisibility(View.VISIBLE);
-            textItem1.setVisibility(View.VISIBLE);
-            textItem2.setVisibility(View.VISIBLE);
-            expButton.setVisibility(View.VISIBLE);
-            exp.setText(p.getExpBasicScanInfo());
-        } else if (scannerType == BLE_SCANNER_TYPE) {
-            Logger.d(Logger.SCANNER_ADAPTER_LOG, "scanner " + p.getSsid() + " " + p.isTransport());
-            expButton.setVisibility(View.VISIBLE);
-            exp.setText(p.getBleExpText());
-        }
-        else if (scannerType == UPDATE_OS_TYPE) {
-            textItem0.setVisibility(View.VISIBLE);
-            linearLayout.setOnClickListener(new View.OnClickListener() {
+
+        if(p != null) {
+            ssid.setText(p.getSsid());
+            textItem0.setText(p.getOsVersion());
+            textItem1.setText(p.getStmFirmware());
+            TextView textItem2 = view.findViewById(R.id.scanner_lv_item2);
+            textItem2.setText(p.getStmBootloader());
+
+            final TextView exp = view.findViewById(R.id.scanner_lv_item_txt_exp);
+
+
+            Button expButton = view.findViewById(R.id.scanner_lv_exp_btn);
+            expButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update os was pressed");
-                    Transiver transiver = getTransiver(position);
-                    if (Downloader.tempUpdateOsFile.length() > 1000) {
-                        Bundle bundle = new Bundle();
-                        bundle.putString("ip", transiver.getIp());
-                        UpdateOsFragment.UpdateOsConfDialog dialog = new UpdateOsFragment.UpdateOsConfDialog();
-                        dialog.setArguments(bundle);
-                        dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
-                    }
+                    exp.setVisibility(exp.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
                 }
             });
-        } else if (scannerType == UPDATE_STM_TYPE) {
-            textItem1.setVisibility(View.VISIBLE);
-            linearLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update stm was pressed");
-                    Transiver transiver = getTransiver(position);
-                    if (Downloader.tempUpdateStmFiles != null && !Downloader.tempUpdateStmFiles.isEmpty()) {
-                        Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateStmFilesSize: " + Downloader.tempUpdateStmFiles.size());
-                        Bundle bundle = new Bundle();
-                        bundle.putString("ip", transiver.getIp());
-                        Logger.d(Logger.UPDATE_STM_LOG, "isTransport: " + transiver.isTransport());
-                        Logger.d(Logger.UPDATE_STM_LOG, "isStationary: " + transiver.isStationary());
-                        bundle.putBoolean("isTransport", transiver.isTransport());
-                        bundle.putBoolean("isStationary", transiver.isStationary());
-                        UpdateStmFragment.UpdateStmConfDialog dialog = new UpdateStmFragment.UpdateStmConfDialog();
-                        dialog.setArguments(bundle);
-                        dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
-                    }
-                }
-            });
-        } else if (scannerType == UPDATE_CONTENT_TYPE) {
 
-            boolean isTransport = p.isTransport();
-            boolean isStationary = p.isStationary();
-            Logger.d(Logger.SCANNER_ADAPTER_LOG, p.getSsid() + " isTransport: " + isTransport + ", isStationary: " + isStationary);
-            textItem0.setVisibility(View.VISIBLE);
-            Logger.d(Logger.SCANNER_ADAPTER_LOG, "increement of content: " + p.getIncrementOfContent());
-            if(p.getIncrementOfContent() == null|| p.getIncrementOfContent().isEmpty()){
-                textItem0.setText("no incr");
-            }
-            else {
-                if(isTransport){
-                    TransportTransiver t = (TransportTransiver) p;
-                    textItem0.setText(t.getCityCode(t.getCity()) + " " + p.getIncrementOfContent());
-                }
-                else {
-                    textItem0.setText(p.getIncrementOfContent());
-                }
-            }
-            textItem1.setText("no updates");
-            if(isTransport){
-                if(Downloader.tempUpdateTransportContentFiles != null){
-                    textItem1.setText("          ");
-                }
-            }
-
-            else if(isStationary){
-                if(Downloader.tempUpdateStationaryContentFiles != null
-                        && Downloader.tempUpdateStationaryContentFiles.containsKey(ssid.getText())){
-                    textItem1.setText(Downloader.tempUpdateStationaryContentFiles.get(ssid.getText()));
-                }
-                else {
-                    textItem1.setText("no updates");
-                }
-            }
-            textItem1.setVisibility(View.VISIBLE);
-
-            linearLayout.setOnClickListener(new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update content was pressed");
-                    utils.getBluetooth().stopScan(true);
-                    Transiver transiver = getTransiver(position);
-                    Bundle bundle = new Bundle();
-                    bundle.putString("ip", transiver.getIp());
-                    bundle.putBoolean("isTransport", isTransport);
-                    bundle.putBoolean("isStationary", isStationary);
-//                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "putToBundle: " + isTransport + " " + isStationary);
-                    DialogFragment dialogFragment = null;
-                    if(isTransport){
-                        dialogFragment = new UpdateContentFragment.UpdateContentConfDialog();
-                    }
-                    else if(isStationary){
-                        String key = p.getSsid();
-                        if(Downloader.tempUpdateStationaryContentFiles.containsKey(key)){
-                            bundle.putString("key", key);
-                            bundle.putString("value", key + "/data.tar.bz2");
-                            dialogFragment = new UpdateContentFragment.UpdateContentConfDialog.UploadContentConfDialog();
+            if (scannerType == BASIC_SCANNER_TYPE) {
+                textItem0.setVisibility(View.VISIBLE);
+                textItem1.setVisibility(View.VISIBLE);
+                textItem2.setVisibility(View.VISIBLE);
+                expButton.setVisibility(View.VISIBLE);
+                exp.setText(p.getExpBasicScanInfo());
+            } else if (scannerType == BLE_SCANNER_TYPE) {
+                Logger.d(Logger.SCANNER_ADAPTER_LOG, "scanner " + p.getSsid() + " " + p.isTransport());
+                expButton.setVisibility(View.VISIBLE);
+                exp.setText(p.getBleExpText());
+            } else if (scannerType == UPDATE_OS_TYPE) {
+                textItem0.setVisibility(View.VISIBLE);
+                linearLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update os was pressed");
+                        Transiver transiver = getTransiver(position);
+                        if (Downloader.tempUpdateOsFile.length() > 1000) {
+                            Bundle bundle = new Bundle();
+                            bundle.putString("ip", transiver.getIp());
+                            UpdateOsFragment.UpdateOsConfDialog dialog = new UpdateOsFragment.UpdateOsConfDialog();
+                            dialog.setArguments(bundle);
+                            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
                         }
                     }
-                    if(dialogFragment != null){
-                        dialogFragment.setArguments(bundle);
-                        dialogFragment.show(App.get().getFragmentHandler().getFragmentManager(),
-                                App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+                });
+            } else if (scannerType == UPDATE_STM_TYPE) {
+                textItem1.setVisibility(View.VISIBLE);
+                linearLayout.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update stm was pressed");
+                        Transiver transiver = getTransiver(position);
+                        if (Downloader.tempUpdateStmFiles != null && !Downloader.tempUpdateStmFiles.isEmpty()) {
+                            Logger.d(Logger.SCANNER_ADAPTER_LOG, "updateStmFilesSize: " + Downloader.tempUpdateStmFiles.size());
+                            Bundle bundle = new Bundle();
+                            bundle.putString("ip", transiver.getIp());
+                            Logger.d(Logger.UPDATE_STM_LOG, "isTransport: " + transiver.isTransport());
+                            Logger.d(Logger.UPDATE_STM_LOG, "isStationary: " + transiver.isStationary());
+                            bundle.putBoolean("isTransport", transiver.isTransport());
+                            bundle.putBoolean("isStationary", transiver.isStationary());
+                            UpdateStmFragment.UpdateStmConfDialog dialog = new UpdateStmFragment.UpdateStmConfDialog();
+                            dialog.setArguments(bundle);
+                            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+                        }
+                    }
+                });
+            } else if (scannerType == UPDATE_CONTENT_TYPE) {
+
+                if (p != null) {
+                    boolean isTransport = p.isTransport();
+                    boolean isStationary = p.isStationary();
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, p.getSsid() + " isTransport: " + isTransport + ", isStationary: " + isStationary);
+                    textItem0.setVisibility(View.VISIBLE);
+                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "increement of content: " + p.getIncrementOfContent());
+                    if (p.getIncrementOfContent() == null || p.getIncrementOfContent().isEmpty()) {
+                        textItem0.setText("no incr");
+                    } else {
+                        if (isTransport) {
+                            TransportTransiver t = (TransportTransiver) p;
+                            textItem0.setText(t.getCityCode(t.getCity()) + " " + p.getIncrementOfContent());
+                        } else {
+                            textItem0.setText(p.getIncrementOfContent());
+                        }
+                    }
+                    textItem1.setText("no updates");
+                    if (isTransport) {
+                        if (Downloader.tempUpdateTransportContentFiles != null) {
+                            textItem1.setText("          ");
+                        }
+                    } else if (isStationary) {
+                        if (Downloader.tempUpdateStationaryContentFiles != null
+                                && Downloader.tempUpdateStationaryContentFiles.containsKey(ssid.getText())) {
+                            textItem1.setText(Downloader.tempUpdateStationaryContentFiles.get(ssid.getText()));
+                        } else {
+                            textItem1.setText("no updates");
+                        }
+                    }
+                    textItem1.setVisibility(View.VISIBLE);
+
+                    linearLayout.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update content was pressed");
+                            utils.getNewBleScanner().stopScan();
+//                    utils.getBluetooth().stopScan(true);
+                            Transiver transiver = getTransiver(position);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("ip", transiver.getIp());
+                            bundle.putBoolean("isTransport", isTransport);
+                            bundle.putBoolean("isStationary", isStationary);
+//                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "putToBundle: " + isTransport + " " + isStationary);
+                            DialogFragment dialogFragment = null;
+                            if (isTransport) {
+                                dialogFragment = new UpdateContentFragment.UpdateContentConfDialog();
+                            } else if (isStationary) {
+                                String key = p.getSsid();
+                                if (Downloader.tempUpdateStationaryContentFiles.containsKey(key)) {
+                                    bundle.putString("key", key);
+                                    bundle.putString("value", key + "/data.tar.bz2");
+                                    dialogFragment = new UpdateContentFragment.UpdateContentConfDialog.UploadContentConfDialog();
+                                }
+                            }
+                            if (dialogFragment != null) {
+                                dialogFragment.setArguments(bundle);
+                                dialogFragment.show(App.get().getFragmentHandler().getFragmentManager(),
+                                        App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+                            }
+                        }
+                    });
+                }
+            } else if (scannerType == CONFIG_TRANSPORT) {
+                Logger.d(Logger.SCANNER_ADAPTER_LOG, "Config transport");
+                if (p.isTransport()) {
+                    try {
+                        TransportTransiver transportTransiver = (TransportTransiver) p;
+                        textItem0.setText(transportTransiver.getTransportType() + " / " + transportTransiver.getFullNumber());
+                        textItem0.setVisibility(View.VISIBLE);
+                        textItem1.setText(transportTransiver.getStringDirection());
+                        textItem1.setVisibility(View.VISIBLE);
+                        view.setOnClickListener(configListener(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT, p.getSsid()));
+                    } catch (ClassCastException e) {
                     }
                 }
-            });
 
-        } else if (scannerType == CONFIG_TRANSPORT) {
-            Logger.d(Logger.SCANNER_ADAPTER_LOG, "Config transport");
-            if (p.isTransport()) {
-                try {
-                    TransportTransiver transportTransiver = (TransportTransiver) p;
-                    textItem0.setText(transportTransiver.getTransportType() + " / " + transportTransiver.getFullNumber());
+            } else if (scannerType == CONFIG_STATION) {
+                Logger.d(Logger.SCANNER_ADAPTER_LOG, "p.is stationary: " + p.isStationary() + " " + p.getSsid());
+                if (p.isStationary()) {
+                    if (p.getIncrementOfContent() != null && p.getIncrementOfContent().isEmpty()) {
+                        textItem0.setText("no incr");
+                    } else {
+                        textItem0.setText(p.getIncrementOfContent());
+                    }
                     textItem0.setVisibility(View.VISIBLE);
-                    textItem1.setText(transportTransiver.getStringDirection());
-                    textItem1.setVisibility(View.VISIBLE);
-                    view.setOnClickListener(configListener(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT, p.getSsid()));
-                } catch (ClassCastException e){}
-            }
-
-        } else if (scannerType == CONFIG_STATION) {
-            Logger.d(Logger.SCANNER_ADAPTER_LOG, "p.is stationary: " + p.isStationary() + " " + p.getSsid());
-            if (p.isStationary()) {
-                if(p.getIncrementOfContent() != null && p.getIncrementOfContent().isEmpty()){
-                    textItem0.setText("no incr");
+                    view.setOnClickListener(configListener(FragmentHandler.STATION_CONTENT_FRAGMENT, p.getSsid()));
                 }
-                else {
-                    textItem0.setText(p.getIncrementOfContent());
-                }
-                textItem0.setVisibility(View.VISIBLE);
-                view.setOnClickListener(configListener(FragmentHandler.STATION_CONTENT_FRAGMENT, p.getSsid()));
             }
         }
         return view;
@@ -245,6 +254,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                Logger.d(Logger.SCANNER_ADAPTER_LOG, "onClick: " + ssid);
                 Bundle bundle = new Bundle();
                 bundle.putString("ssid", ssid);
                 App.get().getFragmentHandler().changeFragmentBundle(fragment, bundle);

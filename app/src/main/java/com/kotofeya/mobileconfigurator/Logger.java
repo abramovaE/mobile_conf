@@ -11,8 +11,6 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Date;
-import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public class Logger {
 
@@ -43,6 +41,10 @@ public class Logger {
     public static final int INTERNET_CONN_LOG = 19;
     public static final int TRANSPORT_TRANSIVER_LOG = 20;
     public static final int CHECK_USER_LOG = 21;
+    public static final int VIEW_MODEL_LOG = 22;
+    public static final int POST_INFO_LOG = 23;
+    public static final int FRAGMENT_LOG = 24;
+
 
 
     private static final  SparseArray<String> mType = new SparseArray<>();
@@ -70,6 +72,9 @@ public class Logger {
         mType.put(INTERNET_CONN_LOG, "Internet_connection_task");
         mType.put(TRANSPORT_TRANSIVER_LOG, "Transport_transiver_task");
         mType.put(CHECK_USER_LOG, "Check_user_task");
+        mType.put(VIEW_MODEL_LOG, "View_model_task");
+        mType.put(POST_INFO_LOG, "Post_info_task");
+        mType.put(FRAGMENT_LOG, "Fragment_task");
 
 
     }

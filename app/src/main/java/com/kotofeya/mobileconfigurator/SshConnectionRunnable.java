@@ -1,35 +1,25 @@
 package com.kotofeya.mobileconfigurator;
 
-import android.os.AsyncTask;
 import android.os.Bundle;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.ChannelShell;
 import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
-import com.jcraft.jsch.SftpException;
-import com.jcraft.jsch.SftpProgressMonitor;
-
-import org.apache.commons.compress.archivers.ArchiveEntry;
-import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import com.kotofeya.mobileconfigurator.network.SshCommand;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
 import java.util.Properties;
-import java.util.Timer;
 
+import static com.kotofeya.mobileconfigurator.network.PostInfo.COMMAND;
+import static com.kotofeya.mobileconfigurator.network.PostInfo.IP;
+import static com.kotofeya.mobileconfigurator.network.PostInfo.RESPONSE;
+import static com.kotofeya.mobileconfigurator.network.PostInfo.VERSION;
 
 public class SshConnectionRunnable implements Runnable, TaskCode {
 
@@ -40,6 +30,7 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
     String req3;
     String req4;
     String req5;
+
 
     public SshConnectionRunnable(OnTaskCompleted listener, Object...req){
         this.listener = listener;
@@ -71,6 +62,7 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
             ChannelSftp channelSftp = null;
             ChannelExec channelExec = null;
             Channel channel = null;
+            String command = "";
 
             try {
                 JSch jsch = new JSch();
@@ -86,6 +78,7 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
 
                 switch (resultCode) {
                     case TAKE_CODE:
+                        command = SshCommand.SSH_TAKE_COMMAND;
                         long start = System.currentTimeMillis();
                         Logger.d(Logger.SSH_CONNECTION_LOG, "start: " + start);
                         channel = session.openChannel("shell");
@@ -112,7 +105,7 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
             }
             catch (Exception e){
                 res = e.getMessage();
-                this.resultCode = SSH_ERROR_CODE;
+                command = SshCommand.SSH_COMMAND_ERROR;
             }
 
             finally {
@@ -134,9 +127,10 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                 }
                 if (listener != null) {
                     Bundle bundle = new Bundle();
-                    bundle.putString("ip", this.ip);
-                    bundle.putInt("resultCode", this.resultCode);
-                    bundle.putString("result", res);
+                    bundle.putString(COMMAND, command);
+                    bundle.putString(IP, this.ip);
+                    bundle.putString(RESPONSE, res);
+                    bundle.putString(VERSION, "ssh_conn");
                     listener.onTaskCompleted(bundle);
                 }
             }

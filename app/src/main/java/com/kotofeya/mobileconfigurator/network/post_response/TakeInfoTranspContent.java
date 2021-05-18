@@ -66,4 +66,11 @@ public class TakeInfoTranspContent implements Parcelable {
         incrRouteList = parcel.readInt();
     }
 
+    @Override
+    public String toString() {
+        return "TranspContent: " +
+                "date: " + date + '\n' +
+                "localRouteList: " + localRouteList + '\n' +
+                "incrRouteList: " + incrRouteList;
+    }
 }

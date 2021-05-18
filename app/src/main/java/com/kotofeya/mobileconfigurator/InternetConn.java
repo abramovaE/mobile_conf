@@ -2,8 +2,6 @@ package com.kotofeya.mobileconfigurator;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.net.DhcpInfo;
-import android.net.LinkAddress;
 import android.net.LinkProperties;
 import android.net.Network;
 import android.net.NetworkCapabilities;
@@ -37,7 +35,7 @@ public class InternetConn {
         Logger.d(Logger.INTERNET_CONN_LOG, "get host device ip");
         try {
             List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-            Logger.d(Logger.WIFI_LOG, "network interfaces: " + interfaces);
+//            Logger.d(Logger.WIFI_LOG, "network interfaces: " + interfaces);
             for (NetworkInterface intf : interfaces) {
                 List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
                 for (InetAddress addr : addrs) {

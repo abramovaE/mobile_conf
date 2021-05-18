@@ -21,6 +21,7 @@ import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.TaskCode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -31,7 +32,6 @@ public class UpdateContentFragment extends UpdateFragment {
     @Override
     public void onTaskCompleted(Bundle bundle) {
         super.onTaskCompleted(bundle);
-
     }
 
     @Override
@@ -41,7 +41,8 @@ public class UpdateContentFragment extends UpdateFragment {
     @Override
     protected void scan() {
         super.scan();
-        utils.getBluetooth().startScan(true);
+        utils.getNewBleScanner().startScan();
+//        utils.getBluetooth().startScan(true);
     }
 
 
@@ -72,7 +73,7 @@ public class UpdateContentFragment extends UpdateFragment {
 
     @Override
     ScannerAdapter getScannerAdapter() {
-        return new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_CONTENT_TYPE);
+        return new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_CONTENT_TYPE, new ArrayList<>());
     }
 
     @Nullable
@@ -91,11 +92,8 @@ public class UpdateContentFragment extends UpdateFragment {
         checkVersionButton.setVisibility(View.GONE);
         mainBtnRescan.setVisibility(View.VISIBLE);
         label.setVisibility(View.VISIBLE);
-
-        utils.getBluetooth().startScan(true);
-
-
-
+        utils.getNewBleScanner().startScan();
+//        utils.getBluetooth().startScan(true);
     }
 
     public static class UpdateContentConfDialog extends DialogFragment {

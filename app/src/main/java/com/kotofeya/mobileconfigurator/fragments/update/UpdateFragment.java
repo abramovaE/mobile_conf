@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,19 +20,23 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
+import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
+import java.util.List;
 
 
 public abstract class UpdateFragment extends Fragment implements OnTaskCompleted {
@@ -41,22 +44,15 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     public Context context;
     public Utils utils;
     public ImageButton mainBtnRescan;
-
-    private final Handler myHandler = new Handler();
-
     ListView lvScanner;
     ScannerAdapter scannerAdapter;
-
     TextView versionLabel;
     Button checkVersionButton;
-
     String version = "version";
     TextView mainTxtLabel;
-
     ProgressBar progressBar;
-
     protected static final int MOBILE_SETTINGS_RESULT = 0;
-
+    private CustomViewModel viewModel;
 
     @Override
     public void onAttach(Context context) {
@@ -85,24 +81,21 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.scanner_fragment, container, false);
-
         lvScanner = view.findViewById(R.id.lv_scanner);
         versionLabel = view.findViewById(R.id.scanner_label0);
         checkVersionButton = view.findViewById(R.id.scanner_btn);
         mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
         mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
-
         mainBtnRescan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 utils.clearClients();
                 utils.clearMap();
-                utils.clearTransivers();
-                scannerAdapter.notifyDataSetChanged();
+                viewModel.clearTransivers();
+//                scannerAdapter.notifyDataSetChanged();
                 scan();
             }
         });
-
 
         progressBar = view.findViewById(R.id.scanner_progressBar);
         checkVersionButton.setOnClickListener(new View.OnClickListener() {
@@ -125,12 +118,11 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         setMainTextLabelText();
         scannerAdapter = getScannerAdapter();
         lvScanner.setAdapter(scannerAdapter);
-        utils.getBluetooth().stopScan(true);
+        utils.getNewBleScanner().stopScan();
+//        utils.getBluetooth().stopScan(true);
         loadVersion();
 
-        if(utils.getTransivers().isEmpty()) {
-            scan();
-        }
+
         return view;
     }
 
@@ -140,31 +132,42 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         super.onResume();
     }
 
-
     protected void scan(){
-        utils.getTakeInfo(this);
-
+        utils.getTakeInfo();
     }
 
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        viewModel = ViewModelProviders.of(getActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
+        viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
+        if(viewModel.getTransivers().getValue().isEmpty()) {
+            scan();
+        }
+    }
+
+    private void updateUI(List<Transiver> transivers){
+        scannerAdapter.setObjects(transivers);
+        scannerAdapter.notifyDataSetChanged();
+    }
 
     @Override
-    public void onTaskCompleted(Bundle bundle) {
-        int resultCode = bundle.getInt("resultCode");
-        String result = bundle.getString("result");
-        String ip = bundle.getString("ip");
-        Logger.d(Logger.UPDATE_LOG, "ssh task completed: ip: " + ip + ", resultCode: " + resultCode);
+    public void onTaskCompleted(Bundle result) {
+        String command = result.getString(PostInfo.COMMAND);
+        String ip = result.getString(PostInfo.IP);
+        String response = result.getString(PostInfo.RESPONSE);
+        Logger.d(Logger.UPDATE_LOG, "command: " + command);
+        Logger.d(Logger.UPDATE_LOG, "ip: " + ip);
+        Logger.d(Logger.UPDATE_LOG, "response: " + response);
+
+
+        int resultCode = result.getInt("resultCode");
+        String resultStr = result.getString("result");
+        String ipStr = result.getString("ip");
+        Logger.d(Logger.UPDATE_LOG, "ssh task completed: ip: " + ipStr + ", resultCode: " + resultCode);
 
         switch (resultCode){
-            case TaskCode.TAKE_CODE:
-                Logger.d(Logger.UPDATE_LOG, "add take info: " + result);
-                utils.addTakeInfo(result, true);
-                myHandler.post(updateRunnable);
-                break;
 
-            case 1001:
-                utils.addTakeInfoFull(ip, bundle.getParcelable("takeInfoFull"), true);
-                myHandler.post(updateRunnable);
-                break;
             case 1002:
 //            if(res.contains("Connection refused") || res.contains("Auth fail")){
 //                utils.removeClient(result.getString("ip"));
@@ -176,11 +179,11 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
             case TaskCode.UPDATE_OS_UPLOAD_CODE:
             case TaskCode.UPDATE_STM_UPLOAD_CODE:
             case TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE:
-                uploaded(ip);
+                uploaded(ipStr);
                 break;
             case TaskCode.UPDATE_OS_VERSION_CODE:
             case TaskCode.UPDATE_STM_VERSION_CODE:
-                setVersion(result);
+                setVersion(resultStr);
                 break;
             case TaskCode.TRANSPORT_CONTENT_VERSION_CODE:
                 Logger.d(Logger.UPDATE_LOG, "transportContent: " + result);
@@ -194,19 +197,19 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 utils.showMessage(getString(R.string.downloaded));
                 break;
             case TaskCode.UPDATE_STM_DOWNLOAD_CODE:
-                downloadBySsh(ip, SshConnection.UPDATE_STM_UPLOAD_CODE, bundle, View.GONE);
+                downloadBySsh(ipStr, SshConnection.UPDATE_STM_UPLOAD_CODE, result, View.GONE);
                 break;
             case TaskCode.UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE:
-                downloadBySsh(ip, SshConnection.UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE, bundle, View.VISIBLE);
+                downloadBySsh(ipStr, SshConnection.UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE, result, View.VISIBLE);
                 break;
             case TaskCode.UPDATE_STATION_CONTENT_DOWNLOAD_CODE:
-                downloadBySsh(ip, SshConnection.UPDATE_STATION_CONTENT_UPLOAD_CODE, bundle, View.VISIBLE);
+                downloadBySsh(ipStr, SshConnection.UPDATE_STATION_CONTENT_UPLOAD_CODE, result, View.VISIBLE);
                 break;
             case TaskCode.SSH_ERROR_CODE:
                 progressBar.setVisibility(View.GONE);
-                if(result.contains("Connection refused") || result.contains("Auth fail")){
-                    Logger.d(Logger.UPDATE_LOG, "result: " + result + ", remove client: " + ip);
-                    utils.removeClient(ip);
+                if(resultStr.contains("Connection refused") || resultStr.contains("Auth fail")){
+                    Logger.d(Logger.UPDATE_LOG, "result: " + result + ", remove client: " + ipStr);
+                    utils.removeClient(ipStr);
                 } else {
                     Logger.d(Logger.UPDATE_LOG, "ssh error: " + result);
                     utils.showMessage("Error: " + result);}
@@ -230,21 +233,11 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     abstract void setMainTextLabelText();
     abstract ScannerAdapter getScannerAdapter();
 
-    private void updateUI()
-    {
-        scannerAdapter.notifyDataSetChanged();
-    }
-
-    final Runnable updateRunnable = new Runnable() {
-        public void run() {
-            updateUI();
-        }
-    };
 
     private void uploaded(String ip){
         Logger.d(Logger.UPDATE_LOG, "uploaded: " + ip);
-        Transiver transiver = utils.getTransiverByIp(ip);
-        utils.removeTransiver(transiver);
+        Transiver transiver = viewModel.getTransiverByIp(ip);
+        viewModel.removeTransiver(transiver);
         scannerAdapter.notifyDataSetChanged();
         utils.showMessage(getString(R.string.uploaded));
         progressBar.setVisibility(View.GONE);

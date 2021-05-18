@@ -5,10 +5,8 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -17,17 +15,14 @@ import androidx.fragment.app.Fragment;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 
 public class SettingsFragment extends Fragment implements CompoundButton.OnCheckedChangeListener {
 
     TextView mainTxtLabel;
-
     public Context context;
     public Utils utils;
-
     private CheckBox showAccessPointDialog;
 
     @Override

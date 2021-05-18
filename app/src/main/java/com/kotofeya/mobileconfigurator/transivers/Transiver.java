@@ -25,7 +25,9 @@ public class Transiver {
     int BUZZER_ON_NEW = 0b10;
     int BUZZER_BUSY_NEW = 0b11;
 
-    private String phoneIp;
+    protected int intVesion;
+//    private String phoneIp;
+    protected String version;
 
     private String ssid;
     private String ip;
@@ -43,10 +45,9 @@ public class Transiver {
     private String load;
     private String tType;
 
-    private String address;
-    private int rssi;
-    private byte[] rawData;
-    private boolean delFlag;
+    protected String address;
+    protected int rssi;
+    protected byte[] rawData;
     private int delCount;
 
     private int transVersion;
@@ -77,6 +78,11 @@ public class Transiver {
 
     public Transiver(String ssid, String ip) {
         this.ssid = ssid;
+
+        this.ip = ip;
+    }
+
+    public Transiver(String ip){
         this.ip = ip;
     }
 
@@ -107,11 +113,16 @@ public class Transiver {
             ssid = result.getScanRecord().getDeviceName();
             transVersion = VERSION_OLD;
         }
-        delFlag = false;
     }
 
 
     public String getSsid() {
+        if(takeInfoFull != null){
+            String takeInfoSsid = takeInfoFull.getSerial() + "";
+            if(!takeInfoSsid.startsWith("stp")) {
+                ssid = "stp" + String.format("%6s", takeInfoSsid).replace(' ', '0');
+            }
+        }
         return ssid;
     }
 
@@ -128,6 +139,7 @@ public class Transiver {
     }
 
     public String getMacWifi() {
+
         return macWifi;
     }
 
@@ -233,14 +245,6 @@ public class Transiver {
     }
 
 
-    public boolean isDelFlag() {
-        return delFlag;
-    }
-
-    public void setDelFlag(boolean delFlag) {
-        this.delFlag = delFlag;
-    }
-
     public int getRssi() {
         return rssi;
     }
@@ -256,10 +260,14 @@ public class Transiver {
     public byte[] getRawData() {
         return rawData;
     }
-    public void setRawData(byte[] rawData) {
-        this.rawData = rawData;
+
+    public String getVersion() {
+        return version;
     }
 
+    public void setVersion(String version) {
+        this.version = version;
+    }
 
     synchronized public boolean isCalled(int BuzzerNumber) {
         if (BuzzerNumber > 4) {
@@ -378,11 +386,9 @@ public class Transiver {
 
     @Override
     public String toString() {
-        return "Transiver{" +
-                "ssid='" + ssid + '\'' +
-                "ip='" + ip + '\'' +
-
-                '}';
+        return "Transiver: " +
+                "ssid=" + getSsid() + ", " +
+                "ip=" + getIp() + ", version=" + getVersion();
     }
 
 
@@ -413,55 +419,61 @@ public class Transiver {
     }
 
     public String getExpBasicScanInfo(){
+        Logger.d(Logger.MAIN_LOG, "get exp basic scan info, takeinfo: " + takeInfoFull);
+        if(takeInfoFull != null){
+            return takeInfoFull.toString();
+        }
+        else {
 
 //        Logger.d(Logger.APP_LOG, "tType: " + tType);
-        StringBuilder sb = new StringBuilder();
-        sb.append("ssid: ");
-        sb.append(ssid);
-        sb.append("\n");
-        sb.append("ip: ");
-        sb.append(ip);
-        sb.append("\n");
-        sb.append("mac wifi: ");
-        sb.append(macWifi);
-        sb.append("\n");
-        sb.append("mac bt: ");
-        sb.append(macBt);
-        sb.append("\n");
-        sb.append("board version: ");
-        sb.append(boardVersion);
-        sb.append("\n");
-        sb.append("os version: ");
-        sb.append(osVersion);
-        sb.append("\n");
-        sb.append("stm firmware: ");
-        sb.append(stmFirmware);
-        sb.append("\n");
-        sb.append("stm bootloader: ");
-        sb.append(stmBootloader);
-        sb.append("\n");
-        sb.append("core: ");
-        sb.append(core);
-        sb.append("\n");
-        sb.append("modem: ");
-        sb.append(modem);
-        sb.append("\n");
-        sb.append("increment of content: ");
-        sb.append(incrementOfContent);
-        sb.append("\n");
-        sb.append("uptime: ");
-        sb.append(uptime);
-        sb.append("\n");
-        sb.append("cpu temp: ");
-        sb.append(cpuTemp);
-        sb.append("\n");
-        sb.append("load: ");
-        sb.append(load);
-        sb.append("\n");
-        sb.append("type: ");
-        sb.append(tType);
-        sb.append("\n");
-        return sb.toString();
+            StringBuilder sb = new StringBuilder();
+            sb.append("ssid: ");
+            sb.append(ssid);
+            sb.append("\n");
+            sb.append("ip: ");
+            sb.append(ip);
+            sb.append("\n");
+            sb.append("mac wifi: ");
+            sb.append(macWifi);
+            sb.append("\n");
+            sb.append("mac bt: ");
+            sb.append(macBt);
+            sb.append("\n");
+            sb.append("board version: ");
+            sb.append(boardVersion);
+            sb.append("\n");
+            sb.append("os version: ");
+            sb.append(osVersion);
+            sb.append("\n");
+            sb.append("stm firmware: ");
+            sb.append(stmFirmware);
+            sb.append("\n");
+            sb.append("stm bootloader: ");
+            sb.append(stmBootloader);
+            sb.append("\n");
+            sb.append("core: ");
+            sb.append(core);
+            sb.append("\n");
+            sb.append("modem: ");
+            sb.append(modem);
+            sb.append("\n");
+            sb.append("increment of content: ");
+            sb.append(incrementOfContent);
+            sb.append("\n");
+            sb.append("uptime: ");
+            sb.append(uptime);
+            sb.append("\n");
+            sb.append("cpu temp: ");
+            sb.append(cpuTemp);
+            sb.append("\n");
+            sb.append("load: ");
+            sb.append(load);
+            sb.append("\n");
+            sb.append("type: ");
+            sb.append(tType);
+            sb.append("\n");
+            return sb.toString();
+        }
     }
 
     public String getBleExpText(){
@@ -515,11 +527,65 @@ public class Transiver {
         this.takeInfoFull = takeInfoFull;
     }
 
-    public String getPhoneIp() {
-        return phoneIp;
+    public Transiver(int rssi, String address, String deviceName, byte[] data) {
+        this.rssi = rssi;
+        this.address = address;
+        setRawData(data);
+        setSSidAndVersion(deviceName);
+        setBtPackVersion();
+        setTransiverType();
+        setIncrement();
+        setCrc();
     }
 
-    public void setPhoneIp(String phoneIp) {
-        this.phoneIp = phoneIp;
+//    public abstract String getAddInfo();
+//    public abstract int getCityIndex();
+    public int getType(){
+        return 0;
+    }
+//    public abstract int getImageId();
+
+    public void setRawData(byte[] rawData) {
+        this.rawData = rawData;
+    }
+    protected void setSSidAndVersion(String deviceName){
+        if(deviceName.equals("stp")){
+            int i = (((rawData[2] & 0xFF) << 16) + ((rawData[3] & 0xFF) << 8) + (rawData[4] & 0xFF));
+            this.ssid = "stp" + String.format("%6s", i).replace(' ', '0');
+            this.intVesion = VERSION_NEW;
+        }
+        else {
+            this.ssid = deviceName;
+            this.intVesion = VERSION_OLD;
+        }
+    }
+    private int increment;
+    private String crc;
+    protected int btPackVersion;
+    private int transiverType;
+//    protected byte[] rawData;
+
+
+
+    protected void setBtPackVersion(){ this.btPackVersion = rawData[0] & 0xff;; }
+    protected void setTransiverType(){
+        this.transiverType = rawData[5] & 0xff;
+    }
+    protected void setIncrement(){
+        if(intVesion == VERSION_OLD){
+            this.increment = rawData[8] & 0xff;
+        }
+        else {
+            this.increment = rawData[7] & 0b00001111;
+        }
+    }
+    protected void setCrc(){
+        if(intVesion == VERSION_NEW) {
+            this.crc = (byteToHex(rawData[8]) + byteToHex(rawData[9]) + byteToHex(rawData[10]) + byteToHex(rawData[11])).toLowerCase();
+        }
+    }
+
+    public int getTransiverType() {
+        return this.transiverType;
     }
 }

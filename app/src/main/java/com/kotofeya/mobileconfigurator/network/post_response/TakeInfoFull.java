@@ -7,6 +7,7 @@ import android.os.Parcelable;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.annotations.Since;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,7 +34,7 @@ public class TakeInfoFull implements Parcelable {
     private String systemTime;
     @SerializedName("uptime")
     @Expose
-    private Integer uptime;
+    private String uptime;
     @SerializedName("load1min")
     @Expose
     private String load1min;
@@ -58,6 +59,27 @@ public class TakeInfoFull implements Parcelable {
     @SerializedName("blePidHci0")
     @Expose
     private Integer blePidHci0;
+
+    @SerializedName("bleIntervalMin")
+    @Expose
+    @Since(1.7)
+    private Integer bleIntervalMin;
+
+    @SerializedName("bleIntervalMax")
+    @Expose
+    @Since(1.7)
+    private Integer bleIntervalMax;
+
+    @SerializedName("bleScanIntervalScan")
+    @Expose
+    @Since(1.7)
+    private Integer bleScanIntervalScan;
+
+    @SerializedName("bleScanIntervalWindow")
+    @Expose
+    @Since(1.7)
+    private Integer bleScanIntervalWindow;
+
     @SerializedName("interfaces")
     @Expose
     private List<TakeInfoInterface> interfaces = null;
@@ -124,111 +146,84 @@ public class TakeInfoFull implements Parcelable {
     public Integer getSerial() {
         return serial;
     }
-
     public void setSerial(Integer serial) {
         this.serial = serial;
     }
-
     public String getFollowServer() {
         return followServer;
     }
-
     public void setFollowServer(String followServer) {
         this.followServer = followServer;
     }
-
     public Integer getReplyInterval() {
         return replyInterval;
     }
-
     public void setReplyInterval(Integer replyInterval) {
         this.replyInterval = replyInterval;
     }
-
     public Boolean getHasPing() {
         return hasPing;
     }
-
     public void setHasPing(Boolean hasPing) {
         this.hasPing = hasPing;
     }
-
     public String getSystemTime() {
         return systemTime;
     }
-
     public void setSystemTime(String systemTime) {
         this.systemTime = systemTime;
     }
-
-    public Integer getUptime() {
+    public String getUptime() {
         return uptime;
     }
-
-    public void setUptime(Integer uptime) {
+    public void setUptime(String uptime) {
         this.uptime = uptime;
     }
-
     public String getLoad1min() {
         return load1min;
     }
-
     public void setLoad1min(String load1min) {
         this.load1min = load1min;
     }
-
     public String getLoad5min() {
         return load5min;
     }
-
     public void setLoad5min(String load5min) {
         this.load5min = load5min;
     }
-
     public String getLoad15min() {
         return load15min;
     }
-
     public void setLoad15min(String load15min) {
         this.load15min = load15min;
     }
-
     public Integer getCpuFreq() {
         return cpuFreq;
     }
-
     public void setCpuFreq(Integer cpuFreq) {
         this.cpuFreq = cpuFreq;
     }
-
     public Integer getCpuTemperature() {
         return cpuTemperature;
     }
-
     public void setCpuTemperature(Integer cpuTemperature) {
         this.cpuTemperature = cpuTemperature;
     }
-
     public Integer getFreeRam() {
         return freeRam;
     }
-
     public void setFreeRam(Integer freeRam) {
         this.freeRam = freeRam;
     }
-
     public String getBleMac() {
         return bleMac;
     }
-
     public void setBleMac(String bleMac) {
         this.bleMac = bleMac;
     }
-
     public Integer getBlePidHci0() {
         return blePidHci0;
     }
-
     public void setBlePidHci0(Integer blePidHci0) {
         this.blePidHci0 = blePidHci0;
     }
@@ -390,7 +385,7 @@ public class TakeInfoFull implements Parcelable {
         dest.writeInt(replyInterval);
         dest.writeBoolean(hasPing);
         dest.writeString(systemTime);
-        dest.writeInt(uptime);
+        dest.writeString(uptime);
         dest.writeString(load1min);
         dest.writeString(load5min);
         dest.writeString(load15min);
@@ -399,6 +394,10 @@ public class TakeInfoFull implements Parcelable {
         dest.writeInt(freeRam);
         dest.writeString(bleMac);
         dest.writeInt(blePidHci0);
+        dest.writeInt(bleIntervalMin);
+        dest.writeInt(bleIntervalMax);
+        dest.writeInt(bleScanIntervalScan);
+        dest.writeInt(bleScanIntervalWindow);
         dest.writeParcelableList(interfaces, 0);
         dest.writeString(scUartVer);
         dest.writeInt(scUartPid);
@@ -493,6 +492,48 @@ public class TakeInfoFull implements Parcelable {
         }
     };
 
+
+    @Override
+    public String toString() {
+        return "type: " + type + '\n' +
+                "serial: " + serial + '\n' +
+                "followServer: " + followServer + '\n' +
+                "replyInterval: " + replyInterval + '\n' +
+                "hasPing: " + hasPing + '\n' +
+                "systemTime: " + systemTime + '\n' +
+                "uptime: " + uptime + '\n' +
+                "load1min: " + load1min + '\n' +
+                "load5min: " + load5min + '\n' +
+                "load15min: " + load15min + '\n' +
+                "cpuFreq: " + cpuFreq + '\n' +
+                "cpuTemperature: " + cpuTemperature + '\n' +
+                "freeRam: " + freeRam + '\n' +
+                "bleMac: " + bleMac + '\n' +
+                "blePidHci0: " + blePidHci0 + '\n' +
+                "bleIntervalMin: " + bleIntervalMin + '\n' +
+                "bleIntervalMax: " + bleIntervalMax + '\n' +
+                "bleScanIntervalScan: " + bleScanIntervalScan + '\n' +
+                "bleScanIntervalWindow: " + bleScanIntervalWindow + '\n' +
+                "interfaces: " + interfaces + '\n' +
+                "scUartVer: " + scUartVer + '\n' +
+                "scUartPid: " + scUartPid + '\n' +
+                "boardVersion: " + boardVersion + '\n' +
+                "stmFirmware: " + stmFirmware + '\n' +
+                "stmBootload: " + stmBootload + '\n' +
+                "coreLinux: " + coreLinux + '\n' +
+                "compileDate: " + compileDate + '\n' +
+                "incrCity: " + incrCity + '\n' +
+                "stopTransLocate: " + stopTransLocate + '\n' +
+                "transpContents: " + transpContents + '\n' +
+                "statContents: " + statContents + '\n' +
+                "logPath: " + logPath + '\n' +
+                "dailyRebootTime: " + dailyRebootTime + '\n' +
+                "critCpuLoad: " + critCpuLoad + '\n' +
+                "critRamFree: " + critRamFree + '\n' +
+                "crontabTasks: " + crontabTasks + '\n' +
+                "lastReboot: " + lastReboot + '\n';
+    }
+
     // конструктор, считывающий данные из Parcel
     private TakeInfoFull(Parcel parcel) {
         type = parcel.readString();
@@ -501,7 +542,7 @@ public class TakeInfoFull implements Parcelable {
         replyInterval = parcel.readInt();
         hasPing = parcel.readBoolean();
         systemTime = parcel.readString();
-        uptime = parcel.readInt();
+        uptime = parcel.readString();
         load1min = parcel.readString();
         load5min = parcel.readString();
         load15min = parcel.readString();
@@ -510,6 +551,10 @@ public class TakeInfoFull implements Parcelable {
         freeRam = parcel.readInt();
         bleMac = parcel.readString();
         blePidHci0 = parcel.readInt();
+        bleIntervalMin = parcel.readInt();
+        bleIntervalMax = parcel.readInt();
+        bleScanIntervalScan = parcel.readInt();
+        bleScanIntervalWindow = parcel.readInt();
         interfaces = parcel.readParcelableList(new ArrayList(), TakeInfoInterface.class.getClassLoader());
         scUartVer = parcel.readString();
         scUartPid = parcel.readInt();;
@@ -519,7 +564,7 @@ public class TakeInfoFull implements Parcelable {
         coreLinux= parcel.readString();
         compileDate = parcel.readString();
         incrCity = parcel.readInt();;
-        stopTransLocate = parcel.readString();
+//        stopTransLocate = parcel.readString();
         transpContents = parcel.readParcelableList(new ArrayList<>(), TakeInfoTranspContent.class.getClassLoader());
         statContents = parcel.readParcelableList(new ArrayList<>(), TakeInfoStatContent.class.getClassLoader());
         logPath = parcel.readString();

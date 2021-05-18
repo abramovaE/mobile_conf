@@ -40,15 +40,15 @@ public class TransportTransiver extends Transiver {
 
             return 0;
         }
-
-        public int getTransportType(){
-            if(getTransVersion() == VERSION_NEW){
-                return getRawData()[14] & 0xff;
-            }
-            else {
-                return (getRawData()[2] & 0xff);
-            }
-        }
+//
+//        public int getTransportType(){
+//            if(getTransVersion() == VERSION_NEW){
+//                return getRawData()[14] & 0xff;
+//            }
+//            else {
+//                return (getRawData()[2] & 0xff);
+//            }
+//        }
 
 
 //        public String getFullNumber() {
@@ -68,73 +68,30 @@ public class TransportTransiver extends Transiver {
 //            return sb.toString();
 //        }
 
-    private String getFullNumnerVer0(){
-        byte[] rawData = getRawData();
-        StringBuilder sb = new StringBuilder();
-        int number = ((rawData[17] & 0xff) << 8) + (rawData[18] & 0xff);
-        String lit1 = getLitera(rawData[15]);
-        String lit2 = getLitera(rawData[16]);
-        String lit3 = getLitera(rawData[19]);
-        String lit4 = getLitera(rawData[20]);
 
-        String hard = "ъ";
-        if((lit1 + lit2 + lit3 + lit4).contains(hard) || (lit1 + lit2 + lit3).contains(hard.toUpperCase())){
-            return App.get().getResources().getString(R.string.transfer);
-        }
 
-        sb.append(lit1);
-        sb.append(lit2);
-        sb.append(number);
-        sb.append(lit3);
-        sb.append(lit4);
-        if(number == 0xEEEE){
-            return App.get().getResources().getString(R.string.withoutNumber);
-        }
-        return sb.toString();
-    }
 
-    private String getFullNumnerVer1(){
-        byte[] rawData = getRawData();
-        StringBuilder sb = new StringBuilder();
-        int number = ((rawData[16] & 0xff) << 8) + (rawData[17] & 0xff);
-        String lit1 = getLitera(rawData[15]);
-        String lit2 = getLitera(rawData[18]);
-        String lit3 = getLitera(rawData[19]);
-        String hard = "ъ";
-        if((lit1 + lit2 + lit3).contains(hard) || (lit1 + lit2 + lit3).contains(hard.toUpperCase())){
-            return App.get().getResources().getString(R.string.transfer);
-        }
 
-        sb.append(lit1);
-        sb.append(number);
-        sb.append(lit2);
-        sb.append(lit3);
-        if(number == 0xEEEE){
-            return App.get().getResources().getString(R.string.withoutNumber);
-        }
-        return sb.toString();
-    }
-
-    public String getFullNumber() {
-        StringBuilder sb = new StringBuilder();
-        sb.append("\"");
-        if (getTransVersion() == VERSION_NEW) {
-            if(super.getBtPackVersion() == 0) {
-                sb.append(getFullNumnerVer0());
-            }
-            else if(super.getBtPackVersion() > 0){
-                sb.append(getFullNumnerVer1());
-            }
-        }
-        else {
-            byte[] rawData = getRawData();
-            int number = ((rawData[3] & 0xff) << 8) + (rawData[4] & 0xff);
-            sb.append(number);
-            sb.append(getLitera(rawData[5]));
-        }
-        sb.append("\"");
-        return sb.toString();
-    }
+//    public String getFullNumber() {
+//        StringBuilder sb = new StringBuilder();
+//        sb.append("\"");
+//        if (getTransVersion() == VERSION_NEW) {
+//            if(super.getBtPackVersion() == 0) {
+//                sb.append(getFullNumnerVer0());
+//            }
+//            else if(super.getBtPackVersion() > 0){
+//                sb.append(getFullNumnerVer1());
+//            }
+//        }
+//        else {
+//            byte[] rawData = getRawData();
+//            int number = ((rawData[3] & 0xff) << 8) + (rawData[4] & 0xff);
+//            sb.append(number);
+//            sb.append(getLitera(rawData[5]));
+//        }
+//        sb.append("\"");
+//        return sb.toString();
+//    }
 
 
         public int getNumber(){
@@ -156,16 +113,8 @@ public class TransportTransiver extends Transiver {
             return Integer.parseInt(number);
         }
 
-    private String getLitera(byte b){
-        if((b & 0xff) != 0){
-            try {
-                return new String(new byte[]{b}, "Windows-1251").toUpperCase();
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }
-        return "";
-    }
+
+
 
 
 //    public String getLitera() {
@@ -217,41 +166,42 @@ public class TransportTransiver extends Transiver {
 
 
 
-        public int getDirection() {
-//            if(this.getNumber() == 0){
-//                return PARK;
-//            }
-//            else {
-                int dir = getIntDirection();
-                switch (dir){
-                    case 0:
-                        return PARK;
-                    case 1:
-                        return DIRECT;
-                    case 2:
-                        return  REVERSE;
-                }
-                return 0;
-//            }
-        }
+//        public int getDirection() {
+////            if(this.getNumber() == 0){
+////                return PARK;
+////            }
+////            else {
+//                int dir = getIntDirection();
+//                switch (dir){
+//                    case 0:
+//                        return PARK;
+//                    case 1:
+//                        return DIRECT;
+//                    case 2:
+//                        return  REVERSE;
+//                }
+//                return 0;
+////            }
+//        }
 
     public String getStringDirection() {
 //        if(this.getNumber() <!= 0>){
-            return App.get().getResources().getStringArray(R.array.directions)[getIntDirection()];
+            return App.get().getResources().getStringArray(R.array.directions)[getDirection()];
 //        }
 //        return App.get().getResources().getStringArray(R.array.directions)[0];
     }
 
-        public int getIntDirection(){
-            int dir;
-            if(getTransVersion() == VERSION_NEW){
-                dir = (getRawData()[7] >> 4) & 0b00000011;
-            }
-            else {
-                dir = getRawData()[6] & 0xff;
-            }
-            return dir;
-        }
+//        public int getIntDirection(){
+//            int dir;
+//            if(getTransVersion() == VERSION_NEW){
+//                dir = (getRawData()[7] >> 4) & 0b00000011;
+//            }
+//            else {
+//                dir = getRawData()[6] & 0xff;
+//            }
+//            Logger.d(Logger.TRANSPORT_TRANSIVER_LOG, "direction: " + dir);
+//            return dir;
+//        }
 
         private final static char[] hexArray = "0123456789ABCDEF".toCharArray();
 
@@ -293,5 +243,193 @@ public class TransportTransiver extends Transiver {
             }
         return "";
     }
+
+
+    private int number;
+    private int transportType;
+    private int transportTypeMain;
+    private int direction;
+    private int cityIndex;
+//    private CityEntity city;
+    private String fullNumber;
+//    private TransportEntity route;
+//
+//    public static final int PARK = 0;
+//    public static final int DIRECT = 1;
+//    public static final int REVERSE = 2;
+
+
+    public TransportTransiver(int rssi, String address, String deviceName, byte[] data) {
+        super(rssi, address, deviceName, data);
+        setNumber();
+        setTransportType();
+        setTransportTypeMain();
+        setDirection();
+        setCityIndex();
+//        setCity();
+        setFullNumber();
+//        setRoute();
+    }
+
+
+    private void setNumber(){
+        if (super.intVesion == Transiver.VERSION_NEW) {
+            if(super.btPackVersion == 0) {
+                this.number = ((rawData[17] & 0xff) << 8) + (rawData[18] & 0xff);
+            }
+            else if(super.btPackVersion > 0){
+                this.number = ((rawData[16] & 0xff) << 8) + (rawData[17] & 0xff);
+            }
+        }
+        else {
+            this.number = ((rawData[3] & 0xff) << 8) + (rawData[4] & 0xff);
+        }
+    }
+    private void setTransportType(){
+        if(super.intVesion == VERSION_NEW){
+            this.transportType = rawData[14] & 0xff;
+        }
+        else {
+            this.transportType = (rawData[2] & 0xff);
+        }
+    }
+    private void setTransportTypeMain(){
+        switch (this.transportType) {
+            case 1:
+            case 2:
+            case 3:
+            case 7:
+            case 8:
+            case 9:
+                this.transportTypeMain = this.transportType;
+                break;
+            case 4:
+            case 5:
+            case 6:
+                this.transportTypeMain = this.transportType - 3;
+                break;
+            case 10:
+            case 11:
+            case 12:
+                this.transportTypeMain = this.transportType - 9;
+                break;
+            case 13:
+            case 14:
+            case 15:
+                this.transportTypeMain = this.transportType - 6;
+                break;
+            default:
+                this.transportTypeMain = 0;
+        }
+    }
+    private void setDirection(){
+        if(super.intVesion == VERSION_NEW){
+            this.direction = (rawData[7] >> 4) & 0b00000011;
+        }
+        else {
+            this.direction = rawData[6] & 0xff;
+        }
+        Logger.d(Logger.TRANSPORT_TRANSIVER_LOG, "set direction: " + direction);
+    }
+    private void setCityIndex(){
+        if(super.intVesion == Transiver.VERSION_NEW){
+            this.cityIndex = (((rawData[12] & 0xff)) + (rawData[13] & 0xff));
+        }
+        else {
+            this.cityIndex = 0;
+        }
+    }
+//    private void setCity(){
+//        city = App.get().getAppDataBase().cityDao().findByExtId(cityIndex);
+//    }
+    private void setFullNumber() {
+        StringBuilder sb = new StringBuilder();
+        sb.append("\"");
+        if(number == 0xEEEE){
+            sb.append(App.get().getResources().getString(R.string.withoutNumber));
+        }
+        else {
+            if (super.intVesion == Transiver.VERSION_NEW) {
+                if(super.btPackVersion == 0) {
+                    sb.append(getFullNumnerVer0());
+                }
+                else if(super.btPackVersion > 0){
+                    sb.append(getFullNumnerVer1());
+                }
+            }
+            else {
+                sb.append(number);
+                sb.append(getLitera(rawData[5]));
+            }
+        }
+        sb.append("\"");
+        this.fullNumber = sb.toString();
+    }
+    private String getFullNumnerVer0(){
+        StringBuilder sb = new StringBuilder();
+        String lit1 = getLitera(rawData[15]);
+        String lit2 = getLitera(rawData[16]);
+        String lit3 = getLitera(rawData[19]);
+        String lit4 = getLitera(rawData[20]);
+        sb.append(lit1);
+        sb.append(lit2);
+        sb.append(number);
+        sb.append(lit3);
+        sb.append(lit4);
+        return sb.toString();
+    }
+    private String getFullNumnerVer1(){
+        StringBuilder sb = new StringBuilder();
+        String lit1 = getLitera(rawData[15]);
+        String lit2 = getLitera(rawData[18]);
+        String lit3 = getLitera(rawData[19]);
+        if(lit2.equals("") && !lit3.equals("")){
+            lit2 = " ";
+        }
+        sb.append(lit1);
+        sb.append(number);
+        sb.append(lit2);
+        sb.append(lit3);
+        return sb.toString();
+    }
+    private String getLitera(byte b){
+        if((b & 0xff) != 0){
+            try {
+                return new String(new byte[]{b}, "Windows-1251").toUpperCase();
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }
+        return "";
+    }
+//    private void setRoute(){
+//        if(city != null) {
+//            this.route = App.get().getDBHelper().readRoute(transportType, fullNumber, city.getIndex());
+//        }
+//    }
+
+    public int getTransportType(){
+        return transportType;
+    }
+    @Override
+    public int getType() {
+        return transportTypeMain;
+    }
+    public int getTransportTypeMain(){
+        return transportTypeMain;
+    }
+    public int getDirection() {
+        return this.direction;
+    }
+//    @Override
+    public int getCityIndex(){
+        return this.cityIndex;
+    }
+    public String getFullNumber(){
+        return this.fullNumber;
+    }
+//    public TransportEntity getRoute(){
+//        return this.route;
+//    }
 }
 
