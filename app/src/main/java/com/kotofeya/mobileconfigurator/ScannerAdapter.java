@@ -43,6 +43,10 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
     public static final int UPDATE_CONTENT_TYPE = 4;
     public static final int CONFIG_TRANSPORT = 5;
     public static final int CONFIG_STATION = 6;
+    public static final int STM_LOG = 7;
+    public static final int SETTINGS_WIFI = 8;
+    public static final int SETTINGS_NETWORK = 9;
+
 
     public ScannerAdapter(Context context, Utils utils, int scannerType, List<Transiver> objects) {
         this.ctx = context;
@@ -240,6 +244,18 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                     textItem0.setVisibility(View.VISIBLE);
                     view.setOnClickListener(configListener(FragmentHandler.STATION_CONTENT_FRAGMENT, p.getSsid()));
                 }
+            }
+            else if (scannerType == STM_LOG) {
+                Logger.d(Logger.SCANNER_ADAPTER_LOG, "transiver selected");
+                view.setOnClickListener(configListener(FragmentHandler.TRANSIVER_STM_LOG_FRAGMENT, p.getSsid()));
+            }
+            else if (scannerType == SETTINGS_WIFI) {
+                Logger.d(Logger.SCANNER_ADAPTER_LOG, "transiver selected");
+                view.setOnClickListener(configListener(FragmentHandler.TRANSIVER_SETTINGS_WIFI_FRAGMENT, p.getSsid()));
+            }
+            else if (scannerType == SETTINGS_NETWORK) {
+                Logger.d(Logger.SCANNER_ADAPTER_LOG, "transiver selected");
+                view.setOnClickListener(configListener(FragmentHandler.TRANSIVER_SETTINGS_NETWORK_FRAGMENT, p.getSsid()));
             }
         }
         return view;

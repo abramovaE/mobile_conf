@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+<LinearLayout
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="50dp">
+
+
+<!--    <Button-->
+<!--        android:id="@+id/spoilerBtn"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="@string/spoiler">-->
+<!--    </Button>-->
+<!--    <TextView-->
+<!--        android:id="@+id/content_label"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:textSize="@dimen/content_txt"-->
+<!--        android:padding="5dp"-->
+<!--        android:text="@string/content_label_reboot"-->
+<!--        android:gravity="center"-->
+<!--        android:layout_marginTop="100px"-->
+<!--        android:layout_marginBottom="20px"-->
+<!--        android:visibility="gone"-->
+<!--        />-->
+
+
+    <TextView
+        android:id="@+id/stm_log"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="5dp"/>
+
+    <LinearLayout
+        android:id="@+id/reboot_ll"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+
+        <Button
+            android:id="@+id/show_stm_log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="2dp"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:text="@string/show_stm_log"/>
+        <Button
+            android:id="@+id/clear_stm_log"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dp"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:text="@string/clear_stm_log"/>
+
+    </LinearLayout>
+
+</LinearLayout>
+</ScrollView>

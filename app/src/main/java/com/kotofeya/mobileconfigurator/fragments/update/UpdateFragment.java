@@ -141,9 +141,10 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         super.onViewCreated(view, savedInstanceState);
         viewModel = ViewModelProviders.of(getActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
         viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
-        if(viewModel.getTransivers().getValue().isEmpty()) {
+//        if(viewModel.getTransivers().getValue().isEmpty()) {
             scan();
-        }
+//        }
+        Logger.d(Logger.UPDATE_LOG, "on view created");
     }
 
     private void updateUI(List<Transiver> transivers){
@@ -228,10 +229,10 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         progressBar.setProgress(downloaded);
     }
 
-    abstract void loadUpdates();
-    abstract void loadVersion();
-    abstract void setMainTextLabelText();
-    abstract ScannerAdapter getScannerAdapter();
+    protected abstract void loadUpdates();
+    protected abstract void loadVersion();
+    protected abstract void setMainTextLabelText();
+    protected abstract ScannerAdapter getScannerAdapter();
 
 
     private void uploaded(String ip){

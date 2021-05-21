@@ -45,7 +45,7 @@
 
     <string name="mobile_conf">Мобильный конфигуратор</string>
     <string name="hotspot_dialog_title">Настройки точки доступа</string>
-    <string name="hotspot_dialog_message">Чтобы использовать все функции приложения, вам необходимо включить точку доступа (с именем "trpr").
+    <string name="hotspot_dialog_message">Чтобы использовать все функции приложения, вам необходимо включить точку доступа (с именем "SpeakService").
 Настроить точку доступа?</string>
 
     <string name="spoiler">Перезагрузить / очистить</string>
@@ -56,7 +56,7 @@
 
     <string name="mobile_internet_title">Требуется интернет</string>
     <string name="mobile_internet_message">Пожалуйста, проверьте подключение к интернету</string>
-    <string name="main_settings_btn">Настройки</string>
+    <string name="main_settings_btn">Настройки приложения</string>
     <string name="settings_show_access_point_dialog">Показывать диалог настройки точки доступа</string>
     <string name="zummer_type_hint">Тип звучка</string>
     <string name="zummer_volume_hint">Уровень громкости звучка</string>
@@ -83,4 +83,17 @@
     <string name="successful">Успешно</string>
     <string name="incorrect_autorization">Неправильный логин или пароль</string>
     <string name="server_not_response">Сервер не отвечает</string>
+
+    <string name="main_stm_log_btn">Stm лог</string>
+    <string name="show_stm_log">Посмотреть stm лог</string>
+    <string name="clear_stm_log">Очистить stm лог</string>
+    <string name="settings">Настройки</string>
+    <string name="main_settings_wifi_btn">Wifi</string>
+    <string name="show_settings_wifi">Посмотреть настройки wifi</string>
+    <string name="set_default_wifi_settings">Установить настройки wifi по умолчанию</string>
+    <string name="add_new_wifi_settings">Задать параметры дополнительной wifi сети</string>
+    <string name="add_new_wifi_title">Задать параметры дополнительной wifi сети</string>
+    <string name="main_settings_network_btn">Network</string>
+    <string name="show_settings_network">Посмотреть настройки network</string>
+
 </resources>

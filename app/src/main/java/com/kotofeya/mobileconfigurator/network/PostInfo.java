@@ -80,6 +80,9 @@ public class PostInfo implements Runnable {
             if(command.startsWith(PostCommand.TRANSP_CONTENT)){
                 command = PostCommand.TRANSP_CONTENT;
             }
+            if (command.startsWith(PostCommand.WIFI)){
+                command = PostCommand.WIFI;
+            }
 //            else if(command.startsWith(PostCommand.REBOOT)){
 //                command = PostCommand.REBOOT;
 //            }
@@ -116,8 +119,10 @@ public class PostInfo implements Runnable {
                         result.putString(RESPONSE, ver);
                         break;
                     case PostCommand.STM_UPDATE_LOG:
+                        result.putString(RESPONSE, content.toString());
                         break;
                     case PostCommand.STM_UPDATE_LOG_CLEAR:
+                        result.putString(RESPONSE, content.toString());
                         break;
                     case PostCommand.ERASE_CONTENT:
                         result.putString(RESPONSE, content.toString());
@@ -137,14 +142,26 @@ public class PostInfo implements Runnable {
                         result.putString(RESPONSE, content.toString());
                         break;
 
+                    case PostCommand.READ_WPA:
+                        result.putString(RESPONSE, content.toString());
+                        break;
 
+                    case PostCommand.WIFI_CLEAR:
+                        result.putString(RESPONSE, content.toString());
+                        break;
+
+                    case PostCommand.WIFI:
+                        result.putString(RESPONSE, content.toString());
+                        break;
+                    case PostCommand.READ_NETWORK:
+                        result.putString(RESPONSE, content.toString());
+                        break;
                 }
             } else {
                 result.putString(PostInfo.COMMAND, PostCommand.POST_COMMAND_ERROR);
             }
             Logger.d(Logger.POST_INFO_LOG, "listener: " + listener);
             reader.close();
-            listener.onTaskCompleted(result);
         } catch (MalformedURLException e) {
             Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage());
             result.putString(PostInfo.COMMAND, PostCommand.POST_COMMAND_ERROR);
@@ -163,6 +180,9 @@ public class PostInfo implements Runnable {
             Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage());
             e.printStackTrace();
         }
+
+        listener.onTaskCompleted(result);
+
     }
 
     private String getUrl(String ip, String command)  throws IOException{

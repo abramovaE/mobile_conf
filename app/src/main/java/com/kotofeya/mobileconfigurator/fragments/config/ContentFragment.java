@@ -147,12 +147,9 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         btnContntSend = view.findViewById(R.id.content_btn_send);
         btnClearRasp = view.findViewById(R.id.content_btn_clear);
         btnRebootAll = view.findViewById(R.id.content_btn_all);
-
         this.ssid = getArguments().getString("ssid");
         return view;
     }
-
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

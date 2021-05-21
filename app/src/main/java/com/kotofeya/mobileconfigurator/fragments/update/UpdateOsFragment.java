@@ -39,7 +39,7 @@ public class UpdateOsFragment extends UpdateFragment {
     }
 
     @Override
-    void loadVersion() {
+    protected void loadVersion() {
         Logger.d(Logger.UPDATE_OS_LOG, "load version");
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         if(isInternetEnabled){
@@ -52,16 +52,16 @@ public class UpdateOsFragment extends UpdateFragment {
     }
 
     @Override
-    void setMainTextLabelText() {
+    protected void setMainTextLabelText() {
         mainTxtLabel.setText(R.string.update_os_main_txt_label);
     }
 
     @Override
-    ScannerAdapter getScannerAdapter() {
+    protected ScannerAdapter getScannerAdapter() {
         return new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_OS_TYPE, new ArrayList<>());
     }
 
-    void loadUpdates() {
+    protected void loadUpdates() {
         Downloader downloader = new Downloader(this);
         downloader.execute(Downloader.OS_URL);
     }

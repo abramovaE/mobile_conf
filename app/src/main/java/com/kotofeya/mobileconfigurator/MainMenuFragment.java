@@ -18,6 +18,9 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
     private Button configTransportBtn;
     private Button configStationBtn;
     private Button settingsBtn;
+    private Button stmLogBtn;
+    private Button settingsWifiBtn;
+    private Button settingsNetworkBtn;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -38,6 +41,13 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
         configStationBtn.setOnClickListener(this);
         settingsBtn = view.findViewById(R.id.main_settings_btn);
         settingsBtn.setOnClickListener(this);
+        stmLogBtn = view.findViewById(R.id.main_stm_log_btn);
+        stmLogBtn.setOnClickListener(this);
+        settingsWifiBtn = view.findViewById(R.id.main_settings_wifi_btn);
+        settingsWifiBtn.setOnClickListener(this);
+        settingsNetworkBtn = view.findViewById(R.id.main_settings_network_btn);
+        settingsNetworkBtn.setOnClickListener(this);
+
         return view;
     }
 
@@ -80,6 +90,18 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
             case R.id.main_settings_btn:
                 Logger.d(Logger.MAIN_LOG, "settings was pressed");
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.SETTINGS_FRAGMENT);
+                break;
+            case R.id.main_stm_log_btn:
+                Logger.d(Logger.MAIN_LOG, "stm log was pressed");
+                App.get().getFragmentHandler().changeFragment(FragmentHandler.STM_LOG_FRAGMENT);
+                break;
+            case R.id.main_settings_wifi_btn:
+                Logger.d(Logger.MAIN_LOG, "main settings wifi was pressed");
+                App.get().getFragmentHandler().changeFragment(FragmentHandler.SETTINGS_WIFI_FRAGMENT);
+                break;
+            case R.id.main_settings_network_btn:
+                Logger.d(Logger.MAIN_LOG, "main settings network was pressed");
+                App.get().getFragmentHandler().changeFragment(FragmentHandler.SETTINGS_NETWORK_FRAGMENT);
                 break;
         }
     }

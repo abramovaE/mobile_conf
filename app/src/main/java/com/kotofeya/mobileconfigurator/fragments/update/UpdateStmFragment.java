@@ -25,7 +25,7 @@ public class UpdateStmFragment extends UpdateFragment {
     private static final String PREF_STAT = "stationary";
 
      @Override
-    void loadVersion() {
+     protected void loadVersion() {
          Logger.d(Logger.UPDATE_STM_LOG, "load version");
          boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         if(isInternetEnabled){
@@ -38,16 +38,16 @@ public class UpdateStmFragment extends UpdateFragment {
     }
 
     @Override
-    void setMainTextLabelText() {
+    protected void setMainTextLabelText() {
         mainTxtLabel.setText(R.string.update_stm_main_txt_label);
     }
 
     @Override
-    ScannerAdapter getScannerAdapter() {
+    protected ScannerAdapter getScannerAdapter() {
         return new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_STM_TYPE, new ArrayList<>());
     }
 
-    void loadUpdates(){
+    protected void loadUpdates(){
         Downloader downloader = new Downloader(this);
         downloader.execute(Downloader.STM_VERSION_URL);
     }

@@ -44,6 +44,9 @@ public class Logger {
     public static final int VIEW_MODEL_LOG = 22;
     public static final int POST_INFO_LOG = 23;
     public static final int FRAGMENT_LOG = 24;
+    public static final int STM_LOG_LOG = 25;
+    public static final int TRANSIVER_STM_LOG_LOG = 26;
+
 
 
 
@@ -75,6 +78,8 @@ public class Logger {
         mType.put(VIEW_MODEL_LOG, "View_model_task");
         mType.put(POST_INFO_LOG, "Post_info_task");
         mType.put(FRAGMENT_LOG, "Fragment_task");
+        mType.put(STM_LOG_LOG, "Stm_log_task");
+        mType.put(TRANSIVER_STM_LOG_LOG, "Transiver_stm_log_task");
 
 
     }

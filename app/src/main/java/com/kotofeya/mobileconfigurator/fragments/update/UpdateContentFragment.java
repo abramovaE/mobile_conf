@@ -35,7 +35,7 @@ public class UpdateContentFragment extends UpdateFragment {
     }
 
     @Override
-    void loadUpdates() {
+    protected void loadUpdates() {
     }
 
     @Override
@@ -50,7 +50,7 @@ public class UpdateContentFragment extends UpdateFragment {
 
 
     @Override
-    void loadVersion() {
+    protected void loadVersion() {
         Logger.d(Logger.UPDATE_CONTENT_LOG, "load version");
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         if(isInternetEnabled) {
@@ -67,12 +67,12 @@ public class UpdateContentFragment extends UpdateFragment {
     }
 
     @Override
-    void setMainTextLabelText() {
+    protected void setMainTextLabelText() {
         mainTxtLabel.setText(R.string.update_content_main_txt_label);
     }
 
     @Override
-    ScannerAdapter getScannerAdapter() {
+    protected ScannerAdapter getScannerAdapter() {
         return new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_CONTENT_TYPE, new ArrayList<>());
     }
 

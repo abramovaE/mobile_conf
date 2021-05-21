@@ -9,13 +9,19 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
-import com.kotofeya.mobileconfigurator.fragments.SettingsFragment;
+import com.kotofeya.mobileconfigurator.fragments.settings.SettingsFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.ConfigStatFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.ConfigTransportFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.StationContentFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.TransportContentFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.SettingsNetworkFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.SettingsWifiFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.StmLogFragment;
 import com.kotofeya.mobileconfigurator.fragments.scanner.BasicScannerFragment;
 import com.kotofeya.mobileconfigurator.fragments.scanner.BleScannerFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.TransiverSettingsNetworkFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.TransiverSettingsWifiFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.TransiverStmLogFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateContentFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateStmFragment;
@@ -36,10 +42,16 @@ public class FragmentHandler {
     final static String TRANSPORT_CONTENT_FRAGMENT = "TRANSPORT_CONTENT_FRAGMENT";
     final static String STATION_CONTENT_FRAGMENT = "STATION_CONTENT_FRAGMENT";
     final static String SETTINGS_FRAGMENT = "SETTINGS_FRAGMENT";
+    final static String STM_LOG_FRAGMENT = "STM_LOG_FRAGMENT";
+    final static String TRANSIVER_STM_LOG_FRAGMENT = "TRANSIVER_STM_LOG_FRAGMENT";
+    final static String SETTINGS_WIFI_FRAGMENT = "SETTINGS_WIFI_FRAGMENT";
+    final static String TRANSIVER_SETTINGS_WIFI_FRAGMENT = "TRANSIVER_SETTINGS_WIFI_FRAGMENT";
+    final static String SETTINGS_NETWORK_FRAGMENT = "SETTINGS_NETWORK_FRAGMENT";
+    final static String TRANSIVER_SETTINGS_NETWORK_FRAGMENT = "TRANSIVER_SETTINGS_NETWORK_FRAGMENT";
 
     public final static String ENABLE_MOBILE_DIALOG_TAG = "ENABLE_MOBILE_DIALOG";
-
     public final static String CONFIRMATION_DIALOG_TAG = "CONFIRMATION_DIALOG";
+    public final static String ADD_NEW_WIFI_SETTINGS_DIALOG = "ADD_NEW_WIFI_SETTINGS_DIALOG";
 
     public FragmentManager getFragmentManager() {
         return fragmentManager;
@@ -75,6 +87,18 @@ public class FragmentHandler {
                     return new StationContentFragment();
                 case SETTINGS_FRAGMENT:
                     return new SettingsFragment();
+                case STM_LOG_FRAGMENT:
+                    return new StmLogFragment();
+                case TRANSIVER_STM_LOG_FRAGMENT:
+                    return new TransiverStmLogFragment();
+                case SETTINGS_WIFI_FRAGMENT:
+                    return new SettingsWifiFragment();
+                case TRANSIVER_SETTINGS_WIFI_FRAGMENT:
+                    return new TransiverSettingsWifiFragment();
+                case SETTINGS_NETWORK_FRAGMENT:
+                    return new SettingsNetworkFragment();
+                case TRANSIVER_SETTINGS_NETWORK_FRAGMENT:
+                    return new TransiverSettingsNetworkFragment();
             }
         }
         return fragment;

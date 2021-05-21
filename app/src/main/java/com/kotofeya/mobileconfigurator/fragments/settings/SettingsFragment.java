@@ -1,4 +1,4 @@
-package com.kotofeya.mobileconfigurator.fragments;
+package com.kotofeya.mobileconfigurator.fragments.settings;
 
 import android.content.Context;
 import android.os.Bundle;

@@ -84,6 +84,13 @@
             android:text="@string/main_update_content_btn"
             style="@style/MainMenuBtnStyle"/>
 
+            <Button
+                android:id="@+id/main_stm_log_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/main_stm_log_btn"
+                style="@style/MainMenuBtnStyle"/>
+
         </LinearLayout>
 
         <LinearLayout
@@ -114,7 +121,34 @@
                 android:text="@string/main_config_station_btn"
                 style="@style/MainMenuBtnStyle"/>
         </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:background="@color/colorConfiguration">
 
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/settings"
+                android:padding="5dp"
+                android:textSize="20dp"
+                android:gravity="center|center_vertical"/>
+            <Button
+                android:id="@+id/main_settings_wifi_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/main_settings_wifi_btn"
+                style="@style/MainMenuBtnStyle"/>
+            <Button
+                android:id="@+id/main_settings_network_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/main_settings_network_btn"
+                style="@style/MainMenuBtnStyle"/>
+        </LinearLayout>
         <Button
             android:id="@+id/main_settings_btn"
             android:layout_width="match_parent"

@@ -13,7 +13,11 @@ public interface PostCommand {
     String ERASE_CONTENT = "erase_content";
     String TRANSP_CONTENT = "transp";
     String REBOOT = "reboot";
+    String READ_WPA = "read_wpa";
+    String READ_NETWORK = "read_network";
 
+
+    String WIFI_CLEAR = "wifi_clear";
 
     //    floor - установить этаж трансивера (пример: floor_1 - установит первый этаж)
     default String floor(int floorNumber){

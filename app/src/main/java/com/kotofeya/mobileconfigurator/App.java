@@ -13,7 +13,6 @@ import org.acra.sender.HttpSender;
 
 import java.io.File;
 
-import retrofit2.Retrofit;
 
 //@AcraCore(buildConfigClass = BuildConfig.class, reportFormat = StringFormat.KEY_VALUE_LIST)
 //@AcraHttpSender(uri = "http://95.161.210.44/mobile_conf_acra.php",
@@ -26,7 +25,7 @@ public class App extends Application {
     private String updateOsFilePath;
     private String updateOsFileVersion;
     private boolean showAccessPointDialog;
-    private Retrofit retrofit;
+
 
     private String login;
 
@@ -130,7 +129,4 @@ public class App extends Application {
         this.fragmentHandler = fragmentHandler;
     }
 
-    public Retrofit getRetrofit() {
-        return retrofit;
-    }
 }
