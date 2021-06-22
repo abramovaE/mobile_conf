@@ -35,4 +35,7 @@ public interface TaskCode {
     int SEND_LOG_TO_SERVER_CODE = 21;
 
 
+    int UPDATE_CORE_UPLOAD_CODE = 22;
+
+
 }

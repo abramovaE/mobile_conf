@@ -96,7 +96,13 @@
     <string name="add_new_wifi_settings">Set additional wifi network parameters</string>
     <string name="add_new_wifi_title">Set additional wifi network parameters</string>
     <string name="main_settings_network_btn">Network</string>
-    <string name="show_settings_network">Show network settings</string>
+    <string name="show_settings_network">Show ethernet settings</string>
+    <string name="set_default_network_settings">Set default ethernet settings</string>
+    <string name="add_new_network_settings">Set ethernet interface parameters</string>
+    <string name="set_ethernet_params_title">Set ethernet interface parameters</string>
+    <string name="main_settings_scuart_btn">ScUart</string>
+    <string name="main_settings_update_php_btn">Update PHP</string>
+    <string name="main_settings_update_core_btn">Update the core</string>
 
 
 </resources>

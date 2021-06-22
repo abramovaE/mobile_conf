@@ -49,22 +49,22 @@
             android:layout_weight="1"
             android:enabled="false"
             android:text="@string/show_settings_network"/>
-<!--        <Button-->
-<!--            android:id="@+id/set_default_network_settings"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginLeft="2dp"-->
-<!--            android:layout_weight="1"-->
-<!--            android:enabled="false"-->
-<!--            android:text="@string/set_default_wifi_settings"/>-->
-<!--        <Button-->
-<!--            android:id="@+id/add_new_network_settings"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_marginLeft="2dp"-->
-<!--            android:layout_weight="1"-->
-<!--            android:enabled="false"-->
-<!--            android:text="@string/add_new_wifi_settings"/>-->
+        <Button
+            android:id="@+id/set_default_network_settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dp"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:text="@string/set_default_network_settings"/>
+        <Button
+            android:id="@+id/add_new_network_settings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="2dp"
+            android:layout_weight="1"
+            android:enabled="false"
+            android:text="@string/add_new_network_settings"/>
 
     </LinearLayout>
 

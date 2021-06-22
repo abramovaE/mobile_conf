@@ -21,6 +21,8 @@ import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
+import com.kotofeya.mobileconfigurator.network.PostCommand;
+import com.kotofeya.mobileconfigurator.network.PostInfo;
 
 import java.util.ArrayList;
 
@@ -100,4 +102,37 @@ public class UpdateOsFragment extends UpdateFragment {
             return builder.create();
         }
     }
+
+    public static class UpdatePhpConfDialog extends DialogFragment {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            String ip = getArguments().getString("ip");
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.confirmation_is_required);
+            builder.setMessage("Confirm the update of PHP version");
+            builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                    View view = App.get().getFragmentHandler().getCurrentFragment().getView();
+//                    ProgressBar progressBar = view.findViewById(R.id.scanner_progressBar);
+//                    progressBar.setVisibility(View.VISIBLE);
+
+                    Thread thread = new Thread(new PostInfo((SettingsUpdatePhpFragment) App.get().getFragmentHandler().getCurrentFragment(), ip,
+                            PostCommand.UPDATE_PHP));
+                    thread.start();
+
+//                    SshConnection connection = new SshConnection(((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()));
+//                    connection.execute(ip, SshConnection.UPDATE_OS_UPLOAD_CODE);
+                }
+            });
+            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                }
+            });
+            builder.setCancelable(true);
+            return builder.create();
+        }
+    }
+
+
 }

@@ -46,6 +46,7 @@ public class Logger {
     public static final int FRAGMENT_LOG = 24;
     public static final int STM_LOG_LOG = 25;
     public static final int TRANSIVER_STM_LOG_LOG = 26;
+    public static final int UPDATE_CORE_LOG = 27;
 
 
 
@@ -80,7 +81,7 @@ public class Logger {
         mType.put(FRAGMENT_LOG, "Fragment_task");
         mType.put(STM_LOG_LOG, "Stm_log_task");
         mType.put(TRANSIVER_STM_LOG_LOG, "Transiver_stm_log_task");
-
+        mType.put(UPDATE_CORE_LOG, "Update_core_log_task");
 
     }
 

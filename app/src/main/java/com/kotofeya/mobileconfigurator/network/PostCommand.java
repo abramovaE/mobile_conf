@@ -11,34 +11,46 @@ public interface PostCommand {
     String STM_UPDATE_LOG_CLEAR = "stm_update_log_clear";
 //    erase_content - удаление контента (очистка директорий data, рекурсивно)
     String ERASE_CONTENT = "erase_content";
+
     String TRANSP_CONTENT = "transp";
     String REBOOT = "reboot";
     String READ_WPA = "read_wpa";
     String READ_NETWORK = "read_network";
-
-
+    String WIFI = "wifi";
     String WIFI_CLEAR = "wifi_clear";
+    String NETWORK_CLEAR = "static_clear";
+    String STATIC = "static";
+    String POST_COMMAND_ERROR = "postCommandError";
+
+    String SCUART = "scUart";
+    String UPDATE_PHP = "update_php";
+    String UPDATE_CORE = "update_core";
+
+
+    String FLOOR = "floor";
+    String SOUND = "sound";
+    String VOLUME = "volume";
 
     //    floor - установить этаж трансивера (пример: floor_1 - установит первый этаж)
     default String floor(int floorNumber){
-        return "floor_" + floorNumber;
+        return FLOOR + "_" + floorNumber;
     }
 //    sound - установить тип звучания маяка (1 - комнатный, 2 - уличный). Пример: sound_2 - установит тип звучания "уличный"
 //    Иные значения не примутся системой
     default String sound(int soundNumber){
-        return "sound_" + soundNumber;
+        return SOUND + "_" + soundNumber;
     }
 //    volume - установить громкость звукового маяка (0-100). Пример: volume_20 - установит громкость на 20 (зависимость не линейная)
 //    Иные значения не примутся системой
     default String volume(int volumeValue){
-        return "volume_" + volumeValue;
+        return VOLUME + "_" + volumeValue;
     }
 //    reboot - инициирует перезапуск система
 //    rasp - перезапуск raspberry
 //    stm - перезапуск контроллера
 //    all - перезапуск обоих в порядке, сначала STM потом Raspberry
     default String reboot(String device){
-        return "reboot_" + device;
+        return REBOOT + "_" + device;
     }
 //    transp - конфигурация транспортного трансивера
 //    TYPETRANS_LIT_NUM_LIT_LIT_NAPR - задается в виде аналогичном читаемому
@@ -59,7 +71,7 @@ public interface PostCommand {
 //        if(lit3 != null && !lit3.isEmpty()){
             lit3 = lit3 + "_";
 //        }
-        return "transp_" + type + "_" + lit1 + num + "_" + lit2 + lit3 + dir;
+        return TRANSP_CONTENT + "_" + type + "_" + lit1 + num + "_" + lit2 + lit3 + dir;
     }
 //    static - настройка статического IP ethernet интерфейса
 //    clear - привести конфигурацию к стандартному виду (настройки примутся при перезапуске, он инициируется отдельно)
@@ -71,7 +83,7 @@ public interface PostCommand {
 //    MASK - 255.255.255.254
 //    (настройки примутся при перезапуске, он инициируется отдельно)
     default String staticEthernet(String... args){
-        StringBuilder staticCommand = new StringBuilder("static");
+        StringBuilder staticCommand = new StringBuilder(STATIC);
         for(String s:args){
             staticCommand.append("_" + s);
         }
@@ -86,14 +98,12 @@ public interface PostCommand {
 //    PASSW - verYcooLpass
 //            (настройки примутся при перезапуске, он инициируется отдельно)
 //    Имеются ограничения для пароля - от 8 до 63 символов, система сообщит если правило нарушено
-    String WIFI = "wifi";
     default String wifi(String... args){
-        StringBuilder wifiCommand = new StringBuilder("wifi");
+        StringBuilder wifiCommand = new StringBuilder(WIFI);
         for(String s:args){
             wifiCommand.append("_" + s);
         }
         return wifiCommand.toString();
     }
 
-    String POST_COMMAND_ERROR = "postCommandError";
 }

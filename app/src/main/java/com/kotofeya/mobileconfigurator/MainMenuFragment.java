@@ -21,6 +21,9 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
     private Button stmLogBtn;
     private Button settingsWifiBtn;
     private Button settingsNetworkBtn;
+    private Button scUartBtn;
+    private Button updatePhp;
+    private Button updateCore;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -47,7 +50,12 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
         settingsWifiBtn.setOnClickListener(this);
         settingsNetworkBtn = view.findViewById(R.id.main_settings_network_btn);
         settingsNetworkBtn.setOnClickListener(this);
-
+        scUartBtn = view.findViewById(R.id.main_settings_scuart_btn);
+        scUartBtn.setOnClickListener(this);
+        updatePhp = view.findViewById(R.id.main_settings_update_php_btn);
+        updatePhp.setOnClickListener(this);
+        updateCore = view.findViewById(R.id.main_settings_update_core_btn);
+        updateCore.setOnClickListener(this);
         return view;
     }
 
@@ -102,6 +110,18 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
             case R.id.main_settings_network_btn:
                 Logger.d(Logger.MAIN_LOG, "main settings network was pressed");
                 App.get().getFragmentHandler().changeFragment(FragmentHandler.SETTINGS_NETWORK_FRAGMENT);
+                break;
+            case R.id.main_settings_scuart_btn:
+                Logger.d(Logger.MAIN_LOG, "main settings scuart was pressed");
+                App.get().getFragmentHandler().changeFragment(FragmentHandler.SETTINGS_SCUART_FRAGMENT);
+                break;
+            case R.id.main_settings_update_php_btn:
+                Logger.d(Logger.MAIN_LOG, "main settings update php was pressed");
+                App.get().getFragmentHandler().changeFragment(FragmentHandler.SETTINGS_UPDATE_PHP_FRAGMENT);
+                break;
+            case R.id.main_settings_update_core_btn:
+                Logger.d(Logger.MAIN_LOG, "main settings update core was pressed");
+                App.get().getFragmentHandler().changeFragment(FragmentHandler.SETTINGS_UPDATE_CORE_FRAGMENT);
                 break;
         }
     }

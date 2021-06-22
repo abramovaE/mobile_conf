@@ -2,6 +2,7 @@ package com.kotofeya.mobileconfigurator;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -47,6 +48,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
     private int resultCode;
 
     public SshConnection(OnTaskCompleted listener){
+        Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh connection");
             this.listener = listener;
     }
 
@@ -100,6 +102,24 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     execCommand(session, moveCommand + ";" + DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND);
                     break;
 
+                case UPDATE_CORE_UPLOAD_CODE:
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "update core uploading started");
+                    transferred = 0;
+                    for(File f: Downloader.tempUpdateCoreFiles){
+                        uploadToOverlayUpdate(session, f);
+                        String renameCommand = "";
+                        if(f.getName().contains("root-1.4-pre-1.5.img.bz2")){
+                            renameCommand = "sudo mv " + "/overlay/update/" + f.getName() + " /overlay/update/" + "root.img.bz2";
+                            execCommand(session, renameCommand);
+                        }
+                        if(f.getName().contains("root-1.5.5-release.img.bz2")){
+                            renameCommand = "sudo mv " + "/overlay/update/" + f.getName() + " /overlay/update/" + "root-new.img.bz2";
+                            execCommand(session, renameCommand);
+                        }
+                    }
+                    execCommand(session, REBOOT_COMMAND);
+                    break;
+
                 case UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE:
                 case UPDATE_STATION_CONTENT_UPLOAD_CODE:
 //                    uploadMoveReboot(session, (String) req[2]);
@@ -142,6 +162,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             }
         }
         catch (Exception e){
+            Logger.d(Logger.SSH_CONNECTION_LOG, "exception: " + e.getMessage());
                 res = e.getMessage();
                 this.resultCode = SSH_ERROR_CODE;
         }
@@ -177,8 +198,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             listener.onTaskCompleted(bundle);
         }
     }
-
-
     private String execCommand(Session session, String command) throws IOException {
         String res = "";
         ChannelExec channelExec = null;
@@ -209,9 +228,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
         }
         return res;
     }
-
-
-
     private void uploadToOverlayUpdate(Session session, File file){
         Logger.d(Logger.SSH_CONNECTION_LOG, "uploading file: " + file.getName() +" length: " + file.length());
 
@@ -246,7 +262,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             }
         }
     }
-
     private File getBinFromArchive(File file){
         File binFile = null;
         try (FileInputStream in = new FileInputStream(file);

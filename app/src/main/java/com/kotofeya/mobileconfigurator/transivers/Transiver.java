@@ -188,6 +188,7 @@ public class Transiver {
     }
 
     public String getIncrementOfContent() {
+        Logger.d(Logger.TRANSPORT_CONTENT_LOG, "takeInfoFull: " + takeInfoFull);
         return incrementOfContent;
     }
 
@@ -524,6 +525,7 @@ public class Transiver {
     }
 
     public void setTakeInfoFull(TakeInfoFull takeInfoFull) {
+        Logger.d(Logger.TRANSPORT_CONTENT_LOG, "set take info full: " + takeInfoFull);
         this.takeInfoFull = takeInfoFull;
     }
 

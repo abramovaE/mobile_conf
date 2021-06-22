@@ -72,9 +72,6 @@ public class CustomViewModel extends ViewModel {
     public void updateWifiTransiver(String phoneIp, Transiver transiver){
         List<Transiver> transiverList = transivers.getValue();
         Transiver t = transiverList.stream().filter(it->it.getSsid().equals(transiver.getSsid())).collect(Collectors.toList()).get(0);
-
-
-
     }
 
 
@@ -161,6 +158,8 @@ public class CustomViewModel extends ViewModel {
 
 
     public synchronized void addTakeInfo(String takeInfo, boolean createNew){
+
+        Logger.d(Logger.VIEW_MODEL_LOG, "add take info: " + takeInfo);
         List<Transiver> transiversValue = transivers.getValue();
 
         boolean isExist = false;
@@ -206,6 +205,7 @@ public class CustomViewModel extends ViewModel {
             Transiver transiver = new Transiver(ssid, ip, macWifi, macBt, boardVersion, osVersion,
                     stmFirmware, stmBootloader, core, modem, incrementOfContent,
                     uptime, cpuTemp, load, tType);
+
             transiversValue.add(transiver);
             Logger.d(Logger.VIEW_MODEL_LOG, "transivers: " + transiversValue.size());
         }
@@ -345,7 +345,7 @@ public class CustomViewModel extends ViewModel {
         }
         List<Transiver> transiversList = this.transivers.getValue();
         if(transiversList == null){
-            transiversList = new ArrayList<>();
+            transiversList = new CopyOnWriteArrayList<>();
         } else {
             transiversList.clear();
         }
@@ -354,6 +354,8 @@ public class CustomViewModel extends ViewModel {
         for(Transiver transiver: transiversList){
             transiver.setIp(ssidIpMap.get(transiver.getSsid()));
             transiver.setVersion(ssidVersionMap.get(transiver.getSsid()));
+            Logger.d(Logger.VIEW_MODEL_LOG, "ssidmap: " + ssidIpMap);
+
         }
         Logger.d(Logger.VIEW_MODEL_LOG, "update result transivers: " + transiversList);
         transivers.postValue(transiversList);
@@ -368,15 +370,6 @@ public class CustomViewModel extends ViewModel {
                 informers.add(informer);
             }
         }
-
-//        Collections.sort(informers, new Comparator<IRadioInformer>(){
-//            @Override
-//            public int compare(IRadioInformer o1, IRadioInformer o2) {
-//                return o1.getSsid().compareTo(o2.getSsid());
-//            }
-//        });
-
-
         ArrayList<Transiver> temp = new ArrayList<>();
         temp.addAll(informers);
         Collections.sort(temp, new Comparator<Transiver>(){
@@ -387,19 +380,10 @@ public class CustomViewModel extends ViewModel {
         });
         informers.clear();
         informers.addAll(temp);
-
-
-//        Logger.d(Logger.OTHER_LOG, "filter informers informers: " + informers.size());
         return informers;
     }
 
-    private Transiver filterInformer(Transiver informer){
-//        int transiverType = informer.getTransiverType();
-//        Logger.d(Logger.OTHER_LOG, "filter informer: " + informer.getSsid() + ", type: " + transiverType + " " + informer.getType());
-//        FilterFactory filterFactory = new FilterFactory();
-//        BaseFilter filter = filterFactory.getFilter(transiverType);
-        return informer;
-    }
+
 
     private List<CustomScanResult> filter(List<CustomScanResult> results, int radioType){
         if(radioType == MySettings.STATIONARY){
@@ -430,7 +414,6 @@ public class CustomViewModel extends ViewModel {
     public String getVersion(String ssid){
         Logger.d(Logger.VIEW_MODEL_LOG, "get version, map: " + ssidVersionMap);
         Logger.d(Logger.VIEW_MODEL_LOG, "get version, ssid: " + ssid);
-
         return ssidVersionMap.get(ssid);
     }
 

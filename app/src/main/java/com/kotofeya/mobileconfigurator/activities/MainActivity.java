@@ -83,7 +83,6 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         switch (requestCode) {
             case TETHER_REQUEST_CODE:
                 break;
-
             case REQUEST_BT_ENABLE:
                 newBleScanner.startScan();
                 break;
@@ -91,8 +90,6 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
                 newBleScanner.startScan();
                 break;
         }
-
-
     }
 
     @Override
@@ -186,13 +183,10 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         String response = result.getString(PostInfo.RESPONSE);
         Parcelable parcelableResponse = result.getParcelable(PostInfo.PARCELABLE_RESPONSE);
         Logger.d(Logger.MAIN_LOG, "on task completed, command: " + command);
-
         int resultCode = result.getInt("resultCode");
         String res = result.getString("result");
-
         Logger.d(Logger.MAIN_LOG, "res: " + res);
         Logger.d(Logger.MAIN_LOG, "resultcode: " + resultCode);
-
 
         if(command == null){
             command = "";
@@ -207,27 +201,17 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
             String version = result.getString(PostInfo.VERSION);
             Logger.d(Logger.MAIN_LOG, "version: " + version);
             viewModel.addTakeInfoFull(ip, version, (TakeInfoFull) parcelableResponse, true);
-
         } else if (command.equals(SshCommand.SSH_TAKE_COMMAND)) {
             viewModel.addTakeInfo(response, true);
         } else if (resultCode == TaskCode.SEND_LOG_TO_SERVER_CODE) {
-//            utils.addTakeInfo(res, true);
         } else if (resultCode == TaskCode.DOWNLOAD_CITIES_CODE) {
             getCities(res);
         } else if (resultCode == TaskCode.SEND_LOG_TO_SERVER_CODE) {
             int code = result.getInt("code");
             Logger.d(Logger.MAIN_LOG, "send log to server code: " + resultCode);
             if (code == 1) {
-//                App.get().setLogReport("");
                 Logger.clearLogReport();
             }
-//            else {
-//                App.get().setLogReport(App.get().getLogReport() + "\n"+ Logger.getServiceLogString());
-//                Logger.clearLogReport();
-//            }
-//            if(isNeedDestroy) {
-//                isReadyToDestroy = true;
-//            }
         }
     }
 

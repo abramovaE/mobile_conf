@@ -15,11 +15,15 @@ import com.kotofeya.mobileconfigurator.fragments.config.ConfigTransportFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.StationContentFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.TransportContentFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsNetworkFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.SettingsScUartFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.SettingsUpdateCoreFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.SettingsUpdatePhpFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsWifiFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.StmLogFragment;
 import com.kotofeya.mobileconfigurator.fragments.scanner.BasicScannerFragment;
 import com.kotofeya.mobileconfigurator.fragments.scanner.BleScannerFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.TransiverSettingsNetworkFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.TransiverSettingsScUartFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.TransiverSettingsWifiFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.TransiverStmLogFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateContentFragment;
@@ -48,10 +52,17 @@ public class FragmentHandler {
     final static String TRANSIVER_SETTINGS_WIFI_FRAGMENT = "TRANSIVER_SETTINGS_WIFI_FRAGMENT";
     final static String SETTINGS_NETWORK_FRAGMENT = "SETTINGS_NETWORK_FRAGMENT";
     final static String TRANSIVER_SETTINGS_NETWORK_FRAGMENT = "TRANSIVER_SETTINGS_NETWORK_FRAGMENT";
+    final static String SETTINGS_SCUART_FRAGMENT = "SETTINGS_SCUART_FRAGMENT";
+    final static String TRANSIVER_SETTINGS_SCUART_FRAGMENT = "TRANSIVER_SETTINGS_SCUART_FRAGMENT";
+    final static String SETTINGS_UPDATE_PHP_FRAGMENT = "SETTINGS_UPDATE_PHP_FRAGMENT";
+    final static String TRANSIVER_SETTINGS_UPDATE_PHP_FRAGMENT = "TRANSIVER_SETTINGS_UPDATE_PHP_FRAGMENT";
+    final static String SETTINGS_UPDATE_CORE_FRAGMENT = "SETTINGS_UPDATE_CORE_FRAGMENT";
+
 
     public final static String ENABLE_MOBILE_DIALOG_TAG = "ENABLE_MOBILE_DIALOG";
     public final static String CONFIRMATION_DIALOG_TAG = "CONFIRMATION_DIALOG";
     public final static String ADD_NEW_WIFI_SETTINGS_DIALOG = "ADD_NEW_WIFI_SETTINGS_DIALOG";
+    public final static String ADD_NEW_ETHERNET_SETTINGS_DIALOG = "ADD_NEW_ETHERNET_SETTINGS_DIALOG";
 
     public FragmentManager getFragmentManager() {
         return fragmentManager;
@@ -99,6 +110,14 @@ public class FragmentHandler {
                     return new SettingsNetworkFragment();
                 case TRANSIVER_SETTINGS_NETWORK_FRAGMENT:
                     return new TransiverSettingsNetworkFragment();
+                case SETTINGS_SCUART_FRAGMENT:
+                    return new SettingsScUartFragment();
+                case TRANSIVER_SETTINGS_SCUART_FRAGMENT:
+                    return new TransiverSettingsScUartFragment();
+                case SETTINGS_UPDATE_PHP_FRAGMENT:
+                    return new SettingsUpdatePhpFragment();
+                case SETTINGS_UPDATE_CORE_FRAGMENT:
+                    return new SettingsUpdateCoreFragment();
             }
         }
         return fragment;

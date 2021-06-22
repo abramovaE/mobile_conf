@@ -1,6 +1,5 @@
 package com.kotofeya.mobileconfigurator.network;
 
-
 import android.os.Bundle;
 
 import com.google.gson.GsonBuilder;
@@ -42,11 +41,10 @@ public class PostInfo implements Runnable {
     public PostInfo(OnTaskCompleted listener, String ip, String command) {
         Logger.d(Logger.POST_INFO_LOG, "new post: " + command + ", ip: " + ip);
         this.listener = listener;
-
         this.command = command;
         this.ip = ip;
-
     }
+
     public PostInfo(OnTaskCompleted listener, String ip, String command, String version) {
         Logger.d(Logger.POST_INFO_LOG, "new post: " + command + ", ip: " + ip + ", version: " + version);
         this.listener = listener;
@@ -54,7 +52,6 @@ public class PostInfo implements Runnable {
         this.ip = ip;
         this.version = version;
     }
-
 
     @Override
     public void run() {
@@ -83,14 +80,21 @@ public class PostInfo implements Runnable {
             if (command.startsWith(PostCommand.WIFI)){
                 command = PostCommand.WIFI;
             }
+            if (command.startsWith(PostCommand.STATIC)){
+                command = PostCommand.STATIC;
+            }
+            if (command.startsWith(PostCommand.FLOOR)){
+                command = PostCommand.FLOOR;
+            }
+            if (command.startsWith(PostCommand.SOUND)){
+                command = PostCommand.SOUND;
+            }
 //            else if(command.startsWith(PostCommand.REBOOT)){
 //                command = PostCommand.REBOOT;
 //            }
 
             result.putString(COMMAND, command);
             result.putString(IP, ip);
-
-
 
             Logger.d(Logger.POST_INFO_LOG, "post command: " +  command +", response: " + response);
 
@@ -102,11 +106,10 @@ public class PostInfo implements Runnable {
                                 .replace("</pre>", ""));
                         String command = jsonObject.getString(COMMAND);
                         JSONObject properties = jsonObject.getJSONObject("properties");
-
                         Logger.d(Logger.POST_INFO_LOG, COMMAND + " : " + command);
                         Logger.d(Logger.POST_INFO_LOG, "properties: " + properties);
                         double version = getVersion();
-                        Logger.d(Logger.POST_INFO_LOG, "version: " + version);
+                        Logger.d(Logger.POST_INFO_LOG, "ip: " + ip + ", version: " + version);
                         TakeInfoFull takeInfoFull = new GsonBuilder().setVersion(version).create().fromJson(properties.toString(),  TakeInfoFull.class);
                         Logger.d(Logger.POST_INFO_LOG, "takeInfoFull created: " + (takeInfoFull != null));
                         Logger.d(Logger.POST_INFO_LOG, "takeInfoFull serial: " + takeInfoFull.getSerial());
@@ -135,25 +138,40 @@ public class PostInfo implements Runnable {
                         Logger.d(Logger.POST_INFO_LOG, "tr content response: " + content.toString());
                         result.putString(RESPONSE, content.toString());
                         break;
-
                     case PostCommand.REBOOT + "_" + ContentFragment.REBOOT_RASP:
                     case PostCommand.REBOOT + "_" + ContentFragment.REBOOT_STM:
                     case PostCommand.REBOOT + "_" + ContentFragment.REBOOT_ALL:
                         result.putString(RESPONSE, content.toString());
                         break;
-
                     case PostCommand.READ_WPA:
                         result.putString(RESPONSE, content.toString());
                         break;
-
                     case PostCommand.WIFI_CLEAR:
                         result.putString(RESPONSE, content.toString());
                         break;
-
                     case PostCommand.WIFI:
+                    case PostCommand.STATIC:
                         result.putString(RESPONSE, content.toString());
                         break;
                     case PostCommand.READ_NETWORK:
+                        result.putString(RESPONSE, content.toString());
+                        break;
+                    case PostCommand.NETWORK_CLEAR:
+                        result.putString(RESPONSE, content.toString());
+                        break;
+                    case PostCommand.SCUART:
+                        result.putString(RESPONSE, content.toString());
+                        break;
+                    case PostCommand.UPDATE_PHP:
+                        result.putString(RESPONSE, content.toString());
+                        break;
+                    case PostCommand.FLOOR:
+                        result.putString(RESPONSE, content.toString());
+                        break;
+                    case PostCommand.SOUND:
+                        result.putString(RESPONSE, content.toString());
+                        break;
+                    case PostCommand.VOLUME:
                         result.putString(RESPONSE, content.toString());
                         break;
                 }
@@ -180,9 +198,7 @@ public class PostInfo implements Runnable {
             Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage());
             e.printStackTrace();
         }
-
         listener.onTaskCompleted(result);
-
     }
 
     private String getUrl(String ip, String command)  throws IOException{

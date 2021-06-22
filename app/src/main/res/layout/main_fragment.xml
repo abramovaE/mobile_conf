@@ -148,6 +148,27 @@
                 android:layout_height="wrap_content"
                 android:text="@string/main_settings_network_btn"
                 style="@style/MainMenuBtnStyle"/>
+            <Button
+                android:id="@+id/main_settings_scuart_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/main_settings_scuart_btn"
+                style="@style/MainMenuBtnStyle"/>
+            <Button
+                android:id="@+id/main_settings_update_php_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/main_settings_update_php_btn"
+                style="@style/MainMenuBtnStyle"/>
+
+            <Button
+                android:id="@+id/main_settings_update_core_btn"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/main_settings_update_core_btn"
+                style="@style/MainMenuBtnStyle"/>
+
+
         </LinearLayout>
         <Button
             android:id="@+id/main_settings_btn"

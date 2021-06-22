@@ -29,10 +29,25 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     public static final String STATION_CONTENT_VERSION_URL = "http://95.161.210.44/update/content/station";
     public static final String OS_URL = "http://95.161.210.44/update/rootimg/root.img.bz2";
 
+    public static final String CORE_URLS = "core_urls";
+
+    private static final String[] COREURLS = {
+            "http://95.161.210.44/update/rootimg/boot-old.img.bz2",
+            "http://95.161.210.44/update/rootimg/boot-new.img.bz2",
+            "http://95.161.210.44/update/rootimg/root-1.4-pre-1.5.img.bz2",
+            "http://95.161.210.44/update/rootimg/root-1.5.5-release.img.bz2"
+    };
+
+
+
     public static File tempUpdateOsFile;
     public static List<String> tempUpdateStmFiles;
     public static List<String> tempUpdateTransportContentFiles;
     public static Map<String, String> tempUpdateStationaryContentFiles;
+
+    public static List<File> tempUpdateCoreFiles;
+
+
 
     private static String osVersion;
     private String stmVersion;
@@ -77,6 +92,25 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
     }
 
+    private void createUpdateCoreFiles() {
+        File outputDir = App.get().getContext().getExternalFilesDir(null);
+
+        Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateCoreFiles: " + tempUpdateCoreFiles);
+        if(tempUpdateCoreFiles != null && !tempUpdateCoreFiles.isEmpty()){
+            Logger.d(Logger.DOWNLOAD_LOG, "delete exist core files");
+            tempUpdateCoreFiles.clear();
+        } else {
+            tempUpdateCoreFiles = new ArrayList<>();
+        }
+
+        Logger.d(Logger.DOWNLOAD_LOG, " creating new temp core files");
+        tempUpdateCoreFiles.add(new File(outputDir + "/boot-old.img.bz2"));
+        tempUpdateCoreFiles.add(new File(outputDir + "/boot-new.img.bz2"));
+        tempUpdateCoreFiles.add(new File(outputDir + "/root-1.4-pre-1.5.img.bz2"));
+        tempUpdateCoreFiles.add(new File(outputDir + "/root-1.5.5-release.img.bz2"));
+        Logger.d(Logger.DOWNLOAD_LOG, "new temp core files created: " + tempUpdateCoreFiles);
+
+    }
 
     private File createTempUpdateFile(String fileName){
         File outputDir = App.get().getCacheDir();
@@ -99,6 +133,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     }
 
     private void writeToFile(InputStream input, File file) throws IOException {
+
         try(OutputStream output = new FileOutputStream(file)) {
             byte data[] = new byte[4096];
             int count;
@@ -170,99 +205,118 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
             }
 
             else {
-                url = new URL(stringUrl);
-                HttpURLConnection c = getConnection(url);
-                InputStream input = c.getInputStream();
+                HttpURLConnection c;
+                InputStream input;
                 String s;
-            switch (stringUrl) {
-                case OS_VERSION_URL:
-                    try(BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
-                        while ((s = reader.readLine()) != null) {
-                            if (s.contains("ver.")) {
-                                osVersion = s;
-                            }
-                        }
+
+
+                if(stringUrl.equals(CORE_URLS)){
+                    createUpdateCoreFiles();
+                    for(int i = 0; i< COREURLS.length; i++){
+                        publishProgress(0);
+                        c = getConnection(new URL(COREURLS[i]));
+                        input = c.getInputStream();
+                        writeToFile(input, tempUpdateCoreFiles.get(i));
+                        Logger.d(Logger.DOWNLOAD_LOG, "core file: "  + tempUpdateCoreFiles.get(i) + " is downloaded");
                     }
-                    bundle.putString("result", App.get().getString(R.string.release_os) +  ": " + osVersion);
-                    bundle.putInt("resultCode", UPDATE_OS_VERSION_CODE);
+                    Logger.d(Logger.DOWNLOAD_LOG, "core files downloaded");
+                    bundle.putInt("resultCode", UPDATE_CORE_UPLOAD_CODE);
                     return bundle;
-
-                case STM_VERSION_URL:
-                    tempUpdateStmFiles = new ArrayList<>();
-                    try(BufferedReader r = new BufferedReader(new InputStreamReader(input))) {
-                        while ((s = r.readLine()) != null) {
-                            if (s.contains("ver.")) {
-                                stmVersion = s.substring(0, s.indexOf("<"));
-                            } else if (s.contains("M")) {
-                                String sub = s.substring(s.lastIndexOf("M"));
-                                tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
-                            } else if (s.contains("S")) {
-                                String sub = s.substring(s.lastIndexOf("S"));
-                                tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
-                            }
-                        }
-                    }
-                    bundle.putInt("resultCode", UPDATE_STM_VERSION_CODE);
-                    bundle.putString("result", "Release: " + stmVersion);
-                    return  bundle;
-
-                case OS_URL:
-                    createUpdateOsFile();
-                    writeToFile(input, tempUpdateOsFile);
-                    bundle.putInt("resultCode", UPDATE_OS_DOWNLOAD_CODE);
-                    App.get().setUpdateOsFileVersion(osVersion);
-                    App.get().setUpdateOsFilePath(tempUpdateOsFile.getAbsolutePath());
-                    return bundle;
-
-                case TRANSPORT_CONTENT_VERSION_URL:
-                    tempUpdateTransportContentFiles = new ArrayList<>();
-                    try(BufferedReader r1 = new BufferedReader(new InputStreamReader(input))) {
-                        while ((s = r1.readLine()) != null) {
-                            if (s.contains("href")) {
-                                Logger.d(Logger.DOWNLOAD_LOG, "s transp: " + s);
-                                Logger.d(Logger.DOWNLOAD_LOG, "sub s transp: " + s.substring(s.indexOf("./") + 2, s.indexOf("\">")));
-                                tempUpdateTransportContentFiles.add(s.substring(s.indexOf("./") + 2, s.indexOf("\">")));
-                            }
-                        }
-                    }
-                    bundle.putInt("resultCode", TRANSPORT_CONTENT_VERSION_CODE);
-                    bundle.putString("result", "transport content");
-                    return bundle;
-
-                case STATION_CONTENT_VERSION_URL:
-                    tempUpdateStationaryContentFiles = new HashMap<>();
-                    try(BufferedReader r2 = new BufferedReader(new InputStreamReader(input))) {
-                        while ((s = r2.readLine()) != null) {
-                            if (s.contains("href")) {
-                                String serial_incr = s.substring(s.indexOf(".bz2>") + 5, s.indexOf("</a>"));
-                                tempUpdateStationaryContentFiles.put(serial_incr.split("_")[0], serial_incr.split("_")[1]);
-                            }
-                        }
-                    }
-                    bundle.putInt("resultCode", STATION_CONTENT_VERSION_CODE);
-                    bundle.putString("result", "stationary content");
-                    return bundle;
-
-                case CITY_URL:
-                    url = new URL(CITY_URL);
-                    Logger.d(Logger.DOWNLOAD_LOG, "url: " + url);
+                }
+                else {
+                    url = new URL(stringUrl);
                     c = getConnection(url);
                     input = c.getInputStream();
-                    byte cityData[] = new byte[4096];
-                    int cityCount;
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    while ((cityCount = input.read(cityData)) != -1) {
-                        byteArrayOutputStream.write(cityData, 0, cityCount);
-                    }
-                    input.close();
-                    String res = (new String(byteArrayOutputStream.toByteArray(), "cp1251"));
-                    byteArrayOutputStream.close();
-                    bundle.putInt("resultCode", DOWNLOAD_CITIES_CODE);
-                    bundle.putString("result", res);
-                    return bundle;
-            }
-        }
 
+                    switch (stringUrl) {
+                        case OS_VERSION_URL:
+                            try(BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
+                                while ((s = reader.readLine()) != null) {
+                                    if (s.contains("ver.")) {
+                                        osVersion = s;
+                                    }
+                                }
+                            }
+                            bundle.putString("result", App.get().getString(R.string.release_os) +  ": " + osVersion);
+                            bundle.putInt("resultCode", UPDATE_OS_VERSION_CODE);
+                            return bundle;
+
+                        case STM_VERSION_URL:
+                            tempUpdateStmFiles = new ArrayList<>();
+                            try(BufferedReader r = new BufferedReader(new InputStreamReader(input))) {
+                                while ((s = r.readLine()) != null) {
+                                    if (s.contains("ver.")) {
+                                        stmVersion = s.substring(0, s.indexOf("<"));
+                                    } else if (s.contains("M")) {
+                                        String sub = s.substring(s.lastIndexOf("M"));
+                                        tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
+                                    } else if (s.contains("S")) {
+                                        String sub = s.substring(s.lastIndexOf("S"));
+                                        tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
+                                    }
+                                }
+                            }
+                            bundle.putInt("resultCode", UPDATE_STM_VERSION_CODE);
+                            bundle.putString("result", "Release: " + stmVersion);
+                            return  bundle;
+
+                        case OS_URL:
+                            createUpdateOsFile();
+                            writeToFile(input, tempUpdateOsFile);
+                            bundle.putInt("resultCode", UPDATE_OS_DOWNLOAD_CODE);
+                            App.get().setUpdateOsFileVersion(osVersion);
+                            App.get().setUpdateOsFilePath(tempUpdateOsFile.getAbsolutePath());
+                            return bundle;
+
+                        case TRANSPORT_CONTENT_VERSION_URL:
+                            tempUpdateTransportContentFiles = new ArrayList<>();
+                            try(BufferedReader r1 = new BufferedReader(new InputStreamReader(input))) {
+                                while ((s = r1.readLine()) != null) {
+                                    if (s.contains("href")) {
+                                        Logger.d(Logger.DOWNLOAD_LOG, "s transp: " + s);
+                                        Logger.d(Logger.DOWNLOAD_LOG, "sub s transp: " + s.substring(s.indexOf("./") + 2, s.indexOf("\">")));
+                                        tempUpdateTransportContentFiles.add(s.substring(s.indexOf("./") + 2, s.indexOf("\">")));
+                                    }
+                                }
+                            }
+                            bundle.putInt("resultCode", TRANSPORT_CONTENT_VERSION_CODE);
+                            bundle.putString("result", "transport content");
+                            return bundle;
+
+                        case STATION_CONTENT_VERSION_URL:
+                            tempUpdateStationaryContentFiles = new HashMap<>();
+                            try(BufferedReader r2 = new BufferedReader(new InputStreamReader(input))) {
+                                while ((s = r2.readLine()) != null) {
+                                    if (s.contains("href")) {
+                                        String serial_incr = s.substring(s.indexOf(".bz2>") + 5, s.indexOf("</a>"));
+                                        tempUpdateStationaryContentFiles.put(serial_incr.split("_")[0], serial_incr.split("_")[1]);
+                                    }
+                                }
+                            }
+                            bundle.putInt("resultCode", STATION_CONTENT_VERSION_CODE);
+                            bundle.putString("result", "stationary content");
+                            return bundle;
+
+                        case CITY_URL:
+                            url = new URL(CITY_URL);
+                            Logger.d(Logger.DOWNLOAD_LOG, "url: " + url);
+                            c = getConnection(url);
+                            input = c.getInputStream();
+                            byte cityData[] = new byte[4096];
+                            int cityCount;
+                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                            while ((cityCount = input.read(cityData)) != -1) {
+                                byteArrayOutputStream.write(cityData, 0, cityCount);
+                            }
+                            input.close();
+                            String res = (new String(byteArrayOutputStream.toByteArray(), "cp1251"));
+                            byteArrayOutputStream.close();
+                            bundle.putInt("resultCode", DOWNLOAD_CITIES_CODE);
+                            bundle.putString("result", res);
+                            return bundle;
+                    }
+                }
+        }
         } catch (IOException e) {
             Logger.d(Logger.DOWNLOAD_LOG, "exception: " + e);
             bundle.putInt("resultCode", TaskCode.DOWNLOADER_ERROR_CODE);

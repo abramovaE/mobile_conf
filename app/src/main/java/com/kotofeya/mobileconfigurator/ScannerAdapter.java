@@ -13,6 +13,7 @@ import android.widget.TextView;
 import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateContentFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.UpdateFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateStmFragment;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
@@ -46,7 +47,9 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
     public static final int STM_LOG = 7;
     public static final int SETTINGS_WIFI = 8;
     public static final int SETTINGS_NETWORK = 9;
-
+    public static final int SETTINGS_SCUART = 10;
+    public static final int SETTINGS_UPDATE_PHP = 11;
+    public static final int SETTINGS_UPDATE_CORE = 12;
 
     public ScannerAdapter(Context context, Utils utils, int scannerType, List<Transiver> objects) {
         this.ctx = context;
@@ -257,6 +260,55 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                 Logger.d(Logger.SCANNER_ADAPTER_LOG, "transiver selected");
                 view.setOnClickListener(configListener(FragmentHandler.TRANSIVER_SETTINGS_NETWORK_FRAGMENT, p.getSsid()));
             }
+            else if (scannerType == SETTINGS_SCUART) {
+                Logger.d(Logger.SCANNER_ADAPTER_LOG, "transiver selected");
+                view.setOnClickListener(configListener(FragmentHandler.TRANSIVER_SETTINGS_SCUART_FRAGMENT, p.getSsid()));
+            }
+            else if(scannerType == SETTINGS_UPDATE_PHP){
+                Logger.d(Logger.SCANNER_ADAPTER_LOG, "transiver selected");
+                textItem0.setVisibility(View.VISIBLE);
+                String version = utils.getVersion(p.getSsid());
+                textItem0.setText(version);
+                if(version != null && !version.startsWith("ssh_conn")) {
+                    linearLayout.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update php was pressed");
+                            Transiver transiver = getTransiver(position);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("ip", transiver.getIp());
+                            UpdateOsFragment.UpdatePhpConfDialog dialog = new UpdateOsFragment.UpdatePhpConfDialog();
+                            dialog.setArguments(bundle);
+                            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+                        }
+                    });
+                }
+            }
+
+            else if(scannerType == SETTINGS_UPDATE_CORE){
+//                Logger.d(Logger.SCANNER_ADAPTER_LOG, "transiver selected, ip: " + );
+
+                textItem0.setVisibility(View.VISIBLE);
+                String version = utils.getVersion(p.getSsid());
+                String ip = utils.getIp(p.getSsid());
+
+                textItem0.setText(version);
+                if(ip != null) {
+                    linearLayout.setOnClickListener(new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                            Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update core was pressed");
+                            Transiver transiver = getTransiver(position);
+                            Bundle bundle = new Bundle();
+                            bundle.putString("ip", transiver.getIp());
+                            UpdateFragment.UpdateCoreConfDialog dialog = new UpdateFragment.UpdateCoreConfDialog();
+                            dialog.setArguments(bundle);
+                            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+                        }
+                    });
+                }
+            }
+
         }
         return view;
     }

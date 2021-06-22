@@ -94,6 +94,12 @@
     <string name="add_new_wifi_settings">Задать параметры дополнительной wifi сети</string>
     <string name="add_new_wifi_title">Задать параметры дополнительной wifi сети</string>
     <string name="main_settings_network_btn">Network</string>
-    <string name="show_settings_network">Посмотреть настройки network</string>
+    <string name="show_settings_network">Посмотреть настройки ethernet</string>
+    <string name="set_default_network_settings">Установить настройки ethernet по умолчанию</string>
+    <string name="add_new_network_settings">Задать параметры ethernet интерфейса</string>
+    <string name="set_ethernet_params_title">Задать параметры ethernet интерфейса</string>
+    <string name="main_settings_scuart_btn">ScUart</string>
+    <string name="main_settings_update_php_btn">Обновить PHP</string>
+    <string name="main_settings_update_core_btn">Обновить ядро</string>
 
 </resources>

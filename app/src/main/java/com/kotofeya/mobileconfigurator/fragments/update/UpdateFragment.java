@@ -23,6 +23,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
@@ -52,7 +53,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     TextView mainTxtLabel;
     ProgressBar progressBar;
     protected static final int MOBILE_SETTINGS_RESULT = 0;
-    private CustomViewModel viewModel;
+    protected CustomViewModel viewModel;
 
     @Override
     public void onAttach(Context context) {
@@ -133,6 +134,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     }
 
     protected void scan(){
+        Logger.d(Logger.UPDATE_LOG, "updateFragment scan");
         utils.getTakeInfo();
     }
 
@@ -141,9 +143,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         super.onViewCreated(view, savedInstanceState);
         viewModel = ViewModelProviders.of(getActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
         viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
-//        if(viewModel.getTransivers().getValue().isEmpty()) {
-            scan();
-//        }
+        scan();
         Logger.d(Logger.UPDATE_LOG, "on view created");
     }
 
@@ -291,4 +291,47 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 break;
         }
     }
+
+    public static class UpdateCoreConfDialog extends DialogFragment {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            String ip = getArguments().getString("ip");
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.confirmation_is_required);
+            builder.setMessage("Confirm the update the core");
+            builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+
+                public void onClick(DialogInterface dialog, int id) {
+
+                    View view = App.get().getFragmentHandler().getCurrentFragment().getView();
+                    ProgressBar progressBar = view.findViewById(R.id.scanner_progressBar);
+                    progressBar.setVisibility(View.VISIBLE);
+
+                    Downloader downloader = new Downloader(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
+                    downloader.execute(Downloader.CORE_URLS);
+
+
+//                    SshConnection connection = new SshConnection(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
+//                    connection.execute(ip, SshConnection.UPDATE_CORE_UPLOAD_CODE);
+
+//                    View view = App.get().getFragmentHandler().getCurrentFragment().getView();
+//                    ProgressBar progressBar = view.findViewById(R.id.scanner_progressBar);
+//                    progressBar.setVisibility(View.VISIBLE);
+//                    Thread thread = new Thread(new PostInfo((SettingsUpdatePhpFragment) App.get().getFragmentHandler().getCurrentFragment(), ip,
+//                            PostCommand.UPDATE_CORE));
+//                    thread.start();
+//                    SshConnection connection = new SshConnection(((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()));
+//                    connection.execute(ip, SshConnection.UPDATE_OS_UPLOAD_CODE);
+                }
+            });
+            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                }
+            });
+            builder.setCancelable(true);
+            return builder.create();
+        }
+    }
+
 }

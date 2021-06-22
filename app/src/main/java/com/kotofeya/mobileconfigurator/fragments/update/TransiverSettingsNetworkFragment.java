@@ -5,6 +5,8 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
+import android.text.InputFilter;
+import android.text.style.MaskFilterSpan;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -33,6 +35,8 @@ import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import java.util.List;
 
+import br.com.sapereaude.maskedEditText.MaskedEditText;
+
 public class TransiverSettingsNetworkFragment extends Fragment implements View.OnClickListener, PostCommand, OnTaskCompleted {
 
 
@@ -45,8 +49,8 @@ public class TransiverSettingsNetworkFragment extends Fragment implements View.O
 
     private TextView settingsNetwork;
     private Button showSettingsNetworkBtn;
-//    private Button setDefaultWifiSettingsBtn;
-//    private Button addNewWifiSettingsBtn;
+    private Button setDefaultNetworkSettingsBtn;
+    private Button setEthernetSettingsBtn;
 
     @Nullable
     @Override
@@ -63,11 +67,10 @@ public class TransiverSettingsNetworkFragment extends Fragment implements View.O
         settingsNetwork= view.findViewById(R.id.settings_network);
         showSettingsNetworkBtn = view.findViewById(R.id.show_settings_network);
         showSettingsNetworkBtn.setOnClickListener(this);
-
-//        setDefaultWifiSettingsBtn = view.findViewById(R.id.set_default_wifi_settings);
-//        setDefaultWifiSettingsBtn.setOnClickListener(this);
-//        addNewWifiSettingsBtn = view.findViewById(R.id.add_new_wifi_settings);
-//        addNewWifiSettingsBtn.setOnClickListener(this);
+        setDefaultNetworkSettingsBtn = view.findViewById(R.id.set_default_network_settings);
+        setDefaultNetworkSettingsBtn.setOnClickListener(this);
+        setEthernetSettingsBtn = view.findViewById(R.id.add_new_network_settings);
+        setEthernetSettingsBtn.setOnClickListener(this);
         return view;
     }
 
@@ -94,8 +97,8 @@ public class TransiverSettingsNetworkFragment extends Fragment implements View.O
             if(utils.getIp(ssid) != null){
 
                 showSettingsNetworkBtn.setEnabled(true);
-//                setDefaultWifiSettingsBtn.setEnabled(true);
-//                addNewWifiSettingsBtn.setEnabled(true);
+                setDefaultNetworkSettingsBtn.setEnabled(true);
+                setEthernetSettingsBtn.setEnabled(true);
             }
         }
     }
@@ -110,24 +113,24 @@ public class TransiverSettingsNetworkFragment extends Fragment implements View.O
                         PostCommand.READ_NETWORK));
                 thread.start();
                 break;
-//
-//            case R.id.set_default_wifi_settings:
-//                thread = new Thread(new PostInfo((TransiverSettingsNetworkFragment) App.get().getFragmentHandler().getCurrentFragment(), ip,
-//                        PostCommand.WIFI_CLEAR));
-//                thread.start();
-//                break;
-//
-//
-//            case R.id.add_new_wifi_settings:
-//                Bundle bundle = new Bundle();
-////                bundle.putString("key", content[which]);
-////                bundle.putString("value", commonContent.get(content[which]));
-//                bundle.putString("ip", ip);
-//                AddNewWifiSettingsDialog dialog = new AddNewWifiSettingsDialog();
-//                dialog.setArguments(bundle);
-//                dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ADD_NEW_WIFI_SETTINGS_DIALOG);
-//
-//                break;
+
+            case R.id.set_default_network_settings:
+                thread = new Thread(new PostInfo((TransiverSettingsNetworkFragment) App.get().getFragmentHandler().getCurrentFragment(), ip,
+                        PostCommand.NETWORK_CLEAR));
+                thread.start();
+                break;
+
+
+            case R.id.add_new_network_settings:
+                Bundle bundle = new Bundle();
+//                bundle.putString("key", content[which]);
+//                bundle.putString("value", commonContent.get(content[which]));
+                bundle.putString("ip", ip);
+                AddNewEthernetSettingsDialog dialog = new AddNewEthernetSettingsDialog();
+                dialog.setArguments(bundle);
+                dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ADD_NEW_ETHERNET_SETTINGS_DIALOG);
+
+                break;
         }
     }
 
@@ -148,20 +151,20 @@ public class TransiverSettingsNetworkFragment extends Fragment implements View.O
                     }
                     updateLogText(response);
                     break;
-//                case PostCommand.WIFI_CLEAR:
-//                    if(response.startsWith("Ok")){
-//                        utils.showMessage("Настройки сброшены и примутся при перезапуске.");
-//                    } else {
-//                        utils.showMessage("Error");
-//                    }
-//                    break;
-//                case PostCommand.WIFI:
-//                    if(response.startsWith("Ok")){
-//                        utils.showMessage("Новые параметры заданы и примутся при перезапуске.");
-//                    } else{
-//                        utils.showMessage("Error");
-//                    }
-//                    break;
+                case PostCommand.NETWORK_CLEAR:
+                    if(response.startsWith("Ok")){
+                        utils.showMessage("Настройки сброшены и примутся при перезапуске.");
+                    } else {
+                        utils.showMessage("Error");
+                    }
+                    break;
+                case PostCommand.STATIC:
+                    if(response.startsWith("Ok")){
+                        utils.showMessage("Настройки изменены и примутся при перезапуске.");
+                    } else {
+                        utils.showMessage("Error");
+                    }
+                    break;
                 case POST_COMMAND_ERROR:
                     utils.showMessage(response);
                     break;
@@ -203,58 +206,72 @@ public class TransiverSettingsNetworkFragment extends Fragment implements View.O
         this.ssid = getArguments().getString("ssid");
     }
 
-    public static class AddNewWifiSettingsDialog extends DialogFragment implements PostCommand{
-        private String ip;
+    public static class AddNewEthernetSettingsDialog extends DialogFragment implements PostCommand{
+        private String transIp;
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            this.ip = getArguments().getString("ip");
+            transIp = getArguments().getString("ip");
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(getResources().getString(R.string.add_new_wifi_title));
+            builder.setTitle(getResources().getString(R.string.set_ethernet_params_title));
 
-            View v = LayoutInflater.from(getActivity()).inflate(R.layout.add_new_wifi_settings_dialog, null);
+            View v = LayoutInflater.from(getActivity()).inflate(R.layout.add_new_ethernet_settings_dialog, null);
             builder.setView(v);
 
-            EditText ssid = v.findViewById(R.id.add_wifi_ssid);
-            EditText password = v.findViewById(R.id.add_wifi_password);
-            Button addNewWifiSettingsBtn = v.findViewById(R.id.add_wifi_save_btn);
-            addNewWifiSettingsBtn.setOnClickListener(new View.OnClickListener() {
+            EditText ip = v.findViewById(R.id.add_ethernet_ip);
+            EditText gate = v.findViewById(R.id.add_ethernet_gate);
+            EditText mask = v.findViewById(R.id.add_ethernet_mask);
+
+            InputFilter[] ipGateMaskFilters = new InputFilter[1];
+            ipGateMaskFilters[0] = new InputFilter() {
+                @Override
+                public CharSequence filter(CharSequence source, int start, int end,
+                                           android.text.Spanned dest, int dstart, int dend) {
+                    if (end > start) {
+                        String destTxt = dest.toString();
+                        String resultingTxt = destTxt.substring(0, dstart)
+                                + source.subSequence(start, end)
+                                + destTxt.substring(dend);
+                        if (!resultingTxt
+                                .matches("^\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3}(\\.(\\d{1,3})?)?)?)?)?)?")) {
+                            return "";
+                        } else {
+                            String[] splits = resultingTxt.split("\\.");
+                            for (int i = 0; i < splits.length; i++) {
+                                if (Integer.valueOf(splits[i]) > 255) {
+                                    String resulting = "";
+                                    for (int j = 0; j < i; j++) {
+                                        resulting += splits[j];
+                                        if(splits.length < 5){
+                                            resulting += ".";
+                                        }
+                                    }
+                                    Logger.d(Logger.MAIN_LOG, "return: " + resulting);
+                                    return resulting;
+                                }
+                            }
+                        }
+                    }
+                    Logger.d(Logger.MAIN_LOG, "return null");
+                    return null;
+                }
+
+            };
+            ip.setFilters(ipGateMaskFilters);
+            gate.setFilters(ipGateMaskFilters);
+            mask.setFilters(ipGateMaskFilters);
+
+            Button addNewEthernetParamsBtn = v.findViewById(R.id.add_ethernet_settings);
+            addNewEthernetParamsBtn.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    String ssidStr = ssid.getText().toString();
-                    String passwdStr = password.getText().toString();
-                    String valid = isValid(ssidStr, passwdStr);
-                    if (valid.equals("valid")) {
-                        Thread thread = new Thread(new PostInfo((TransiverSettingsNetworkFragment) App.get().getFragmentHandler().getCurrentFragment(), ip,
-                                wifi(new String[]{ssidStr, passwdStr})));
-                        thread.start();
-                        dismiss();
-                    } else {
-                        showErrorDialog().show();
-                    }
-                }
-            });
-
-            builder.setCancelable(true);
-            return builder.create();
-        }
-
-        private String isValid(String ssid, String passw){
-            if(passw.length() < 8){
-                return "The password length must be greater than 8";
-            }
-            if(passw.length() > 63){
-                return "The password length must be less than 63";
-            }
-            return "valid";
-        }
-
-        private Dialog showErrorDialog(){
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setMessage("The ssid or password is not valid");
-            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-
+                    String ipStr = ip.getText().toString();
+                    String gateStr = gate.getText().toString();
+                    String maskStr = mask.getText().toString();
+                    Thread thread = new Thread(new PostInfo((TransiverSettingsNetworkFragment) App.get().getFragmentHandler().getCurrentFragment(), transIp,
+                            staticEthernet(new String[]{ipStr, gateStr, maskStr})));
+                    thread.start();
+                    dismiss();
                 }
             });
             builder.setCancelable(true);

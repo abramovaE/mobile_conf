@@ -18,9 +18,11 @@ import com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth;
 import com.kotofeya.mobileconfigurator.newBleScanner.CustomScanResult;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -44,12 +46,13 @@ public class Utils implements OnTaskCompleted{
     public Utils(Context context, CustomBluetooth newBleScanner) {
         this.context = context;
         this.viewModel = ViewModelProviders.of((MainActivity)context, new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
-        clients = new ArrayList<>();
+        clients = new CopyOnWriteArrayList<>();
         internetConnection = new InternetConn();
         this.newBleScanner = newBleScanner;
     }
 
     public void getTakeInfo(){
+        Logger.d(Logger.UTILS_LOG, "get take info");
         this.futureCounter = 0;
         String deviceIp = internetConnection.getDeviceIp();
         if(deviceIp != null){
@@ -130,6 +133,8 @@ public class Utils implements OnTaskCompleted{
         Logger.d(Logger.UTILS_LOG, "command: " + command);
         Logger.d(Logger.UTILS_LOG, "ip: " + ip);
         Logger.d(Logger.UTILS_LOG, "response: " + response);
+
+
 
         switch (command){
             case PostCommand.VERSION:
