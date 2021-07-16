@@ -40,7 +40,6 @@ import java.util.List;
 
 public class TransiverSettingsWifiFragment extends Fragment implements View.OnClickListener, PostCommand, OnTaskCompleted {
 
-
     private final Handler myHandler = new Handler();
     private String text;
     public Context context;
@@ -121,7 +120,6 @@ public class TransiverSettingsWifiFragment extends Fragment implements View.OnCl
                 thread.start();
                 break;
 
-
             case R.id.add_new_wifi_settings:
                 Bundle bundle = new Bundle();
 //                bundle.putString("key", content[which]);
@@ -130,7 +128,6 @@ public class TransiverSettingsWifiFragment extends Fragment implements View.OnCl
                 AddNewWifiSettingsDialog dialog = new AddNewWifiSettingsDialog();
                 dialog.setArguments(bundle);
                 dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ADD_NEW_WIFI_SETTINGS_DIALOG);
-
                 break;
         }
     }

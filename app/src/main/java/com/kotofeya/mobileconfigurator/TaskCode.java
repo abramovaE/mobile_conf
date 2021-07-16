@@ -36,6 +36,9 @@ public interface TaskCode {
 
 
     int UPDATE_CORE_UPLOAD_CODE = 22;
+    int UPDATE_CORE_DOWNLOAD_CODE = 23;
+
+
 
 
 }

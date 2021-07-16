@@ -14,6 +14,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
@@ -190,10 +191,12 @@ public class PostInfo implements Runnable {
             result.putString(PostInfo.COMMAND, PostCommand.POST_COMMAND_ERROR);
             result.putString(RESPONSE, e.getMessage());
         } catch (IOException e) {
-            Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage());
+            Logger.d(Logger.POST_INFO_LOG, "io exception: " + e.getMessage());
             e.printStackTrace();
             result.putString(PostInfo.COMMAND, PostCommand.POST_COMMAND_ERROR);
             result.putString(RESPONSE, e.getMessage());
+            result.putString(IP, ip);
+
         } catch (JSONException e) {
             Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage());
             e.printStackTrace();
@@ -203,7 +206,7 @@ public class PostInfo implements Runnable {
 
     private String getUrl(String ip, String command)  throws IOException{
         List<NameValuePair> params = new ArrayList<>();
-        params.add(new BasicNameValuePair("timeN", "14.04.21_16.32"));
+        params.add(new BasicNameValuePair("timeN", "14.07.21_16.32"));
         params.add(new BasicNameValuePair("user", "dirvion"));
         params.add(new BasicNameValuePair("secret", "fasterAnDfaster"));
         params.add(new BasicNameValuePair("command", command));

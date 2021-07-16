@@ -65,9 +65,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     @Override
     public void onStart() {
         super.onStart();
-        utils.getNewBleScanner().stopScan();
-
-//        utils.getBluetooth().stopScan(true);
+        newBleScanner.stopScan();
         utils.startRvTimer();
     }
 
@@ -178,11 +176,13 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 
     @Override
     public void onTaskCompleted(Bundle result) {
+
         String command = result.getString(PostInfo.COMMAND);
         String ip = result.getString(PostInfo.IP);
         String response = result.getString(PostInfo.RESPONSE);
         Parcelable parcelableResponse = result.getParcelable(PostInfo.PARCELABLE_RESPONSE);
         Logger.d(Logger.MAIN_LOG, "on task completed, command: " + command);
+
         int resultCode = result.getInt("resultCode");
         String res = result.getString("result");
         Logger.d(Logger.MAIN_LOG, "res: " + res);
@@ -287,7 +287,9 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 //        Logger.d(Logger.MAIN_LOG, "onResume: " + working.get());
         super.onResume();
 //        startWork();
-        newBleScanner.startScan();
+//        newBleScanner.startScan();
+        newBleScanner.stopScan();
+        utils.startRvTimer();
     }
 
     @Override

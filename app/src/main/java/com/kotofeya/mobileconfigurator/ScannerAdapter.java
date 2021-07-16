@@ -286,13 +286,15 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
             }
 
             else if(scannerType == SETTINGS_UPDATE_CORE){
-//                Logger.d(Logger.SCANNER_ADAPTER_LOG, "transiver selected, ip: " + );
 
                 textItem0.setVisibility(View.VISIBLE);
                 String version = utils.getVersion(p.getSsid());
                 String ip = utils.getIp(p.getSsid());
 
                 textItem0.setText(version);
+
+                Logger.d(Logger.SCANNER_ADAPTER_LOG, "transiver selected, ip: " + ip);
+
                 if(ip != null) {
                     linearLayout.setOnClickListener(new View.OnClickListener() {
                         @Override

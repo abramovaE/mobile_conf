@@ -4,6 +4,8 @@ package com.kotofeya.mobileconfigurator;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import com.kotofeya.mobileconfigurator.network.PostInfo;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -21,6 +23,18 @@ import java.util.List;
 import java.util.Map;
 
 
+/*
+
+    Алгоритм действий:
+
+    кидаем root_prepare_1.4-1.5.img.bz2
+            ребут
+    кидаем boot-old.img.bz2
+            ребут
+    кидаем boot-new.img.bz2, root-1.5.6-release.img.bz2
+            ребут
+    */
+
 public class Downloader extends AsyncTask<String, Integer, Bundle> implements TaskCode{
     public static final String CITY_URL = "http://95.161.210.44/update/city.json";
     public static final String OS_VERSION_URL = "http://95.161.210.44/update/rootimg";
@@ -32,12 +46,14 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     public static final String CORE_URLS = "core_urls";
 
     private static final String[] COREURLS = {
-            "http://95.161.210.44/update/rootimg/boot-old.img.bz2",
-            "http://95.161.210.44/update/rootimg/boot-new.img.bz2",
-            "http://95.161.210.44/update/rootimg/root-1.4-pre-1.5.img.bz2",
-            "http://95.161.210.44/update/rootimg/root-1.5.5-release.img.bz2"
+            "http://95.161.210.44/update/1.4-1.5/root_prepare_1.4-1.5.img.bz2",
+            "http://95.161.210.44/update/1.4-1.5/boot-old.img.bz2",
+            "http://95.161.210.44/update/1.4-1.5/boot-new.img.bz2",
+            "http://95.161.210.44/update/1.4-1.5/root-1.5.6-release.img.bz2"
     };
 
+
+    public static List<Boolean> IS_CORE_FILES_EXIST = new ArrayList<>();
 
 
     public static File tempUpdateOsFile;
@@ -59,6 +75,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     public Downloader(OnTaskCompleted listener) {
         this.listener = listener;
     }
+
 
     @Override
     protected Bundle doInBackground(String... url) {
@@ -104,10 +121,10 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         }
 
         Logger.d(Logger.DOWNLOAD_LOG, " creating new temp core files");
+        tempUpdateCoreFiles.add(new File(outputDir + "/root_prepare_1.4-1.5.img.bz2"));
         tempUpdateCoreFiles.add(new File(outputDir + "/boot-old.img.bz2"));
         tempUpdateCoreFiles.add(new File(outputDir + "/boot-new.img.bz2"));
-        tempUpdateCoreFiles.add(new File(outputDir + "/root-1.4-pre-1.5.img.bz2"));
-        tempUpdateCoreFiles.add(new File(outputDir + "/root-1.5.5-release.img.bz2"));
+        tempUpdateCoreFiles.add(new File(outputDir + "/root-1.5.6-release.img.bz2"));
         Logger.d(Logger.DOWNLOAD_LOG, "new temp core files created: " + tempUpdateCoreFiles);
 
     }
@@ -218,9 +235,11 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                         input = c.getInputStream();
                         writeToFile(input, tempUpdateCoreFiles.get(i));
                         Logger.d(Logger.DOWNLOAD_LOG, "core file: "  + tempUpdateCoreFiles.get(i) + " is downloaded");
+                        IS_CORE_FILES_EXIST.add(i, true);
                     }
                     Logger.d(Logger.DOWNLOAD_LOG, "core files downloaded");
-                    bundle.putInt("resultCode", UPDATE_CORE_UPLOAD_CODE);
+                    bundle.putInt("resultCode", UPDATE_CORE_DOWNLOAD_CODE);
+                    bundle.putString(PostInfo.IP, currentIp);
                     return bundle;
                 }
                 else {
@@ -326,7 +345,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 
     @Override
     protected void onProgressUpdate(Integer... values) {
-        Logger.d(Logger.DOWNLOAD_LOG, "url: " + url + " on progress update: " + values[0]);
+//        Logger.d(Logger.DOWNLOAD_LOG, "url: " + url + " on progress update: " + values[0]);
         listener.onProgressUpdate(values[0]);
         super.onProgressUpdate(values);
     }

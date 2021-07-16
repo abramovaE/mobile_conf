@@ -27,7 +27,7 @@ public class WiFiLocalHotspot {
 
 
         for (int i = 0; i < 256; i++) {
-            Logger.d(Logger.WIFI_LOG, "i: " + i);
+//            Logger.d(Logger.WIFI_LOG, "i: " + i);
             futures[i] = CompletableFuture.runAsync(new PingIp(host + "." + i), executorService);
         }
         try {
@@ -63,11 +63,11 @@ public class WiFiLocalHotspot {
         @Override
         public void run() {
             try {
-                Logger.d(Logger.WIFI_LOG, "ping: " + host);
+//                Logger.d(Logger.WIFI_LOG, "ping: " + host);
 //                String host = subnet + ipSuff;
                 InetAddress inetAddress = InetAddress.getByName(host);
                 if (inetAddress.isReachable(timeout)){
-                    Logger.d(Logger.WIFI_LOG, host + " is reachable: " + true);
+//                    Logger.d(Logger.WIFI_LOG, host + " is reachable: " + true);
                     clients.add(host);
                 }
             } catch (IOException e) {

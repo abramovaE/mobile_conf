@@ -159,8 +159,12 @@ public class CustomViewModel extends ViewModel {
 
     public synchronized void addTakeInfo(String takeInfo, boolean createNew){
 
+        Logger.d(Logger.VIEW_MODEL_LOG, "transivers: " + transivers.getValue());
         Logger.d(Logger.VIEW_MODEL_LOG, "add take info: " + takeInfo);
         List<Transiver> transiversValue = transivers.getValue();
+        if(transiversValue == null){
+            transiversValue = new CopyOnWriteArrayList<>();
+        }
 
         boolean isExist = false;
         String[] info = takeInfo.split("\n");
@@ -181,6 +185,8 @@ public class CustomViewModel extends ViewModel {
         String tType = info[17].trim();
 
         for(Transiver t: transiversValue){
+            Logger.d(Logger.VIEW_MODEL_LOG, "t.ssid: " + t.getSsid() + " , ssid: " + ssid );
+
             if(t.getSsid() != null && t.getSsid().equals(ssid)){
                 Logger.d(Logger.VIEW_MODEL_LOG, "update transiver");
                 t.setIp(ip);
@@ -214,6 +220,7 @@ public class CustomViewModel extends ViewModel {
             ssid = "stp" + String.format("%6s", ssid).replace(' ', '0');
         }
         ssidIpMap.put(ssid, ip);
+        Logger.d(Logger.VIEW_MODEL_LOG, "transivers: " + transivers.getValue());
         transivers.postValue(transiversValue);
     }
 
@@ -343,12 +350,16 @@ public class CustomViewModel extends ViewModel {
         if(currentTranspInformer.getValue() !=  null){
             this.currentTranspInformer.postValue(getTransiverBySsid(currentTranspInformer.getValue().getSsid()));
         }
-        List<Transiver> transiversList = this.transivers.getValue();
+        List<Transiver> transiversList = new CopyOnWriteArrayList<>();
         if(transiversList == null){
             transiversList = new CopyOnWriteArrayList<>();
         } else {
             transiversList.clear();
         }
+
+
+        //7706-104
+
         transiversList.addAll(statList);
         transiversList.addAll(transpList);
         for(Transiver transiver: transiversList){
@@ -401,6 +412,15 @@ public class CustomViewModel extends ViewModel {
     }
 
     public String getIp(String ssid){
+
+        if(!ssid.contains("stp")){
+            StringBuffer stringBuffer = new StringBuffer(ssid);
+            while (stringBuffer.length() < 6){
+                stringBuffer.insert(0, "0");
+            }
+            ssid = "stp" + stringBuffer.toString();
+        }
+
         Logger.d(Logger.VIEW_MODEL_LOG, "get ip, ssid: " + ssid);
         Logger.d(Logger.VIEW_MODEL_LOG, "get ip, ssidipMap: " + ssidIpMap);
         Logger.d(Logger.VIEW_MODEL_LOG, "get ip, ssidipMap: " + ssidIpMap.get(ssid));

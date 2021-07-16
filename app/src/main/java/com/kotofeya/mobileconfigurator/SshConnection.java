@@ -2,7 +2,6 @@ package com.kotofeya.mobileconfigurator;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
@@ -23,6 +22,8 @@ import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Properties;
 
 public class SshConnection extends AsyncTask<Object, Object, String> implements TaskCode{
@@ -47,8 +48,10 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
     private String ip;
     private int resultCode;
 
+    private static Map<String, Integer> coreUpdateIteration = new HashMap<>();
+
     public SshConnection(OnTaskCompleted listener){
-        Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh connection");
+        Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh connection, coreupdmap: " + coreUpdateIteration);
             this.listener = listener;
     }
 
@@ -72,13 +75,19 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             JSch jsch = new JSch();
             this.ip = (String) req[0];
             this.resultCode = (Integer) req[1];
+
+            Logger.d(Logger.SSH_CONNECTION_LOG, "try ssh connection, ip: " + ip);
+
             session = jsch.getSession("staff", ip, 22);
             session.setPassword("staff");
+
             ByteArrayOutputStream baos = null;
             // Avoid asking for key confirmation
             Properties prop = new Properties();
             prop.put("StrictHostKeyChecking", "no");
             session.setConfig(prop);
+
+            Logger.d(Logger.SSH_CONNECTION_LOG, ip + " config is set, connecting");
             session.connect();
             Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());
 
@@ -102,22 +111,61 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     execCommand(session, moveCommand + ";" + DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND);
                     break;
 
+
                 case UPDATE_CORE_UPLOAD_CODE:
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "update core uploading started");
+                    Logger.d(Logger.SSH_CONNECTION_LOG, "update core uploading started, coreUpdateIteration: " + coreUpdateIteration);
                     transferred = 0;
-                    for(File f: Downloader.tempUpdateCoreFiles){
+                    int coreUpdateIterationInt = coreUpdateIteration.get(ip);
+
+                    if(coreUpdateIterationInt < Downloader.tempUpdateCoreFiles.size()) {
+                        File f = Downloader.tempUpdateCoreFiles.get(coreUpdateIterationInt);
                         uploadToOverlayUpdate(session, f);
+
+                        Logger.d(Logger.SSH_CONNECTION_LOG, "f: " + f.getName());
+
                         String renameCommand = "";
-                        if(f.getName().contains("root-1.4-pre-1.5.img.bz2")){
-                            renameCommand = "sudo mv " + "/overlay/update/" + f.getName() + " /overlay/update/" + "root.img.bz2";
-                            execCommand(session, renameCommand);
+                        if (f.getName().contains("root_prepare")) {
+                            Logger.d(Logger.SSH_CONNECTION_LOG, "f rename: " + f.getName());
+//                            renameCommand = "sudo mv " + "/overlay/update/" + f.getName() + " /overlay/update/" + "root.img.bz2";
+//                            execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
+                            execCommand(session, REBOOT_COMMAND);
+                            res = f.getName() + " загружен на устройство. Трансивер перезагружается. " +
+                                    "Обновите список трансиверов через некоторое время.";
                         }
-                        if(f.getName().contains("root-1.5.5-release.img.bz2")){
-                            renameCommand = "sudo mv " + "/overlay/update/" + f.getName() + " /overlay/update/" + "root-new.img.bz2";
-                            execCommand(session, renameCommand);
+
+                        if (f.getName().contains("boot-old.img.bz2")) {
+                            execCommand(session, REBOOT_COMMAND);
+                            res = f.getName() + " загружен на устройство. Трансивер перезагружается. " +
+                                    "Обновите список трансиверов через некоторое время.";
                         }
+
+                        if (f.getName().contains("boot-new.img.bz2")) {
+                            res = "file 3 downloaded";
+                            uploadToOverlayUpdate(session, Downloader.tempUpdateCoreFiles.get(3));
+                            execCommand(session, REBOOT_COMMAND);
+                            res = Downloader.tempUpdateCoreFiles.get(2).getName() +  f.getName() +
+                                    " загружены на устройство. Трансивер перезагружается. " +
+                                    "Обновите список трансиверов через некоторое время.";
+                            coreUpdateIterationInt += 1;
+
+                        }
+
+                        if (f.getName().contains("release")) {
+//                            renameCommand = "sudo mv " + "/overlay/update/" + f.getName() + " /overlay/update/" + "root-new.img.bz2";
+//                            execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
+                            execCommand(session, REBOOT_COMMAND);
+
+                            res = Downloader.tempUpdateCoreFiles.get(2).getName() + " " + f.getName() +
+                                    " загружены на устройство. Трансивер перезагружается. " +
+                                    "Обновите список трансиверов через некоторое время.";
+                        }
+                        coreUpdateIterationInt += 1;
+                        coreUpdateIteration.put(ip, coreUpdateIterationInt);
                     }
-                    execCommand(session, REBOOT_COMMAND);
+
+                    if(coreUpdateIterationInt == Downloader.tempUpdateCoreFiles.size()){
+                        updateCoreFilesCounter(ip);
+                    }
                     break;
 
                 case UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE:
@@ -199,6 +247,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
         }
     }
     private String execCommand(Session session, String command) throws IOException {
+        Logger.d(Logger.SSH_CONNECTION_LOG, "exec command: " + command);
         String res = "";
         ChannelExec channelExec = null;
         InputStream commandOutput = null;
@@ -302,5 +351,19 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             this.resultCode = SSH_ERROR_CODE;
         }
         return binFile;
+    }
+
+    public static void updateCoreFilesCounter(String ip){
+        coreUpdateIteration.put(ip, 0);
+    }
+
+    public static int getCoreUpdateIteration(String ip){
+        Logger.d(Logger.SSH_CONNECTION_LOG, "coreUpdateIteration: " + coreUpdateIteration);
+        Logger.d(Logger.SSH_CONNECTION_LOG, "coreUpdateIteration: " + coreUpdateIteration.get(ip));
+
+        if(coreUpdateIteration.containsKey(ip)) {
+            return coreUpdateIteration.get(ip);
+        }
+        return 0;
     }
 }

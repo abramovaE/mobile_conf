@@ -148,6 +148,12 @@ public class Utils implements OnTaskCompleted{
                 }
                 futureCounter += 1;
                 break;
+
+            case PostCommand.POST_COMMAND_ERROR:
+                futures[futureCounter] = CompletableFuture.runAsync(new SshConnectionRunnable((MainActivity)context, ip, SshConnection.TAKE_CODE), executorService);
+                futureCounter += 1;
+                break;
+
         }
         if(futures != null){
             CompletableFuture.allOf(futures).thenRun(() -> {

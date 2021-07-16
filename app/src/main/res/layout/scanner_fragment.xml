@@ -51,6 +51,22 @@
 <!--        android:textSize="@dimen/login_txt"-->
 <!--        android:textColor="@color/colorAccent"/>-->
 
+    <Button
+        android:id="@+id/downloadCoreUpdateFilesBtn"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:text="Загрузить с сервера файлы для обновления ядра"
+        android:layout_margin="60px"
+        />
+
+    <TextView
+        android:id="@+id/downloadCoreUpdateFilesTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_margin="30px"/>
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

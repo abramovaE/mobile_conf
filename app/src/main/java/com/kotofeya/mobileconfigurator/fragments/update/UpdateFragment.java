@@ -147,13 +147,15 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         Logger.d(Logger.UPDATE_LOG, "on view created");
     }
 
-    private void updateUI(List<Transiver> transivers){
+    protected void updateUI(List<Transiver> transivers){
+        Logger.d(Logger.UPDATE_LOG, "update ui");
         scannerAdapter.setObjects(transivers);
         scannerAdapter.notifyDataSetChanged();
     }
 
     @Override
     public void onTaskCompleted(Bundle result) {
+        Logger.d(Logger.UPDATE_LOG, "on task completed");
         String command = result.getString(PostInfo.COMMAND);
         String ip = result.getString(PostInfo.IP);
         String response = result.getString(PostInfo.RESPONSE);
@@ -258,6 +260,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         versionLabel.setText(version);
     }
 
+
+
     public static class EnableMobileConfDialog extends DialogFragment {
         @NonNull
         @Override
@@ -304,25 +308,20 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
                 public void onClick(DialogInterface dialog, int id) {
 
-                    View view = App.get().getFragmentHandler().getCurrentFragment().getView();
-                    ProgressBar progressBar = view.findViewById(R.id.scanner_progressBar);
-                    progressBar.setVisibility(View.VISIBLE);
-
-                    Downloader downloader = new Downloader(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
-                    downloader.execute(Downloader.CORE_URLS);
-
-
-//                    SshConnection connection = new SshConnection(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
-//                    connection.execute(ip, SshConnection.UPDATE_CORE_UPLOAD_CODE);
-
 //                    View view = App.get().getFragmentHandler().getCurrentFragment().getView();
 //                    ProgressBar progressBar = view.findViewById(R.id.scanner_progressBar);
 //                    progressBar.setVisibility(View.VISIBLE);
-//                    Thread thread = new Thread(new PostInfo((SettingsUpdatePhpFragment) App.get().getFragmentHandler().getCurrentFragment(), ip,
-//                            PostCommand.UPDATE_CORE));
-//                    thread.start();
-//                    SshConnection connection = new SshConnection(((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()));
-//                    connection.execute(ip, SshConnection.UPDATE_OS_UPLOAD_CODE);
+//
+//                    Downloader downloader = new Downloader(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
+//                    downloader.execute(Downloader.CORE_URLS, ip);
+
+
+                    if(Downloader.tempUpdateCoreFiles.size() == 4 && Downloader.IS_CORE_FILES_EXIST.stream().allMatch((it) -> it == true)){
+                        SshConnection.updateCoreFilesCounter(ip);
+                        SshConnection connection = new SshConnection(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
+                        connection.execute(ip, SshConnection.UPDATE_CORE_UPLOAD_CODE);
+                    }
+
                 }
             });
             builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
