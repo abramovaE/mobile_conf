@@ -13,23 +13,34 @@ import org.acra.sender.HttpSender;
 
 import java.io.File;
 
-
 //@AcraCore(buildConfigClass = BuildConfig.class, reportFormat = StringFormat.KEY_VALUE_LIST)
 //@AcraHttpSender(uri = "http://95.161.210.44/mobile_conf_acra.php",
 //        httpMethod = HttpSender.Method.POST)
 public class App extends Application {
+
     private static App instance;
+    private static final String PREF_NAME = "mobile_conf_pref";
+
+    private String login;
     private Context context;
     private FragmentHandler fragmentHandler;
     private SharedPreferences preferences;
     private String updateOsFilePath;
     private String updateOsFileVersion;
     private boolean showAccessPointDialog;
+    private File[] updateCoreFilesPath;
 
+    public File[] getUpdateCoreFilesPath() {
+        return updateCoreFilesPath;
+    }
 
-    private String login;
-
-    private static final String PREF_NAME = "mobile_conf_pref";
+    public void setUpdateCoreFilesPath(File[] updateCoreFilesPath) {
+        preferences.edit().putString("updateCoreFilesPath0", updateCoreFilesPath[0].getAbsolutePath()).commit();
+        preferences.edit().putString("updateCoreFilesPath1", updateCoreFilesPath[1].getAbsolutePath()).commit();
+        preferences.edit().putString("updateCoreFilesPath2", updateCoreFilesPath[2].getAbsolutePath()).commit();
+        preferences.edit().putString("updateCoreFilesPath3", updateCoreFilesPath[3].getAbsolutePath()).commit();
+        this.updateCoreFilesPath = updateCoreFilesPath;
+    }
 
     public static App get() {
         return instance;
@@ -50,6 +61,12 @@ public class App extends Application {
         updateOsFileVersion = preferences.getString("updateOsFileVersion", "");
         showAccessPointDialog = preferences.getBoolean("isAskForTeneth", true);
 
+        updateCoreFilesPath = new File[]{
+                new File(preferences.getString("updateCoreFilesPath0", "")),
+                        new File(preferences.getString("updateCoreFilesPath1", "")),
+                        new File(preferences.getString("updateCoreFilesPath2", "")),
+                        new File(preferences.getString("updateCoreFilesPath3", ""))};
+
         if(!new File(updateOsFilePath).exists()){
             setUpdateOsFileVersion("");
             setUpdateOsFilePath("");
@@ -60,15 +77,11 @@ public class App extends Application {
         Logger.d(Logger.APP_LOG, "updateOsFilePath: " + updateOsFilePath + ", isExist: " + Downloader.tempUpdateOsFile.exists());
         Logger.d(Logger.APP_LOG, "is_ask_forteneth: " + isAskForTeneth());
 
-//        retrofit = new Retrofit.Builder()
-//                .baseUrl("http://95.161.210.44/update/")
-//                .build();
+        Downloader.tempUpdateCoreFiles = (updateCoreFilesPath);
     }
 
     public boolean isAskForTeneth(){
         return preferences.getBoolean("isAskForTeneth", true);
-
-//        return true;
     }
 
     public String getLogin() {
@@ -103,15 +116,6 @@ public class App extends Application {
         preferences.edit().putString("updateOsFileVersion", updateOsFileVersion).commit();
         this.updateOsFileVersion = updateOsFileVersion;
     }
-
-//    public String getLogReport(){
-//        return preferences.getString("logReport", "");
-//    }
-//
-//    public void setLogReport(String logReport) {
-//        preferences.edit().putString("logReport", logReport).commit();
-//    }
-
 
     public Context getContext() {
         return context;

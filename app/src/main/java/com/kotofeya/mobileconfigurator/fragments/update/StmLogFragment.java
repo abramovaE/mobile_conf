@@ -52,4 +52,14 @@ public class StmLogFragment extends UpdateFragment {
         mainTxtLabel.setText("Stm log");
         return view;
     }
+
+    @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
 }

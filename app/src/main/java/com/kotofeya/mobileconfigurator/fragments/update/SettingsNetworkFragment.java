@@ -52,4 +52,14 @@ public class SettingsNetworkFragment extends UpdateFragment {
         mainTxtLabel.setText("Network settings");
         return view;
     }
+
+    @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
 }

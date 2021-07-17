@@ -111,6 +111,21 @@ public class TransportContentFragment extends ContentFragment implements View.On
     }
 
     @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
+
+    @Override
+    public void clearProgressBar() {
+
+    }
+
+    @Override
     public void onClick(View v) {
         int type = spnType.getSelectedItemPosition();
         String typeHex = type + "";

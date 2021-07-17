@@ -341,4 +341,19 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
     @Override
     public void onProgressUpdate(Integer downloaded) {
     }
+
+    @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
+
+    @Override
+    public void clearProgressBar() {
+
+    }
 }

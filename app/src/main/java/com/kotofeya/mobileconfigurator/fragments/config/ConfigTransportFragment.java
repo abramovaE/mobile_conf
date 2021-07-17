@@ -34,6 +34,21 @@ public class ConfigTransportFragment extends ConfigFragment {
     @Override
     public void onProgressUpdate(Integer downloaded) {}
 
+    @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
+
+    @Override
+    public void clearProgressBar() {
+
+    }
+
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

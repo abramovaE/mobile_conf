@@ -200,6 +200,21 @@ public class TransiverSettingsNetworkFragment extends Fragment implements View.O
     }
 
     @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
+
+    @Override
+    public void clearProgressBar() {
+
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         Logger.d(Logger.CONTENT_LOG, "contentFragment onStart");

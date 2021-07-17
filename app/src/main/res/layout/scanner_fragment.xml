@@ -32,6 +32,12 @@
         android:visibility="gone"
         android:layout_margin="50px"/>
 
+    <TextView
+        android:id="@+id/progressTv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_margin="30px"/>
 
     <ProgressBar
         style="@android:style/Widget.ProgressBar.Horizontal"
@@ -66,6 +72,8 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:layout_margin="30px"/>
+
+
 
     <LinearLayout
         android:layout_width="match_parent"

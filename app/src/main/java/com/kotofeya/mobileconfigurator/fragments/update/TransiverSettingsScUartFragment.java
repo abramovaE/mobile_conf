@@ -138,6 +138,21 @@ public class TransiverSettingsScUartFragment extends Fragment implements PostCom
     }
 
     @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
+
+    @Override
+    public void clearProgressBar() {
+
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         Logger.d(Logger.CONTENT_LOG, "contentFragment onStart");

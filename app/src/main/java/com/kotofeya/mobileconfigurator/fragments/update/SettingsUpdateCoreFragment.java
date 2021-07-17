@@ -1,5 +1,7 @@
 package com.kotofeya.mobileconfigurator.fragments.update;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,33 +21,32 @@ import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
 
+import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 
 public class SettingsUpdateCoreFragment extends UpdateFragment {
 
-//    private TextView phpVersion;
-
     private Button downloadCoreUpdateFilesBtn;
     private TextView downloadCoreUpdateFilesTv;
+    private TextView progressTv;
 
     @Override
     protected void loadUpdates() {
-
     }
 
     @Override
     protected void loadVersion() {
-
     }
 
     @Override
     protected void setMainTextLabelText() {
-
     }
 
     @Override
@@ -65,10 +66,9 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(Downloader.tempUpdateCoreFiles != null && Downloader.tempUpdateCoreFiles.size() == 4
-                && Downloader.IS_CORE_FILES_EXIST.stream().allMatch((it) -> it == true)) {
+        if(Downloader.IS_CORE_FILES_EXIST.stream().allMatch((it) -> it == true)) {
             StringBuilder sb = new StringBuilder();
-            Downloader.tempUpdateCoreFiles.stream().forEach(it -> sb.append(it.getName()).append("\n"));
+            (new LinkedList<>(Arrays.asList(Downloader.tempUpdateCoreFiles))).stream().forEach(it -> sb.append(it.getName()).append("\n"));
             downloadCoreUpdateFilesTv.setText(sb.toString());
         }
     }
@@ -96,6 +96,8 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
 
         downloadCoreUpdateFilesTv = view.findViewById(R.id.downloadCoreUpdateFilesTv);
         downloadCoreUpdateFilesTv.setVisibility(View.VISIBLE);
+        progressTv = view.findViewById(R.id.progressTv);
+        progressTv.setVisibility(View.VISIBLE);
 
         return view;
     }
@@ -117,49 +119,59 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
 
         if(resultCode == Downloader.UPDATE_CORE_DOWNLOAD_CODE){
             Toast.makeText(getActivity(), "Файлы, необходимые для обновления скачаны", Toast.LENGTH_SHORT).show();
-
             StringBuilder sb = new StringBuilder();
-            Downloader.tempUpdateCoreFiles.stream().forEach(it -> sb.append(it.getName()).append("\n"));
+            new LinkedList<>(Arrays.asList(Downloader.tempUpdateCoreFiles)).stream().forEach(it -> sb.append(it.getName()).append("\n"));
             downloadCoreUpdateFilesTv.setText(sb.toString());
+        }
 
+        if(resultCode == TaskCode.SSH_ERROR_CODE){
 
-//            SshConnection.updateCoreFilesCounter(ip);
-//            SshConnection connection = new SshConnection(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
-//            connection.execute(ip, SshConnection.UPDATE_CORE_UPLOAD_CODE);
+        }
+        else {
+
         }
 
         if(res != null && res.contains("загружен")){
-            Toast.makeText(getActivity(), res, Toast.LENGTH_LONG).show();
+            AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
+            dialog.setMessage(res);
+            dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+//                    scan();
+                }
+            });
+            dialog.show();
         }
-
-//        else if(resultCode == Downloader.UPDATE_CORE_UPLOAD_CODE){
-//            SshConnection connection = new SshConnection(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
-//            connection.execute(ip, SshConnection.UPDATE_CORE_UPLOAD_CODE);
-//        }
-
-//        else {
-//            Logger.d(Logger.UPDATE_CORE_LOG, "super.onTaskCompleted");
-//            super.onTaskCompleted(result);
-//        }
-
-
-
     }
-
 
     @Override
     protected void updateUI(List<Transiver> transivers){
-        super.updateUI(transivers);
-
+        scannerAdapter.setObjects(transivers);
+        scannerAdapter.notifyDataSetChanged();
         for(Transiver t: transivers){
-
             String ip = t.getIp();
             if(ip != null) {
                 Logger.d(Logger.UPDATE_CORE_LOG, "coreUpdateIteration ip: " + ip);
-
                 Logger.d(Logger.UPDATE_CORE_LOG, "coreUpdateIteration: " + t.getSsid() + " " + SshConnection.getCoreUpdateIteration(ip));
                 int coreUpdateIteration = SshConnection.getCoreUpdateIteration(ip);
                 if(coreUpdateIteration > 0 && coreUpdateIteration < 4){
+
+                    if(coreUpdateIteration == 2){
+                        progressTv.setText("Загружаем файлы " +
+                                Downloader.tempUpdateCoreFiles[2].getName() + ", " + Downloader.tempUpdateCoreFiles[3].getName() +
+                                " на трансивер " + t.getSsid());
+                    }
+                    else {
+                        progressTv.setText("Загружаем файл " +
+                                Downloader.tempUpdateCoreFiles[coreUpdateIteration].getName() +
+                                " на трансивер " + t.getSsid());
+
+                    }
                     SshConnection connection = new SshConnection(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
                     connection.execute(ip, SshConnection.UPDATE_CORE_UPLOAD_CODE);
                     break;
@@ -167,5 +179,9 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
             }
 
         }
+    }
+
+    public void setProgressTvText(String text){
+        progressTv.setText(text);
     }
 }

@@ -76,6 +76,16 @@ public class UpdateOsFragment extends UpdateFragment {
         }
     }
 
+    @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
+
 
     public static class UpdateOsConfDialog extends DialogFragment {
         @NonNull

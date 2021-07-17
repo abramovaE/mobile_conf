@@ -117,8 +117,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     transferred = 0;
                     int coreUpdateIterationInt = coreUpdateIteration.get(ip);
 
-                    if(coreUpdateIterationInt < Downloader.tempUpdateCoreFiles.size()) {
-                        File f = Downloader.tempUpdateCoreFiles.get(coreUpdateIterationInt);
+                    if(coreUpdateIterationInt < Downloader.tempUpdateCoreFiles.length) {
+                        File f = Downloader.tempUpdateCoreFiles[coreUpdateIterationInt];
                         uploadToOverlayUpdate(session, f);
 
                         Logger.d(Logger.SSH_CONNECTION_LOG, "f: " + f.getName());
@@ -141,9 +141,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
 
                         if (f.getName().contains("boot-new.img.bz2")) {
                             res = "file 3 downloaded";
-                            uploadToOverlayUpdate(session, Downloader.tempUpdateCoreFiles.get(3));
+                            uploadToOverlayUpdate(session, Downloader.tempUpdateCoreFiles[3]);
                             execCommand(session, REBOOT_COMMAND);
-                            res = Downloader.tempUpdateCoreFiles.get(2).getName() +  f.getName() +
+                            res = Downloader.tempUpdateCoreFiles[2].getName() + " " + Downloader.tempUpdateCoreFiles[3].getName() +
                                     " загружены на устройство. Трансивер перезагружается. " +
                                     "Обновите список трансиверов через некоторое время.";
                             coreUpdateIterationInt += 1;
@@ -155,7 +155,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
 //                            execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
                             execCommand(session, REBOOT_COMMAND);
 
-                            res = Downloader.tempUpdateCoreFiles.get(2).getName() + " " + f.getName() +
+                            res = Downloader.tempUpdateCoreFiles[2].getName() + " " + f.getName() +
                                     " загружены на устройство. Трансивер перезагружается. " +
                                     "Обновите список трансиверов через некоторое время.";
                         }
@@ -163,7 +163,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                         coreUpdateIteration.put(ip, coreUpdateIterationInt);
                     }
 
-                    if(coreUpdateIterationInt == Downloader.tempUpdateCoreFiles.size()){
+                    if(coreUpdateIterationInt == Downloader.tempUpdateCoreFiles.length){
                         updateCoreFilesCounter(ip);
                     }
                     break;
@@ -287,6 +287,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             channelSftp.put(file.getAbsolutePath(), "/overlay/update", new SftpProgressMonitor() {
                 @Override
                 public void init(int op, String src, String dest, long max) {
+                    listener.clearProgressBar();
+                    listener.setProgressBarVisible();
                 }
                 @Override
                 public boolean count(long count) {
@@ -299,6 +301,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                 @Override
                 public void end() {
                     Logger.d(Logger.SSH_CONNECTION_LOG, "end transfering");
+                    listener.setProgressBarGone();
                 }
             });
         } catch (JSchException | SftpException e) {
@@ -354,6 +357,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
     }
 
     public static void updateCoreFilesCounter(String ip){
+        Logger.d(Logger.SSH_CONNECTION_LOG, "core files counter: " + coreUpdateIteration);
         coreUpdateIteration.put(ip, 0);
     }
 

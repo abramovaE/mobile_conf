@@ -55,6 +55,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     protected static final int MOBILE_SETTINGS_RESULT = 0;
     protected CustomViewModel viewModel;
 
+    private TextView progressTv;
+
     @Override
     public void onAttach(Context context) {
         this.context = context;
@@ -124,6 +126,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         loadVersion();
 
 
+        progressTv = view.findViewById(R.id.progressTv);
         return view;
     }
 
@@ -231,6 +234,36 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         progressBar.setProgress(downloaded);
     }
 
+    @Override
+    public void setProgressBarVisible() {
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.VISIBLE);
+            }
+        });
+    }
+
+    @Override
+    public void setProgressBarGone(){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setVisibility(View.GONE);
+            }
+        });
+    }
+
+    @Override
+    public void clearProgressBar(){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressBar.setProgress(0);
+            }
+        });
+    }
+
     protected abstract void loadUpdates();
     protected abstract void loadVersion();
     protected abstract void setMainTextLabelText();
@@ -316,7 +349,11 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 //                    downloader.execute(Downloader.CORE_URLS, ip);
 
 
-                    if(Downloader.tempUpdateCoreFiles.size() == 4 && Downloader.IS_CORE_FILES_EXIST.stream().allMatch((it) -> it == true)){
+                    if(Downloader.IS_CORE_FILES_EXIST.stream().allMatch((it) -> it == true)){
+
+                        ((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()).setProgressTvText("Загружаем файл " +
+                                Downloader.tempUpdateCoreFiles[0].getName() +
+                                " на трансивер " + ip);
                         SshConnection.updateCoreFilesCounter(ip);
                         SshConnection connection = new SshConnection(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
                         connection.execute(ip, SshConnection.UPDATE_CORE_UPLOAD_CODE);

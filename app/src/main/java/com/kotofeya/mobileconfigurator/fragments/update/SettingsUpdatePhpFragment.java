@@ -90,4 +90,14 @@ public class SettingsUpdatePhpFragment extends UpdateFragment {
             }
         }
     }
+
+    @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
 }

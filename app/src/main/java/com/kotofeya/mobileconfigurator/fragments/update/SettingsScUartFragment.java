@@ -52,4 +52,14 @@ public class SettingsScUartFragment extends UpdateFragment {
         mainTxtLabel.setText("ScUart");
         return view;
     }
+
+    @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
 }

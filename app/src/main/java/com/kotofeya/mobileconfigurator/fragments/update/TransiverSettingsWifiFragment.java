@@ -197,6 +197,21 @@ public class TransiverSettingsWifiFragment extends Fragment implements View.OnCl
     }
 
     @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
+
+    @Override
+    public void clearProgressBar() {
+
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         Logger.d(Logger.CONTENT_LOG, "contentFragment onStart");

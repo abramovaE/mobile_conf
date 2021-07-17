@@ -52,4 +52,14 @@ public class SettingsWifiFragment extends UpdateFragment {
         mainTxtLabel.setText("Wifi settings");
         return view;
     }
+
+    @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
 }

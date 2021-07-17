@@ -167,6 +167,21 @@ public class Utils implements OnTaskCompleted{
     public void onProgressUpdate(Integer downloaded) {
     }
 
+    @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
+
+    @Override
+    public void clearProgressBar() {
+
+    }
+
 
     public static class MessageDialog extends DialogFragment {
         @NonNull

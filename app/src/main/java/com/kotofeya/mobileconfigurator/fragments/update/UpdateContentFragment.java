@@ -35,6 +35,16 @@ public class UpdateContentFragment extends UpdateFragment {
     }
 
     @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
+
+    @Override
     protected void loadUpdates() {
     }
 

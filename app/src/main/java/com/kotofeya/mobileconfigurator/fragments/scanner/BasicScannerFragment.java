@@ -82,6 +82,21 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
     public void onProgressUpdate(Integer downloaded) {
     }
 
+    @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
+
+    @Override
+    public void clearProgressBar() {
+
+    }
+
     private void rescan(){
         Logger.d(Logger.BASIC_SCANNER_LOG, "rescan");
         utils.clearClients();

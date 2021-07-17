@@ -163,6 +163,21 @@ public class TransiverStmLogFragment extends Fragment implements View.OnClickLis
     }
 
     @Override
+    public void setProgressBarVisible() {
+
+    }
+
+    @Override
+    public void setProgressBarGone() {
+
+    }
+
+    @Override
+    public void clearProgressBar() {
+
+    }
+
+    @Override
     public void onStart() {
         super.onStart();
         Logger.d(Logger.CONTENT_LOG, "contentFragment onStart");

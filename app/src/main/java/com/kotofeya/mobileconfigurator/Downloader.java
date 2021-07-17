@@ -18,9 +18,14 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 
 /*
@@ -61,7 +66,8 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     public static List<String> tempUpdateTransportContentFiles;
     public static Map<String, String> tempUpdateStationaryContentFiles;
 
-    public static List<File> tempUpdateCoreFiles;
+//    public static List<File> tempUpdateCoreFiles;
+    public static File[] tempUpdateCoreFiles = new File[4];
 
 
 
@@ -113,18 +119,14 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         File outputDir = App.get().getContext().getExternalFilesDir(null);
 
         Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateCoreFiles: " + tempUpdateCoreFiles);
-        if(tempUpdateCoreFiles != null && !tempUpdateCoreFiles.isEmpty()){
-            Logger.d(Logger.DOWNLOAD_LOG, "delete exist core files");
-            tempUpdateCoreFiles.clear();
-        } else {
-            tempUpdateCoreFiles = new ArrayList<>();
-        }
+
+        tempUpdateCoreFiles = new File[4];
 
         Logger.d(Logger.DOWNLOAD_LOG, " creating new temp core files");
-        tempUpdateCoreFiles.add(new File(outputDir + "/root_prepare_1.4-1.5.img.bz2"));
-        tempUpdateCoreFiles.add(new File(outputDir + "/boot-old.img.bz2"));
-        tempUpdateCoreFiles.add(new File(outputDir + "/boot-new.img.bz2"));
-        tempUpdateCoreFiles.add(new File(outputDir + "/root-1.5.6-release.img.bz2"));
+        tempUpdateCoreFiles[0] = (new File(outputDir + "/root_prepare_1.4-1.5.img.bz2"));
+        tempUpdateCoreFiles[1] = (new File(outputDir + "/boot-old.img.bz2"));
+        tempUpdateCoreFiles[2] = (new File(outputDir + "/boot-new.img.bz2"));
+        tempUpdateCoreFiles[3] = (new File(outputDir + "/root-1.5.6-release.img.bz2"));
         Logger.d(Logger.DOWNLOAD_LOG, "new temp core files created: " + tempUpdateCoreFiles);
 
     }
@@ -233,13 +235,15 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                         publishProgress(0);
                         c = getConnection(new URL(COREURLS[i]));
                         input = c.getInputStream();
-                        writeToFile(input, tempUpdateCoreFiles.get(i));
-                        Logger.d(Logger.DOWNLOAD_LOG, "core file: "  + tempUpdateCoreFiles.get(i) + " is downloaded");
+                        writeToFile(input, tempUpdateCoreFiles[i]);
+                        Logger.d(Logger.DOWNLOAD_LOG, "core file: "  + tempUpdateCoreFiles[i] + " is downloaded");
                         IS_CORE_FILES_EXIST.add(i, true);
                     }
                     Logger.d(Logger.DOWNLOAD_LOG, "core files downloaded");
                     bundle.putInt("resultCode", UPDATE_CORE_DOWNLOAD_CODE);
                     bundle.putString(PostInfo.IP, currentIp);
+
+                    App.get().setUpdateCoreFilesPath(tempUpdateCoreFiles);
                     return bundle;
                 }
                 else {
