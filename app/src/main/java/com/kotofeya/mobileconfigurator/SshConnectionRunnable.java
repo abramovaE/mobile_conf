@@ -2,6 +2,7 @@ package com.kotofeya.mobileconfigurator;
 
 import android.os.Bundle;
 
+
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
@@ -31,6 +32,9 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
     String req4;
     String req5;
 
+    int transferred;
+    // req[0] - ip
+    //req[1] - command
 
     public SshConnectionRunnable(OnTaskCompleted listener, Object...req){
         this.listener = listener;
@@ -50,9 +54,7 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
             this.req5 = (String) req[5];
         }
     }
-    int transferred;
-    // req[0] - ip
-    //req[1] - command
+
 
 
     @Override

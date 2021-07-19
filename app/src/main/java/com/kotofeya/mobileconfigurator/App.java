@@ -56,6 +56,12 @@ public class App extends Application {
     public void onCreate() {
         super.onCreate();
         instance = this;
+        try {
+            Logger.d(Logger.MAIN_LOG, "class for name: " + Class.forName("com.jcraft.jsch.jce.Random"));
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
         preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
         updateOsFilePath = preferences.getString("updateOsFilePath", "");
         updateOsFileVersion = preferences.getString("updateOsFileVersion", "");
