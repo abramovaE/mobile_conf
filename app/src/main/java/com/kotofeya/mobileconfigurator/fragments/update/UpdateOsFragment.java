@@ -6,7 +6,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -72,20 +71,9 @@ public class UpdateOsFragment extends UpdateFragment {
     public void onTaskCompleted(Bundle bundle) {
         super.onTaskCompleted(bundle);
         if (bundle.getInt("resultCode") == TaskCode.UPDATE_OS_DOWNLOAD_CODE) {
-            storageVersionTxt.setText(R.string.storage_os + ": " + App.get().getUpdateOsFileVersion());
+            storageVersionTxt.setText(getString(R.string.storage_os) + ": " + App.get().getUpdateOsFileVersion());
         }
     }
-
-    @Override
-    public void setProgressBarVisible() {
-
-    }
-
-    @Override
-    public void setProgressBarGone() {
-
-    }
-
 
     public static class UpdateOsConfDialog extends DialogFragment {
         @NonNull
@@ -97,10 +85,9 @@ public class UpdateOsFragment extends UpdateFragment {
             builder.setMessage("Confirm the upload of the updates");
             builder.setPositiveButton("upload", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    View view = App.get().getFragmentHandler().getCurrentFragment().getView();
-                    ProgressBar progressBar = view.findViewById(R.id.scanner_progressBar);
-                    progressBar.setVisibility(View.VISIBLE);
-                    SshConnection connection = new SshConnection(((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()));
+                    SshConnection connection = new SshConnection(
+                            ((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()),
+                            ((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()));
                     connection.execute(ip, SshConnection.UPDATE_OS_UPLOAD_CODE);
                 }
             });
@@ -123,16 +110,9 @@ public class UpdateOsFragment extends UpdateFragment {
             builder.setMessage("Confirm the update of PHP version");
             builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
-                    View view = App.get().getFragmentHandler().getCurrentFragment().getView();
-//                    ProgressBar progressBar = view.findViewById(R.id.scanner_progressBar);
-//                    progressBar.setVisibility(View.VISIBLE);
-
                     Thread thread = new Thread(new PostInfo((SettingsUpdatePhpFragment) App.get().getFragmentHandler().getCurrentFragment(), ip,
                             PostCommand.UPDATE_PHP));
                     thread.start();
-
-//                    SshConnection connection = new SshConnection(((UpdateOsFragment) App.get().getFragmentHandler().getCurrentFragment()));
-//                    connection.execute(ip, SshConnection.UPDATE_OS_UPLOAD_CODE);
                 }
             });
             builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
@@ -143,6 +123,4 @@ public class UpdateOsFragment extends UpdateFragment {
             return builder.create();
         }
     }
-
-
 }

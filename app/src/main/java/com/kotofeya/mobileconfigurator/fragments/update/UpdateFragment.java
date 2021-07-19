@@ -25,6 +25,7 @@ import androidx.lifecycle.ViewModelProviders;
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.ProgressBarInt;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
@@ -40,7 +41,7 @@ import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import java.util.List;
 
 
-public abstract class UpdateFragment extends Fragment implements OnTaskCompleted {
+public abstract class UpdateFragment extends Fragment implements OnTaskCompleted, ProgressBarInt {
 
     public Context context;
     public Utils utils;
@@ -88,6 +89,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         versionLabel = view.findViewById(R.id.scanner_label0);
         checkVersionButton = view.findViewById(R.id.scanner_btn);
         mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
+
         mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
         mainBtnRescan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,7 +123,9 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         setMainTextLabelText();
         scannerAdapter = getScannerAdapter();
         lvScanner.setAdapter(scannerAdapter);
-        utils.getNewBleScanner().stopScan();
+        if(utils.getNewBleScanner() != null) {
+            utils.getNewBleScanner().stopScan();
+        }
 //        utils.getBluetooth().stopScan(true);
         loadVersion();
 
@@ -236,6 +240,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     @Override
     public void setProgressBarVisible() {
+        Logger.d(Logger.UPDATE_LOG, "set progressbar visible");
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
@@ -283,7 +288,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         String filePath = bundle.getString("filePath");
         Logger.d(Logger.UPDATE_CONTENT_LOG, "download by ssh " + ", ip: " + ip + ", taskCode: " + taskCode + ", filepath: " + filePath);
         progressBar.setVisibility(progressBarVisibility);
-        SshConnection connection = new SshConnection(this);
+        SshConnection connection = new SshConnection(this, this);
         connection.execute(ip, taskCode, filePath);
     }
 
@@ -355,7 +360,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                                 Downloader.tempUpdateCoreFiles[0].getName() +
                                 " на трансивер " + ip);
                         SshConnection.updateCoreFilesCounter(ip);
-                        SshConnection connection = new SshConnection(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
+                        SshConnection connection = new SshConnection(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()), ((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
                         connection.execute(ip, SshConnection.UPDATE_CORE_UPLOAD_CODE);
                     }
 

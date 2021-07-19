@@ -162,20 +162,7 @@ public class TransiverStmLogFragment extends Fragment implements View.OnClickLis
     public void onProgressUpdate(Integer downloaded) {
     }
 
-    @Override
-    public void setProgressBarVisible() {
 
-    }
-
-    @Override
-    public void setProgressBarGone() {
-
-    }
-
-    @Override
-    public void clearProgressBar() {
-
-    }
 
     @Override
     public void onStart() {

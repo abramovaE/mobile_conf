@@ -52,16 +52,6 @@ public class UpdateStmFragment extends UpdateFragment {
         downloader.execute(Downloader.STM_VERSION_URL);
     }
 
-    @Override
-    public void setProgressBarVisible() {
-
-    }
-
-    @Override
-    public void setProgressBarGone() {
-
-    }
-
     public static class UpdateStmConfDialog extends DialogFragment {
         private String getKey(String s, String prefix){
             String key;

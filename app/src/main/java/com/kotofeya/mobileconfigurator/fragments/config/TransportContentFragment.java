@@ -110,20 +110,6 @@ public class TransportContentFragment extends ContentFragment implements View.On
     public void onProgressUpdate(Integer downloaded) {
     }
 
-    @Override
-    public void setProgressBarVisible() {
-
-    }
-
-    @Override
-    public void setProgressBarGone() {
-
-    }
-
-    @Override
-    public void clearProgressBar() {
-
-    }
 
     @Override
     public void onClick(View v) {

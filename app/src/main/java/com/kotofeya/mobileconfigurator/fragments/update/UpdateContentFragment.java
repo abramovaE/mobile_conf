@@ -34,15 +34,6 @@ public class UpdateContentFragment extends UpdateFragment {
         super.onTaskCompleted(bundle);
     }
 
-    @Override
-    public void setProgressBarVisible() {
-
-    }
-
-    @Override
-    public void setProgressBarGone() {
-
-    }
 
     @Override
     protected void loadUpdates() {

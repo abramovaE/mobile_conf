@@ -228,20 +228,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     public void onProgressUpdate(Integer downloaded) {
     }
 
-    @Override
-    public void setProgressBarVisible() {
 
-    }
-
-    @Override
-    public void setProgressBarGone() {
-
-    }
-
-    @Override
-    public void clearProgressBar() {
-
-    }
 
     public void doWork() {
         runOnUiThread(new Runnable() {

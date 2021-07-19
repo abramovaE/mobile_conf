@@ -45,14 +45,23 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
     private static final String CREATE_UPDATE_STM_LOG_COMMAND = "sudo touch /var/www/html/data/stm_update_log";
 
     private OnTaskCompleted listener;
+    private ProgressBarInt progressBarIntListener;
+
     private String ip;
     private int resultCode;
 
     private static Map<String, Integer> coreUpdateIteration = new HashMap<>();
 
+
     public SshConnection(OnTaskCompleted listener){
         Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh connection, coreupdmap: " + coreUpdateIteration);
+        this.listener = listener;
+    }
+
+    public SshConnection(OnTaskCompleted listener, ProgressBarInt progressBarIntListener){
+        Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh connection, coreupdmap: " + coreUpdateIteration);
             this.listener = listener;
+            this.progressBarIntListener = progressBarIntListener;
     }
 
     int transferred;
@@ -85,6 +94,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             // Avoid asking for key confirmation
             Properties prop = new Properties();
             prop.put("StrictHostKeyChecking", "no");
+
+
+
             session.setConfig(prop);
 
             Logger.d(Logger.SSH_CONNECTION_LOG, ip + " config is set, connecting");
@@ -126,9 +138,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                         String renameCommand = "";
                         if (f.getName().contains("root_prepare")) {
                             Logger.d(Logger.SSH_CONNECTION_LOG, "f rename: " + f.getName());
-//                            renameCommand = "sudo mv " + "/overlay/update/" + f.getName() + " /overlay/update/" + "root.img.bz2";
-//                            execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
-                            execCommand(session, REBOOT_COMMAND);
+                            renameCommand = "sudo mv " + "/overlay/update/" + f.getName() + " /overlay/update/" + "root.img.bz2";
+                            execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
+//                            execCommand(session, REBOOT_COMMAND);
                             res = f.getName() + " загружен на устройство. Трансивер перезагружается. " +
                                     "Обновите список трансиверов через некоторое время.";
                         }
@@ -142,7 +154,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                         if (f.getName().contains("boot-new.img.bz2")) {
                             res = "file 3 downloaded";
                             uploadToOverlayUpdate(session, Downloader.tempUpdateCoreFiles[3]);
-                            execCommand(session, REBOOT_COMMAND);
+                            renameCommand = "sudo mv " + "/overlay/update/" + f.getName() + " /overlay/update/" + "root-new.img.bz2";
+                            execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
+//                            execCommand(session, REBOOT_COMMAND);
                             res = Downloader.tempUpdateCoreFiles[2].getName() + " " + Downloader.tempUpdateCoreFiles[3].getName() +
                                     " загружены на устройство. Трансивер перезагружается. " +
                                     "Обновите список трансиверов через некоторое время.";
@@ -151,9 +165,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                         }
 
                         if (f.getName().contains("release")) {
-//                            renameCommand = "sudo mv " + "/overlay/update/" + f.getName() + " /overlay/update/" + "root-new.img.bz2";
-//                            execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
-                            execCommand(session, REBOOT_COMMAND);
+                            renameCommand = "sudo mv " + "/overlay/update/" + f.getName() + " /overlay/update/" + "root-new.img.bz2";
+                            execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
+//                            execCommand(session, REBOOT_COMMAND);
 
                             res = Downloader.tempUpdateCoreFiles[2].getName() + " " + f.getName() +
                                     " загружены на устройство. Трансивер перезагружается. " +
@@ -287,8 +301,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             channelSftp.put(file.getAbsolutePath(), "/overlay/update", new SftpProgressMonitor() {
                 @Override
                 public void init(int op, String src, String dest, long max) {
-                    listener.clearProgressBar();
-                    listener.setProgressBarVisible();
+                    progressBarIntListener.clearProgressBar();
+                    progressBarIntListener.setProgressBarVisible();
                 }
                 @Override
                 public boolean count(long count) {
@@ -301,7 +315,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                 @Override
                 public void end() {
                     Logger.d(Logger.SSH_CONNECTION_LOG, "end transfering");
-                    listener.setProgressBarGone();
+                    progressBarIntListener.setProgressBarGone();
                 }
             });
         } catch (JSchException | SftpException e) {

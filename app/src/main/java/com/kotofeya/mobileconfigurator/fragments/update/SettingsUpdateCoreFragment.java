@@ -151,8 +151,7 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
 
     @Override
     protected void updateUI(List<Transiver> transivers){
-        scannerAdapter.setObjects(transivers);
-        scannerAdapter.notifyDataSetChanged();
+        super.updateUI(transivers);
         for(Transiver t: transivers){
             String ip = t.getIp();
             if(ip != null) {
@@ -170,15 +169,21 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
                         progressTv.setText("Загружаем файл " +
                                 Downloader.tempUpdateCoreFiles[coreUpdateIteration].getName() +
                                 " на трансивер " + t.getSsid());
-
                     }
-                    SshConnection connection = new SshConnection(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
+                    SshConnection connection = new SshConnection(
+                            ((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()),
+                            ((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
                     connection.execute(ip, SshConnection.UPDATE_CORE_UPLOAD_CODE);
                     break;
                 }
             }
-
         }
+    }
+
+    @Override
+    public void setProgressBarGone() {
+        super.setProgressBarGone();
+        progressTv.setText("");
     }
 
     public void setProgressTvText(String text){

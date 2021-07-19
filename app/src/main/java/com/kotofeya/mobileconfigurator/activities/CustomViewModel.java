@@ -327,12 +327,13 @@ public class CustomViewModel extends ViewModel {
     }
 
     public void clearTransivers(){
+        Logger.d(Logger.VIEW_MODEL_LOG, "clear transivers");
         List<Transiver> transiversValue = transivers.getValue();
         if(transiversValue != null) {
             transiversValue.clear();
         }
         else {
-            transiversValue = new ArrayList<>();
+            transiversValue = new CopyOnWriteArrayList<>();
         }
         transivers.postValue(transiversValue);
     }

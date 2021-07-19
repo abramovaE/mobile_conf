@@ -46,20 +46,6 @@ public class ConfigStatFragment extends ConfigFragment {
 
     }
 
-    @Override
-    public void setProgressBarVisible() {
-
-    }
-
-    @Override
-    public void setProgressBarGone() {
-
-    }
-
-    @Override
-    public void clearProgressBar() {
-
-    }
 
     public void basicScan(){
         utils.getTakeInfo();

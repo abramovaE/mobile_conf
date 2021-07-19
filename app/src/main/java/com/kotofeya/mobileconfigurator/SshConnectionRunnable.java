@@ -72,6 +72,8 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                 // Avoid asking for key confirmation
                 Properties prop = new Properties();
                 prop.put("StrictHostKeyChecking", "no");
+
+
                 session.setConfig(prop);
                 session.connect();
                 Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());
