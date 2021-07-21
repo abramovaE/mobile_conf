@@ -28,6 +28,8 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SendLogToServer;
+import com.kotofeya.mobileconfigurator.SshConnection;
+import com.kotofeya.mobileconfigurator.SshConnectionRunnable;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
@@ -57,8 +59,6 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     private static final int TETHER_REQUEST_CODE = 1;
     private static final String HOTSPOT_DIALOG_TAG = "HOTSPOT_DIALOG";
     private CustomBluetooth newBleScanner;
-//    private boolean isNeedDestroy = false;
-//    private boolean isReadyToDestroy = false;
 
     private CustomViewModel viewModel;
 
@@ -310,6 +310,11 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 ////        stopWork();
 //        newBleScanner.stopScan();
 //    }
-
-
 }
+
+
+
+//1) Требуется организовать "удержание" дисплея при работе приложения.
+//5) Транспортные модули некорректно отображаются в интерфейсе (серийный номер отображается с префиксом stp007855 - хотелось бы 7855, отсутствует краткая информация о прошивке и пр.) стационарные - норм
+//6) Если во время обновления (ожидания перезагрузки) вернуться в меню кнопкой назад - отрисуется только шапка "главное меню" .
+//Еще, просьба поднять поля ввода логина и пароля - клавиатура их закрывает, очень неудобно, и в идеале реализовать галочку "запомнить меня".

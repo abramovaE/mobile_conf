@@ -108,21 +108,21 @@ public class Utils implements OnTaskCompleted{
     }
 
 
-    public boolean needScanStationaryTransivers() {
-        if(viewModel.getTransivers().getValue().size() == 0){
-            return true;
-        }
-        for(Transiver t: viewModel.getTransivers().getValue()){
-            if(t.isStationary() || !t.isTransport()){
-                if(t.getIp() == null || viewModel.getIp(t.getSsid()) == null){
-                    Logger.d(Logger.UTILS_LOG, "needScanStationaryTransivers: " + true);
-                    return true;
-                }
-            }
-        }
-        Logger.d(Logger.UTILS_LOG, "needScanStationaryTransivers: " + false);
-        return false;
-    }
+//    public boolean needScanStationaryTransivers() {
+//        if(viewModel.getTransivers().getValue().size() == 0){
+//            return true;
+//        }
+//        for(Transiver t: viewModel.getTransivers().getValue()){
+//            if(t.isStationary() || !t.isTransport()){
+//                if(t.getIp() == null || viewModel.getIp(t.getSsid()) == null){
+//                    Logger.d(Logger.UTILS_LOG, "needScanStationaryTransivers: " + true);
+//                    return true;
+//                }
+//            }
+//        }
+//        Logger.d(Logger.UTILS_LOG, "needScanStationaryTransivers: " + false);
+//        return false;
+//    }
 
     @Override
     public void onTaskCompleted(Bundle result) {

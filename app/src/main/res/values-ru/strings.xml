@@ -102,4 +102,6 @@
     <string name="main_settings_update_php_btn">Обновить PHP</string>
     <string name="main_settings_update_core_btn">Обновить ядро</string>
 
+    <string name="remember_me">Запомнить меня</string>
+
 </resources>

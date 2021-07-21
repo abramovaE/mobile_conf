@@ -240,8 +240,8 @@ public class CustomBluetooth {
             System.arraycopy(pack2, 0, data, pack1.length, pack2.length);
             String deviceName = result.getScanRecord().getDeviceName();
             if(name.equals("stp")){
-                int i = (((data[2] & 0xFF) << 16) + ((data[3] & 0xFF) << 8) + (data[4] & 0xFF));
-                return  "stp" + String.format("%6s", i).replace(' ', '0');
+                return  (((data[2] & 0xFF) << 16) + ((data[3] & 0xFF) << 8) + (data[4] & 0xFF)) + "";
+//                return  "stp" + String.format("%6s", i).replace(' ', '0');
             }
             else {
                 return deviceName;

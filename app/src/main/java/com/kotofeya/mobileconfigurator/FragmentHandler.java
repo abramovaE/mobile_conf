@@ -133,7 +133,7 @@ public class FragmentHandler {
         fragment.setArguments(bundle);
 
         if(fragmentTag.equals(TRANSPORT_CONTENT_FRAGMENT) || fragmentTag.equals(STATION_CONTENT_FRAGMENT)){
-            setFragment(fragment, fragmentTag, false);
+            setFragment(fragment, fragmentTag, true);
 
         } else {
             setFragment(fragment, fragmentTag, true);

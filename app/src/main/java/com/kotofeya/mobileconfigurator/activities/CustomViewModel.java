@@ -29,8 +29,8 @@ public class CustomViewModel extends ViewModel {
     private MutableLiveData<List<Transiver>> transivers = new MutableLiveData<>();
     public MutableLiveData<List<Transiver>> getTransivers(){return transivers;}
 
-    private Map<String, String> ssidIpMap = new HashMap<>();
-    private Map<String, String> ssidVersionMap = new HashMap<>();
+    private static Map<String, String> ssidIpMap = new HashMap<>();
+    private static Map<String, String> ssidVersionMap = new HashMap<>();
 
 
     private MutableLiveData<Transiver> currentStatInformer = new MutableLiveData<>();
@@ -42,7 +42,9 @@ public class CustomViewModel extends ViewModel {
     public void setCurrentTranspInformer(Transiver currentTranspInformer) {this.currentTranspInformer.postValue(currentTranspInformer);}
 
     private MutableLiveData<List<Transiver>> stationaryInformers = new MutableLiveData<>();
+
     public MutableLiveData<List<Transiver>> getStationaryInformers() { return stationaryInformers; }
+
     public void setStationaryInformers(List<Transiver> informers){
         this.stationaryInformers.postValue(informers);
     }
@@ -55,38 +57,25 @@ public class CustomViewModel extends ViewModel {
         this.transpInformers.postValue(informers);
     }
 
-
-    public void clearWifiTransivers(){
-        List<Transiver> transiverList = transivers.getValue();
-        transiverList.clear();
-        transivers.postValue(transiverList);
-    }
-
-    public void addWifiTransiver(Transiver transiver){
-        List<Transiver> transiverList = transivers.getValue();
-        transiverList.add(transiver);
-        transivers.postValue(transiverList);
-    }
-
-
-    public void updateWifiTransiver(String phoneIp, Transiver transiver){
-        List<Transiver> transiverList = transivers.getValue();
-        Transiver t = transiverList.stream().filter(it->it.getSsid().equals(transiver.getSsid())).collect(Collectors.toList()).get(0);
-    }
-
-
-//    public void addTransiver(Transiver transiver) {
-//        if(transiver != null) {
-//            List<Transiver> transiverList = transivers.getValue();
-//            boolean isContains = transiverList.stream().anyMatch(trans -> trans.getSsid().equals(transiver.getSsid()));
-//            if (!isContains) {
-//                Logger.d(Logger.UTILS_LOG, "add transiver: ");
-//                transiverList.add(transiver);
-//            } else {
-//                updateTransiver(transiver);
-//            }
-//        }
+//
+//    public void clearWifiTransivers(){
+//        List<Transiver> transiverList = transivers.getValue();
+//        transiverList.clear();
+//        transivers.postValue(transiverList);
 //    }
+//
+//    public void addWifiTransiver(Transiver transiver){
+//        List<Transiver> transiverList = transivers.getValue();
+//        transiverList.add(transiver);
+//        transivers.postValue(transiverList);
+//    }
+
+
+//    public void updateWifiTransiver(String phoneIp, Transiver transiver){
+//        List<Transiver> transiverList = transivers.getValue();
+//        Transiver t = transiverList.stream().filter(it->it.getSsid().equals(transiver.getSsid())).collect(Collectors.toList()).get(0);
+//    }
+
 
 
 
@@ -113,12 +102,9 @@ public class CustomViewModel extends ViewModel {
         }
         Logger.d(Logger.VIEW_MODEL_LOG, "transivers value: " + transiversValue);
 
-
         boolean isExist = false;
         String ssid = takeInfoFull.getSerial() + "";
-        if(!ssid.startsWith("stp")) {
-            ssid = "stp" + String.format("%6s", ssid).replace(' ', '0');
-        }
+        ssid = Transiver.formatSsid(ssid);
 
         Logger.d(Logger.VIEW_MODEL_LOG, "ssid: " + ssid);
 
@@ -152,7 +138,7 @@ public class CustomViewModel extends ViewModel {
         Logger.d(Logger.VIEW_MODEL_LOG, "put into ssidMap: " + ssid + " " + ip);
         ssidIpMap.put(ssid, ip);
         ssidVersionMap.put(ssid, version);
-        transivers.postValue(transiversValue);
+        postTransiversValueToAllLists(transiversValue);
         Logger.d(Logger.VIEW_MODEL_LOG, "post value: " + transivers.getValue());
     }
 
@@ -215,13 +201,10 @@ public class CustomViewModel extends ViewModel {
             transiversValue.add(transiver);
             Logger.d(Logger.VIEW_MODEL_LOG, "transivers: " + transiversValue.size());
         }
-
-        if(!ssid.startsWith("stp")) {
-            ssid = "stp" + String.format("%6s", ssid).replace(' ', '0');
-        }
+        ssid = Transiver.formatSsid(ssid);
         ssidIpMap.put(ssid, ip);
         Logger.d(Logger.VIEW_MODEL_LOG, "transivers: " + transivers.getValue());
-        transivers.postValue(transiversValue);
+        postTransiversValueToAllLists(transiversValue);
     }
 
 
@@ -239,34 +222,30 @@ public class CustomViewModel extends ViewModel {
     public Transiver getTransiverBySsid(String ssid) {
         Logger.d(Logger.VIEW_MODEL_LOG, "get transiver by ssid: " + ssid);
         if (transivers.getValue() != null) {
-            if(!ssid.startsWith("stp")) {
-                String serial = "stp" + String.format("%6s", ssid).replace(' ', '0');
-                return transivers.getValue().stream().filter(it -> serial.equalsIgnoreCase(it.getSsid())).findAny().orElse(null);
-            } else {
-                return transivers.getValue().stream().filter(it -> ssid.equalsIgnoreCase(it.getSsid())).findAny().orElse(null);
-            }
+            String serial = Transiver.formatSsid(ssid);
+            return transivers.getValue().stream().filter(it -> serial.equalsIgnoreCase(it.getSsid())).findAny().orElse(null);
         }
         return null;
     }
 
-    @SuppressWarnings("unchecked")
-    public void addTransiver(Transiver transiver) {
-        Logger.d(Logger.VIEW_MODEL_LOG, "add transiver: " + transiver);
-        List<Transiver> transiversValue = transivers.getValue();
-        if(transiversValue == null){
-            transiversValue = new ArrayList<>();
-        }
-        if(transiver != null) {
-            boolean isContains = transiversValue.stream().anyMatch(trans -> trans.getSsid().equals(transiver.getSsid()));
-            if (!isContains) {
-                Logger.d(Logger.VIEW_MODEL_LOG, "add transiver: ");
-                transiversValue.add(transiver);
-                transivers.postValue(transiversValue);
-            } else {
-                updateTransiver(transiver);
-            }
-        }
-    }
+//    @SuppressWarnings("unchecked")
+//    public void addTransiver(Transiver transiver) {
+//        Logger.d(Logger.VIEW_MODEL_LOG, "add transiver: " + transiver);
+//        List<Transiver> transiversValue = transivers.getValue();
+//        if(transiversValue == null){
+//            transiversValue = new ArrayList<>();
+//        }
+//        if(transiver != null) {
+//            boolean isContains = transiversValue.stream().anyMatch(trans -> trans.getSsid().equals(transiver.getSsid()));
+//            if (!isContains) {
+//                Logger.d(Logger.VIEW_MODEL_LOG, "add transiver: ");
+//                transiversValue.add(transiver);
+//                transivers.postValue(transiversValue);
+//            } else {
+//                updateTransiver(transiver);
+//            }
+//        }
+//    }
 
     private void updateTransiver(Transiver transiver){
         List<Transiver> transiversValue = transivers.getValue();
@@ -311,19 +290,20 @@ public class CustomViewModel extends ViewModel {
                 transiversValue.add(s);
                 }
         }
-        transivers.postValue(transiversValue);
+        postTransiversValueToAllLists(transiversValue);
+
     }
 
     public void removeTransiver(Transiver transiver){
         List<Transiver> transiversValue = transivers.getValue();
         transiversValue.remove(transiver);
-        transivers.postValue(transiversValue);
+        postTransiversValueToAllLists(transiversValue);
     }
 
     public void removeTransivers(List<Transiver> transList){
         List<Transiver> transiversValue = transivers.getValue();
         transiversValue.removeAll(transList);
-        transivers.postValue(transiversValue);
+        postTransiversValueToAllLists(transiversValue);
     }
 
     public void clearTransivers(){
@@ -335,7 +315,7 @@ public class CustomViewModel extends ViewModel {
         else {
             transiversValue = new CopyOnWriteArrayList<>();
         }
-        transivers.postValue(transiversValue);
+        postTransiversValueToAllLists(transiversValue);
     }
 
     public void updateResults(List<CustomScanResult> results){
@@ -370,7 +350,7 @@ public class CustomViewModel extends ViewModel {
 
         }
         Logger.d(Logger.VIEW_MODEL_LOG, "update result transivers: " + transiversList);
-        transivers.postValue(transiversList);
+        postTransiversValueToAllLists(transiversList);
     }
 
     private List<Transiver> filterInformers(List<CustomScanResult> results, int radioType){
@@ -413,15 +393,7 @@ public class CustomViewModel extends ViewModel {
     }
 
     public String getIp(String ssid){
-
-        if(!ssid.contains("stp")){
-            StringBuffer stringBuffer = new StringBuffer(ssid);
-            while (stringBuffer.length() < 6){
-                stringBuffer.insert(0, "0");
-            }
-            ssid = "stp" + stringBuffer.toString();
-        }
-
+        ssid = Transiver.formatSsid(ssid);
         Logger.d(Logger.VIEW_MODEL_LOG, "get ip, ssid: " + ssid);
         Logger.d(Logger.VIEW_MODEL_LOG, "get ip, ssidipMap: " + ssidIpMap);
         Logger.d(Logger.VIEW_MODEL_LOG, "get ip, ssidipMap: " + ssidIpMap.get(ssid));
@@ -429,7 +401,7 @@ public class CustomViewModel extends ViewModel {
     }
 
     public void addVersion(String ssid, String version){
-        this.ssidVersionMap.put(ssid, version);
+        ssidVersionMap.put(ssid, version);
     }
 
     public String getVersion(String ssid){
@@ -439,5 +411,29 @@ public class CustomViewModel extends ViewModel {
     }
 
     public void clearMap(){ ssidIpMap.clear(); }
+
+
+    public boolean needScanStationaryTransivers() {
+        List<Transiver> transiverList = transivers.getValue();
+        if(transiverList == null || transiverList.size() == 0){
+            return true;
+        }
+        for(Transiver t: transiverList){
+            if(t.isStationary() || !t.isTransport()){
+                if(t.getIp() == null || getIp(t.getSsid()) == null){
+                    Logger.d(Logger.VIEW_MODEL_LOG, "needScanStationaryTransivers: " + true);
+                    return true;
+                }
+            }
+        }
+        Logger.d(Logger.VIEW_MODEL_LOG, "needScanStationaryTransivers: " + false);
+        return false;
+    }
+
+    private void postTransiversValueToAllLists(List<Transiver> transiversList){
+        transivers.postValue(transiversList);
+        stationaryInformers.postValue(transiversList.stream().filter(it-> it.getTType().equals("stationary")).collect(Collectors.toList()));
+        transpInformers.postValue(transiversList.stream().filter(it->it.getTType().equals("transport")).collect(Collectors.toList()));
+    }
 
 }

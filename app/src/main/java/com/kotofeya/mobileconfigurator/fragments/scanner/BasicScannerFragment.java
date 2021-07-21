@@ -94,6 +94,7 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
     }
 
     public void scan(){
+
         boolean wifiPermission = checkPermission();
         if(wifiPermission) {
             utils.getTakeInfo();

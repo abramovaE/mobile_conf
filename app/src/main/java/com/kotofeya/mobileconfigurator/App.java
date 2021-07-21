@@ -13,9 +13,9 @@ import org.acra.sender.HttpSender;
 
 import java.io.File;
 
-//@AcraCore(buildConfigClass = BuildConfig.class, reportFormat = StringFormat.KEY_VALUE_LIST)
-//@AcraHttpSender(uri = "http://95.161.210.44/mobile_conf_acra.php",
-//        httpMethod = HttpSender.Method.POST)
+@AcraCore(buildConfigClass = BuildConfig.class, reportFormat = StringFormat.KEY_VALUE_LIST)
+@AcraHttpSender(uri = "http://95.161.210.44/mobile_conf_acra.php",
+        httpMethod = HttpSender.Method.POST)
 public class App extends Application {
 
     private static App instance;
@@ -29,6 +29,10 @@ public class App extends Application {
     private String updateOsFileVersion;
     private boolean showAccessPointDialog;
     private File[] updateCoreFilesPath;
+
+    String password;
+    boolean isRemembered;
+
 
     public File[] getUpdateCoreFilesPath() {
         return updateCoreFilesPath;
@@ -84,7 +88,39 @@ public class App extends Application {
         Logger.d(Logger.APP_LOG, "is_ask_forteneth: " + isAskForTeneth());
 
         Downloader.tempUpdateCoreFiles = (updateCoreFilesPath);
+
+        login = preferences.getString("login", "");
+        password = preferences.getString("password", "");
+        isRemembered = preferences.getBoolean("isRemembered", false);
+
+
     }
+
+    public boolean isRemembered() {
+        return isRemembered;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+
+    public void saveLoginInformation(String login, String password, boolean isRemembered){
+        if(isRemembered){
+            preferences.edit().putString("login", login).commit();
+            preferences.edit().putString("password", password).commit();
+            preferences.edit().putBoolean("isRemembered", true).commit();
+        } else {
+            resetLoginInformation();
+        }
+    }
+
+    public void resetLoginInformation(){
+        preferences.edit().putString("login", "").commit();
+        preferences.edit().putString("password", "").commit();
+        preferences.edit().putBoolean("isRemembered", false).commit();
+    }
+
 
     public boolean isAskForTeneth(){
         return preferences.getBoolean("isAskForTeneth", true);

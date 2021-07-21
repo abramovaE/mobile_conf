@@ -132,54 +132,50 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
 
                     if(coreUpdateIterationInt < Downloader.tempUpdateCoreFiles.length) {
                         File f = Downloader.tempUpdateCoreFiles[coreUpdateIterationInt];
-                        uploadToOverlayUpdate(session, f);
-
-                        Logger.d(Logger.SSH_CONNECTION_LOG, "f: " + f.getName());
-
+                        String fileName = f.getName();
                         String renameCommand = "";
-                        if (f.getName().contains("root_prepare")) {
-                            Logger.d(Logger.SSH_CONNECTION_LOG, "f rename: " + f.getName());
-                            renameCommand = "sudo mv " + "/overlay/update/" + f.getName() + " /overlay/update/" + "root.img.bz2";
-                            execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
-//                            execCommand(session, REBOOT_COMMAND);
-                            res = f.getName() + " загружен на устройство. Трансивер перезагружается. " +
-                                    "Обновите список трансиверов через некоторое время.";
+
+                        switch (coreUpdateIterationInt){
+                            case 0:
+                                if (fileName.contains("root_prepare")) {
+                                    uploadToOverlayUpdate(session, f);
+                                    renameCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/" + "root.img.bz2";
+                                    execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
+                                    coreUpdateIterationInt += 1;
+                                    res = fileName + " загружен на устройство. Трансивер перезагружается. " +
+                                            "Обновите список трансиверов примерно через 3 минуты.";
+                                }
+                                break;
+                            case 1:
+                                if (fileName.contains("boot-old.img.bz2")) {
+                                    uploadToOverlayUpdate(session, f);
+                                    execCommand(session, REBOOT_COMMAND);
+                                    coreUpdateIterationInt += 1;
+                                    res = fileName + " загружен на устройство. Трансивер перезагружается. " +
+                                            "Обновите список трансиверов примерно через 2 минуты.";
+                                }
+                                break;
+                            case 2:
+                                if (fileName.contains("boot-new.img.bz2")) {
+                                    uploadToOverlayUpdate(session, f);
+                                    renameCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/" + "boot-new.img.bz2";
+                                    execCommand(session, renameCommand);
+                                    coreUpdateIterationInt += 1;
+
+                                    uploadToOverlayUpdate(session, Downloader.tempUpdateCoreFiles[3]);
+                                    renameCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/" + "root-new.img.bz2";
+                                    execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
+                                    coreUpdateIterationInt += 1;
+
+                                    res = Downloader.tempUpdateCoreFiles[2].getName() + " " + Downloader.tempUpdateCoreFiles[3].getName() +
+                                            " загружены на устройство. Трансивер перезагружается. " +
+                                            "Обновите список трансиверов примерно через 5 минут";
+                                }
                         }
-
-                        if (f.getName().contains("boot-old.img.bz2")) {
-                            execCommand(session, REBOOT_COMMAND);
-                            res = f.getName() + " загружен на устройство. Трансивер перезагружается. " +
-                                    "Обновите список трансиверов через некоторое время.";
-                        }
-
-                        if (f.getName().contains("boot-new.img.bz2")) {
-                            res = "file 3 downloaded";
-                            uploadToOverlayUpdate(session, Downloader.tempUpdateCoreFiles[3]);
-                            renameCommand = "sudo mv " + "/overlay/update/" + f.getName() + " /overlay/update/" + "root-new.img.bz2";
-                            execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
-//                            execCommand(session, REBOOT_COMMAND);
-                            res = Downloader.tempUpdateCoreFiles[2].getName() + " " + Downloader.tempUpdateCoreFiles[3].getName() +
-                                    " загружены на устройство. Трансивер перезагружается. " +
-                                    "Обновите список трансиверов через некоторое время.";
-                            coreUpdateIterationInt += 1;
-
-                        }
-
-                        if (f.getName().contains("release")) {
-                            renameCommand = "sudo mv " + "/overlay/update/" + f.getName() + " /overlay/update/" + "root-new.img.bz2";
-                            execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
-//                            execCommand(session, REBOOT_COMMAND);
-
-                            res = Downloader.tempUpdateCoreFiles[2].getName() + " " + f.getName() +
-                                    " загружены на устройство. Трансивер перезагружается. " +
-                                    "Обновите список трансиверов через некоторое время.";
-                        }
-                        coreUpdateIterationInt += 1;
                         coreUpdateIteration.put(ip, coreUpdateIterationInt);
                     }
-
                     if(coreUpdateIterationInt == Downloader.tempUpdateCoreFiles.length){
-                        updateCoreFilesCounter(ip);
+                        resetCoreFilesCounter(ip);
                     }
                     break;
 
@@ -371,7 +367,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
         return binFile;
     }
 
-    public static void updateCoreFilesCounter(String ip){
+    public static void resetCoreFilesCounter(String ip){
         Logger.d(Logger.SSH_CONNECTION_LOG, "core files counter: " + coreUpdateIteration);
         coreUpdateIteration.put(ip, 0);
     }
@@ -379,7 +375,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
     public static int getCoreUpdateIteration(String ip){
         Logger.d(Logger.SSH_CONNECTION_LOG, "coreUpdateIteration: " + coreUpdateIteration);
         Logger.d(Logger.SSH_CONNECTION_LOG, "coreUpdateIteration: " + coreUpdateIteration.get(ip));
-
         if(coreUpdateIteration.containsKey(ip)) {
             return coreUpdateIteration.get(ip);
         }

@@ -142,6 +142,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     protected void scan(){
         Logger.d(Logger.UPDATE_LOG, "updateFragment scan");
+
         utils.getTakeInfo();
     }
 
@@ -269,6 +270,11 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         });
     }
 
+    @Override
+    public void clearTextLabel(){
+
+    }
+
     protected abstract void loadUpdates();
     protected abstract void loadVersion();
     protected abstract void setMainTextLabelText();
@@ -334,45 +340,10 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         }
     }
 
-    public static class UpdateCoreConfDialog extends DialogFragment {
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            String ip = getArguments().getString("ip");
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            builder.setTitle(R.string.confirmation_is_required);
-            builder.setMessage("Confirm the update the core");
-            builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
-
-                public void onClick(DialogInterface dialog, int id) {
-
-//                    View view = App.get().getFragmentHandler().getCurrentFragment().getView();
-//                    ProgressBar progressBar = view.findViewById(R.id.scanner_progressBar);
-//                    progressBar.setVisibility(View.VISIBLE);
-//
-//                    Downloader downloader = new Downloader(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
-//                    downloader.execute(Downloader.CORE_URLS, ip);
-
-
-                    if(Downloader.IS_CORE_FILES_EXIST.stream().allMatch((it) -> it == true)){
-
-                        ((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()).setProgressTvText("Загружаем файл " +
-                                Downloader.tempUpdateCoreFiles[0].getName() +
-                                " на трансивер " + ip);
-                        SshConnection.updateCoreFilesCounter(ip);
-                        SshConnection connection = new SshConnection(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()), ((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
-                        connection.execute(ip, SshConnection.UPDATE_CORE_UPLOAD_CODE);
-                    }
-
-                }
-            });
-            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                }
-            });
-            builder.setCancelable(true);
-            return builder.create();
-        }
-    }
+//    @Override
+//    public void setLabelText(String text){
+//        progressTv.setVisibility(View.VISIBLE);
+//        progressTv.setText(text);
+//    }
 
 }

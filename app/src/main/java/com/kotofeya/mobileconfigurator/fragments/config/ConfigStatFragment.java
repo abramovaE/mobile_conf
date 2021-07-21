@@ -55,12 +55,7 @@ public class ConfigStatFragment extends ConfigFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        if(utils.needScanStationaryTransivers()){
-            Logger.d(Logger.CONFIG_LOG, "scan for ip");
-            utils.getNewBleScanner().stopScan();
-//            utils.getBluetooth().stopScan(true);
-            basicScan();
-        }
+
         return view;
     }
 
@@ -68,6 +63,12 @@ public class ConfigStatFragment extends ConfigFragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        if(viewModel.needScanStationaryTransivers()){
+            Logger.d(Logger.CONFIG_LOG, "scan for ip");
+            utils.getNewBleScanner().stopScan();
+//            utils.getBluetooth().stopScan(true);
+            basicScan();
+        }
         viewModel.getStationaryInformers().observe(getViewLifecycleOwner(), this::updateUI);
     }
 

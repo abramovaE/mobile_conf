@@ -5,6 +5,7 @@ import android.os.Bundle;
 import com.google.gson.GsonBuilder;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
+import com.kotofeya.mobileconfigurator.ProgressBarInt;
 import com.kotofeya.mobileconfigurator.fragments.config.ContentFragment;
 import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
 
@@ -30,6 +31,8 @@ public class PostInfo implements Runnable {
 
     private  String ip;
     private OnTaskCompleted listener;
+    private ProgressBarInt progressBarIntListener;
+
     private String command;
     private String version;
     public static String COMMAND = "command";
@@ -57,6 +60,9 @@ public class PostInfo implements Runnable {
     @Override
     public void run() {
         Logger.d(Logger.POST_INFO_LOG, "post command: " +  command);
+
+
+
         Bundle result = new Bundle();
         URL u;
         try {

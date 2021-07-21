@@ -11,7 +11,10 @@ import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.CheckUser;
@@ -28,6 +31,8 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     private Button signInBtn;
     private WifiManager.LocalOnlyHotspotReservation mReservation;
     private List<String> connectedTransivers;
+    private CheckBox rememberMeChk;
+    private boolean isRemembered;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +44,22 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         signInBtn.setOnClickListener(this);
         loginTxt.setOnKeyListener(this);
         passwordTxt.setOnKeyListener(this);
+        rememberMeChk = findViewById(R.id.rememberMeChk);
+
+        isRemembered = App.get().isRemembered();
+        rememberMeChk.setChecked(isRemembered);
+        if(isRemembered){
+            loginTxt.setText(App.get().getLogin());
+            passwordTxt.setText(App.get().getPassword());
+        }
+
+        rememberMeChk.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                Logger.d(Logger.MAIN_LOG, "remember me chk isChecked: " + isChecked);
+                isRemembered = isChecked;
+            }
+        });
     }
 
     @Override
@@ -79,6 +100,11 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         App.get().setLogin(loginTxt.getText().toString());
+        if(isRemembered){
+            App.get().saveLoginInformation(loginTxt.getText().toString(), passwordTxt.getText().toString(), true);
+        } else {
+            App.get().resetLoginInformation();
+        }
     }
 
     @Override

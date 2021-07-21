@@ -5,4 +5,5 @@
     <color name="colorAccent">#D81B60</color>
     <color name="colorConfiguration">#EBEBEB</color>
     <color name="colorRescan">#5E5E5E</color>
+    <color name="colorRemember">#9E9E9E</color>
 </resources>

@@ -37,6 +37,7 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
     //req[1] - command
 
     public SshConnectionRunnable(OnTaskCompleted listener, Object...req){
+        Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh runnable");
         this.listener = listener;
         this.ip = (String) req[0];
         this.resultCode = (Integer) req[1];
@@ -74,8 +75,6 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                 // Avoid asking for key confirmation
                 Properties prop = new Properties();
                 prop.put("StrictHostKeyChecking", "no");
-
-
                 session.setConfig(prop);
                 session.connect();
                 Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());

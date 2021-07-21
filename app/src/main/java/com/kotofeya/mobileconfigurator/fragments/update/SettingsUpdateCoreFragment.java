@@ -1,6 +1,7 @@
 package com.kotofeya.mobileconfigurator.fragments.update;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Downloader;
@@ -66,7 +68,7 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
     @Override
     public void onResume() {
         super.onResume();
-        if(Downloader.IS_CORE_FILES_EXIST.stream().allMatch((it) -> it == true)) {
+        if(Downloader.isCoreUpdatesDownloadCompleted()) {
             StringBuilder sb = new StringBuilder();
             (new LinkedList<>(Arrays.asList(Downloader.tempUpdateCoreFiles))).stream().forEach(it -> sb.append(it.getName()).append("\n"));
             downloadCoreUpdateFilesTv.setText(sb.toString());
@@ -132,6 +134,7 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
         }
 
         if(res != null && res.contains("загружен")){
+            Logger.d(Logger.UPDATE_CORE_LOG, "getActivity: " + getActivity());
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
             dialog.setMessage(res);
             dialog.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -146,6 +149,7 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
                 }
             });
             dialog.show();
+            clearTextLabel();
         }
     }
 
@@ -159,21 +163,8 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
                 Logger.d(Logger.UPDATE_CORE_LOG, "coreUpdateIteration: " + t.getSsid() + " " + SshConnection.getCoreUpdateIteration(ip));
                 int coreUpdateIteration = SshConnection.getCoreUpdateIteration(ip);
                 if(coreUpdateIteration > 0 && coreUpdateIteration < 4){
-
-                    if(coreUpdateIteration == 2){
-                        progressTv.setText("Загружаем файлы " +
-                                Downloader.tempUpdateCoreFiles[2].getName() + ", " + Downloader.tempUpdateCoreFiles[3].getName() +
-                                " на трансивер " + t.getSsid());
-                    }
-                    else {
-                        progressTv.setText("Загружаем файл " +
-                                Downloader.tempUpdateCoreFiles[coreUpdateIteration].getName() +
-                                " на трансивер " + t.getSsid());
-                    }
-                    SshConnection connection = new SshConnection(
-                            ((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()),
-                            ((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
-                    connection.execute(ip, SshConnection.UPDATE_CORE_UPLOAD_CODE);
+                    progressTv.setText(getProgressTvText(t.getSsid(), coreUpdateIteration));
+                    uploadFile(ip, t.getSsid(), coreUpdateIteration);
                     break;
                 }
             }
@@ -183,10 +174,79 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
     @Override
     public void setProgressBarGone() {
         super.setProgressBarGone();
-        progressTv.setText("");
+//        progressTv.setText("");
+    }
+
+    @Override
+    public void clearTextLabel(){
+        getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                progressTv.setText("");
+            }
+        });
     }
 
     public void setProgressTvText(String text){
         progressTv.setText(text);
     }
+
+
+    public void uploadFile(String ip, String serial, int coreUpdateIteration){
+
+        ((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment())
+                .setProgressTvText(getProgressTvText(serial, coreUpdateIteration));
+        SshConnection connection = new SshConnection(
+                (SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment(),
+                (SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment());
+        connection.execute(ip, SshConnection.UPDATE_CORE_UPLOAD_CODE);
+    }
+
+    private String getProgressTvText(String serial, int coreUpdateIteration){
+        switch (coreUpdateIteration){
+            case 0:
+            case 1:
+                return  "Загружаем файл " +
+                        Downloader.tempUpdateCoreFiles[coreUpdateIteration].getName() +
+                        " на трансивер " + serial;
+            case 2:
+                return "Загружаем файлы " +
+                        Downloader.tempUpdateCoreFiles[2].getName() + ", " + Downloader.tempUpdateCoreFiles[3].getName() +
+                        " на трансивер " + serial;
+
+        }
+        return "";
+    }
+
+
+    public static class UpdateCoreConfDialog extends DialogFragment {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            String ip = getArguments().getString("ip");
+            String serial = getArguments().getString("serial");
+            androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
+            builder.setTitle(R.string.confirmation_is_required);
+            builder.setMessage("Confirm the update the core");
+            builder.setPositiveButton("Update", new DialogInterface.OnClickListener() {
+
+                public void onClick(DialogInterface dialog, int id) {
+                    if(Downloader.isCoreUpdatesDownloadCompleted()){
+                        SshConnection.resetCoreFilesCounter(ip);
+                        ((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment())
+                                .uploadFile(ip, serial, 0);
+                    }
+                }
+            });
+            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                }
+            });
+            builder.setCancelable(true);
+            return builder.create();
+        }
+    }
+
+
+
 }

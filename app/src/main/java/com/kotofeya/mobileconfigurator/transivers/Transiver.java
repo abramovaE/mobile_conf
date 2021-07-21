@@ -115,15 +115,11 @@ public class Transiver {
         }
     }
 
-
     public String getSsid() {
         if(takeInfoFull != null){
-            String takeInfoSsid = takeInfoFull.getSerial() + "";
-            if(!takeInfoSsid.startsWith("stp")) {
-                ssid = "stp" + String.format("%6s", takeInfoSsid).replace(' ', '0');
-            }
+            ssid = takeInfoFull.getSerial() + "";
         }
-        return ssid;
+        return formatSsid(ssid);
     }
 
     public void setSsid(String ssid) {
@@ -389,7 +385,7 @@ public class Transiver {
     public String toString() {
         return "Transiver: " +
                 "ssid=" + getSsid() + ", " +
-                "ip=" + getIp() + ", version=" + getVersion();
+                "ip=" + getIp() + ", version=" + getVersion() + ", type: " + transiverType + ", tType: " + tType + ", takeInfoType: " + takeInfoFull;
     }
 
 
@@ -513,6 +509,19 @@ public class Transiver {
 
 
     public String getTType() {
+        String tType = "";
+        if(takeInfoFull != null){
+            tType = takeInfoFull.getType();
+        }
+
+        if(tType.isEmpty()){
+            if(isTransport()){
+                tType = "transport";
+            }
+            else if(isStationary()){
+                tType = "stationary";
+            }
+        }
         return tType;
     }
 
@@ -553,7 +562,7 @@ public class Transiver {
     protected void setSSidAndVersion(String deviceName){
         if(deviceName.equals("stp")){
             int i = (((rawData[2] & 0xFF) << 16) + ((rawData[3] & 0xFF) << 8) + (rawData[4] & 0xFF));
-            this.ssid = "stp" + String.format("%6s", i).replace(' ', '0');
+            this.ssid = i + "";
             this.intVesion = VERSION_NEW;
         }
         else {
@@ -589,5 +598,12 @@ public class Transiver {
 
     public int getTransiverType() {
         return this.transiverType;
+    }
+
+    public static String formatSsid(String ssid){
+        if(ssid.startsWith("stp")) {
+            ssid = Integer.parseInt(ssid.replace("stp", "")) + "";
+        }
+        return ssid;
     }
 }

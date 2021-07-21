@@ -51,14 +51,4 @@ public class InternetConn {
         }
         return null;
     }
-
-    public String getDhcpAddr(){
-        Logger.d(Logger.INTERNET_CONN_LOG, "get dhcp address");
-        Network network = mConnectivityManager.getActiveNetwork();
-        LinkProperties linkProperties = mConnectivityManager.getLinkProperties(network);
-        Inet4Address inet4Address = linkProperties.getDhcpServerAddress();
-        Logger.d(Logger.INTERNET_CONN_LOG, "address: " + inet4Address);
-        Logger.d(Logger.INTERNET_CONN_LOG, "addresses: " + linkProperties.getLinkAddresses());
-        return null;
-    }
 }

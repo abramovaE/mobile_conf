@@ -35,7 +35,6 @@ import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import java.util.List;
 
-import br.com.sapereaude.maskedEditText.MaskedEditText;
 
 public class TransiverSettingsNetworkFragment extends Fragment implements View.OnClickListener, PostCommand, OnTaskCompleted {
 

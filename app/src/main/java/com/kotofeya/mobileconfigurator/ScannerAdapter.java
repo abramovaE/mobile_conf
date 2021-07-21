@@ -10,8 +10,10 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.fragment.app.DialogFragment;
 
+import com.kotofeya.mobileconfigurator.fragments.update.SettingsUpdateCoreFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateContentFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
@@ -87,8 +89,7 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
         TextView ssid = view.findViewById(R.id.scanner_lv_item_ssid);
         TextView textItem0 = view.findViewById(R.id.scanner_lv_item0);
         TextView textItem1 = view.findViewById(R.id.scanner_lv_item1);
-        LinearLayout linearLayout = view.findViewById(R.id.scanner_lv);
-
+        ConstraintLayout linearLayout = view.findViewById(R.id.scanner_lv);
         Logger.d(Logger.SCANNER_ADAPTER_LOG, "get view, p: " + p);
         Logger.d(Logger.SCANNER_ADAPTER_LOG, "scanner type: " + scannerType);
 
@@ -238,6 +239,8 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
 
             } else if (scannerType == CONFIG_STATION) {
                 Logger.d(Logger.SCANNER_ADAPTER_LOG, "p.is stationary: " + p.isStationary() + " " + p.getSsid());
+                Logger.d(Logger.SCANNER_ADAPTER_LOG, "p.getincrement: " + p.getIncrementOfContent());
+
                 if (p.isStationary()) {
                     if (p.getIncrementOfContent() != null && p.getIncrementOfContent().isEmpty()) {
                         textItem0.setText("no incr");
@@ -291,9 +294,14 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                 String version = utils.getVersion(p.getSsid());
                 String ip = utils.getIp(p.getSsid());
 
-                textItem0.setText(version);
+                if(version == null){
+                    textItem0.setText("old");
+                } else {
+                    textItem0.setText("new");
+                }
 
-                Logger.d(Logger.SCANNER_ADAPTER_LOG, "transiver selected, ip: " + ip);
+                Logger.d(Logger.SCANNER_ADAPTER_LOG, "transiver selected, ip: " + ip + ", version: " + version);
+
 
                 if(ip != null) {
                     linearLayout.setOnClickListener(new View.OnClickListener() {
@@ -303,7 +311,10 @@ public class ScannerAdapter extends BaseAdapter implements OnTaskCompleted {
                             Transiver transiver = getTransiver(position);
                             Bundle bundle = new Bundle();
                             bundle.putString("ip", transiver.getIp());
-                            UpdateFragment.UpdateCoreConfDialog dialog = new UpdateFragment.UpdateCoreConfDialog();
+                            bundle.putString("serial", transiver.getSsid());
+
+
+                            SettingsUpdateCoreFragment.UpdateCoreConfDialog dialog = new SettingsUpdateCoreFragment.UpdateCoreConfDialog();
                             dialog.setArguments(bundle);
                             dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
                         }

@@ -104,5 +104,6 @@
     <string name="main_settings_update_php_btn">Update PHP</string>
     <string name="main_settings_update_core_btn">Update the core</string>
 
+    <string name="remember_me">Remember me</string>
 
 </resources>

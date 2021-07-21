@@ -14,6 +14,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.ScannerAdapter;
@@ -74,6 +75,7 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
     }
 
     protected void updateUI(List<Transiver> transiverList){
+        Logger.d(Logger.CONFIG_LOG, "update ui, transivers: " + transiverList);
         scannerAdapter.setObjects(transiverList);
         scannerAdapter.notifyDataSetChanged();
     }

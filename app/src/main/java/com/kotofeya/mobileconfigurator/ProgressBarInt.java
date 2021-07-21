@@ -4,4 +4,6 @@ public interface ProgressBarInt {
     void setProgressBarVisible();
     void setProgressBarGone();
     void clearProgressBar();
+    void clearTextLabel();
+//    void setLabelText(String text);
 }

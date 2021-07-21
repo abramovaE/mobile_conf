@@ -18,14 +18,9 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 
 /*
@@ -58,7 +53,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     };
 
 
-    public static List<Boolean> IS_CORE_FILES_EXIST = new ArrayList<>();
+    private static List<Boolean> IS_CORE_FILES_EXIST = new ArrayList<>();
 
 
     public static File tempUpdateOsFile;
@@ -230,7 +225,9 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 
 
                 if(stringUrl.equals(CORE_URLS)){
+                    IS_CORE_FILES_EXIST.clear();
                     createUpdateCoreFiles();
+
                     for(int i = 0; i< COREURLS.length; i++){
                         publishProgress(0);
                         c = getConnection(new URL(COREURLS[i]));
@@ -352,5 +349,10 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 //        Logger.d(Logger.DOWNLOAD_LOG, "url: " + url + " on progress update: " + values[0]);
         listener.onProgressUpdate(values[0]);
         super.onProgressUpdate(values);
+    }
+
+
+    public static boolean isCoreUpdatesDownloadCompleted(){
+        return IS_CORE_FILES_EXIST.stream().allMatch(it->true);
     }
 }
