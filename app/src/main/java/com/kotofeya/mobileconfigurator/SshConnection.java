@@ -138,6 +138,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                         switch (coreUpdateIterationInt){
                             case 0:
                                 if (fileName.contains("root_prepare")) {
+                                    Logger.d(Logger.SSH_CONNECTION_LOG, "file: " + f);
+                                    Logger.d(Logger.SSH_CONNECTION_LOG, "filename: " + fileName);
+
                                     uploadToOverlayUpdate(session, f);
                                     renameCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/" + "root.img.bz2";
                                     execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
@@ -148,6 +151,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                                 break;
                             case 1:
                                 if (fileName.contains("boot-old.img.bz2")) {
+                                    Logger.d(Logger.SSH_CONNECTION_LOG, "filename: " + fileName);
+
                                     uploadToOverlayUpdate(session, f);
                                     execCommand(session, REBOOT_COMMAND);
                                     coreUpdateIterationInt += 1;
@@ -157,12 +162,19 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                                 break;
                             case 2:
                                 if (fileName.contains("boot-new.img.bz2")) {
+                                    Logger.d(Logger.SSH_CONNECTION_LOG, "filename: " + fileName);
+
                                     uploadToOverlayUpdate(session, f);
-                                    renameCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/" + "boot-new.img.bz2";
-                                    execCommand(session, renameCommand);
+//                                    renameCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/" + "boot-new.img.bz2";
+//                                    execCommand(session, renameCommand);
                                     coreUpdateIterationInt += 1;
 
-                                    uploadToOverlayUpdate(session, Downloader.tempUpdateCoreFiles[3]);
+                                    f = Downloader.tempUpdateCoreFiles[coreUpdateIterationInt];
+                                    fileName = f.getName();
+
+                                    Logger.d(Logger.SSH_CONNECTION_LOG, "filename: " + fileName);
+
+                                    uploadToOverlayUpdate(session, f);
                                     renameCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/" + "root-new.img.bz2";
                                     execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
                                     coreUpdateIterationInt += 1;
@@ -170,6 +182,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                                     res = Downloader.tempUpdateCoreFiles[2].getName() + " " + Downloader.tempUpdateCoreFiles[3].getName() +
                                             " загружены на устройство. Трансивер перезагружается. " +
                                             "Обновите список трансиверов примерно через 5 минут";
+                                    break;
                                 }
                         }
                         coreUpdateIteration.put(ip, coreUpdateIterationInt);
@@ -286,6 +299,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                 channelExec.disconnect();
             }
         }
+        Logger.d(Logger.SSH_CONNECTION_LOG, "exec command: " + command + " result: " + res);
         return res;
     }
     private void uploadToOverlayUpdate(Session session, File file){
@@ -304,7 +318,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                 @Override
                 public boolean count(long count) {
                     transferred += count;
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "transfered: " + transferred);
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "transfered: " + transferred);
                     Double fileLength = Double.valueOf(file.length());
                     listener.onProgressUpdate((int) (100 * (transferred / fileLength)));
                     return true;
@@ -379,5 +393,13 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             return coreUpdateIteration.get(ip);
         }
         return 0;
+    }
+
+    public static Map<String, Integer> getCoreUpdateIterations(){
+        Map<String, Integer> res = new HashMap<>();
+        for(Map.Entry<String, Integer> pair: coreUpdateIteration.entrySet()){
+            res.put(pair.getKey(), getCoreUpdateIteration(pair.getKey()));
+        }
+        return res;
     }
 }

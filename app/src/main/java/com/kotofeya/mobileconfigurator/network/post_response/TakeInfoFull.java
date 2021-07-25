@@ -496,43 +496,43 @@ public class TakeInfoFull implements Parcelable {
     @Override
     public String toString() {
         return "type: " + type + '\n' +
-                "serial: " + serial + '\n' ;
-//                +
-//                "followServer: " + followServer + '\n' +
-//                "replyInterval: " + replyInterval + '\n' +
-//                "hasPing: " + hasPing + '\n' +
-//                "systemTime: " + systemTime + '\n' +
-//                "uptime: " + uptime + '\n' +
-//                "load1min: " + load1min + '\n' +
-//                "load5min: " + load5min + '\n' +
-//                "load15min: " + load15min + '\n' +
-//                "cpuFreq: " + cpuFreq + '\n' +
-//                "cpuTemperature: " + cpuTemperature + '\n' +
-//                "freeRam: " + freeRam + '\n' +
-//                "bleMac: " + bleMac + '\n' +
-//                "blePidHci0: " + blePidHci0 + '\n' +
-//                "bleIntervalMin: " + bleIntervalMin + '\n' +
-//                "bleIntervalMax: " + bleIntervalMax + '\n' +
-//                "bleScanIntervalScan: " + bleScanIntervalScan + '\n' +
-//                "bleScanIntervalWindow: " + bleScanIntervalWindow + '\n' +
-//                "interfaces: " + interfaces + '\n' +
-//                "scUartVer: " + scUartVer + '\n' +
-//                "scUartPid: " + scUartPid + '\n' +
-//                "boardVersion: " + boardVersion + '\n' +
-//                "stmFirmware: " + stmFirmware + '\n' +
-//                "stmBootload: " + stmBootload + '\n' +
-//                "coreLinux: " + coreLinux + '\n' +
-//                "compileDate: " + compileDate + '\n' +
-//                "incrCity: " + incrCity + '\n' +
-//                "stopTransLocate: " + stopTransLocate + '\n' +
-//                "transpContents: " + transpContents + '\n' +
-//                "statContents: " + statContents + '\n' +
-//                "logPath: " + logPath + '\n' +
-//                "dailyRebootTime: " + dailyRebootTime + '\n' +
-//                "critCpuLoad: " + critCpuLoad + '\n' +
-//                "critRamFree: " + critRamFree + '\n' +
-//                "crontabTasks: " + crontabTasks + '\n' +
-//                "lastReboot: " + lastReboot + '\n';
+                "serial: " + serial + '\n'
+                +
+                "followServer: " + followServer + '\n' +
+                "replyInterval: " + replyInterval + '\n' +
+                "hasPing: " + hasPing + '\n' +
+                "systemTime: " + systemTime + '\n' +
+                "uptime: " + uptime + '\n' +
+                "load1min: " + load1min + '\n' +
+                "load5min: " + load5min + '\n' +
+                "load15min: " + load15min + '\n' +
+                "cpuFreq: " + cpuFreq + '\n' +
+                "cpuTemperature: " + cpuTemperature + '\n' +
+                "freeRam: " + freeRam + '\n' +
+                "bleMac: " + bleMac + '\n' +
+                "blePidHci0: " + blePidHci0 + '\n' +
+                "bleIntervalMin: " + bleIntervalMin + '\n' +
+                "bleIntervalMax: " + bleIntervalMax + '\n' +
+                "bleScanIntervalScan: " + bleScanIntervalScan + '\n' +
+                "bleScanIntervalWindow: " + bleScanIntervalWindow + '\n' +
+                "interfaces: " + interfaces + '\n' +
+                "scUartVer: " + scUartVer + '\n' +
+                "scUartPid: " + scUartPid + '\n' +
+                "boardVersion: " + boardVersion + '\n' +
+                "stmFirmware: " + stmFirmware + '\n' +
+                "stmBootload: " + stmBootload + '\n' +
+                "coreLinux: " + coreLinux + '\n' +
+                "compileDate: " + compileDate + '\n' +
+                "incrCity: " + incrCity + '\n' +
+                "stopTransLocate: " + stopTransLocate + '\n' +
+                "transpContents: " + transpContents + '\n' +
+                "statContents: " + statContents + '\n' +
+                "logPath: " + logPath + '\n' +
+                "dailyRebootTime: " + dailyRebootTime + '\n' +
+                "critCpuLoad: " + critCpuLoad + '\n' +
+                "critRamFree: " + critRamFree + '\n' +
+                "crontabTasks: " + crontabTasks + '\n' +
+                "lastReboot: " + lastReboot + '\n';
     }
 
     // конструктор, считывающий данные из Parcel

@@ -44,12 +44,19 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     public static final String OS_URL = "http://95.161.210.44/update/rootimg/root.img.bz2";
 
     public static final String CORE_URLS = "core_urls";
+    private static final String CORE_URLS_DIR = "http://95.161.210.44/update/1.4-1.5/";
+    private static final String[] CORE_URLS_FILE_NAMES = {
+            "root_prepare_1.4-1.5.img.bz2",
+            "boot-old.img.bz2",
+            "boot-new.img.bz2",
+            "root-1.5.6-release.img.bz2"
+    };
 
     private static final String[] COREURLS = {
-            "http://95.161.210.44/update/1.4-1.5/root_prepare_1.4-1.5.img.bz2",
-            "http://95.161.210.44/update/1.4-1.5/boot-old.img.bz2",
-            "http://95.161.210.44/update/1.4-1.5/boot-new.img.bz2",
-            "http://95.161.210.44/update/1.4-1.5/root-1.5.6-release.img.bz2"
+            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[0],
+            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[1],
+            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[2],
+            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[3],
     };
 
 
@@ -118,10 +125,10 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         tempUpdateCoreFiles = new File[4];
 
         Logger.d(Logger.DOWNLOAD_LOG, " creating new temp core files");
-        tempUpdateCoreFiles[0] = (new File(outputDir + "/root_prepare_1.4-1.5.img.bz2"));
-        tempUpdateCoreFiles[1] = (new File(outputDir + "/boot-old.img.bz2"));
-        tempUpdateCoreFiles[2] = (new File(outputDir + "/boot-new.img.bz2"));
-        tempUpdateCoreFiles[3] = (new File(outputDir + "/root-1.5.6-release.img.bz2"));
+        tempUpdateCoreFiles[0] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[0]));
+        tempUpdateCoreFiles[1] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[1]));
+        tempUpdateCoreFiles[2] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[2]));
+        tempUpdateCoreFiles[3] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[3]));
         Logger.d(Logger.DOWNLOAD_LOG, "new temp core files created: " + tempUpdateCoreFiles);
 
     }
@@ -353,6 +360,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 
 
     public static boolean isCoreUpdatesDownloadCompleted(){
+        Logger.d(Logger.DOWNLOAD_LOG, "isCoreUpdatesDownloadCompleted: " + IS_CORE_FILES_EXIST);
         return IS_CORE_FILES_EXIST.stream().allMatch(it->true);
     }
 }

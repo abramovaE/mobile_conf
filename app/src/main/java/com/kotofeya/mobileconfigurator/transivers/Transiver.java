@@ -160,6 +160,9 @@ public class Transiver {
     }
 
     public String getOsVersion() {
+        if(takeInfoFull != null){
+            return takeInfoFull.getScUartVer();
+        }
         return osVersion;
     }
 
@@ -217,6 +220,9 @@ public class Transiver {
     }
 
     public String getStmFirmware() {
+        if(takeInfoFull != null){
+            return takeInfoFull.getStmFirmware();
+        }
         return stmFirmware;
     }
 
@@ -225,6 +231,9 @@ public class Transiver {
     }
 
     public String getStmBootloader() {
+        if(takeInfoFull != null){
+            return takeInfoFull.getStmBootload();
+        }
         return stmBootloader;
     }
 

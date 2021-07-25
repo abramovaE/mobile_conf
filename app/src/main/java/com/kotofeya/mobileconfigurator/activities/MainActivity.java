@@ -281,6 +281,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         }
         super.onStop();
         newBleScanner.stopScan();
+
+        App.get().saveCoreUpdateProgress(SshConnection.getCoreUpdateIterations());
     }
 
 
@@ -314,7 +316,5 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 
 
 
-//1) Требуется организовать "удержание" дисплея при работе приложения.
 //5) Транспортные модули некорректно отображаются в интерфейсе (серийный номер отображается с префиксом stp007855 - хотелось бы 7855, отсутствует краткая информация о прошивке и пр.) стационарные - норм
 //6) Если во время обновления (ожидания перезагрузки) вернуться в меню кнопкой назад - отрисуется только шапка "главное меню" .
-//Еще, просьба поднять поля ввода логина и пароля - клавиатура их закрывает, очень неудобно, и в идеале реализовать галочку "запомнить меня".

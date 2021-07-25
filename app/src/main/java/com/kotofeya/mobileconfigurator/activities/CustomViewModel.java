@@ -98,7 +98,7 @@ public class CustomViewModel extends ViewModel {
         Logger.d(Logger.VIEW_MODEL_LOG, "add take info full: " + takeInfoFull.getSerial() + ", version: " + version);
         List<Transiver> transiversValue = transivers.getValue();
         if(transiversValue == null){
-            transiversValue = new ArrayList<>();
+            transiversValue = new CopyOnWriteArrayList<>();
         }
         Logger.d(Logger.VIEW_MODEL_LOG, "transivers value: " + transiversValue);
 
@@ -215,7 +215,7 @@ public class CustomViewModel extends ViewModel {
             return transivers.getValue().stream().filter(it -> ip.equalsIgnoreCase(it.getIp())).findAny().orElse(null);
         }
         else {
-            transivers.postValue(new ArrayList<>());
+            transivers.postValue(new CopyOnWriteArrayList<>());
         }
         return null;
     }

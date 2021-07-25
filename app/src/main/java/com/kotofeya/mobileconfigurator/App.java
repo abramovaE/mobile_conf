@@ -12,6 +12,8 @@ import org.acra.data.StringFormat;
 import org.acra.sender.HttpSender;
 
 import java.io.File;
+import java.util.Arrays;
+import java.util.Map;
 
 @AcraCore(buildConfigClass = BuildConfig.class, reportFormat = StringFormat.KEY_VALUE_LIST)
 @AcraHttpSender(uri = "http://95.161.210.44/mobile_conf_acra.php",
@@ -43,6 +45,7 @@ public class App extends Application {
         preferences.edit().putString("updateCoreFilesPath1", updateCoreFilesPath[1].getAbsolutePath()).commit();
         preferences.edit().putString("updateCoreFilesPath2", updateCoreFilesPath[2].getAbsolutePath()).commit();
         preferences.edit().putString("updateCoreFilesPath3", updateCoreFilesPath[3].getAbsolutePath()).commit();
+
         this.updateCoreFilesPath = updateCoreFilesPath;
     }
 
@@ -77,6 +80,7 @@ public class App extends Application {
                         new File(preferences.getString("updateCoreFilesPath2", "")),
                         new File(preferences.getString("updateCoreFilesPath3", ""))};
 
+
         if(!new File(updateOsFilePath).exists()){
             setUpdateOsFileVersion("");
             setUpdateOsFilePath("");
@@ -86,6 +90,7 @@ public class App extends Application {
         Logger.d(Logger.APP_LOG, "updateOsVersion: " + updateOsFileVersion);
         Logger.d(Logger.APP_LOG, "updateOsFilePath: " + updateOsFilePath + ", isExist: " + Downloader.tempUpdateOsFile.exists());
         Logger.d(Logger.APP_LOG, "is_ask_forteneth: " + isAskForTeneth());
+        Logger.d(Logger.APP_LOG, "temp update core files: " + Arrays.asList(updateCoreFilesPath));
 
         Downloader.tempUpdateCoreFiles = (updateCoreFilesPath);
 
@@ -173,6 +178,14 @@ public class App extends Application {
 
     public void setFragmentHandler(FragmentHandler fragmentHandler) {
         this.fragmentHandler = fragmentHandler;
+    }
+
+
+
+    public void saveCoreUpdateProgress(Map<String, Integer> map){
+//        for(Map.Entry<String, Integer> pair: map.entrySet()){
+//            preferences.edit().
+//        }
     }
 
 }

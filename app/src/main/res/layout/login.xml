@@ -76,8 +76,6 @@
         android:textColor="@color/colorRemember"
         android:layout_marginTop="10dp"
         android:layout_marginBottom="10dp"
-
-
         />
 
 
