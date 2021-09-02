@@ -3,7 +3,6 @@ package com.kotofeya.mobileconfigurator;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.util.Base64;
 import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
@@ -30,6 +29,7 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
     private static String url_checkUser = "http://95.161.210.44/is_mobile_conf_user_valid.php";
     private String login;
     private String password;
+    private String level;
     private MyCustomCallBack callback;
     private Context context;
     private String message = null;
@@ -42,8 +42,7 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
         this.context = context;
     }
 
-    public interface MyCustomCallBack
-    {
+    public interface MyCustomCallBack {
         void doIfUserValid();
     }
 
@@ -68,9 +67,11 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
             if(response == 200){
                 JSONObject jsonObject = new JSONObject(content.toString());
                 int code = Integer.parseInt(jsonObject.getString("code"));
+                String level = jsonObject.getString("level");
                 if(code == 1){
                     isUserValid = true;
                     message = context.getString(R.string.successful);
+                    this.level = level;
                 }
                 else if (code == 0){
                     isUserValid = false;
@@ -91,29 +92,24 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
         } catch (JSONException e) {
             e.printStackTrace();
         }
-
-
-
-
         return null;
     }
 
     @Override
     protected void onPostExecute(Void s) {
         Logger.d(Logger.CHECK_USER_LOG, "On post execute, is user valid: " + isUserValid);
-
 //         TODO: 08.04.2021 remove
 //        isUserValid = true;
-
+//        App.get().setLevel("full");
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
         if(callback != null && isUserValid){
+            App.get().setLevel(level);
             callback.doIfUserValid();
         }
     }
 
 
-    private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException
-    {
+    private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
         StringBuilder result = new StringBuilder();
         boolean first = true;
         for (NameValuePair pair : params)

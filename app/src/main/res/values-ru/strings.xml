@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Mобильный конфигуратор</string>
+    <string name="app_name">Говорящий город - сервис</string>
     <string name="login_txt_login_hint">Логин</string>
     <string name="login_txt_password_hint">Пароль</string>
     <string name="login_btn">Войти</string>

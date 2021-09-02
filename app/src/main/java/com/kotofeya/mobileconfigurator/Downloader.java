@@ -1,6 +1,5 @@
 package com.kotofeya.mobileconfigurator;
 
-
 import android.os.AsyncTask;
 import android.os.Bundle;
 
@@ -35,6 +34,8 @@ import java.util.Map;
             ребут
     */
 
+//        ядра с root-1.5.6-release.tar.bz2 на root-last.tar.bz2, буду заменять
+
 public class Downloader extends AsyncTask<String, Integer, Bundle> implements TaskCode{
     public static final String CITY_URL = "http://95.161.210.44/update/city.json";
     public static final String OS_VERSION_URL = "http://95.161.210.44/update/rootimg";
@@ -45,11 +46,15 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 
     public static final String CORE_URLS = "core_urls";
     private static final String CORE_URLS_DIR = "http://95.161.210.44/update/1.4-1.5/";
+
+    // TODO: 25.08.2021 rename last file
     private static final String[] CORE_URLS_FILE_NAMES = {
             "root_prepare_1.4-1.5.img.bz2",
             "boot-old.img.bz2",
             "boot-new.img.bz2",
             "root-1.5.6-release.img.bz2"
+
+//            "root-last.img.bz2"
     };
 
     private static final String[] COREURLS = {
@@ -67,8 +72,6 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     public static List<String> tempUpdateStmFiles;
     public static List<String> tempUpdateTransportContentFiles;
     public static Map<String, String> tempUpdateStationaryContentFiles;
-
-//    public static List<File> tempUpdateCoreFiles;
     public static File[] tempUpdateCoreFiles = new File[4];
 
 
@@ -84,6 +87,14 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         this.listener = listener;
     }
 
+    public static void setUpdateCoreFiles(File[] files){
+        tempUpdateCoreFiles = files;
+        for(int i = 0; i < 4; i++){
+            if(files[0].exists()) {
+                IS_CORE_FILES_EXIST.add(i, true);
+            }
+        }
+    }
 
     @Override
     protected Bundle doInBackground(String... url) {
@@ -119,18 +130,14 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 
     private void createUpdateCoreFiles() {
         File outputDir = App.get().getContext().getExternalFilesDir(null);
-
         Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateCoreFiles: " + tempUpdateCoreFiles);
-
         tempUpdateCoreFiles = new File[4];
-
         Logger.d(Logger.DOWNLOAD_LOG, " creating new temp core files");
         tempUpdateCoreFiles[0] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[0]));
         tempUpdateCoreFiles[1] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[1]));
         tempUpdateCoreFiles[2] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[2]));
         tempUpdateCoreFiles[3] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[3]));
         Logger.d(Logger.DOWNLOAD_LOG, "new temp core files created: " + tempUpdateCoreFiles);
-
     }
 
     private File createTempUpdateFile(String fileName){
@@ -183,6 +190,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     private URL getURL(int currentAction, String stringUrl) throws MalformedURLException {
         switch (currentAction){
             case UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE:
+            case UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE:
                 return new URL(TRANSPORT_CONTENT_VERSION_URL + "/" + stringUrl);
             case UPDATE_STATION_CONTENT_DOWNLOAD_CODE:
                 return new URL(STATION_CONTENT_VERSION_URL + "/" + stringUrl);
@@ -193,12 +201,16 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     }
 
     private String getTempFileName(int currentAction, String stringUrl) throws MalformedURLException {
+        Logger.d(Logger.DOWNLOAD_LOG, "getTempFileName: " + stringUrl);
         switch (currentAction){
             case UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE:
             case UPDATE_STATION_CONTENT_DOWNLOAD_CODE:
                 return stringUrl.substring(4);
             case  UPDATE_STM_DOWNLOAD_CODE:
                 return stringUrl;
+            case UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE:
+                return stringUrl.replace("/", "_");
+
         }
         return stringUrl;
     }
@@ -217,7 +229,8 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         try {
             if(currentAction == UPDATE_STM_DOWNLOAD_CODE ||
                     currentAction == UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE ||
-                    currentAction == UPDATE_STATION_CONTENT_DOWNLOAD_CODE){
+                    currentAction == UPDATE_STATION_CONTENT_DOWNLOAD_CODE ||
+                    currentAction == UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE){
                 url = getURL(currentAction, stringUrl);
                 String tempFilePath = downloadToFile(url, getTempFileName(currentAction, stringUrl));
                 bundle.putInt("resultCode", currentAction);
@@ -358,9 +371,9 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         super.onProgressUpdate(values);
     }
 
-
     public static boolean isCoreUpdatesDownloadCompleted(){
-        Logger.d(Logger.DOWNLOAD_LOG, "isCoreUpdatesDownloadCompleted: " + IS_CORE_FILES_EXIST);
-        return IS_CORE_FILES_EXIST.stream().allMatch(it->true);
+        Logger.d(Logger.DOWNLOAD_LOG, "isCoreUpdatesDownloadCompleted: " +
+                (!IS_CORE_FILES_EXIST.isEmpty() &&  IS_CORE_FILES_EXIST.stream().allMatch(it->true)));
+        return !IS_CORE_FILES_EXIST.isEmpty() && IS_CORE_FILES_EXIST.stream().allMatch(it->true);
     }
 }

@@ -22,10 +22,10 @@ import com.kotofeya.mobileconfigurator.fragments.update.SettingsWifiFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.StmLogFragment;
 import com.kotofeya.mobileconfigurator.fragments.scanner.BasicScannerFragment;
 import com.kotofeya.mobileconfigurator.fragments.scanner.BleScannerFragment;
-import com.kotofeya.mobileconfigurator.fragments.update.TransiverSettingsNetworkFragment;
-import com.kotofeya.mobileconfigurator.fragments.update.TransiverSettingsScUartFragment;
-import com.kotofeya.mobileconfigurator.fragments.update.TransiverSettingsWifiFragment;
-import com.kotofeya.mobileconfigurator.fragments.update.TransiverStmLogFragment;
+import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransiverSettingsNetworkFragment;
+import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransiverSettingsScUartFragment;
+import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransiverSettingsWifiFragment;
+import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransiverStmLogFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateContentFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateStmFragment;
@@ -63,6 +63,8 @@ public class FragmentHandler {
     public final static String CONFIRMATION_DIALOG_TAG = "CONFIRMATION_DIALOG";
     public final static String ADD_NEW_WIFI_SETTINGS_DIALOG = "ADD_NEW_WIFI_SETTINGS_DIALOG";
     public final static String ADD_NEW_ETHERNET_SETTINGS_DIALOG = "ADD_NEW_ETHERNET_SETTINGS_DIALOG";
+    public final static String DOWNLOAD_FILES_DIALOG = "DOWNLOAD_FILES_DIALOG";
+
 
     public FragmentManager getFragmentManager() {
         return fragmentManager;
@@ -123,15 +125,10 @@ public class FragmentHandler {
         return fragment;
     }
 
-
-
-
     public void changeFragmentBundle(String fragmentTag, Bundle bundle){
         Logger.d(Logger.FRAGMENT_LOG, "change fragment to: " + fragmentTag + ", bundle: " + bundle);
-
         Fragment fragment = getFragment(fragmentTag);
         fragment.setArguments(bundle);
-
         if(fragmentTag.equals(TRANSPORT_CONTENT_FRAGMENT) || fragmentTag.equals(STATION_CONTENT_FRAGMENT)){
             setFragment(fragment, fragmentTag, true);
 
@@ -148,7 +145,6 @@ public class FragmentHandler {
 
     public void changeFragment(String fragmentTag, boolean stacked){
         Logger.d(Logger.FRAGMENT_LOG, "change fragment to: " + fragmentTag + ", stacked: " + stacked);
-
         Fragment fragment = getFragment(fragmentTag);
         setFragment(fragment, fragmentTag, stacked);
     }

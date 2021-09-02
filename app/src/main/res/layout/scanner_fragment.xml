@@ -163,6 +163,17 @@
     >
 
     <TextView
+        android:id="@+id/scanner_timer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"
+        android:layout_margin="50px"
+        android:textAlignment="center"
+        android:textSize="@dimen/login_txt"
+        android:textColor="@color/colorPrimaryDark"
+        />
+
+    <TextView
         android:id="@+id/scanner_label0"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -187,6 +198,8 @@
         android:layout_height="wrap_content"
         android:visibility="gone"
         android:layout_margin="50px"/>
+
+
 
     <TextView
         android:id="@+id/progressTv"
@@ -267,10 +280,16 @@
             />
     </LinearLayout>
 
-    <ListView
-        android:id="@+id/lv_scanner"
+<!--    <ListView-->
+<!--        android:id="@+id/lv_scanner"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"/>-->
+
+    <androidx.recyclerview.widget.RecyclerView
+
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:id="@+id/rv_scanner"/>
 
 </LinearLayout>
 

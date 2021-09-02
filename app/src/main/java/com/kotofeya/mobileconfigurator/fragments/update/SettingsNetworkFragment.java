@@ -1,41 +1,24 @@
 package com.kotofeya.mobileconfigurator.fragments.update;
 
-import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-
 import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.ScannerAdapter;
-
-import java.util.ArrayList;
+import com.kotofeya.mobileconfigurator.RvAdapter;
 
 public class SettingsNetworkFragment extends UpdateFragment {
-
-
     @Override
     protected void loadUpdates() {
-
     }
-
     @Override
     protected void loadVersion() {
-
     }
-
     @Override
     protected void setMainTextLabelText() {
-
+        mainTxtLabel.setText("Network settings");
     }
-
     @Override
-    protected ScannerAdapter getScannerAdapter() {
-        return new ScannerAdapter(context, utils, ScannerAdapter.SETTINGS_NETWORK, new ArrayList<>());
+    protected int getAdapterType() {
+        return RvAdapter.STM_LOG;
     }
-
 
     @Override
     public void onStart() {
@@ -44,20 +27,9 @@ public class SettingsNetworkFragment extends UpdateFragment {
         versionLabel.setVisibility(View.GONE);
         checkVersionButton.setVisibility(View.GONE);
     }
-
-    @Nullable
-    @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater, container, savedInstanceState);
-        mainTxtLabel.setText("Network settings");
-        return view;
-    }
-
     @Override
     public void setProgressBarVisible() {
-
     }
-
     @Override
     public void setProgressBarGone() {
 

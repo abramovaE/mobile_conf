@@ -6,8 +6,14 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
+
+import com.kotofeya.mobileconfigurator.user.UserFactory;
+import com.kotofeya.mobileconfigurator.user.UserInterface;
+
+import java.util.List;
 
 public class MainMenuFragment extends Fragment implements View.OnClickListener {
     private Button basicScannerbtn;
@@ -25,37 +31,101 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
     private Button updatePhp;
     private Button updateCore;
 
+    private TextView mainTvScanner;
+    private TextView mainTvUpdate;
+    private TextView mainTvConfig;
+    private TextView mainTvSettings;
+
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.main_fragment, container, false);
+        List<UserInterface> interfaces = UserFactory.getUser().getInterfaces();
         basicScannerbtn = view.findViewById(R.id.main_basic_scanner_btn);
-        basicScannerbtn.setOnClickListener(this);
         bleScannerBtn = view.findViewById(R.id.main_ble_scanner_btn);
-        bleScannerBtn.setOnClickListener(this);
         updateOSBtn = view.findViewById(R.id.main_update_os_btn);
-        updateOSBtn.setOnClickListener(this);
         updateStmBtn = view.findViewById(R.id.main_update_stm_btn);
-        updateStmBtn.setOnClickListener(this);
         updateContentBtn = view.findViewById(R.id.main_update_content_btn);
-        updateContentBtn.setOnClickListener(this);
         configTransportBtn = view.findViewById(R.id.main_config_transport_btn);
-        configTransportBtn.setOnClickListener(this);
         configStationBtn = view.findViewById(R.id.main_config_station_btn);
-        configStationBtn.setOnClickListener(this);
         settingsBtn = view.findViewById(R.id.main_settings_btn);
-        settingsBtn.setOnClickListener(this);
         stmLogBtn = view.findViewById(R.id.main_stm_log_btn);
-        stmLogBtn.setOnClickListener(this);
         settingsWifiBtn = view.findViewById(R.id.main_settings_wifi_btn);
-        settingsWifiBtn.setOnClickListener(this);
         settingsNetworkBtn = view.findViewById(R.id.main_settings_network_btn);
-        settingsNetworkBtn.setOnClickListener(this);
         scUartBtn = view.findViewById(R.id.main_settings_scuart_btn);
-        scUartBtn.setOnClickListener(this);
         updatePhp = view.findViewById(R.id.main_settings_update_php_btn);
-        updatePhp.setOnClickListener(this);
         updateCore = view.findViewById(R.id.main_settings_update_core_btn);
-        updateCore.setOnClickListener(this);
+
+        mainTvScanner = view.findViewById(R.id.main_tv_scanner);
+        mainTvUpdate = view.findViewById(R.id.main_tv_update);
+        mainTvConfig = view.findViewById(R.id.main_tv_config);
+        mainTvSettings = view.findViewById(R.id.main_tv_settings);
+
+        if(interfaces.contains(UserInterface.WIFI_SCANNER)){
+            basicScannerbtn.setOnClickListener(this);
+            basicScannerbtn.setVisibility(View.VISIBLE);
+            mainTvScanner.setVisibility(View.VISIBLE);
+        }
+        if(interfaces.contains(UserInterface.BLE_SCANNER)){
+            bleScannerBtn.setOnClickListener(this);
+            bleScannerBtn.setVisibility(View.VISIBLE);
+            mainTvScanner.setVisibility(View.VISIBLE);
+        }
+        if(interfaces.contains(UserInterface.UPDATE_OS)){
+            updateOSBtn.setOnClickListener(this);
+            updateOSBtn.setVisibility(View.VISIBLE);
+            mainTvUpdate.setVisibility(View.VISIBLE);
+        }
+
+        if(interfaces.contains(UserInterface.UPDATE_CONTENT)){
+            updateContentBtn.setOnClickListener(this);
+            updateContentBtn.setVisibility(View.VISIBLE);
+            mainTvUpdate.setVisibility(View.VISIBLE);
+        }
+        if(interfaces.contains(UserInterface.UPDATE_STM_LOG)){
+            stmLogBtn.setOnClickListener(this);
+            stmLogBtn.setVisibility(View.VISIBLE);
+            mainTvUpdate.setVisibility(View.VISIBLE);
+        }
+        if(interfaces.contains(UserInterface.CONF_TRANSPORT)){
+            configTransportBtn.setOnClickListener(this);
+            configTransportBtn.setVisibility(View.VISIBLE);
+            mainTvConfig.setVisibility(View.VISIBLE);
+        }
+        if(interfaces.contains(UserInterface.CONF_STATIONARY)){
+            configStationBtn.setOnClickListener(this);
+            configStationBtn.setVisibility(View.VISIBLE);
+            mainTvConfig.setVisibility(View.VISIBLE);
+        }
+        if(interfaces.contains(UserInterface.SETTINGS_WIFI)){
+            settingsWifiBtn.setOnClickListener(this);
+            settingsWifiBtn.setVisibility(View.VISIBLE);
+            mainTvSettings.setVisibility(View.VISIBLE);
+        }
+        if(interfaces.contains(UserInterface.SETTINGS_NETWORK)){
+            settingsNetworkBtn.setOnClickListener(this);
+            settingsNetworkBtn.setVisibility(View.VISIBLE);
+            mainTvSettings.setVisibility(View.VISIBLE);
+        }
+        if(interfaces.contains(UserInterface.SETTINGS_SCUART)){
+            scUartBtn.setOnClickListener(this);
+            scUartBtn.setVisibility(View.VISIBLE);
+            mainTvSettings.setVisibility(View.VISIBLE);
+        }
+        if(interfaces.contains(UserInterface.SETTINGS_UPDATE_PHP)){
+            updatePhp.setOnClickListener(this);
+            updatePhp.setVisibility(View.VISIBLE);
+            mainTvSettings.setVisibility(View.VISIBLE);
+        }
+        if(interfaces.contains(UserInterface.SETTINGS_UPDATE_CORE)){
+            updateCore.setOnClickListener(this);
+            updateCore.setVisibility(View.VISIBLE);
+            mainTvSettings.setVisibility(View.VISIBLE);
+        }
+        if(interfaces.contains(UserInterface.APP_SETTINGS)){
+            settingsBtn.setOnClickListener(this);
+            settingsBtn.setVisibility(View.VISIBLE);
+        }
+
         return view;
     }
 

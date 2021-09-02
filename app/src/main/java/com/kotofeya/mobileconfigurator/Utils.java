@@ -16,9 +16,7 @@ import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth;
 import com.kotofeya.mobileconfigurator.newBleScanner.CustomScanResult;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
@@ -54,26 +52,22 @@ public class Utils implements OnTaskCompleted{
     public void getTakeInfo(){
         Logger.d(Logger.UTILS_LOG, "get take info");
         this.futureCounter = 0;
-        String deviceIp = internetConnection.getDeviceIp();
-        if(deviceIp != null){
-            clients = WiFiLocalHotspot.getInstance().getClientList(deviceIp);
-            clients.remove(deviceIp);
-            Logger.d(Logger.UTILS_LOG, "clients: " + clients);
-            if (clients.size() > 0) {
-                executorService = Executors.newCachedThreadPool();
-                versionExecutorService = Executors.newCachedThreadPool();
-                futures = new CompletableFuture[clients.size()];
-                CompletableFuture<Void>[] versFutures = new CompletableFuture[clients.size()];
-                for (int i = 0; i < clients.size(); i++) {
-                    String ip = clients.get(i);
-                    versFutures[i] = CompletableFuture.runAsync(new PostInfo(this, ip, PostCommand.VERSION), versionExecutorService);
-                }
-                if(versFutures != null){
-                    CompletableFuture.allOf(versFutures).thenRun(() -> {
-                        versionExecutorService.shutdown();
-                        return;
-                    });
-                }
+        updateClients();
+        Logger.d(Logger.UTILS_LOG, "clients: " + clients);
+        if (clients.size() > 0) {
+            executorService = Executors.newCachedThreadPool();
+            versionExecutorService = Executors.newCachedThreadPool();
+            futures = new CompletableFuture[clients.size()];
+            CompletableFuture<Void>[] versFutures = new CompletableFuture[clients.size()];
+            for (int i = 0; i < clients.size(); i++) {
+                String ip = clients.get(i);
+                versFutures[i] = CompletableFuture.runAsync(new PostInfo(this, ip, PostCommand.VERSION), versionExecutorService);
+            }
+            if(versFutures != null){
+                CompletableFuture.allOf(versFutures).thenRun(() -> {
+                    versionExecutorService.shutdown();
+                    return;
+                });
             }
         }
     }
@@ -107,23 +101,6 @@ public class Utils implements OnTaskCompleted{
         return viewModel.getVersion(ssid);
     }
 
-
-//    public boolean needScanStationaryTransivers() {
-//        if(viewModel.getTransivers().getValue().size() == 0){
-//            return true;
-//        }
-//        for(Transiver t: viewModel.getTransivers().getValue()){
-//            if(t.isStationary() || !t.isTransport()){
-//                if(t.getIp() == null || viewModel.getIp(t.getSsid()) == null){
-//                    Logger.d(Logger.UTILS_LOG, "needScanStationaryTransivers: " + true);
-//                    return true;
-//                }
-//            }
-//        }
-//        Logger.d(Logger.UTILS_LOG, "needScanStationaryTransivers: " + false);
-//        return false;
-//    }
-
     @Override
     public void onTaskCompleted(Bundle result) {
         Logger.d(Logger.UTILS_LOG, "on task completed, result: " + result);
@@ -133,8 +110,6 @@ public class Utils implements OnTaskCompleted{
         Logger.d(Logger.UTILS_LOG, "command: " + command);
         Logger.d(Logger.UTILS_LOG, "ip: " + ip);
         Logger.d(Logger.UTILS_LOG, "response: " + response);
-
-
 
         switch (command){
             case PostCommand.VERSION:
@@ -224,5 +199,16 @@ public class Utils implements OnTaskCompleted{
 
     public CustomBluetooth getNewBleScanner() {
         return newBleScanner;
+    }
+
+    public void updateClients(){
+        String deviceIp = internetConnection.getDeviceIp();
+        if(deviceIp != null) {
+            clients = WiFiLocalHotspot.getInstance().getClientList(deviceIp);
+            clients.remove(deviceIp);
+        } else {
+            clients = new ArrayList<>();
+        }
+        viewModel.setClients(clients);
     }
 }

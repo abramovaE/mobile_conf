@@ -12,8 +12,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@id/logo"
-        android:layout_width="500px"
-        android:layout_height="500px"
+        android:layout_width="400px"
+        android:layout_height="400px"
         android:src="@drawable/logo"
         android:layout_gravity="center"
         android:scaleType="fitStart"/>
@@ -28,7 +28,7 @@
         android:text="@string/login_txt_label"
         android:textSize="@dimen/login_txt"
         android:textStyle="bold"
-        android:layout_marginBottom="100px"
+        android:layout_marginBottom="70px"
         android:gravity="center" />
     <EditText
         android:id="@+id/login_txt_login"

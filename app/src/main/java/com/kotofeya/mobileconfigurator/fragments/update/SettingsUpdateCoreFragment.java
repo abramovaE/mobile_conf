@@ -15,29 +15,35 @@ import android.widget.Toast;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
+import androidx.recyclerview.widget.DiffUtil;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.ClientsDiffUtil;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.ScannerAdapter;
+import com.kotofeya.mobileconfigurator.RvAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
 
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
-import java.util.ArrayList;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 public class SettingsUpdateCoreFragment extends UpdateFragment {
 
     private Button downloadCoreUpdateFilesBtn;
     private TextView downloadCoreUpdateFilesTv;
-    private TextView progressTv;
+    private TextView scannerTimer;
+    private Thread timerThread;
+    private LocalTime localTime;
 
     @Override
     protected void loadUpdates() {
@@ -49,13 +55,13 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
 
     @Override
     protected void setMainTextLabelText() {
+        mainTxtLabel.setText("Update the core");
     }
 
     @Override
-    protected ScannerAdapter getScannerAdapter() {
-        return new ScannerAdapter(context, utils, ScannerAdapter.SETTINGS_UPDATE_CORE, new ArrayList<>());
+    protected int getAdapterType() {
+        return RvAdapter.SETTINGS_UPDATE_CORE;
     }
-
 
     @Override
     public void onStart() {
@@ -69,9 +75,7 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
     public void onResume() {
         super.onResume();
         if(Downloader.isCoreUpdatesDownloadCompleted()) {
-            StringBuilder sb = new StringBuilder();
-            (new LinkedList<>(Arrays.asList(Downloader.tempUpdateCoreFiles))).stream().forEach(it -> sb.append(it.getName()).append("\n"));
-            downloadCoreUpdateFilesTv.setText(sb.toString());
+            updateFilesTv();
         }
     }
 
@@ -79,29 +83,46 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        mainTxtLabel.setText("Update the core");
+        scannerTimer = view.findViewById(R.id.scanner_timer);
         downloadCoreUpdateFilesBtn = view.findViewById(R.id.downloadCoreUpdateFilesBtn);
         downloadCoreUpdateFilesBtn.setVisibility(View.VISIBLE);
         downloadCoreUpdateFilesBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-
                 View view = App.get().getFragmentHandler().getCurrentFragment().getView();
                 ProgressBar progressBar = view.findViewById(R.id.scanner_progressBar);
                 progressBar.setVisibility(View.VISIBLE);
-
                 Downloader downloader = new Downloader(((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment()));
                 downloader.execute(Downloader.CORE_URLS);
-
             }
         });
-
         downloadCoreUpdateFilesTv = view.findViewById(R.id.downloadCoreUpdateFilesTv);
         downloadCoreUpdateFilesTv.setVisibility(View.VISIBLE);
-        progressTv = view.findViewById(R.id.progressTv);
-        progressTv.setVisibility(View.VISIBLE);
-
+        updateFilesTv();
+        viewModel.getClients().observe(getViewLifecycleOwner(), this::updateClients);
         return view;
+    }
+
+    private void updateClients(List<String> strings) {
+        List<String> oldClients = rvAdapter.getObjects().stream().map(it -> it.getSsid()).collect(Collectors.toList());
+        List<String> newClients = strings;
+
+        Logger.d(Logger.UPDATE_CORE_LOG, "oldClients: " + oldClients);
+        Logger.d(Logger.UPDATE_CORE_LOG, "newClients: " + newClients);
+
+
+        ClientsDiffUtil clientsDiffUtil = new ClientsDiffUtil(oldClients, newClients);
+        DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(clientsDiffUtil);
+        rvAdapter.setObjects(rvAdapter.getObjects().stream().
+                filter(it -> newClients.contains(it.getIp())).collect(Collectors.toList()));
+        diffResult.dispatchUpdatesTo(rvAdapter);
+    }
+
+    private void updateFilesTv(){
+        StringBuilder sb = new StringBuilder();
+        new LinkedList<>(Arrays.asList(App.get().getUpdateCoreFilesPath())).stream()
+                .forEach(it -> sb.append(it.getName()).append("\n"));
+        downloadCoreUpdateFilesTv.setText(sb.toString());
     }
 
     @Override
@@ -113,7 +134,10 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
         Logger.d(Logger.UPDATE_CORE_LOG, "command: " + command);
         Logger.d(Logger.UPDATE_CORE_LOG, "ip: " + ip);
         Logger.d(Logger.UPDATE_CORE_LOG, "response: " + response);
+        Logger.d(Logger.UPDATE_CORE_LOG, "res: " + result.getString("result"));
+        Logger.d(Logger.UPDATE_CORE_LOG, "resultCode: " + result.getInt("resultCode"));
         progressBar.setVisibility(View.GONE);
+
 
         int resultCode = result.getInt("resultCode");
         String res = result.getString("result");
@@ -134,6 +158,9 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
         }
 
         if(res != null && res.contains("загружен")){
+            clearTextLabel();
+            stopTimer();
+            startTimer();
             Logger.d(Logger.UPDATE_CORE_LOG, "getActivity: " + getActivity());
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
             dialog.setMessage(res);
@@ -149,13 +176,20 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
                 }
             });
             dialog.show();
-            clearTextLabel();
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            utils.updateClients();
         }
     }
 
     @Override
     protected void updateUI(List<Transiver> transivers){
         super.updateUI(transivers);
+        stopTimer();
         for(Transiver t: transivers){
             String ip = t.getIp();
             if(ip != null) {
@@ -163,10 +197,14 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
                 Logger.d(Logger.UPDATE_CORE_LOG, "coreUpdateIteration: " + t.getSsid() + " " + SshConnection.getCoreUpdateIteration(ip));
                 int coreUpdateIteration = SshConnection.getCoreUpdateIteration(ip);
                 if(coreUpdateIteration > 0 && coreUpdateIteration < 4){
+                    progressTv.setVisibility(View.VISIBLE);
                     progressTv.setText(getProgressTvText(t.getSsid(), coreUpdateIteration));
                     uploadFile(ip, t.getSsid(), coreUpdateIteration);
                     break;
                 }
+//                else if(coreUpdateIteration == 4){
+//                    stopTimer();
+//                }
             }
         }
     }
@@ -174,26 +212,83 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
     @Override
     public void setProgressBarGone() {
         super.setProgressBarGone();
-//        progressTv.setText("");
     }
 
     @Override
     public void clearTextLabel(){
+        Logger.d(Logger.UPDATE_CORE_LOG, "clearTextLabel()");
         getActivity().runOnUiThread(new Runnable() {
             @Override
             public void run() {
+                progressTv.setVisibility(View.GONE);
                 progressTv.setText("");
             }
         });
     }
 
+    public void startTimer(){
+        Logger.d(Logger.UPDATE_CORE_LOG, "startTimer()");
+        Logger.d(Logger.UPDATE_CORE_LOG, "visibility: " + scannerTimer.getVisibility());
+
+        localTime = LocalTime.of(0, 0, 0, 0);
+        Runnable runnable = new CountDownRunner();
+        if(timerThread != null){
+            timerThread.interrupt();
+        }
+        timerThread = new Thread(runnable);
+        timerThread.start();
+        scannerTimer.setVisibility(View.VISIBLE);
+    }
+
+    public void stopTimer(){
+        Logger.d(Logger.UPDATE_CORE_LOG, "stopTimer()");
+        Logger.d(Logger.UPDATE_CORE_LOG, "visibility: " + scannerTimer.getVisibility());
+        if(timerThread != null){
+            timerThread.interrupt();
+        }
+        scannerTimer.setVisibility(View.GONE);
+    }
+
+    class CountDownRunner implements Runnable {
+
+        public void run() {
+            Logger.d(Logger.UPDATE_CORE_LOG, "new CountDownRunner");
+
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    doWork();
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    scannerTimer.setVisibility(View.GONE);
+                    Thread.currentThread().interrupt();
+                } catch (Exception e) {
+                }
+            }
+        }
+    }
+
+    public void doWork() {
+        getActivity().runOnUiThread(new Runnable() {
+            public void run() {
+                try {
+                    DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
+                    localTime = localTime.plusSeconds(1L);
+                    scannerTimer.setText(localTime.format(dtf));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+    }
+
+
     public void setProgressTvText(String text){
+        progressTv.setVisibility(View.VISIBLE);
         progressTv.setText(text);
     }
 
 
     public void uploadFile(String ip, String serial, int coreUpdateIteration){
-
         ((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment())
                 .setProgressTvText(getProgressTvText(serial, coreUpdateIteration));
         SshConnection connection = new SshConnection(
@@ -213,7 +308,6 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
                 return "Загружаем файлы " +
                         Downloader.tempUpdateCoreFiles[2].getName() + ", " + Downloader.tempUpdateCoreFiles[3].getName() +
                         " на трансивер " + serial;
-
         }
         return "";
     }
@@ -235,6 +329,9 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
                         SshConnection.resetCoreFilesCounter(ip);
                         ((SettingsUpdateCoreFragment) App.get().getFragmentHandler().getCurrentFragment())
                                 .uploadFile(ip, serial, 0);
+                    } else {
+                        Toast.makeText(getActivity(), "please, download files from server at start", Toast.LENGTH_SHORT).show();
+
                     }
                 }
             });
@@ -247,6 +344,25 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
         }
     }
 
+    public static class DownloadFilesDialog extends DialogFragment {
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
+//            builder.setTitle(R.string.confirmation_is_required);
+            builder.setMessage("Please, download files for update from server");
+            builder.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
 
+                }
+            });
+            builder.setNegativeButton("cancel", new DialogInterface.OnClickListener() {
+                public void onClick(DialogInterface dialog, int id) {
+                }
+            });
+            builder.setCancelable(true);
+            return builder.create();
+        }
+    }
 
 }

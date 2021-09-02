@@ -9,13 +9,12 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class WiFiLocalHotspot {
-    private static WiFiLocalHotspot instance = new WiFiLocalHotspot();
-    private WiFiLocalHotspot(){}
     public static WiFiLocalHotspot getInstance(){
         return instance;
     }
-
-    List<String> clients;
+    private static WiFiLocalHotspot instance = new WiFiLocalHotspot();
+    private WiFiLocalHotspot(){}
+    private List<String> clients;
 
     public List<String> getClientList(String deviceIp) {
         clients = new ArrayList<>();
@@ -24,8 +23,6 @@ public class WiFiLocalHotspot {
 
         ExecutorService executorService = Executors.newFixedThreadPool(300);
         CompletableFuture<Void>[] futures = new CompletableFuture[256];
-
-
         for (int i = 0; i < 256; i++) {
             futures[i] = CompletableFuture.runAsync(new PingIp(host + "." + i), executorService);
         }
@@ -34,26 +31,21 @@ public class WiFiLocalHotspot {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-
         CompletableFuture.allOf(futures)
                 .thenRun(() -> {
                     Logger.d(Logger.WIFI_LOG, "all clients pinged");
                     executorService.shutdown();
                 });
-
         Logger.d(Logger.WIFI_LOG, "clients return: " + clients);
         return clients;
     }
 
     public class PingIp implements Runnable{
-
-        static final int timeout = 5000;
+        private static final int timeout = 5000;
         private String host;
-
         public PingIp(String host) {
             this.host = host;
         }
-
         @Override
         public void run() {
             try {

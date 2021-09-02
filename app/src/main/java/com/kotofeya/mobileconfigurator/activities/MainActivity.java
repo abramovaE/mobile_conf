@@ -43,6 +43,7 @@ import org.json.JSONObject;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 import static com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth.REQUEST_BT_ENABLE;
@@ -54,7 +55,9 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     TextView label;
     ImageButton mainBtnRescan;
     TextView loginTxt;
+    TextView devCountTxt;
     TextView dateTxt;
+
     public static City cities[];
     private static final int TETHER_REQUEST_CODE = 1;
     private static final String HOTSPOT_DIALOG_TAG = "HOTSPOT_DIALOG";
@@ -67,6 +70,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         super.onStart();
         newBleScanner.stopScan();
         utils.startRvTimer();
+        utils.updateClients();
     }
 
     private void launchHotspotSettings() {
@@ -93,7 +97,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_main_cl);
         newBleScanner = new CustomBluetooth(this);
         utils = new Utils(this, newBleScanner);
         FragmentHandler fragmentHandler = new FragmentHandler(this);
@@ -105,6 +109,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         mainBtnRescan.setVisibility(View.GONE);
         label.setText(R.string.main_menu_main_label);
         loginTxt = findViewById(R.id.main_txt_login);
+        devCountTxt = findViewById(R.id.main_txt_dev_count);
         dateTxt = findViewById(R.id.main_txt_date);
         loginTxt.setText(App.get().getLogin());
 
@@ -121,17 +126,21 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         }
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         if (isInternetEnabled) {
-//            Intent intent = new Intent(MainActivity.this,
-//                    SendLogToServer.class);
-//            intent.putExtra("log", Logger.getServiceLogString());
-//            startService(intent);
             new Thread(new SendLogToServer(Logger.getServiceLogString(), this)).start();
         }
 
         viewModel = ViewModelProviders.of(this, new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
+        viewModel.getClients().observe(this, this::updateUI);
 
     }
 
+    public CustomViewModel getViewModel() {
+        return viewModel;
+    }
+
+    private void updateUI(List<String> strings) {
+        devCountTxt.setText("(" + strings.size() + ")");
+    }
 
     public static class HotSpotSettingsDialog extends DialogFragment implements CompoundButton.OnCheckedChangeListener {
         @NonNull
@@ -281,40 +290,29 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         }
         super.onStop();
         newBleScanner.stopScan();
-
-        App.get().saveCoreUpdateProgress(SshConnection.getCoreUpdateIterations());
     }
 
 
     @Override
     protected void onResume() {
-//        Logger.d(Logger.MAIN_LOG, "onResume: " + working.get());
         super.onResume();
-//        startWork();
-//        newBleScanner.startScan();
         newBleScanner.stopScan();
         utils.startRvTimer();
     }
 
     @Override
     protected void onPause() {
-//        Logger.d(Logger.MAIN_LOG, "onPause: " + working.get());
         super.onPause();
-//        pauseWork();
         newBleScanner.stopScan();
-
     }
-
-//    @Override
-//    protected void onStop() {
-////        Logger.d(Logger.MAIN_LOG, "onStop: " + working.get());
-//        super.onStop();
-////        stopWork();
-//        newBleScanner.stopScan();
-//    }
 }
 
+//    техническое задание Сервисное приложение:
+//
 
+//        - организовать возможность подгрузки контента на смартфон, в разделе обновление контента, добавить кнопку,
+//        и в случае отсутствия интернета брать контент из памяти смартфона.
+//
+//        - на версии ПО 1.6.0(2)-debug - приложение получает не все данные, PHP скрипт изменял только настройки логирования,
+//        основные механизмы остались неизменны, посмотри пожалуйста что там не так.
 
-//5) Транспортные модули некорректно отображаются в интерфейсе (серийный номер отображается с префиксом stp007855 - хотелось бы 7855, отсутствует краткая информация о прошивке и пр.) стационарные - норм
-//6) Если во время обновления (ожидания перезагрузки) вернуться в меню кнопкой назад - отрисуется только шапка "главное меню" .

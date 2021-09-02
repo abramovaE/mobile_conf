@@ -1,69 +1,52 @@
-package com.kotofeya.mobileconfigurator.fragments.update;
+package com.kotofeya.mobileconfigurator.fragments.transiver_settings;
 
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Handler;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.App;
-import com.kotofeya.mobileconfigurator.Downloader;
-import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.TaskCode;
-import com.kotofeya.mobileconfigurator.Utils;
-import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
-import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import java.util.List;
 
-public class TransiverSettingsWifiFragment extends Fragment implements View.OnClickListener, PostCommand, OnTaskCompleted {
+public class TransiverSettingsWifiFragment extends TransiverSettingsFragment {
 
-    private final Handler myHandler = new Handler();
-    private String text;
-    public Context context;
-    public Utils utils;
-    protected CustomViewModel viewModel;
-    protected String ssid;
 
     private TextView settingsWifi;
     private Button showSettingsWifiBtn;
     private Button setDefaultWifiSettingsBtn;
     private Button addNewWifiSettingsBtn;
 
+
+    @Override
+    public View getView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.transiver_settings_wifi_fragment, container, false);
+    }
+
+    @Override
+    public void updateUIBtns(List<Transiver> transivers) {
+        updateBtnsState();
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.transiver_settings_wifi_fragment, container, false);
-
-        this.ssid = getArguments().getString("ssid");
-
-        TextView mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
-        ImageButton mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
+        View view = super.onCreateView(inflater, container, savedInstanceState);
         mainTxtLabel.setText("Wifi settings: " + ssid);
-        mainBtnRescan.setVisibility(View.GONE);
-
         settingsWifi = view.findViewById(R.id.settings_wifi);
         showSettingsWifiBtn = view.findViewById(R.id.show_settings_wifi);
         showSettingsWifiBtn.setOnClickListener(this);
@@ -74,23 +57,6 @@ public class TransiverSettingsWifiFragment extends Fragment implements View.OnCl
         return view;
     }
 
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Logger.d(Logger.CONTENT_LOG, "on view created");
-        super.onViewCreated(view, savedInstanceState);
-        viewModel = ViewModelProviders.of(getActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
-        viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
-//        transiver = viewModel.getTransiverBySsid(ssid);
-
-
-
-    }
-
-
-    private void updateUI(List<Transiver> transivers){
-        updateBtnsState();
-    }
 
     private void updateBtnsState() {
         if(utils.getVersion(ssid) != null && !utils.getVersion(ssid).equals("ssh_conn")){
@@ -122,8 +88,6 @@ public class TransiverSettingsWifiFragment extends Fragment implements View.OnCl
 
             case R.id.add_new_wifi_settings:
                 Bundle bundle = new Bundle();
-//                bundle.putString("key", content[which]);
-//                bundle.putString("value", commonContent.get(content[which]));
                 bundle.putString("ip", ip);
                 AddNewWifiSettingsDialog dialog = new AddNewWifiSettingsDialog();
                 dialog.setArguments(bundle);
@@ -135,19 +99,14 @@ public class TransiverSettingsWifiFragment extends Fragment implements View.OnCl
     @Override
     public void onTaskCompleted(Bundle result) {
         String command = result.getString(PostInfo.COMMAND);
-        String ip = result.getString(PostInfo.IP);
         String response = result.getString(PostInfo.RESPONSE);
-        Logger.d(Logger.TRANSIVER_STM_LOG_LOG, "on task completed, result: " + result);
-        Logger.d(Logger.TRANSIVER_STM_LOG_LOG, "command: " + command);
-        Logger.d(Logger.TRANSIVER_STM_LOG_LOG, "ip: " + ip);
-        Logger.d(Logger.TRANSIVER_STM_LOG_LOG, "response: " + response);
         if(command != null) {
             switch (command) {
                 case PostCommand.READ_WPA:
                     if(response.isEmpty()){
                         response = "Empty response";
                     }
-                    updateLogText(response);
+                    updateText(response);
                     break;
                 case PostCommand.WIFI_CLEAR:
                     if(response.startsWith("Ok")){
@@ -170,40 +129,8 @@ public class TransiverSettingsWifiFragment extends Fragment implements View.OnCl
         }
     }
 
-    protected void updateUI() {
+    public void updateUI() {
         settingsWifi.setText(text);
-    }
-
-    final Runnable updateRunnable = new Runnable() {
-        public void run() {
-            updateUI();
-        }
-    };
-
-    public void updateLogText(String text){
-        this.text = text;
-        myHandler.post(updateRunnable);
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        this.context = context;
-        this.utils = ((MainActivity) context).getUtils();
-        super.onAttach(context);
-    }
-
-    @Override
-    public void onProgressUpdate(Integer downloaded) {
-    }
-
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        Logger.d(Logger.CONTENT_LOG, "contentFragment onStart");
-        this.ssid = getArguments().getString("ssid");
-//        transiver = viewModel.getTransiverBySsid(ssid);
-//        stopScan();
     }
 
     public static class AddNewWifiSettingsDialog extends DialogFragment implements PostCommand{

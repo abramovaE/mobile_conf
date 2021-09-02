@@ -17,7 +17,7 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.ScannerAdapter;
+import com.kotofeya.mobileconfigurator.RvAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
@@ -46,9 +46,6 @@ public class UpdateOsFragment extends UpdateFragment {
         if(isInternetEnabled){
             Downloader downloader = new Downloader(this);
             downloader.execute(Downloader.OS_VERSION_URL);
-        } else {
-//            EnableMobileConfDialog dialog = new EnableMobileConfDialog();
-//            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ENABLE_MOBILE_DIALOG_TAG);
         }
     }
 
@@ -58,9 +55,10 @@ public class UpdateOsFragment extends UpdateFragment {
     }
 
     @Override
-    protected ScannerAdapter getScannerAdapter() {
-        return new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_OS_TYPE, new ArrayList<>());
+    protected int getAdapterType() {
+        return RvAdapter.STM_LOG;
     }
+
 
     protected void loadUpdates() {
         Downloader downloader = new Downloader(this);

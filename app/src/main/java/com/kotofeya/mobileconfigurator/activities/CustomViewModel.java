@@ -26,6 +26,11 @@ import java.util.stream.Collectors;
 
 
 public class CustomViewModel extends ViewModel {
+    private  MutableLiveData<List<String>> clients = new MutableLiveData<>();
+    public MutableLiveData<List<String>> getClients(){return clients;}
+    public void setClients(List<String> clients){this.clients.postValue(clients);}
+
+
     private MutableLiveData<List<Transiver>> transivers = new MutableLiveData<>();
     public MutableLiveData<List<Transiver>> getTransivers(){return transivers;}
 
@@ -203,7 +208,7 @@ public class CustomViewModel extends ViewModel {
         }
         ssid = Transiver.formatSsid(ssid);
         ssidIpMap.put(ssid, ip);
-        Logger.d(Logger.VIEW_MODEL_LOG, "transivers: " + transivers.getValue());
+        Logger.d(Logger.VIEW_MODEL_LOG, "transivers value: " + transivers.getValue());
         postTransiversValueToAllLists(transiversValue);
     }
 

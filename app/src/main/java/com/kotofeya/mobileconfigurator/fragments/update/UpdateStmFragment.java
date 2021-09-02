@@ -12,7 +12,7 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.ScannerAdapter;
+import com.kotofeya.mobileconfigurator.RvAdapter;
 import com.kotofeya.mobileconfigurator.TaskCode;
 
 import java.util.ArrayList;
@@ -32,8 +32,6 @@ public class UpdateStmFragment extends UpdateFragment {
             Downloader downloader = new Downloader(this);
             downloader.execute(Downloader.STM_VERSION_URL);
         } else {
-//            EnableMobileConfDialog dialog = new EnableMobileConfDialog();
-//            dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ENABLE_MOBILE_DIALOG_TAG);
         }
     }
 
@@ -43,9 +41,10 @@ public class UpdateStmFragment extends UpdateFragment {
     }
 
     @Override
-    protected ScannerAdapter getScannerAdapter() {
-        return new ScannerAdapter(context, utils, ScannerAdapter.UPDATE_STM_TYPE, new ArrayList<>());
+    protected int getAdapterType() {
+        return RvAdapter.STM_LOG;
     }
+
 
     protected void loadUpdates(){
         Downloader downloader = new Downloader(this);

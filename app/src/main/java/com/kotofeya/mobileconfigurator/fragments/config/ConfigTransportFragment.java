@@ -7,15 +7,16 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.ScannerAdapter;
+import com.kotofeya.mobileconfigurator.RvAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
 
 import java.util.ArrayList;
 
 public class ConfigTransportFragment extends ConfigFragment {
+
     @Override
-    public ScannerAdapter getScannerAdapter() {
-        return new ScannerAdapter(context, utils, ScannerAdapter.CONFIG_TRANSPORT, new ArrayList<>());
+    public RvAdapter getRvAdapter() {
+        return new RvAdapter(context, utils, RvAdapter.CONFIG_TRANSPORT, new ArrayList<>());
     }
     @Override
     public void scan(){
@@ -33,8 +34,6 @@ public class ConfigTransportFragment extends ConfigFragment {
 
     @Override
     public void onProgressUpdate(Integer downloaded) {}
-
-
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

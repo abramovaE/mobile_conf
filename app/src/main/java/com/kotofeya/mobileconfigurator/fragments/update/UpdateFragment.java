@@ -11,7 +11,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ListView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -21,23 +20,26 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.RecyclerView;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.ProgressBarInt;
+import com.kotofeya.mobileconfigurator.RvAdapter;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
-import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 
@@ -46,8 +48,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     public Context context;
     public Utils utils;
     public ImageButton mainBtnRescan;
-    ListView lvScanner;
-    ScannerAdapter scannerAdapter;
     TextView versionLabel;
     Button checkVersionButton;
     String version = "version";
@@ -56,12 +56,23 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     protected static final int MOBILE_SETTINGS_RESULT = 0;
     protected CustomViewModel viewModel;
 
-    private TextView progressTv;
+    protected TextView progressTv;
+
+
+    RecyclerView rvScanner;
+    RvAdapter rvAdapter;
+    TextView downloadContentUpdateFilesTv;
+
+    protected abstract void loadUpdates();
+    protected abstract void loadVersion();
+    protected abstract void setMainTextLabelText();
+    protected abstract int getAdapterType();
 
     @Override
     public void onAttach(Context context) {
         this.context = context;
         this.utils = ((MainActivity) context).getUtils();
+        this.viewModel = ((MainActivity)context).getViewModel();
         super.onAttach(context);
     }
 
@@ -77,19 +88,18 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
-        Logger.d(Logger.UPDATE_OS_LOG, "onCreate");
+        Logger.d(Logger.UPDATE_LOG, "onCreate");
         super.onCreate(savedInstanceState);
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.scanner_fragment, container, false);
-        lvScanner = view.findViewById(R.id.lv_scanner);
+        View view = inflater.inflate(R.layout.scanner_fragment_cl, container, false);
+        rvScanner = view.findViewById(R.id.rv_scanner);
         versionLabel = view.findViewById(R.id.scanner_label0);
         checkVersionButton = view.findViewById(R.id.scanner_btn);
         mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
-
         mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
         mainBtnRescan.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -97,11 +107,9 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 utils.clearClients();
                 utils.clearMap();
                 viewModel.clearTransivers();
-//                scannerAdapter.notifyDataSetChanged();
                 scan();
             }
         });
-
         progressBar = view.findViewById(R.id.scanner_progressBar);
         checkVersionButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -121,16 +129,14 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         });
 
         setMainTextLabelText();
-        scannerAdapter = getScannerAdapter();
-        lvScanner.setAdapter(scannerAdapter);
+        rvAdapter = new RvAdapter(context, utils, getAdapterType(), new ArrayList<>());
+        rvScanner.setAdapter(rvAdapter);
         if(utils.getNewBleScanner() != null) {
             utils.getNewBleScanner().stopScan();
         }
-//        utils.getBluetooth().stopScan(true);
         loadVersion();
-
-
         progressTv = view.findViewById(R.id.progressTv);
+        downloadContentUpdateFilesTv = view.findViewById(R.id.downloadCoreUpdateFilesTv);
         return view;
     }
 
@@ -142,7 +148,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     protected void scan(){
         Logger.d(Logger.UPDATE_LOG, "updateFragment scan");
-
         utils.getTakeInfo();
     }
 
@@ -156,9 +161,10 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     }
 
     protected void updateUI(List<Transiver> transivers){
-        Logger.d(Logger.UPDATE_LOG, "update ui");
-        scannerAdapter.setObjects(transivers);
-        scannerAdapter.notifyDataSetChanged();
+        Logger.d(Logger.UPDATE_LOG, "update ui, transivers: " + transivers);
+        rvAdapter.setObjects(transivers);
+        rvAdapter.notifyDataSetChanged();
+        Logger.d(Logger.UPDATE_LOG, "rv get objects: " + rvAdapter.getObjects());
     }
 
     @Override
@@ -180,13 +186,8 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         switch (resultCode){
 
             case 1002:
-//            if(res.contains("Connection refused") || res.contains("Auth fail")){
-//                utils.removeClient(result.getString("ip"));
-//            }
-//            else {
-                    utils.showMessage("Error: " + result);
-                    break;
-//            }
+                 utils.showMessage("Error: " + result);
+                 break;
             case TaskCode.UPDATE_OS_UPLOAD_CODE:
             case TaskCode.UPDATE_STM_UPLOAD_CODE:
             case TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE:
@@ -231,7 +232,25 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 utils.showMessage("Error: " + result);
                 progressBar.setVisibility(View.GONE);
                 break;
+
+                case TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE:
+                    String tempFilePath = result.getString("filePath");
+                    Logger.d(Logger.UPDATE_LOG, "downloading completed, tfp: " + tempFilePath);
+                    App.get().saveUpdateContentFilePaths(tempFilePath);
+                    downloadContentUpdateFilesTv.setVisibility(View.VISIBLE);
+                    updateFilesTv();
+
+
         }
+    }
+
+
+
+    private void updateFilesTv(){
+        StringBuilder sb = new StringBuilder();
+        new LinkedList<>(App.get().getUpdateContentFilePaths()).stream()
+                .forEach(it -> sb.append(it).append("\n"));
+        downloadContentUpdateFilesTv.setText(sb.toString());
     }
 
     @Override
@@ -272,20 +291,13 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     @Override
     public void clearTextLabel(){
-
     }
-
-    protected abstract void loadUpdates();
-    protected abstract void loadVersion();
-    protected abstract void setMainTextLabelText();
-    protected abstract ScannerAdapter getScannerAdapter();
-
 
     private void uploaded(String ip){
         Logger.d(Logger.UPDATE_LOG, "uploaded: " + ip);
         Transiver transiver = viewModel.getTransiverByIp(ip);
         viewModel.removeTransiver(transiver);
-        scannerAdapter.notifyDataSetChanged();
+        rvAdapter.notifyDataSetChanged();
         utils.showMessage(getString(R.string.uploaded));
         progressBar.setVisibility(View.GONE);
     }
@@ -339,11 +351,4 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 break;
         }
     }
-
-//    @Override
-//    public void setLabelText(String text){
-//        progressTv.setVisibility(View.VISIBLE);
-//        progressTv.setText(text);
-//    }
-
 }

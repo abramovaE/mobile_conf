@@ -8,12 +8,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.lifecycle.ViewModelProviders;
+import androidx.recyclerview.widget.DiffUtil;
 
+import com.kotofeya.mobileconfigurator.ClientsDiffUtil;
 import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.RvAdapter;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.ScannerAdapter;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
@@ -35,14 +37,10 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
                 rescan();
             }
         });
-        scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.BASIC_SCANNER_TYPE, new ArrayList<>());
-        lvScanner.setAdapter(scannerAdapter);
-//        utils.getBluetooth().stopScan(true);
+        rvAdapter = new RvAdapter(context, utils, RvAdapter.BASIC_SCANNER_TYPE, new ArrayList<>());
+        rvScanner.setAdapter(rvAdapter);
         utils.getNewBleScanner().stopScan();
         this.viewModel = ViewModelProviders.of(getActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
-//        if(viewModel.getTransivers().getValue() == null || viewModel.getTransivers().getValue().isEmpty()) {
-//            scan();
-//        }
         return view;
     }
 
@@ -119,9 +117,9 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
     }
 
     private void updateUI(List<Transiver> transivers){
-        Logger.d(Logger.BASIC_SCANNER_LOG, "update ui, scanneradapter: " + scannerAdapter);
-        scannerAdapter.setObjects(transivers);
-        scannerAdapter.notifyDataSetChanged();
+        Logger.d(Logger.BASIC_SCANNER_LOG, "update ui: " + transivers.size());
+        rvAdapter.setObjects(transivers);
+        rvAdapter.notifyDataSetChanged();
     }
 
 }
