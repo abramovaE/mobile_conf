@@ -26,6 +26,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.SshConnection;
@@ -214,13 +215,9 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
     @Override
     public void onTaskCompleted(Bundle result) {
-        String command = result.getString(PostInfo.COMMAND);
-        String ip = result.getString(PostInfo.IP);
-        String response = result.getString(PostInfo.RESPONSE);
-        Logger.d(Logger.CONTENT_LOG, "on task completed, result: " + result);
-        Logger.d(Logger.CONTENT_LOG, "command: " + command);
-        Logger.d(Logger.CONTENT_LOG, "ip: " + ip);
-        Logger.d(Logger.CONTENT_LOG, "response: " + response);
+        String command = result.getString(BundleKeys.COMMAND_KEY);
+        String ip = result.getString(BundleKeys.IP_KEY);
+        String response = result.getString(BundleKeys.RESPONSE_KEY);
 
 
         int resultCode = result.getInt("resultCode");

@@ -10,6 +10,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 
+import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.RvAdapter;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
@@ -44,9 +45,9 @@ public class SettingsUpdatePhpFragment extends UpdateFragment {
     }
     @Override
     public void onTaskCompleted(Bundle result) {
-        String command = result.getString(PostInfo.COMMAND);
-        String ip = result.getString(PostInfo.IP);
-        String response = result.getString(PostInfo.RESPONSE);
+        String command = result.getString(BundleKeys.COMMAND_KEY);
+        String ip = result.getString(BundleKeys.IP_KEY);
+        String response = result.getString(BundleKeys.RESPONSE_KEY);
         Logger.d(Logger.TRANSIVER_STM_LOG_LOG, "on task completed, result: " + result);
         Logger.d(Logger.TRANSIVER_STM_LOG_LOG, "command: " + command);
         Logger.d(Logger.TRANSIVER_STM_LOG_LOG, "ip: " + ip);

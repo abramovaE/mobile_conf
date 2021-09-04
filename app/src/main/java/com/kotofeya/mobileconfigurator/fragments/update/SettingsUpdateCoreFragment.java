@@ -18,6 +18,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.recyclerview.widget.DiffUtil;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.ClientsDiffUtil;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
@@ -127,9 +128,9 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
 
     @Override
     public void onTaskCompleted(Bundle result) {
-        String command = result.getString(PostInfo.COMMAND);
-        String ip = result.getString(PostInfo.IP);
-        String response = result.getString(PostInfo.RESPONSE);
+        String command = result.getString(BundleKeys.COMMAND_KEY);
+        String ip = result.getString(BundleKeys.IP_KEY);
+        String response = result.getString(BundleKeys.RESPONSE_KEY);
         Logger.d(Logger.UPDATE_CORE_LOG, "update core upload code: " + result);
         Logger.d(Logger.UPDATE_CORE_LOG, "command: " + command);
         Logger.d(Logger.UPDATE_CORE_LOG, "ip: " + ip);
@@ -139,7 +140,7 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
         progressBar.setVisibility(View.GONE);
 
 
-        int resultCode = result.getInt("resultCode");
+        int resultCode = result.getInt(BundleKeys.RESULT_CODE_KEY);
         String res = result.getString("result");
         Logger.d(Logger.UPDATE_CORE_LOG, "res: " + res);
 
@@ -317,7 +318,7 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            String ip = getArguments().getString("ip");
+            String ip = getArguments().getString(BundleKeys.IP_KEY);
             String serial = getArguments().getString("serial");
             androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.confirmation_is_required);

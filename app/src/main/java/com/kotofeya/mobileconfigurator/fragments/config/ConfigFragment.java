@@ -14,7 +14,6 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
-import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.RvAdapter;
@@ -35,6 +34,10 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
     RecyclerView rvScanner;
     RvAdapter rvAdapter;
 
+    public abstract RvAdapter getRvAdapter();
+    public abstract void setMainTextLabel();
+    public abstract void scan();
+
     @Override
     public void onAttach(Context context) {
         this.context = context;
@@ -48,8 +51,6 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
         setMainTextLabel();
         mainBtnRescan.setVisibility(View.GONE);
     }
-
-
 
     @Nullable
     @Override
@@ -65,10 +66,6 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
         return view;
     }
 
-    public abstract RvAdapter getRvAdapter();
-    public abstract void setMainTextLabel();
-    public abstract void scan();
-
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
@@ -76,7 +73,6 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
     }
 
     protected void updateUI(List<Transiver> transiverList){
-        Logger.d(Logger.CONFIG_LOG, "update ui, transivers: " + transiverList);
         rvAdapter.setObjects(transiverList);
         rvAdapter.notifyDataSetChanged();
     }

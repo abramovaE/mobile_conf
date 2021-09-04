@@ -9,6 +9,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
@@ -74,7 +75,7 @@ public class UpdateStmFragment extends UpdateFragment {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             boolean isTransport = getArguments().getBoolean("isTransport");
             boolean isStationary = getArguments().getBoolean("isStationary");
-            String ip = getArguments().getString("ip");
+            String ip = getArguments().getString(BundleKeys.IP_KEY);
             Map<String, String> transportContent = new HashMap<>();
             Map<String, String> stationaryContent = new HashMap<>();
             String[] content;
@@ -108,7 +109,7 @@ public class UpdateStmFragment extends UpdateFragment {
                             Bundle bundle = new Bundle();
                             bundle.putString("key", content[which]);
                             bundle.putString("value", commonContent.get(content[which]));
-                            bundle.putString("ip", ip);
+                            bundle.putString(BundleKeys.IP_KEY, ip);
                             UploadStmConfDialog d = new UploadStmConfDialog();
                             d.setArguments(bundle);
                             d.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
@@ -124,7 +125,7 @@ public class UpdateStmFragment extends UpdateFragment {
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             String key = getArguments().getString("key");
             String value = getArguments().getString("value");
-            String ip = getArguments().getString("ip");
+            String ip = getArguments().getString(BundleKeys.IP_KEY);
             Logger.d(Logger.UPDATE_STM_LOG, "key: " + key);
             AlertDialog.Builder builder = new AlertDialog.Builder((App.get().getFragmentHandler().getCurrentFragment()).getActivity());
             builder.setTitle("Confirmation is required");

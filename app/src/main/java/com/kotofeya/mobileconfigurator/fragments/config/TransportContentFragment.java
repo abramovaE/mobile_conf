@@ -7,6 +7,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.FragmentHandler;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
@@ -167,9 +168,9 @@ public class TransportContentFragment extends ContentFragment implements View.On
 
     @Override
     public void onTaskCompleted(Bundle result) {
-        String command = result.getString(PostInfo.COMMAND);
-        String ip = result.getString(PostInfo.IP);
-        String response = result.getString(PostInfo.RESPONSE);
+        String command = result.getString(BundleKeys.COMMAND_KEY);
+        String ip = result.getString(BundleKeys.IP_KEY);
+        String response = result.getString(BundleKeys.RESPONSE_KEY);
         Logger.d(Logger.TRANSPORT_CONTENT_LOG, "on task completed, result: " + result);
         Logger.d(Logger.TRANSPORT_CONTENT_LOG, "command: " + command);
         Logger.d(Logger.TRANSPORT_CONTENT_LOG, "ip: " + ip);

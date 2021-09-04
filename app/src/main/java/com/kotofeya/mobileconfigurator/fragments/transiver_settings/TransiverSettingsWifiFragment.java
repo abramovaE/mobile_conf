@@ -16,6 +16,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
@@ -88,7 +89,7 @@ public class TransiverSettingsWifiFragment extends TransiverSettingsFragment {
 
             case R.id.add_new_wifi_settings:
                 Bundle bundle = new Bundle();
-                bundle.putString("ip", ip);
+                bundle.putString(BundleKeys.IP_KEY, ip);
                 AddNewWifiSettingsDialog dialog = new AddNewWifiSettingsDialog();
                 dialog.setArguments(bundle);
                 dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().ADD_NEW_WIFI_SETTINGS_DIALOG);
@@ -98,8 +99,8 @@ public class TransiverSettingsWifiFragment extends TransiverSettingsFragment {
 
     @Override
     public void onTaskCompleted(Bundle result) {
-        String command = result.getString(PostInfo.COMMAND);
-        String response = result.getString(PostInfo.RESPONSE);
+        String command = result.getString(BundleKeys.COMMAND_KEY);
+        String response = result.getString(BundleKeys.RESPONSE_KEY);
         if(command != null) {
             switch (command) {
                 case PostCommand.READ_WPA:
@@ -138,7 +139,7 @@ public class TransiverSettingsWifiFragment extends TransiverSettingsFragment {
 
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            this.ip = getArguments().getString("ip");
+            this.ip = getArguments().getString(BundleKeys.IP_KEY);
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(getResources().getString(R.string.add_new_wifi_title));
 

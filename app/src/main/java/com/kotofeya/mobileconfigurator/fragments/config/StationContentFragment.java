@@ -9,6 +9,7 @@ import android.widget.EditText;
 import android.widget.Spinner;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.FragmentHandler;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
@@ -200,14 +201,9 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
 
     @Override
     public void onTaskCompleted(Bundle result) {
-        String command = result.getString(PostInfo.COMMAND);
-        String ip = result.getString(PostInfo.IP);
-        String response = result.getString(PostInfo.RESPONSE);
-        Logger.d(Logger.STATION_CONTEN_LOG, "on task completed, result: " + result);
-        Logger.d(Logger.STATION_CONTEN_LOG, "command: " + command);
-        Logger.d(Logger.STATION_CONTEN_LOG, "ip: " + ip);
-        Logger.d(Logger.STATION_CONTEN_LOG, "response: " + response);
-
+        String command = result.getString(BundleKeys.COMMAND_KEY);
+        String ip = result.getString(BundleKeys.IP_KEY);
+        String response = result.getString(BundleKeys.RESPONSE_KEY);
         if(command != null) {
             switch (command) {
                 case PostCommand.REBOOT + "_" + ContentFragment.REBOOT_RASP:

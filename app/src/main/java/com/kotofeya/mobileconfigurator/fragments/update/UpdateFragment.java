@@ -23,6 +23,7 @@ import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.ProgressBarInt;
@@ -157,30 +158,27 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         viewModel = ViewModelProviders.of(getActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
         viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
         scan();
-        Logger.d(Logger.UPDATE_LOG, "on view created");
     }
 
     protected void updateUI(List<Transiver> transivers){
-        Logger.d(Logger.UPDATE_LOG, "update ui, transivers: " + transivers);
         rvAdapter.setObjects(transivers);
         rvAdapter.notifyDataSetChanged();
-        Logger.d(Logger.UPDATE_LOG, "rv get objects: " + rvAdapter.getObjects());
     }
 
     @Override
     public void onTaskCompleted(Bundle result) {
         Logger.d(Logger.UPDATE_LOG, "on task completed");
-        String command = result.getString(PostInfo.COMMAND);
-        String ip = result.getString(PostInfo.IP);
-        String response = result.getString(PostInfo.RESPONSE);
+        String command = result.getString(BundleKeys.COMMAND_KEY);
+        String ip = result.getString(BundleKeys.IP_KEY);
+        String response = result.getString(BundleKeys.RESPONSE_KEY);
         Logger.d(Logger.UPDATE_LOG, "command: " + command);
         Logger.d(Logger.UPDATE_LOG, "ip: " + ip);
         Logger.d(Logger.UPDATE_LOG, "response: " + response);
 
 
-        int resultCode = result.getInt("resultCode");
+        int resultCode = result.getInt(BundleKeys.RESULT_CODE_KEY);
         String resultStr = result.getString("result");
-        String ipStr = result.getString("ip");
+        String ipStr = result.getString(BundleKeys.IP_KEY);
         Logger.d(Logger.UPDATE_LOG, "ssh task completed: ip: " + ipStr + ", resultCode: " + resultCode);
 
         switch (resultCode){
@@ -234,7 +232,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 break;
 
                 case TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE:
-                    String tempFilePath = result.getString("filePath");
+                    String tempFilePath = result.getString(BundleKeys.FILE_PATH_KEY);
                     Logger.d(Logger.UPDATE_LOG, "downloading completed, tfp: " + tempFilePath);
                     App.get().saveUpdateContentFilePaths(tempFilePath);
                     downloadContentUpdateFilesTv.setVisibility(View.VISIBLE);
@@ -248,8 +246,9 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     private void updateFilesTv(){
         StringBuilder sb = new StringBuilder();
+        sb.append("Сохраненные файлы: \n");
         new LinkedList<>(App.get().getUpdateContentFilePaths()).stream()
-                .forEach(it -> sb.append(it).append("\n"));
+                .forEach(it -> sb.append(it.substring(it.lastIndexOf("/") + 1, it.indexOf("_"))).append("\n"));
         downloadContentUpdateFilesTv.setText(sb.toString());
     }
 
@@ -303,7 +302,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     }
 
     private void downloadBySsh(String ip, int taskCode, Bundle bundle, int progressBarVisibility){
-        String filePath = bundle.getString("filePath");
+        String filePath = bundle.getString(BundleKeys.FILE_PATH_KEY);
         Logger.d(Logger.UPDATE_CONTENT_LOG, "download by ssh " + ", ip: " + ip + ", taskCode: " + taskCode + ", filepath: " + filePath);
         progressBar.setVisibility(progressBarVisibility);
         SshConnection connection = new SshConnection(this, this);

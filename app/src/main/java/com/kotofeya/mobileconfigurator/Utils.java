@@ -16,9 +16,13 @@ import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth;
 import com.kotofeya.mobileconfigurator.newBleScanner.CustomScanResult;
+import com.kotofeya.mobileconfigurator.user.UserFactory;
+import com.kotofeya.mobileconfigurator.user.UserType;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
@@ -104,12 +108,9 @@ public class Utils implements OnTaskCompleted{
     @Override
     public void onTaskCompleted(Bundle result) {
         Logger.d(Logger.UTILS_LOG, "on task completed, result: " + result);
-        String command = result.getString(PostInfo.COMMAND);
-        String ip = result.getString(PostInfo.IP);
-        String response = result.getString(PostInfo.RESPONSE);
-        Logger.d(Logger.UTILS_LOG, "command: " + command);
-        Logger.d(Logger.UTILS_LOG, "ip: " + ip);
-        Logger.d(Logger.UTILS_LOG, "response: " + response);
+        String command = result.getString(BundleKeys.COMMAND_KEY);
+        String ip = result.getString(BundleKeys.IP_KEY);
+        String response = result.getString(BundleKeys.RESPONSE_KEY);
 
         switch (command){
             case PostCommand.VERSION:
@@ -210,5 +211,48 @@ public class Utils implements OnTaskCompleted{
             clients = new ArrayList<>();
         }
         viewModel.setClients(clients);
+    }
+
+
+
+
+    private Map<String, String> addToTransportContent(Map<String, String> transportContent,
+                                                             String key, String value){
+        UserType userType = UserFactory.getUserType();
+        if(userType.equals(UserType.USER_FULL)) {
+            transportContent.put(key, value);
+        } else if(userType.equals(UserType.USER_TRANSPORT)){
+            String login = App.get().getLogin();
+            String region = login.substring(login.lastIndexOf("_") + 1);
+            if(value.contains(region) || value.contains("zzz")) {
+                transportContent.put(key, value);
+            }
+        }
+        return transportContent;
+    }
+
+    private String getTransportFileKey(String s, boolean isInternetEnabled){
+        if(isInternetEnabled){
+            return s.substring(0, s.indexOf("/"));
+        } else {
+            return s.substring(s.lastIndexOf("/") + 1).split("_")[0];
+        }
+    }
+
+    public Map<String, String> getTransportContent(){
+        Map<String, String> transportContent = new HashMap<>();
+        boolean isInternetEnabled = getInternetConnection().hasInternetConnection();
+        if(!isInternetEnabled) {
+            for (String s : App.get().getUpdateContentFilePaths()) {
+                String key = getTransportFileKey(s, isInternetEnabled);
+                transportContent = addToTransportContent(transportContent, key, s);
+            }
+        } else {
+            for (String s : Downloader.tempUpdateTransportContentFiles) {
+                String key = getTransportFileKey(s, isInternetEnabled);
+                transportContent = addToTransportContent(transportContent, key, s);
+            }
+        }
+        return transportContent;
     }
 }

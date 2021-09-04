@@ -13,7 +13,7 @@ public class UserFactory {
                 case "transport":
                     user = new UserTransport();
                 default:
-                    user = new UserFull();
+                    user = new UserNull();
             }
         }
         return user;

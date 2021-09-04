@@ -15,12 +15,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
+import java.util.Arrays;
 import java.util.Properties;
-
-import static com.kotofeya.mobileconfigurator.network.PostInfo.COMMAND;
-import static com.kotofeya.mobileconfigurator.network.PostInfo.IP;
-import static com.kotofeya.mobileconfigurator.network.PostInfo.RESPONSE;
-import static com.kotofeya.mobileconfigurator.network.PostInfo.VERSION;
 
 public class SshConnectionRunnable implements Runnable, TaskCode {
 
@@ -37,7 +33,7 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
     //req[1] - command
 
     public SshConnectionRunnable(OnTaskCompleted listener, Object...req){
-        Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh runnable");
+        Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh runnable: " + Arrays.toString(req));
         this.listener = listener;
         this.ip = (String) req[0];
         this.resultCode = (Integer) req[1];
@@ -82,8 +78,6 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                 switch (resultCode) {
                     case TAKE_CODE:
                         command = SshCommand.SSH_TAKE_COMMAND;
-                        long start = System.currentTimeMillis();
-                        Logger.d(Logger.SSH_CONNECTION_LOG, "start: " + start);
                         channel = session.openChannel("shell");
                         baos = new ByteArrayOutputStream();
                         OutputStream inputstream_for_the_channel = channel.getOutputStream();
@@ -101,8 +95,6 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                         reader.close();
                         commander.close();
                         res = baos.toString().substring(baos.toString().lastIndexOf("$typeT") + 7, baos.toString().lastIndexOf("$ exit"));
-                        long end = System.currentTimeMillis() - start;
-                        Logger.d(Logger.SSH_CONNECTION_LOG, "end: " + end);
                         break;
                 }
             }
@@ -124,16 +116,13 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                 if(session != null) {
                     session.disconnect();
                 }
-                if(resultCode != 0){
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "resultCode: " + resultCode + ", result: " + res + ",ip: " + ip);
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "listener != null: " + listener);
-                }
+
                 if (listener != null) {
                     Bundle bundle = new Bundle();
-                    bundle.putString(COMMAND, command);
-                    bundle.putString(IP, this.ip);
-                    bundle.putString(RESPONSE, res);
-                    bundle.putString(VERSION, "ssh_conn");
+                    bundle.putString(BundleKeys.COMMAND_KEY, command);
+                    bundle.putString(BundleKeys.IP_KEY, this.ip);
+                    bundle.putString(BundleKeys.RESPONSE_KEY, res);
+                    bundle.putString(BundleKeys.VERSION_KEY, "ssh_conn");
                     listener.onTaskCompleted(bundle);
                 }
             }

@@ -135,13 +135,10 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
                         }
                     });
                 } else if (scannerType == UPDATE_CONTENT_TYPE) {
-
                     if (p != null) {
                         boolean isTransport = p.isTransport();
                         boolean isStationary = p.isStationary();
-                        Logger.d(Logger.SCANNER_ADAPTER_LOG, p.getSsid() + " isTransport: " + isTransport + ", isStationary: " + isStationary);
                         textItem0.setVisibility(View.VISIBLE);
-                        Logger.d(Logger.SCANNER_ADAPTER_LOG, "increement of content: " + p.getIncrementOfContent());
                         if (p.getIncrementOfContent() == null || p.getIncrementOfContent().isEmpty()) {
                             textItem0.setText("no incr");
                         } else {
@@ -181,14 +178,14 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
 //                    Logger.d(Logger.SCANNER_ADAPTER_LOG, "putToBundle: " + isTransport + " " + isStationary);
                                 DialogFragment dialogFragment = null;
                                 if (isTransport) {
-                                    dialogFragment = new UpdateContentFragment.UpdateContentConfDialog();
+                                    dialogFragment = new UpdateContentConfDialog();
                                 } else if (isStationary) {
                                     String key = p.getSsid();
                                     if (Downloader.tempUpdateStationaryContentFiles != null &&
                                             Downloader.tempUpdateStationaryContentFiles.containsKey(key)) {
                                         bundle.putString("key", key);
                                         bundle.putString("value", key + "/data.tar.bz2");
-                                        dialogFragment = new UpdateContentFragment.UpdateContentConfDialog.UploadContentConfDialog();
+                                        dialogFragment = new UploadContentConfDialog();
                                     }
                                 }
                                 if (dialogFragment != null) {

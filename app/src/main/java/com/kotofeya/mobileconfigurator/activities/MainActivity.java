@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.google.gson.Gson;
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.City;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.FragmentHandler;
@@ -28,8 +29,6 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SendLogToServer;
-import com.kotofeya.mobileconfigurator.SshConnection;
-import com.kotofeya.mobileconfigurator.SshConnectionRunnable;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
@@ -185,18 +184,13 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 
     @Override
     public void onTaskCompleted(Bundle result) {
+        String command = result.getString(BundleKeys.COMMAND_KEY);
+        String ip = result.getString(BundleKeys.IP_KEY);
+        String response = result.getString(BundleKeys.RESPONSE_KEY);
+        Parcelable parcelableResponse = result.getParcelable(BundleKeys.PARCELABLE_RESPONSE_KEY);
+        int resultCode = result.getInt(BundleKeys.RESULT_CODE_KEY);
 
-        String command = result.getString(PostInfo.COMMAND);
-        String ip = result.getString(PostInfo.IP);
-        String response = result.getString(PostInfo.RESPONSE);
-        Parcelable parcelableResponse = result.getParcelable(PostInfo.PARCELABLE_RESPONSE);
-        Logger.d(Logger.MAIN_LOG, "on task completed, command: " + command);
-
-        int resultCode = result.getInt("resultCode");
         String res = result.getString("result");
-        Logger.d(Logger.MAIN_LOG, "res: " + res);
-        Logger.d(Logger.MAIN_LOG, "resultcode: " + resultCode);
-
         if(command == null){
             command = "";
         }
@@ -207,7 +201,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
                 utils.showMessage("Error: " + response);
             }
         } else if (command.equals(PostCommand.TAKE_INFO_FULL)) {
-            String version = result.getString(PostInfo.VERSION);
+            String version = result.getString(BundleKeys.VERSION_KEY);
             Logger.d(Logger.MAIN_LOG, "version: " + version);
             viewModel.addTakeInfoFull(ip, version, (TakeInfoFull) parcelableResponse, true);
         } else if (command.equals(SshCommand.SSH_TAKE_COMMAND)) {

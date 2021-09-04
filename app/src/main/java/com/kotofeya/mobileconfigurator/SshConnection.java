@@ -195,12 +195,21 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                 case UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE:
                 case UPDATE_STATION_CONTENT_UPLOAD_CODE:
 //                    uploadMoveReboot(session, (String) req[2]);
+//                    Logger.d(Logger.SSH_CONNECTION_LOG, "update station upload file: " + req[2]);
+
                     transferred = 0;
                     filePath = (String) req[2];
                     file = new File(filePath);
                     Logger.d(Logger.SSH_CONNECTION_LOG, "update station upload file: " + file);
                     uploadToOverlayUpdate(session, file);
-                    moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/" + file.getName();
+
+                    if(file.getName().contains("_")){
+                        String newFileName = file.getName().replace("_", "/");
+                        moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/" + newFileName;
+                    }
+                    else {
+                        moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/" + file.getName();
+                    }
                     Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + moveCommand + ";" + REBOOT_COMMAND);
                     execCommand(session, moveCommand + ";" + REBOOT_COMMAND);
                     break;
@@ -234,7 +243,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             }
         }
         catch (Exception e){
-            Logger.d(Logger.SSH_CONNECTION_LOG, "exception: " + e.getMessage());
+            Logger.d(Logger.SSH_CONNECTION_LOG, "exception: " + e.getMessage() + " " + e.getCause());
                 res = e.getMessage();
                 this.resultCode = SSH_ERROR_CODE;
         }
@@ -257,16 +266,11 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
     }
 
     protected void onPostExecute(String result) {
-        if(resultCode != 0){
-            Logger.d(Logger.SSH_CONNECTION_LOG, "resultCode: " + resultCode + ", result: " + result + ",ip: " + ip);
-            Logger.d(Logger.SSH_CONNECTION_LOG, "listener != null: " + listener);
-        }
-
         if (listener != null) {
             Bundle bundle = new Bundle();
-            bundle.putString("ip", this.ip);
-            bundle.putInt("resultCode", this.resultCode);
-            bundle.putString("result", result);
+            bundle.putString(BundleKeys.IP_KEY, this.ip);
+            bundle.putInt(BundleKeys.RESULT_CODE_KEY, this.resultCode);
+            bundle.putString(BundleKeys.RESULT_KEY, result);
             listener.onTaskCompleted(bundle);
         }
     }
@@ -318,7 +322,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                 @Override
                 public boolean count(long count) {
                     transferred += count;
-//                    Logger.d(Logger.SSH_CONNECTION_LOG, "transfered: " + transferred);
                     Double fileLength = Double.valueOf(file.length());
                     listener.onProgressUpdate((int) (100 * (transferred / fileLength)));
                     return true;
@@ -387,8 +390,6 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
     }
 
     public static int getCoreUpdateIteration(String ip){
-        Logger.d(Logger.SSH_CONNECTION_LOG, "coreUpdateIteration: " + coreUpdateIteration);
-        Logger.d(Logger.SSH_CONNECTION_LOG, "coreUpdateIteration: " + coreUpdateIteration.get(ip));
         if(coreUpdateIteration.containsKey(ip)) {
             return coreUpdateIteration.get(ip);
         }

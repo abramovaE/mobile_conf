@@ -14,8 +14,10 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.RvAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
@@ -68,7 +70,7 @@ public class UpdateOsFragment extends UpdateFragment {
     @Override
     public void onTaskCompleted(Bundle bundle) {
         super.onTaskCompleted(bundle);
-        if (bundle.getInt("resultCode") == TaskCode.UPDATE_OS_DOWNLOAD_CODE) {
+        if (bundle.getInt(BundleKeys.RESULT_CODE_KEY) == TaskCode.UPDATE_OS_DOWNLOAD_CODE) {
             storageVersionTxt.setText(getString(R.string.storage_os) + ": " + App.get().getUpdateOsFileVersion());
         }
     }
@@ -77,7 +79,7 @@ public class UpdateOsFragment extends UpdateFragment {
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            String ip = getArguments().getString("ip");
+            String ip = getArguments().getString(BundleKeys.IP_KEY);
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.confirmation_is_required);
             builder.setMessage("Confirm the upload of the updates");
@@ -102,7 +104,7 @@ public class UpdateOsFragment extends UpdateFragment {
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            String ip = getArguments().getString("ip");
+            String ip = getArguments().getString(BundleKeys.IP_KEY);
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
             builder.setTitle(R.string.confirmation_is_required);
             builder.setMessage("Confirm the update of PHP version");

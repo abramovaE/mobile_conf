@@ -56,7 +56,7 @@ public class SendLogToServer implements Runnable {
 
             Logger.d(Logger.MAIN_LOG, "send log file response: " + response);
             Bundle result = new Bundle();
-            result.putInt("resultCode", TaskCode.SEND_LOG_TO_SERVER_CODE);
+            result.putInt(BundleKeys.RESULT_CODE_KEY, TaskCode.SEND_LOG_TO_SERVER_CODE);
 
 
             if(response == 200){
