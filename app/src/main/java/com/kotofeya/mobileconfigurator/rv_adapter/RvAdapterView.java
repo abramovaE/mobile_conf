@@ -1,4 +1,4 @@
-package com.kotofeya.mobileconfigurator;
+package com.kotofeya.mobileconfigurator.rv_adapter;
 
 import android.content.Context;
 import android.widget.Button;
@@ -6,6 +6,8 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
+
+import com.kotofeya.mobileconfigurator.R;
 
 
 public class RvAdapterView extends ConstraintLayout {

@@ -24,10 +24,9 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
-import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.ProgressBarInt;
-import com.kotofeya.mobileconfigurator.RvAdapter;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapter;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
@@ -35,11 +34,11 @@ import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
-import com.kotofeya.mobileconfigurator.network.PostInfo;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterFactory;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -67,7 +66,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     protected abstract void loadUpdates();
     protected abstract void loadVersion();
     protected abstract void setMainTextLabelText();
-    protected abstract int getAdapterType();
+    protected abstract RvAdapterType getAdapterType();
 
     @Override
     public void onAttach(Context context) {
@@ -130,7 +129,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         });
 
         setMainTextLabelText();
-        rvAdapter = new RvAdapter(context, utils, getAdapterType(), new ArrayList<>());
+        rvAdapter = RvAdapterFactory.getRvAdapter(context, utils, getAdapterType(), new ArrayList<>());
         rvScanner.setAdapter(rvAdapter);
         if(utils.getNewBleScanner() != null) {
             utils.getNewBleScanner().stopScan();
@@ -177,7 +176,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
 
         int resultCode = result.getInt(BundleKeys.RESULT_CODE_KEY);
-        String resultStr = result.getString("result");
+        String resultStr = result.getString(BundleKeys.RESULT_KEY);
         String ipStr = result.getString(BundleKeys.IP_KEY);
         Logger.d(Logger.UPDATE_LOG, "ssh task completed: ip: " + ipStr + ", resultCode: " + resultCode);
 
@@ -237,8 +236,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                     App.get().saveUpdateContentFilePaths(tempFilePath);
                     downloadContentUpdateFilesTv.setVisibility(View.VISIBLE);
                     updateFilesTv();
-
-
         }
     }
 

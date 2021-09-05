@@ -23,6 +23,8 @@ public class InternetConn {
         }
     }
 
+
+
     public boolean hasInternetConnection() {
         final Network network = mConnectivityManager.getActiveNetwork();
         final NetworkCapabilities capabilities = mConnectivityManager .getNetworkCapabilities(network);

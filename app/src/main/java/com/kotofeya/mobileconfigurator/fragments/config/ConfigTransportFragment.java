@@ -7,8 +7,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.RvAdapter;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterFactory;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 
 import java.util.ArrayList;
 
@@ -16,7 +18,7 @@ public class ConfigTransportFragment extends ConfigFragment {
 
     @Override
     public RvAdapter getRvAdapter() {
-        return new RvAdapter(context, utils, RvAdapter.CONFIG_TRANSPORT, new ArrayList<>());
+        return RvAdapterFactory.getRvAdapter(context, utils, RvAdapterType.CONFIG_TRANSPORT, new ArrayList<>());
     }
     @Override
     public void scan(){

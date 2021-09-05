@@ -13,10 +13,9 @@ import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.RvAdapter;
 import com.kotofeya.mobileconfigurator.TaskCode;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,8 +41,8 @@ public class UpdateStmFragment extends UpdateFragment {
     }
 
     @Override
-    protected int getAdapterType() {
-        return RvAdapter.STM_LOG;
+    protected RvAdapterType getAdapterType() {
+        return RvAdapterType.STM_LOG;
     }
 
 

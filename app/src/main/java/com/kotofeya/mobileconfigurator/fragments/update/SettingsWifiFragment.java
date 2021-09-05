@@ -2,7 +2,7 @@ package com.kotofeya.mobileconfigurator.fragments.update;
 
 import android.view.View;
 import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.RvAdapter;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 
 
 public class SettingsWifiFragment extends UpdateFragment {
@@ -18,8 +18,8 @@ public class SettingsWifiFragment extends UpdateFragment {
         mainTxtLabel.setText("Wifi settings");
     }
     @Override
-    protected int getAdapterType() {
-        return RvAdapter.STM_LOG;
+    protected RvAdapterType getAdapterType() {
+        return RvAdapterType.STM_LOG;
     }
     @Override
     public void onStart() {

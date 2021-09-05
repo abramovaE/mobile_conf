@@ -1,0 +1,17 @@
+package com.kotofeya.mobileconfigurator.rv_adapter;
+
+public enum RvAdapterType {
+    BASIC_SCANNER_TYPE,
+    BLE_SCANNER_TYPE,
+    UPDATE_OS_TYPE,
+    UPDATE_STM_TYPE,
+    UPDATE_CONTENT_TYPE,
+    CONFIG_TRANSPORT,
+    CONFIG_STATION,
+    STM_LOG,
+    SETTINGS_WIFI,
+    SETTINGS_NETWORK,
+    SETTINGS_SCUART,
+    SETTINGS_UPDATE_PHP,
+    SETTINGS_UPDATE_CORE;
+}

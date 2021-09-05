@@ -16,8 +16,8 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.RvAdapter;
 import com.kotofeya.mobileconfigurator.UploadContentConfDialog;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import com.kotofeya.mobileconfigurator.user.UserFactory;
 import com.kotofeya.mobileconfigurator.user.UserType;
 
@@ -64,8 +64,8 @@ public class UpdateContentFragment extends UpdateFragment {
     }
 
     @Override
-    protected int getAdapterType() {
-        return RvAdapter.UPDATE_CONTENT_TYPE;
+    protected RvAdapterType getAdapterType() {
+        return RvAdapterType.UPDATE_CONTENT_TYPE;
     }
 
     @Nullable

@@ -1,22 +1,13 @@
 package com.kotofeya.mobileconfigurator.fragments.update;
 
 import android.os.Bundle;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 
 
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.RvAdapter;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
-import com.kotofeya.mobileconfigurator.network.PostInfo;
-
-import java.util.ArrayList;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 
 import static com.kotofeya.mobileconfigurator.network.PostCommand.POST_COMMAND_ERROR;
 
@@ -33,8 +24,8 @@ public class SettingsUpdatePhpFragment extends UpdateFragment {
         mainTxtLabel.setText("Update PHP");
     }
     @Override
-    protected int getAdapterType() {
-        return RvAdapter.STM_LOG;
+    protected RvAdapterType getAdapterType() {
+        return RvAdapterType.STM_LOG;
     }
     @Override
     public void onStart() {

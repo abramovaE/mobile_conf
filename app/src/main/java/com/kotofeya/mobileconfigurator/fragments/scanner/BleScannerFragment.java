@@ -11,9 +11,10 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.RvAdapter;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterFactory;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import java.util.ArrayList;
@@ -28,10 +29,8 @@ public class BleScannerFragment extends ScannerFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
         mainTxtLabel.setText(R.string.ble_scan_main_txt_label);
-        rvAdapter = new RvAdapter(context, utils, RvAdapter.BASIC_SCANNER_TYPE, new ArrayList<>());
+        rvAdapter = RvAdapterFactory.getRvAdapter(context, utils, RvAdapterType.BLE_SCANNER_TYPE, new ArrayList<>());
         rvScanner.setAdapter(rvAdapter);
-//        scannerAdapter = new ScannerAdapter(context, utils, ScannerAdapter.BLE_SCANNER_TYPE, new ArrayList<>());
-//        lvScanner.setAdapter(scannerAdapter);
         return view;
     }
 

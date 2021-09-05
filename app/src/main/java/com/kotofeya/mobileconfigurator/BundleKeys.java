@@ -11,7 +11,10 @@ public interface BundleKeys {
     String COMMAND_KEY = "command";
     String FILE_PATH_KEY = "filePath";
     String RESULT_KEY = "result";
-
+    String SSID_KEY = "ssid";
+    String SERIAL_KEY = "serial";
+    String IS_TRANSPORT_KEY = "isTransport";
+    String IS_STATIONARY_KEY = "isStationary";
 
 
 }

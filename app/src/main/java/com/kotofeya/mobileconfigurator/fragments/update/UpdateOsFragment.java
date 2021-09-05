@@ -17,15 +17,12 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.RvAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
-
-import java.util.ArrayList;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 
 public class UpdateOsFragment extends UpdateFragment {
 
@@ -57,8 +54,8 @@ public class UpdateOsFragment extends UpdateFragment {
     }
 
     @Override
-    protected int getAdapterType() {
-        return RvAdapter.STM_LOG;
+    protected RvAdapterType getAdapterType() {
+        return RvAdapterType.STM_LOG;
     }
 
 

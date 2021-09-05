@@ -23,11 +23,10 @@ import com.kotofeya.mobileconfigurator.ClientsDiffUtil;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.RvAdapter;
 import com.kotofeya.mobileconfigurator.SshConnection;
 
 import com.kotofeya.mobileconfigurator.TaskCode;
-import com.kotofeya.mobileconfigurator.network.PostInfo;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import java.time.LocalTime;
@@ -60,8 +59,8 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
     }
 
     @Override
-    protected int getAdapterType() {
-        return RvAdapter.SETTINGS_UPDATE_CORE;
+    protected RvAdapterType getAdapterType() {
+        return RvAdapterType.SETTINGS_UPDATE_CORE;
     }
 
     @Override

@@ -1,5 +1,7 @@
 package com.kotofeya.mobileconfigurator;
 
+import android.net.wifi.WifiManager;
+
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;
@@ -17,6 +19,7 @@ public class WiFiLocalHotspot {
     private List<String> clients;
 
     public List<String> getClientList(String deviceIp) {
+
         clients = new ArrayList<>();
         String host = deviceIp.substring(0, deviceIp.lastIndexOf("."));
         Logger.d(Logger.WIFI_LOG, "device ip substring: " + host);
