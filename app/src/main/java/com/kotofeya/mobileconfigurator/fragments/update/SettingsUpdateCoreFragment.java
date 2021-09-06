@@ -106,11 +106,8 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
     private void updateClients(List<String> strings) {
         List<String> oldClients = rvAdapter.getObjects().stream().map(it -> it.getSsid()).collect(Collectors.toList());
         List<String> newClients = strings;
-
         Logger.d(Logger.UPDATE_CORE_LOG, "oldClients: " + oldClients);
         Logger.d(Logger.UPDATE_CORE_LOG, "newClients: " + newClients);
-
-
         ClientsDiffUtil clientsDiffUtil = new ClientsDiffUtil(oldClients, newClients);
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(clientsDiffUtil);
         rvAdapter.setObjects(rvAdapter.getObjects().stream().
@@ -150,13 +147,6 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
             downloadCoreUpdateFilesTv.setText(sb.toString());
         }
 
-        if(resultCode == TaskCode.SSH_ERROR_CODE){
-
-        }
-        else {
-
-        }
-
         if(res != null && res.contains("загружен")){
             clearTextLabel();
             stopTimer();
@@ -172,7 +162,6 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
-//                    scan();
                 }
             });
             dialog.show();
@@ -202,9 +191,6 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
                     uploadFile(ip, t.getSsid(), coreUpdateIteration);
                     break;
                 }
-//                else if(coreUpdateIteration == 4){
-//                    stopTimer();
-//                }
             }
         }
     }
@@ -227,9 +213,6 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
     }
 
     public void startTimer(){
-        Logger.d(Logger.UPDATE_CORE_LOG, "startTimer()");
-        Logger.d(Logger.UPDATE_CORE_LOG, "visibility: " + scannerTimer.getVisibility());
-
         localTime = LocalTime.of(0, 0, 0, 0);
         Runnable runnable = new CountDownRunner();
         if(timerThread != null){
@@ -241,8 +224,6 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
     }
 
     public void stopTimer(){
-        Logger.d(Logger.UPDATE_CORE_LOG, "stopTimer()");
-        Logger.d(Logger.UPDATE_CORE_LOG, "visibility: " + scannerTimer.getVisibility());
         if(timerThread != null){
             timerThread.interrupt();
         }
@@ -250,10 +231,7 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
     }
 
     class CountDownRunner implements Runnable {
-
         public void run() {
-            Logger.d(Logger.UPDATE_CORE_LOG, "new CountDownRunner");
-
             while (!Thread.currentThread().isInterrupted()) {
                 try {
                     doWork();
@@ -364,5 +342,4 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
             return builder.create();
         }
     }
-
 }

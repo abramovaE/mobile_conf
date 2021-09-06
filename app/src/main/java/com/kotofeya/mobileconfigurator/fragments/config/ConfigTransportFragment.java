@@ -35,9 +35,6 @@ public class ConfigTransportFragment extends ConfigFragment {
     public void onTaskCompleted(Bundle result) {}
 
     @Override
-    public void onProgressUpdate(Integer downloaded) {}
-
-    @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel.getTranspInformers().observe(getViewLifecycleOwner(), this::updateUI);

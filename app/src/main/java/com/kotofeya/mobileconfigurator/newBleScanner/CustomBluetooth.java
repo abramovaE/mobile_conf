@@ -176,10 +176,7 @@ public class CustomBluetooth {
                         ScanSettings settings = new ScanSettings.Builder()
                                 .setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY)
                                 .setCallbackType(ScanSettings.CALLBACK_TYPE_ALL_MATCHES)
-//                                .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
                                 .setMatchMode(ScanSettings.MATCH_MODE_AGGRESSIVE)
-//                                .setNumOfMatches(ScanSettings.MATCH_NUM_ONE_ADVERTISEMENT)
-//                                .setMatchMode(ScanSettings.MATCH_MODE_STICKY)
                                 .build();
 
                         scanCallback = new ScanCallback() {
@@ -187,7 +184,6 @@ public class CustomBluetooth {
                             public void onScanResult(int callbackType, ScanResult result) {
                                 String serial = getSerial(result);
                                 if(serial != null) {
-//                                Logger.d(Logger.BT_LOG, "serial: " + serial);
                                     results.put(serial, new CustomScanResult(result));
                                 }
                             }
@@ -201,7 +197,6 @@ public class CustomBluetooth {
                     if(!isGpsRequested) {
                         requireGps();
                     }
-
                 }
             } else {
                 if(!isPermissionRequested) {
@@ -223,10 +218,9 @@ public class CustomBluetooth {
         }
     }
 
-
-    private String getSerial(ScanResult result){
-        String name = result.getScanRecord().getDeviceName();;
-        byte[] data;
+    public static byte[] getFullData(ScanResult result) {
+        String name = result.getScanRecord().getDeviceName();
+        byte[] data = null;
         if (name != null && name.startsWith("stp")) {
             byte[] pack1;
             byte[] pack2 = new byte[0];
@@ -238,21 +232,22 @@ public class CustomBluetooth {
             data = new byte[pack1.length + pack2.length];
             System.arraycopy(pack1, 0, data, 0, pack1.length);
             System.arraycopy(pack2, 0, data, pack1.length, pack2.length);
-            String deviceName = result.getScanRecord().getDeviceName();
+        }
+        return data;
+    }
+
+    private String getSerial(ScanResult result){
+        String name = result.getScanRecord().getDeviceName();;
+        byte[] data = getFullData(result);
+        if(data != null){
             if(name.equals("stp")){
                 return  (((data[2] & 0xFF) << 16) + ((data[3] & 0xFF) << 8) + (data[4] & 0xFF)) + "";
-//                return  "stp" + String.format("%6s", i).replace(' ', '0');
-            }
-            else {
-                return deviceName;
             }
         }
-        return null;
+        return name;
     }
 
     public List<CustomScanResult> getResults(){
-//        results.values().stream().forEach(it->Logger.d(Logger.OTHER_LOG, getSerial(it.getScanResult()) + ", time: " + (System.currentTimeMillis() - it.getAppearanceTime())));
-
         List<CustomScanResult> res = results.values().stream().filter(it ->
                         (((it.getScanResult().getDevice().getName() != null
                                 && it.getScanResult().getDevice().getName().equals("stp"))
@@ -281,259 +276,4 @@ public class CustomBluetooth {
             }
         }
     }
-
-//    public void call(int buzzerNumber, int Type, IRadioInformer informer, IUtilsStruct utilsStruct) {
-//        utilsStruct.setCalledInformer(informer);
-//        Logger.d(Logger.BT_LOG, "Calling buzzer: " + buzzerNumber);
-////        if (!hasPermissions()){
-////            Logger.d(Logger.BT_LOG,"App has not all needed permissions");
-////            return;
-////        }
-////
-////        if (!isGpsEnsbled()) {
-////            requestGpsEnable();
-////        }
-//
-//        Logger.d(Logger.BT_LOG, "inf is call ready: " + informer.getSsid() + " " + informer.isCallReady(buzzerNumber));
-//        if (informer != null && informer.getRawData().length > 10 && informer.isCallReady(buzzerNumber) && !utilsStruct.isAnyTranspCalled()) {
-//
-//            int callAttempt = informer.getIncrement();
-//            Logger.d(Logger.BT_LOG, "callAttempt: " + callAttempt);
-//            Logger.d(Logger.BT_LOG, "rawdata[6] " + informer.getRawData()[6]);
-//            if(informer.getTransiverType() == MySettings.TRANSPORT){
-//                if(buzzerNumber == 0){
-//                    utilsStruct.getTextHandler().setCallText(utilsStruct.getInformer(informer.getSsid()).getFloorOrDoorStatus());
-//                }
-//            }
-//            String data = informer.getSsid().substring(4, 10) + "call " + (buzzerNumber + 1) + " " + Type;
-//            AdvertiseCallback advertisingCallback = getAdvertisingCallBack();
-//            bluetoothLeAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
-//            bluetoothLeAdvertiser.startAdvertising(getAdvertiseSettings(), getAdvertiseData(data), advertisingCallback);
-//
-//            if (utilsStruct.getInformer(informer.getSsid()) != null &&
-//                    utilsStruct.getInformer(informer.getSsid()).isCalled(buzzerNumber)) {
-//                Logger.d(Logger.BT_LOG, "called");
-//                int radioType = App.get().getRadioType();
-//
-//                if(radioType == MySettings.TRANSPORT){
-//                    utilsStruct.getSpeaker().sayText(utilsStruct.getContext().getResources().getString(R.string.called_doorsOpened), SpeakerType.CALL_TYPE, true);
-//                }
-//                else {
-//                    utilsStruct.getSpeaker().sayText(utilsStruct.getContext().getResources().getString(R.string.called), SpeakerType.CALL_TYPE, true);
-//                }
-//            }
-//
-//
-//            if (callThread != null) {
-//                callThread.interrupt();
-//            }
-//            final  int buzzer = buzzerNumber;
-//            callThread = new CallThread(utilsStruct, bluetoothLeAdvertiser, advertisingCallback, informer, callAttempt, buzzer);
-//            callThread.start();
-//        }
-//
-//        else {
-//            Logger.d(Logger.BT_LOG, "inf is null: " + (informer == null) + ", rawData.length: " + informer.getRawData().length + ", informer.isCallReady: " + informer.isCallReady(buzzerNumber) +
-//                    ", isAnyCalled " + utilsStruct.isAnyTranspCalled());
-//            utilsStruct.getSpeaker().sayText(
-//                    utilsStruct.getContext().getResources().getString(R.string.waitABit),
-//                    SpeakerType.CALL_TYPE, true);
-//            utilsStruct.setCalledInformer(null);
-//        }
-//    }
-//
-//    public void open(int doorNumber, int Type, IRadioInformer informer, IUtilsStruct utilsStruct) {
-//        Logger.d(Logger.BT_LOG, "Opening door: " + doorNumber);
-////        if (!hasPermissions()){
-////            Logger.d(Logger.BT_LOG,"App has not all needed permissions");
-////            return;
-////        }
-////        if (!isGpsEnsbled()) {
-////            requestGpsEnable();
-////        }
-//        if (informer != null && informer.getRawData().length > 10) {
-//            if(isAdvSupporting){
-//                String data = utilsStruct.getInformer(informer.getSsid()).getSsid().substring(4, 10) +
-//                        "call " + doorNumber + " " + Type;
-//                AdvertiseCallback advertisingCallback = getAdvertisingCallBack();
-//                bluetoothLeAdvertiser = bluetoothAdapter.getBluetoothLeAdvertiser();
-//                bluetoothLeAdvertiser.startAdvertising(getAdvertiseSettings(), getAdvertiseData(data), advertisingCallback);
-//                utilsStruct.getSpeaker().sayText(utilsStruct.getContext().getResources().getString(R.string.called), SpeakerType.CALL_TYPE, true);
-//                if (callThread != null) {
-//                    callThread.interrupt();
-//                }
-//                callThread = new OpenDoorThread(utilsStruct, bluetoothLeAdvertiser, advertisingCallback, informer);
-//                callThread.start();
-//            }
-//        }
-//    }
-//
-//
-//
-//    private AdvertiseCallback getAdvertisingCallBack(){
-//        AdvertiseCallback advertisingCallback = new AdvertiseCallback() {
-//            @Override
-//            public void onStartSuccess(AdvertiseSettings settingsInEffect) {
-//                Logger.d(Logger.BT_LOG, "Advertising onStartSuccess ");
-//                super.onStartSuccess(settingsInEffect);
-//            }
-//            @Override
-//            public void onStartFailure(int errorCode) {
-//                Logger.d(Logger.BT_LOG, "Advertising onStartFailure: " + errorCode);
-//                super.onStartFailure(errorCode);
-//                return;
-//            }
-//        };
-//        return advertisingCallback;
-//    }
-//
-//    private AdvertiseSettings getAdvertiseSettings(){
-//        AdvertiseSettings settings = new AdvertiseSettings.Builder()
-//                .setAdvertiseMode(AdvertiseSettings.ADVERTISE_MODE_LOW_LATENCY)
-//                .setTxPowerLevel(AdvertiseSettings.ADVERTISE_TX_POWER_HIGH)
-//                .setConnectable(false)
-//                .build();
-//        return settings;
-//    }
-//
-//    private AdvertiseData getAdvertiseData(String data){
-//        byte[] byteData = data.getBytes(Charset.forName("US-ASCII"));
-//        byte[] sentData = new byte[byteData.length + 1];
-//        System.arraycopy(byteData, 0, sentData, 0, byteData.length);
-//        sentData[byteData.length] = incrementalFlag++;
-//
-//        Logger.d(Logger.BT_LOG, "RawData: " + Arrays.toString(sentData));
-//        AdvertiseData advData = new AdvertiseData.Builder()
-//                .setIncludeDeviceName(false)
-//                .addManufacturerData(0xFEDC, sentData)
-//                .build();
-//        return advData;
-//    }
-//    public boolean isMultipleAdvSupported() {
-//        return isAdvSupporting;
-//    }
-//
-//    class OpenDoorThread extends Thread {
-//        private IUtilsStruct utilsStruct;
-//        private BluetoothLeAdvertiser mBluetoothLeAdvertiser;
-//        private AdvertiseCallback advertisingCallback;
-//        private IRadioInformer informer;
-//
-//        public OpenDoorThread(IUtilsStruct utilsStruct, BluetoothLeAdvertiser mBluetoothLeAdvertiser, AdvertiseCallback advertiseCallback, IRadioInformer informer){
-//            this.utilsStruct = utilsStruct;
-//            this.mBluetoothLeAdvertiser = mBluetoothLeAdvertiser;
-//            this.advertisingCallback = advertiseCallback;
-//            this.informer = informer;
-//        }
-//
-//        @Override
-//        public void run() {
-//            int counter = 0;
-//            final int sleepTime = 50;
-//            final int normalizedTimeout = (ADV_TIMEOUT * 1000)/sleepTime;
-//            try {
-//                while (counter++ <= normalizedTimeout) {
-//                    if(utilsStruct.getInformer(informer.getSsid()) != null){
-//                        Thread.sleep(sleepTime);
-//                    }
-//                    else {
-//                        Logger.d(Logger.UTILS_LOG, "connection is lost: informer is null ");
-//                        utilsStruct.getSpeaker().sayText(App.get().getResources()
-//                                .getString(R.string.connectionLost), null, true);
-//                        mBluetoothLeAdvertiser.stopAdvertising(advertisingCallback);
-//                        return;
-//                    }
-//                }
-//                mBluetoothLeAdvertiser.stopAdvertising(advertisingCallback);
-//            } catch (InterruptedException e) {
-//                Logger.d(Logger.BT_LOG, "Call interrupted");
-//                mBluetoothLeAdvertiser.stopAdvertising(advertisingCallback);
-//            }
-//        }
-//    }
-//
-//    class CallThread extends Thread {
-//
-//        private IUtilsStruct utilsStruct;
-//        private BluetoothLeAdvertiser mBluetoothLeAdvertiser;
-//        private AdvertiseCallback advertisingCallback;
-//        private IRadioInformer informer;
-//        private int callAttempt;
-//        private int buzzer;
-//
-//        public CallThread(IUtilsStruct utilsStruct,
-//                          BluetoothLeAdvertiser mBluetoothLeAdvertiser, AdvertiseCallback advertiseCallback,
-//                          IRadioInformer informer, int callAttempt, int buzzer) {
-//            this.utilsStruct = utilsStruct;
-//            this.mBluetoothLeAdvertiser = mBluetoothLeAdvertiser;
-//            this.advertisingCallback = advertiseCallback;
-//            this.informer = informer;
-//            this.callAttempt = callAttempt;
-//            this.buzzer = buzzer;
-//
-//        }
-//
-//        @Override
-//        public void run() {
-//            int counter = 0;
-//            final int sleepTime = 50;
-//            final int normalizedTimeout = (ADV_TIMEOUT * 1000) / sleepTime;
-//            IRadioInformer iRadioInformer;
-//            try {
-//                while (counter++ <= normalizedTimeout) {
-//                    iRadioInformer = utilsStruct.getInformer(informer.getSsid());
-//                    Logger.d(Logger.BT_LOG, "informer: " + informer + ", buzzer: " + buzzer);
-//                    if (iRadioInformer != null) {
-//                        Logger.d(Logger.BT_LOG, "informer: " + informer.getSsid());
-//                        int ca = iRadioInformer.getIncrement();
-//                        if (ca != callAttempt) {
-//                            Logger.d(Logger.BT_LOG, "increment old/new: " + ca + ", callAttempt  " + callAttempt);
-//                            if (informer instanceof StationaryInformer) {
-//                                utilsStruct.getSpeaker().sayText(utilsStruct.getContext().getResources().getString(R.string.called),
-//                                        SpeakerType.CALL_TYPE, true);
-//                            } else if (informer instanceof TransportInformer) {
-//                                if(buzzer == 1){
-//                                    Logger.d(Logger.UTILS_LOG, "btn exit was pressed");
-//                                    utilsStruct.getSpeaker().sayText(App.get().getResources().getString(R.string.exit), SpeakerType.CALL_TYPE, true);
-//                                    mBluetoothLeAdvertiser.stopAdvertising(advertisingCallback);
-//                                    return;
-//                                }
-//
-//
-//                                if (utilsStruct.getInformer(informer.getSsid()).isCalled(buzzer)) {
-//                                    Logger.d(Logger.BT_LOG, "called");
-//                                    utilsStruct.getSpeaker().sayText(utilsStruct.getContext().getResources().getString(R.string.called_doorsOpened), SpeakerType.CALL_TYPE, true);
-//                                }
-//                            }
-//                            mBluetoothLeAdvertiser.stopAdvertising(advertisingCallback);
-//                            return;
-//                        } else if (informer != null && iRadioInformer != null && iRadioInformer.isCallBusy(buzzer)) {
-//                            break;
-//                        }
-//                        Thread.sleep(sleepTime);
-//                    } else {
-//                        Logger.d(Logger.UTILS_LOG, "connection is lost: informer is null ");
-//                        utilsStruct.getSpeaker().sayText(App.get().getResources().getString(R.string.connectionLost), null, true);
-//                        mBluetoothLeAdvertiser.stopAdvertising(advertisingCallback);
-//                        return;
-//                    }
-//                }
-//
-//                Logger.d(Logger.UTILS_LOG, "doors status: " + informer.getFloorOrDoorStatus());
-//
-//                mBluetoothLeAdvertiser.stopAdvertising(advertisingCallback);
-//                if (informer.getFloorOrDoorStatus() != 2 && informer.getFloorOrDoorStatus() != 0) {
-//                    Logger.d(Logger.UTILS_LOG, "connection is lost: timeout ");
-//                    utilsStruct.getSpeaker().sayText(App.get().getResources().getString(R.string.connectionLost), SpeakerType.SWAP_TYPE, true);
-//                }
-//                utilsStruct.setCalledInformer(null);
-//
-//
-//
-//            } catch (InterruptedException e) {
-//                Logger.d(Logger.BT_LOG, "Call interrupted");
-//                mBluetoothLeAdvertiser.stopAdvertising(advertisingCallback);
-//            }
-//        }
-//    }
 }

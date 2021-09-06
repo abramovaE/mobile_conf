@@ -110,18 +110,10 @@ public class TransiverSettingsWifiFragment extends TransiverSettingsFragment {
                     updateText(response);
                     break;
                 case PostCommand.WIFI_CLEAR:
-                    if(response.startsWith("Ok")){
-                        utils.showMessage("Настройки сброшены и примутся при перезапуске.");
-                    } else {
-                        utils.showMessage("Error");
-                    }
+                    utils.showMessage((response.startsWith("Ok"))? "Настройки сброшены и примутся при перезапуске." : "Error");
                     break;
                 case PostCommand.WIFI:
-                    if(response.startsWith("Ok")){
-                        utils.showMessage("Новые параметры заданы и примутся при перезапуске.");
-                    } else{
-                        utils.showMessage("Error");
-                    }
+                    utils.showMessage((response.startsWith("Ok"))? "Новые параметры заданы и примутся при перезапуске." : "Error");
                     break;
                 case POST_COMMAND_ERROR:
                     utils.showMessage(response);

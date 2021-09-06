@@ -9,6 +9,8 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
+import com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth;
+import com.kotofeya.mobileconfigurator.newBleScanner.CustomScanResult;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Arrays;
@@ -26,7 +28,6 @@ public class Transiver {
     int BUZZER_BUSY_NEW = 0b11;
 
     protected int intVesion;
-//    private String phoneIp;
     protected String version;
 
     private String ssid;
@@ -48,13 +49,16 @@ public class Transiver {
     protected String address;
     protected int rssi;
     protected byte[] rawData;
-    private int delCount;
 
     private int transVersion;
     public static final int VERSION_OLD = 1;
     public static final int VERSION_NEW = 2;
 
     private TakeInfoFull takeInfoFull;
+
+    private int increment;
+    protected int btPackVersion;
+    private int transiverType;
 
     public Transiver(String ssid, String ip, String macWifi, String macBt, String boardVersion, String osVersion,
                      String stmFirmware, String stmBootloader, String core, String modem, String incrementOfContent,
@@ -89,21 +93,7 @@ public class Transiver {
     public Transiver(ScanResult result) {
         rssi = result.getRssi();
         address = result.getDevice().getAddress();
-//        rawData = result.getScanRecord().getManufacturerSpecificData(0xffff);
-
-        byte[] pack1;
-        byte[] pack2 = new byte[0];
-        byte[] allBytes = result.getScanRecord().getBytes();
-        pack1 = Arrays.copyOfRange(allBytes, 9, 31);
-        if(allBytes.length > 35) {
-            pack2 = Arrays.copyOfRange(allBytes, 35, allBytes.length);
-        }
-        rawData = new byte[pack1.length + pack2.length];
-        System.arraycopy(pack1, 0, rawData, 0, pack1.length);
-        System.arraycopy(pack2, 0, rawData, pack1.length, pack2.length);
-
-
-        Logger.d(Logger.CONTENT_LOG, "rawData: " + Arrays.toString(rawData));
+        rawData = CustomBluetooth.getFullData(result);
         if(result.getScanRecord().getDeviceName().equals("stp")){
             int i = (((rawData[2] & 0xFF) << 16) + ((rawData[3] & 0xFF) << 8) + (rawData[4] & 0xFF));
             ssid = String.valueOf(i);
@@ -249,19 +239,6 @@ public class Transiver {
         this.uptime = uptime;
     }
 
-
-    public int getRssi() {
-        return rssi;
-    }
-
-    public int getDelCount() {
-        return delCount;
-    }
-
-    public void setDelCount(int delCount) {
-        this.delCount = delCount;
-    }
-
     public byte[] getRawData() {
         return rawData;
     }
@@ -284,17 +261,14 @@ public class Transiver {
             }
             return ((rawData[1] >> (BuzzerNumber * 2)) & 0b00000011) == BUZZER_ON;
         }
-
         else {
             return ((rawData[6] >> (6 - 2 * BuzzerNumber)) & 0b00000011) == BUZZER_ON_NEW;
         }
     }
 
-
     public int getBtPackVersion() {
         return rawData[0] & 0xff;
     }
-
 
     synchronized public boolean isCallReady(int BuzzerNumber) {
         if (BuzzerNumber > 4) {
@@ -318,7 +292,6 @@ public class Transiver {
         if(transVersion == VERSION_OLD){
             return ((rawData[1] >> (BuzzerNumber * 2)) & 0b00000011) == BUZZER_BUSY;
         }
-
         else {
             return ((rawData[6] >> (6 - 2 * BuzzerNumber)) & 0b00000011) == BUZZER_BUSY_NEW;
         }
@@ -410,12 +383,10 @@ public class Transiver {
     }
 
     public boolean isTransport(){
-//        Logger.d(Logger.TRANSPORT_TRANSIVER_LOG, "isTransport: " + rawData.length);
         if(rawData != null){
             if(rawData.length >= 22 && (rawData[5] & 0xff) == Utils.TRANSP_RADIO_TYPE) {
                 return true;
             }
-
             else if ((rawData[0] & 0xff) == Utils.TRANSP_RADIO_TYPE) {
                 return true;
             }
@@ -429,8 +400,6 @@ public class Transiver {
             return takeInfoFull.toString();
         }
         else {
-
-//        Logger.d(Logger.APP_LOG, "tType: " + tType);
             StringBuilder sb = new StringBuilder();
             sb.append("ssid: ");
             sb.append(ssid);
@@ -537,10 +506,6 @@ public class Transiver {
         this.tType = type;
     }
 
-    public TakeInfoFull getTakeInfoFull() {
-        return takeInfoFull;
-    }
-
     public void setTakeInfoFull(TakeInfoFull takeInfoFull) {
         Logger.d(Logger.TRANSPORT_CONTENT_LOG, "set take info full: " + takeInfoFull);
         this.takeInfoFull = takeInfoFull;
@@ -554,15 +519,11 @@ public class Transiver {
         setBtPackVersion();
         setTransiverType();
         setIncrement();
-        setCrc();
     }
 
-//    public abstract String getAddInfo();
-//    public abstract int getCityIndex();
     public int getType(){
         return 0;
     }
-//    public abstract int getImageId();
 
     public void setRawData(byte[] rawData) {
         this.rawData = rawData;
@@ -578,11 +539,7 @@ public class Transiver {
             this.intVesion = VERSION_OLD;
         }
     }
-    private int increment;
-    private String crc;
-    protected int btPackVersion;
-    private int transiverType;
-//    protected byte[] rawData;
+
 
 
 
@@ -596,11 +553,6 @@ public class Transiver {
         }
         else {
             this.increment = rawData[7] & 0b00001111;
-        }
-    }
-    protected void setCrc(){
-        if(intVesion == VERSION_NEW) {
-            this.crc = (byteToHex(rawData[8]) + byteToHex(rawData[9]) + byteToHex(rawData[10]) + byteToHex(rawData[11])).toLowerCase();
         }
     }
 

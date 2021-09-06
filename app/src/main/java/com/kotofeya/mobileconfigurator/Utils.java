@@ -206,15 +206,13 @@ public class Utils implements OnTaskCompleted{
         String deviceIp = internetConnection.getDeviceIp();
         if(deviceIp != null) {
             clients = WiFiLocalHotspot.getInstance().getClientList(deviceIp);
-            clients.remove(deviceIp);
+            Logger.d(Logger.UPDATE_LOG, "updateClients: " + clients);
+//            clients.remove(deviceIp);
         } else {
             clients = new ArrayList<>();
         }
         viewModel.setClients(clients);
     }
-
-
-
 
     private Map<String, String> addToTransportContent(Map<String, String> transportContent,
                                                              String key, String value){

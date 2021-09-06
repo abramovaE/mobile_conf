@@ -31,6 +31,7 @@ import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SendLogToServer;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.network.SshCommand;
@@ -231,8 +232,6 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     public void onProgressUpdate(Integer downloaded) {
     }
 
-
-
     public void doWork() {
         runOnUiThread(new Runnable() {
             public void run() {
@@ -301,4 +300,4 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
     }
 }
 
-// TODO: 05.09.2021 число подключенных устройств 
+// TODO: 05.09.2021 число подключенных устройств

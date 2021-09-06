@@ -2,12 +2,12 @@ package com.kotofeya.mobileconfigurator;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.net.LinkProperties;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
+import android.util.Log;
 
-import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.util.Collections;
@@ -16,14 +16,6 @@ import java.util.List;
 public class InternetConn {
     WifiManager.LocalOnlyHotspotReservation mReservation;
     private static final ConnectivityManager mConnectivityManager = (ConnectivityManager) App.get().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-
-    public void bindToNetork() {
-        if (mConnectivityManager.getActiveNetwork() != null) {
-            mConnectivityManager.bindProcessToNetwork(mConnectivityManager.getActiveNetwork());
-        }
-    }
-
-
 
     public boolean hasInternetConnection() {
         final Network network = mConnectivityManager.getActiveNetwork();
@@ -41,6 +33,7 @@ public class InternetConn {
                 List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
                 for (InetAddress addr : addrs) {
                     String sAddr = addr.getHostAddress();
+//                    Logger.d(Logger.INTERNET_CONN_LOG, "host addr: " + sAddr);
                     if (sAddr.startsWith("192")) {
                             Logger.d(Logger.INTERNET_CONN_LOG, "host address: " + sAddr);
                                 return sAddr;

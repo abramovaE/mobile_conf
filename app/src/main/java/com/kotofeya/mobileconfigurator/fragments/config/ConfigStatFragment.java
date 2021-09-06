@@ -38,9 +38,7 @@ public class ConfigStatFragment extends ConfigFragment {
         utils.getNewBleScanner().startScan();
     }
 
-    @Override
-    public void onProgressUpdate(Integer downloaded) {
-    }
+
 
     public void basicScan(){
         utils.getTakeInfo();
@@ -56,6 +54,4 @@ public class ConfigStatFragment extends ConfigFragment {
         }
         viewModel.getStationaryInformers().observe(getViewLifecycleOwner(), this::updateUI);
     }
-
-
 }

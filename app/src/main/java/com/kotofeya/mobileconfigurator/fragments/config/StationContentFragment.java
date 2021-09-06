@@ -35,7 +35,6 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
     @Override
     protected void setFields() {
         statTransiver = (StatTransiver) viewModel.getTransiverBySsid(ssid);
-
         mainTxtLabel.setText(statTransiver.getSsid() + " (" + statTransiver.getStringType() + ")");
         floorTxt = getView().findViewById(R.id.content_txt_0);
         floorTxt.setText(statTransiver.getFloor() + "");
@@ -62,7 +61,6 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
         zummerVolumeSpn.setAdapter(zummerVolumeAdapter);
         zummerVolumeSpn.setVisibility(View.VISIBLE);
         zummerVolumeSpn.setOnItemSelectedListener(onItemSelectedListener);
-
         modemConfigSpn = getView().findViewById(R.id.content_spn_2);
         modemConfigSpn.setVisibility(View.VISIBLE);
         modemConfigs = getResources().getStringArray(R.array.modem_types);
@@ -116,23 +114,16 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
     public void stopScan() {
         utils.getNewBleScanner().stopScan();
     }
-    @Override
-    public void onProgressUpdate(Integer downloaded) {
-    }
 
 
     @Override
     public void onClick(View v) {
         String version = utils.getVersion(currentTransiver.getSsid());
-
         String floorSend = floorTxt.getText().toString();
         zummerTypeSend = zummerTypesSpn.getSelectedItem().toString();
         zummerVolumeSend = zummerVolumeSpn.getSelectedItem().toString();
         String modemConfigSend = modemConfigSpn.getTransitionName();
         if(version != null && version.equals("ssh_conn")){
-
-
-
             StringBuilder command = new StringBuilder();
             if(floorSend != null && !floorSend.isEmpty()){
                 command.append(SshConnection.FLOOR_COMMAND);
@@ -198,7 +189,6 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
         }
     }
 
-
     @Override
     public void onTaskCompleted(Bundle result) {
         String command = result.getString(BundleKeys.COMMAND_KEY);
@@ -217,54 +207,29 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
                     }
                     break;
                 case PostCommand.REBOOT + "_" + ContentFragment.REBOOT_ALL:
-                    if(response.startsWith("Ok")) {
-                        utils.showMessage(getString(R.string.all_rebooted));
-                        App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_STATION_FRAGMENT, false);
-                    } else {
-                        utils.showMessage("reboot all error ");
-                    }
+                    showMessageAndChangeFragment(response, getString(R.string.all_rebooted),
+                            "reboot all error ",  FragmentHandler.CONFIG_STATION_FRAGMENT);
                     break;
                 case PostCommand.ERASE_CONTENT:
-                    if(response.startsWith("Ok")) {
-                        utils.showMessage(getString(R.string.rasp_was_cleared));
-                        App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_STATION_FRAGMENT, false);
-                    } else {
-                        utils.showMessage("clear rasp error ");
-                    }
+                    showMessageAndChangeFragment(response, getString(R.string.rasp_was_cleared),
+                            "clear rasp error ", FragmentHandler.CONFIG_STATION_FRAGMENT);
                     break;
                 case FLOOR:
-                    if(response.startsWith("Ok")) {
-                        utils.showMessage("floor changed");
-                        App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_STATION_FRAGMENT, false);
-                    } else {
-                        utils.showMessage("set floor error ");
-                    }
-
+                    showMessageAndChangeFragment(response, "floor changed",
+                            "set floor error ", FragmentHandler.CONFIG_STATION_FRAGMENT);
                     Thread thread = new Thread(new PostInfo(this, ip, sound(Integer.parseInt(zummerTypeSend))));
                     thread.start();
                     break;
-
                 case SOUND:
-                    if(response.startsWith("Ok")) {
-                        utils.showMessage("sound type changed");
-                        App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_STATION_FRAGMENT, false);
-                    } else {
-                        utils.showMessage("set sound type error ");
-                    }
-
+                    showMessageAndChangeFragment(response, "sound type changed",
+                            "set sound type error ", FragmentHandler.CONFIG_STATION_FRAGMENT);
                     thread = new Thread(new PostInfo(this, ip, volume(Integer.parseInt(zummerVolumeSend))));
                     thread.start();
                     break;
-
                 case VOLUME:
-                    if(response.startsWith("Ok")) {
-                        utils.showMessage("volume changed");
-                        App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_STATION_FRAGMENT, false);
-                    } else {
-                        utils.showMessage("set volume  error ");
-                    }
+                    showMessageAndChangeFragment(response, "volume changed",
+                            "set volume  error ", FragmentHandler.CONFIG_STATION_FRAGMENT);
                     break;
-
                 default:
                     super.onTaskCompleted(result);
             }

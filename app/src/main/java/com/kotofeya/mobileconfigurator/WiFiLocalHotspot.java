@@ -1,6 +1,8 @@
 package com.kotofeya.mobileconfigurator;
 
+import android.content.Context;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
 
 import java.io.IOException;
 import java.net.InetAddress;
@@ -11,35 +13,65 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class WiFiLocalHotspot {
-    public static WiFiLocalHotspot getInstance(){
+    public static WiFiLocalHotspot getInstance() {
         return instance;
     }
+
     private static WiFiLocalHotspot instance = new WiFiLocalHotspot();
-    private WiFiLocalHotspot(){}
+
+    private WiFiLocalHotspot() {
+    }
+
     private List<String> clients;
 
     public List<String> getClientList(String deviceIp) {
-
         clients = new ArrayList<>();
-        String host = deviceIp.substring(0, deviceIp.lastIndexOf("."));
-        Logger.d(Logger.WIFI_LOG, "device ip substring: " + host);
+        Logger.d(Logger.WIFI_LOG, "isAppHotSpotStarted()");
+//        final boolean[] isStarted = {true};
+//        WifiManager manager = (WifiManager) App.get().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+//        manager.startLocalOnlyHotspot(new WifiManager.LocalOnlyHotspotCallback() {
+//            @Override
+//            public void onStarted(WifiManager.LocalOnlyHotspotReservation reservation) {
+//                super.onStarted(reservation);
+//                Logger.d(Logger.MAIN_LOG, "Wifi Hotspot is on now");
+//                isStarted[0] = false;
+//            }
+//
+//            @Override
+//            public void onStopped() {
+//                super.onStopped();
+//                Logger.d(Logger.MAIN_LOG, "onStopped: ");
+//            }
+//
+//            @Override
+//            public void onFailed(int reason) {
+//                super.onFailed(reason);
+//                Logger.d(Logger.MAIN_LOG, "onFailed: " + reason);
 
-        ExecutorService executorService = Executors.newFixedThreadPool(300);
-        CompletableFuture<Void>[] futures = new CompletableFuture[256];
-        for (int i = 0; i < 256; i++) {
-            futures[i] = CompletableFuture.runAsync(new PingIp(host + "." + i), executorService);
+                String host = deviceIp.substring(0, deviceIp.lastIndexOf("."));
+                Logger.d(Logger.WIFI_LOG, "device ip substring: " + host);
+
+                ExecutorService executorService = Executors.newFixedThreadPool(300);
+                CompletableFuture<Void>[] futures = new CompletableFuture[256];
+                for (int i = 0; i < 256; i++) {
+                    futures[i] = CompletableFuture.runAsync(new PingIp(host + "." + i), executorService);
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+                CompletableFuture.allOf(futures)
+                        .thenRun(() -> {
+                            Logger.d(Logger.WIFI_LOG, "all clients pinged, return: " + clients);
+                            executorService.shutdown();
+                        });
+
+//            }
+//        }, new Handler());
+        if(deviceIp !=null) {
+            clients.remove(deviceIp);
         }
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-        CompletableFuture.allOf(futures)
-                .thenRun(() -> {
-                    Logger.d(Logger.WIFI_LOG, "all clients pinged");
-                    executorService.shutdown();
-                });
-        Logger.d(Logger.WIFI_LOG, "clients return: " + clients);
         return clients;
     }
 
@@ -54,6 +86,7 @@ public class WiFiLocalHotspot {
             try {
                 InetAddress inetAddress = InetAddress.getByName(host);
                 if (inetAddress.isReachable(timeout)){
+                    Logger.d(Logger.WIFI_LOG, "ping: " + host);
                     clients.add(host);
                 }
             } catch (IOException e) {

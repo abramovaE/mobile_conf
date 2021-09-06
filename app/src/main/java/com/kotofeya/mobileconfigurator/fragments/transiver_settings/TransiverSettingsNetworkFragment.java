@@ -107,18 +107,10 @@ public class TransiverSettingsNetworkFragment extends TransiverSettingsFragment 
                     updateText(response);
                     break;
                 case PostCommand.NETWORK_CLEAR:
-                    if(response.startsWith("Ok")){
-                        utils.showMessage("Настройки сброшены и примутся при перезапуске.");
-                    } else {
-                        utils.showMessage("Error");
-                    }
+                    utils.showMessage((response.startsWith("Ok")) ? "Настройки сброшены и примутся при перезапуске." : "Error");
                     break;
                 case PostCommand.STATIC:
-                    if(response.startsWith("Ok")){
-                        utils.showMessage("Настройки изменены и примутся при перезапуске.");
-                    } else {
-                        utils.showMessage("Error");
-                    }
+                    utils.showMessage((response.startsWith("Ok")) ? "Настройки изменены и примутся при перезапуске." : "Error");
                     break;
                 case POST_COMMAND_ERROR:
                     utils.showMessage(response);

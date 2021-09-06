@@ -82,7 +82,6 @@ public class StatTransiver extends Transiver {
         super.setBtPackVersion();
         super.setTransiverType();
         super.setIncrement();
-        super.setCrc();
         this.point0 = new String[4];
         this.point1 = new String[4];
         this.point2 = new String[4];

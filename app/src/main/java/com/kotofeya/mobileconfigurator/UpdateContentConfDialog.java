@@ -18,10 +18,10 @@ public class UpdateContentConfDialog extends DialogFragment {
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        this.isTransport = getArguments().getBoolean("isTransport");
-        this.isStationary = getArguments().getBoolean("isStationary");
+        this.isTransport = getArguments().getBoolean(BundleKeys.IS_TRANSPORT_KEY);
+        this.isStationary = getArguments().getBoolean(BundleKeys.IS_STATIONARY_KEY);
         Logger.d(Logger.UPDATE_CONTENT_LOG, "isTransport: " + isTransport +", isStationary: " + isStationary);
-        String ip = getArguments().getString("ip");
+        String ip = getArguments().getString(BundleKeys.IP_KEY);
         Map<String, String> transportContent = ((MainActivity) getActivity()).getUtils().getTransportContent();
         AlertDialog.Builder builder = createUpdateContentConfDialog(ip, transportContent);
         builder.setCancelable(true);
@@ -40,9 +40,9 @@ public class UpdateContentConfDialog extends DialogFragment {
                         Bundle bundle = new Bundle();
                         bundle.putString("key", "transp " + content[which]);
                         bundle.putString("value", contentMap.get(content[which]));
-                        bundle.putString("ip", ip);
-                        bundle.putBoolean("isTransport", isTransport);
-                        bundle.putBoolean("isStationary", isStationary);
+                        bundle.putString(BundleKeys.IP_KEY, ip);
+                        bundle.putBoolean(BundleKeys.IS_TRANSPORT_KEY, isTransport);
+                        bundle.putBoolean(BundleKeys.IS_STATIONARY_KEY, isStationary);
                         UploadContentConfDialog d = new UploadContentConfDialog();
                         d.setArguments(bundle);
                         d.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);

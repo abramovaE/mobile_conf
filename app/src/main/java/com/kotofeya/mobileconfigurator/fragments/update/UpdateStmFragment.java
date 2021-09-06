@@ -57,7 +57,6 @@ public class UpdateStmFragment extends UpdateFragment {
             key = prefix + getCity(s.charAt(1)) + s.substring(2, s.indexOf(".tar.bz2")) + ((s.endsWith("b.tar.bz2")) ? "bootloader" : "");
             return key;
         }
-
         private String getCity(char ch){
             switch (ch){
                 case 'P':

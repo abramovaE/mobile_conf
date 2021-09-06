@@ -69,12 +69,6 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         }
     }
 
-//    private void updateUI() {
-//        Logger.d(Logger.BASIC_SCANNER_LOG, "update ui, scanneradapter: " + scannerAdapter);
-//
-//        scannerAdapter.notifyDataSetChanged();
-//    }
-
     @Override
     public void onProgressUpdate(Integer downloaded) {
     }
@@ -85,15 +79,11 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         utils.clearClients();
         utils.clearMap();
         viewModel.clearTransivers();
-//        utils.clearTransivers();
-//        scannerAdapter.notifyDataSetChanged();
         scan();
     }
 
     public void scan(){
-
-        boolean wifiPermission = checkPermission();
-        if(wifiPermission) {
+        if(checkPermission()) {
             utils.getTakeInfo();
         }
         else {
@@ -112,7 +102,6 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
-
     }
 
     private void updateUI(List<Transiver> transivers){
@@ -120,5 +109,4 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         rvAdapter.setObjects(transivers);
         rvAdapter.notifyDataSetChanged();
     }
-
 }

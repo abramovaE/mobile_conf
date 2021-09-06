@@ -5,7 +5,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.Spinner;
-
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.FragmentHandler;
@@ -15,6 +14,7 @@ import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
+
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -85,7 +85,6 @@ public class TransportContentFragment extends ContentFragment implements View.On
         btnContntSend.setOnClickListener(this);
     }
 
-
     protected void updateBtnCotentSendState(){
         String ip = transportTransiver.getIp();
         String version = viewModel.getVersion(transportTransiver.getSsid());
@@ -105,10 +104,6 @@ public class TransportContentFragment extends ContentFragment implements View.On
     @Override
     public void stopScan() {
         utils.getNewBleScanner().stopScan();
-    }
-
-    @Override
-    public void onProgressUpdate(Integer downloaded) {
     }
 
 
@@ -143,12 +138,7 @@ public class TransportContentFragment extends ContentFragment implements View.On
             String litHex = "";
             try {
                 String lit = toHex(lit1) + toHex(lit3) + toHex(lit2);
-                if(!lit.isEmpty()){
-                    litHex = Long.parseLong(lit, 16) + "";
-                }
-                else {
-                    litHex = 0 + "";
-                }
+                litHex = "" + ((!lit.isEmpty())? Long.parseLong(lit, 16) : 0);
             } catch (UnsupportedEncodingException e) {
                 e.printStackTrace();
             }
@@ -182,42 +172,20 @@ public class TransportContentFragment extends ContentFragment implements View.On
                 case PostCommand.REBOOT + "_" + ContentFragment.REBOOT_RASP:
                     App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_TRANSPORT_FRAGMENT, false);
                     break;
-
                 case PostCommand.REBOOT + "_" + ContentFragment.REBOOT_STM:
-                    if(response.startsWith("Ok")) {
-                        utils.showMessage(getString(R.string.stm_rebooted));
-                    }
-                    else {
-                        utils.showMessage("reboot stm error ");
-                    }
+                    utils.showMessage((response.startsWith("Ok"))? getString(R.string.stm_rebooted) : "reboot stm error ");
                     break;
-
-
                 case PostCommand.REBOOT + "_" + ContentFragment.REBOOT_ALL:
-                    if(response.startsWith("Ok")) {
-                        utils.showMessage(getString(R.string.all_rebooted));
-                        App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_TRANSPORT_FRAGMENT, false);
-
-                    }
-                    else {
-                        utils.showMessage("reboot all error ");
-                    }
+                    showMessageAndChangeFragment(response, getString(R.string.all_rebooted),
+                            "reboot all error ", FragmentHandler.CONFIG_TRANSPORT_FRAGMENT);
                     break;
-
                 case PostCommand.ERASE_CONTENT:
-                    if(response.startsWith("Ok")) {
-                        utils.showMessage(getString(R.string.rasp_was_cleared));
-                        App.get().getFragmentHandler().changeFragment(FragmentHandler.CONFIG_TRANSPORT_FRAGMENT, false);
-                    }
-                    else {
-                        utils.showMessage("clear rasp error ");
-                    }
+                    showMessageAndChangeFragment(response, getString(R.string.rasp_was_cleared),
+                            "clear rasp error ", FragmentHandler.CONFIG_TRANSPORT_FRAGMENT);
                     break;
-
                 default:
                     super.onTaskCompleted(result);
             }
-
         } else {
             super.onTaskCompleted(result);
         }

@@ -14,13 +14,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.RadioGroup;
-
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.CheckUser;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
-
 import java.util.List;
 
 
@@ -72,26 +69,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
         String login = loginTxt.getText().toString();
         String password = passwordTxt.getText().toString();
         new CheckUser(this, login, password, this).execute();
-
-//        AuthorizationApi authorizationApi = App.get().getRetrofit().create(AuthorizationApi.class);
-//        Call<Boolean> isAuthorized = authorizationApi.autorization(login, password);
-//
-//        isAuthorized.enqueue(new Callback<Boolean>() {
-//            @Override
-//            public void onResponse(Call<Boolean> call, Response<Boolean> response) {
-//                Logger.d(Logger.APP_LOG, "response: " + response);
-//            }
-//
-//            @Override
-//            public void onFailure(Call<Boolean> call, Throwable t) {
-//                Logger.d(Logger.APP_LOG, "failure: " + t.getMessage());
-//            }
-//        });
-
-//        // TODO: 16.07.20 validate login and password with observer
-//        if(true){
-//
-//        }
     }
 
     @Override

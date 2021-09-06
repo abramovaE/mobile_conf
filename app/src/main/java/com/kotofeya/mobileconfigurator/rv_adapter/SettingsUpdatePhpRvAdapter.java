@@ -16,7 +16,6 @@ public class SettingsUpdatePhpRvAdapter extends RvAdapter {
     public SettingsUpdatePhpRvAdapter(Context context, Utils utils, List<Transiver> objects) {
         super(context, utils, objects);
     }
-
     @Override
     public void onBindViewHolder(@NonNull RvAdapter.ViewHolder holder, int position) {
         super.onBindViewHolder(holder, position);

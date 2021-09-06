@@ -76,4 +76,8 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
         rvAdapter.setObjects(transiverList);
         rvAdapter.notifyDataSetChanged();
     }
+
+    @Override
+    public void onProgressUpdate(Integer downloaded) {
+    }
 }

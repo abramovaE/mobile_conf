@@ -62,6 +62,7 @@ public class BleScannerFragment extends ScannerFragment {
         this.viewModel = ViewModelProviders.of(getActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
         viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
     }
+
     private void updateUI(List<Transiver> transivers){
         Logger.d(Logger.BLE_SCANNER_LOG, "update ui");
         rvAdapter.setObjects(transivers);

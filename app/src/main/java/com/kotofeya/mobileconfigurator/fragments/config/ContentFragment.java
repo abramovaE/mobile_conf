@@ -39,6 +39,8 @@ import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.util.List;
 
 public abstract class ContentFragment extends Fragment implements OnTaskCompleted, PostCommand {
@@ -95,8 +97,20 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         }
     };
 
+    @Override
+    public void onProgressUpdate(Integer downloaded) {
+    }
 
-
+    protected void showMessageAndChangeFragment(@NotNull String response, String message,
+                                      String errorMessage, String fragmentTag){
+        if(response.startsWith("Ok")) {
+            utils.showMessage(message);
+            App.get().getFragmentHandler().changeFragment(fragmentTag, false);
+        }
+        else {
+            utils.showMessage(errorMessage);
+        }
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -158,9 +172,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         super.onViewCreated(view, savedInstanceState);
         viewModel = ViewModelProviders.of(getActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
         viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
-
         currentTransiver = viewModel.getTransiverBySsid(ssid);
-
         contentClickListener = new ContentClickListener(currentTransiver, utils);
         btnRebootRasp.setOnClickListener(contentClickListener);
         btnRebootStm.setOnClickListener(contentClickListener);
@@ -180,10 +192,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
             }
         });
         viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateInformers);
-
         setFields();
-
-
     }
 
 
@@ -208,10 +217,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     private void updateUI(List<Transiver> transivers){
         updateFields();
     }
-
-
     protected abstract void updateBtnCotentSendState();
-
 
     @Override
     public void onTaskCompleted(Bundle result) {
@@ -220,8 +226,8 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         String response = result.getString(BundleKeys.RESPONSE_KEY);
 
 
-        int resultCode = result.getInt("resultCode");
-        String resultStr = result.getString("result");
+        int resultCode = result.getInt(BundleKeys.RESULT_CODE_KEY);
+        String resultStr = result.getString(BundleKeys.RESULT_KEY);
         Logger.d(Logger.CONTENT_LOG, "on task completed, resultCode: " + resultCode);
 
         if(resultCode == TaskCode.REBOOT_STM_CODE && resultStr.contains("Tested")){
@@ -231,27 +237,21 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         else if(resultCode == TaskCode.REBOOT_CODE){
             ((MainActivity)context).onBackPressed();
         }
-
-
         else if(resultCode == TaskCode.CLEAR_RASP_CODE){
             Logger.d(Logger.CONTENT_LOG, "rasp was cleared");
             utils.showMessage(getString(R.string.rasp_was_cleared));
         }
-
         else if(resultCode == TaskCode.SSH_ERROR_CODE || resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
             if(!resultStr.contains("Connection refused")) {
                 Logger.d(Logger.CONTENT_LOG, "Connection refused, error");
                 utils.showMessage("Error");
             }
         }
-
         else if(resultCode == TaskCode.SEND_TRANSPORT_CONTENT_CODE && resultStr.contains("Tested")){
             Logger.d(Logger.CONTENT_LOG, "transport content updated");
             utils.showMessage(getString(R.string.content_updated));
             ((MainActivity)context).onBackPressed();
-
         }
-
         else if(resultCode == TaskCode.SEND_STATION_CONTENT_CODE && resultStr.contains("Tested")){
             Logger.d(Logger.CONTENT_LOG, "station content updated");
             utils.showMessage(getString(R.string.content_updated));
@@ -269,7 +269,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     public void onStart() {
         super.onStart();
         Logger.d(Logger.CONTENT_LOG, "contentFragment onStart");
-        String ssid = getArguments().getString("ssid");
+        String ssid = getArguments().getString(BundleKeys.SSID_KEY);
         currentTransiver = viewModel.getTransiverBySsid(ssid);
         if(!refreshButtons()){
             basicScan();
@@ -297,8 +297,8 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
             String rebootType = getArguments().getString(REBOOT_TYPE);
-            String ip = getArguments().getString("ip");
-            String version = getArguments().getString("version");
+            String ip = getArguments().getString(BundleKeys.IP_KEY);
+            String version = getArguments().getString(BundleKeys.VERSION_KEY);
 
             Logger.d(Logger.CONTENT_LOG, "show reboot/clear confirmation dialog: type - " + rebootType + ", ip: " + ip);
             AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -337,7 +337,6 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
                             connection.execute(ip, SshConnection.CLEAR_RASP_CODE);
                         }
                     }
-
                 }
             });
 
@@ -371,8 +370,8 @@ class ContentClickListener implements View.OnClickListener{
         String version = utils.getVersion(transiver.getSsid());
         Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + ip + ", version: " + version);
         Bundle bundle = new Bundle();
-        bundle.putString("ip", ip);
-        bundle.putString("version", version);
+        bundle.putString(BundleKeys.IP_KEY, ip);
+        bundle.putString(BundleKeys.VERSION_KEY, version);
         DialogFragment dialog = null;
         switch (v.getId()) {
             case R.id.content_btn_rasp:
@@ -400,7 +399,6 @@ class ContentClickListener implements View.OnClickListener{
         dialog.setArguments(bundle);
         dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
     }
-
 
 
 }

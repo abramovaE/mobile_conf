@@ -12,23 +12,14 @@ public class CustomScanResult {
         this.scanResult = result;
         this.appearanceTime = System.currentTimeMillis();
         this.bluetoothDeviceMac = result.getDevice().getAddress();
-//        Logger.d(Logger.OTHER_LOG, this.toString());
     }
 
     public ScanResult getScanResult() {
         return scanResult;
     }
-
     public long getAppearanceTime() {
         return appearanceTime;
     }
-
-    public String getBluetoothDeviceMac() {
-        return bluetoothDeviceMac;
-    }
-
-
-
 
     @Override
     public String toString() {
@@ -39,4 +30,6 @@ public class CustomScanResult {
     public int getTransiverType(){
         return scanResult.getScanRecord().getBytes()[14] & 0xff;
     }
+
+
 }

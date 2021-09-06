@@ -62,28 +62,6 @@ public class CustomViewModel extends ViewModel {
         this.transpInformers.postValue(informers);
     }
 
-//
-//    public void clearWifiTransivers(){
-//        List<Transiver> transiverList = transivers.getValue();
-//        transiverList.clear();
-//        transivers.postValue(transiverList);
-//    }
-//
-//    public void addWifiTransiver(Transiver transiver){
-//        List<Transiver> transiverList = transivers.getValue();
-//        transiverList.add(transiver);
-//        transivers.postValue(transiverList);
-//    }
-
-
-//    public void updateWifiTransiver(String phoneIp, Transiver transiver){
-//        List<Transiver> transiverList = transivers.getValue();
-//        Transiver t = transiverList.stream().filter(it->it.getSsid().equals(transiver.getSsid())).collect(Collectors.toList()).get(0);
-//    }
-
-
-
-
     public static class ModelFactory extends ViewModelProvider.NewInstanceFactory {
         public ModelFactory() {
             super();
@@ -97,7 +75,6 @@ public class CustomViewModel extends ViewModel {
             return null;
         }
     }
-
 
     public void addTakeInfoFull(String ip, String version, TakeInfoFull takeInfoFull, boolean createNew){
         Logger.d(Logger.VIEW_MODEL_LOG, "add take info full: " + takeInfoFull.getSerial() + ", version: " + version);
@@ -233,24 +210,6 @@ public class CustomViewModel extends ViewModel {
         return null;
     }
 
-//    @SuppressWarnings("unchecked")
-//    public void addTransiver(Transiver transiver) {
-//        Logger.d(Logger.VIEW_MODEL_LOG, "add transiver: " + transiver);
-//        List<Transiver> transiversValue = transivers.getValue();
-//        if(transiversValue == null){
-//            transiversValue = new ArrayList<>();
-//        }
-//        if(transiver != null) {
-//            boolean isContains = transiversValue.stream().anyMatch(trans -> trans.getSsid().equals(transiver.getSsid()));
-//            if (!isContains) {
-//                Logger.d(Logger.VIEW_MODEL_LOG, "add transiver: ");
-//                transiversValue.add(transiver);
-//                transivers.postValue(transiversValue);
-//            } else {
-//                updateTransiver(transiver);
-//            }
-//        }
-//    }
 
     private void updateTransiver(Transiver transiver){
         List<Transiver> transiversValue = transivers.getValue();
@@ -326,8 +285,6 @@ public class CustomViewModel extends ViewModel {
     public void updateResults(List<CustomScanResult> results){
         List<Transiver> statList = filterInformers(results, MySettings.STATIONARY);
         List<Transiver> transpList = filterInformers(results, MySettings.TRANSPORT);
-//        List<Transiver> statValue = stationaryInformers.getValue();
-
         this.stationaryInformers.postValue(statList);
         this.transpInformers.postValue(transpList);
         if(currentStatInformer.getValue() !=  null){
@@ -342,10 +299,6 @@ public class CustomViewModel extends ViewModel {
         } else {
             transiversList.clear();
         }
-
-
-        //7706-104
-
         transiversList.addAll(statList);
         transiversList.addAll(transpList);
         for(Transiver transiver: transiversList){
@@ -440,5 +393,4 @@ public class CustomViewModel extends ViewModel {
         stationaryInformers.postValue(transiversList.stream().filter(it-> it.getTType().equals("stationary")).collect(Collectors.toList()));
         transpInformers.postValue(transiversList.stream().filter(it->it.getTType().equals("transport")).collect(Collectors.toList()));
     }
-
 }

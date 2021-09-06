@@ -12,9 +12,7 @@ import org.acra.data.StringFormat;
 import org.acra.sender.HttpSender;
 
 import java.io.File;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 @AcraCore(buildConfigClass = BuildConfig.class, reportFormat = StringFormat.KEY_VALUE_LIST)
