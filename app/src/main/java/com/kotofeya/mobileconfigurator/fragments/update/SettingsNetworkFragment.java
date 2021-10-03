@@ -5,19 +5,14 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 
 public class SettingsNetworkFragment extends UpdateFragment {
-    @Override
-    protected void loadUpdates() {
-    }
-    @Override
-    protected void loadVersion() {
-    }
+
     @Override
     protected void setMainTextLabelText() {
         mainTxtLabel.setText("Network settings");
     }
     @Override
     protected RvAdapterType getAdapterType() {
-        return RvAdapterType.STM_LOG;
+        return RvAdapterType.SETTINGS_NETWORK;
     }
 
     @Override
@@ -26,12 +21,5 @@ public class SettingsNetworkFragment extends UpdateFragment {
         super.onStart();
         versionLabel.setVisibility(View.GONE);
         checkVersionButton.setVisibility(View.GONE);
-    }
-    @Override
-    public void setProgressBarVisible() {
-    }
-    @Override
-    public void setProgressBarGone() {
-
     }
 }

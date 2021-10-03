@@ -3,6 +3,8 @@ package com.kotofeya.mobileconfigurator.rv_adapter;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
@@ -16,9 +18,19 @@ public class UpdateOsRvAdapter extends RvAdapter {
     public UpdateOsRvAdapter(Context context, Utils utils, List<Transiver> objects) {
         super(context, utils, objects);
     }
+
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        super.onBindViewHolder(holder, position);
+    public String getExpText(Transiver transiver) {
+        return "";
+    }
+
+
+    @Override
+    public void onBindViewHolderStep2(ViewHolder holder, int position) {
+        Transiver transiver = getTransiver(position);
+        TextView textItem0 = holder.getRvCustomView().getTextItem0();
+        RvAdapterView linearLayout = holder.getRvCustomView();
+
         textItem0.setVisibility(View.VISIBLE);
         linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override

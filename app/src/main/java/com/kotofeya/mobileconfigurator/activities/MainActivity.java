@@ -49,6 +49,24 @@ import java.util.Locale;
 import static com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth.REQUEST_BT_ENABLE;
 import static com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth.REQUEST_GPS_ENABLE;
 
+
+/*
+1. Wifi сканер - часть трансиверов выводятся на экран без краткой информации
+2. Wifi сканер - при нажатии на + отображается только информация о трансивере с краткой информацией,
+остальные не разворачиваются
+3. после минуты работы, данные в wifi сканере не отображаются несмотря на то,
+что трансиверы остаются подключенными к точке доступа (помогает перезапуск приложения)
+//4. в разделе обновление ос - при нажатии на трансивер для обновления - происходит переход в меню STM log
+5. Обновление контента - при нажатии на стационарном трансивере ничего не происходит,
+(данные актуальной версии подтягиваются с обсервера), если на сервере нет архива нужно об этом сообщить пользователю,
+6. Обновление контента - при нажатии на транспортный трансивер вылетает окно выбора маршрутной сети,
+после выбора сети подтверждение намерения загрузки - и все, если загрузка прошла успешно - нужно сообщить об этом
+//7. Настройки WIFI - при нажатии на трансивер происходит переход в меню STM log
+//8. Настройки network - при нажатии на трансивер происходит переход в меню STM log
+//9. SCUART - при нажатии на трансивер происходит переход в меню STM log
+//10. Обновить PHP - при нажатии на трансивер происходит переход в меню STM log
+ */
+
 public class MainActivity extends AppCompatActivity  implements OnTaskCompleted {
 
     Utils utils;
@@ -284,8 +302,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         super.onStop();
         newBleScanner.stopScan();
     }
-
-
+    
     @Override
     protected void onResume() {
         super.onResume();
@@ -299,5 +316,3 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         newBleScanner.stopScan();
     }
 }
-
-// TODO: 05.09.2021 число подключенных устройств

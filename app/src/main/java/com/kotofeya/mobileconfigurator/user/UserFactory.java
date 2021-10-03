@@ -1,35 +1,28 @@
 package com.kotofeya.mobileconfigurator.user;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.Logger;
 
 public class UserFactory {
     private static UserLevel user;
+    private static final String USER_FULL = "full";
+    private static final String USER_TRANSPORT = "transport";
 
     public static UserLevel getUser(){
         if(user == null){
             switch (App.get().getLevel()){
-                case "full":
+                case USER_FULL:
                     user = new UserFull();
-                case "transport":
+                    break;
+                case USER_TRANSPORT:
                     user = new UserTransport();
-                default:
-                    user = new UserFull();
-            }
-        }
-        return user;
-    }
-
-    public static UserType getUserType(){
-        if(user == null){
-            switch (App.get().getLevel()){
-                case "full":
-                    user = new UserFull();
-                case "transport":
-                    user = new UserTransport();
+                    break;
                 default:
                     user = new UserNull();
+                    break;
             }
         }
-        return user.getUserType();
+        Logger.d(Logger.UTILS_LOG, "getUser(), user: " + user.getUserType() + " " + user.getInterfaces());
+        return user;
     }
 }

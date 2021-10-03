@@ -2,8 +2,7 @@ package com.kotofeya.mobileconfigurator.rv_adapter;
 
 import android.content.Context;
 import android.view.View;
-
-import androidx.annotation.NonNull;
+import android.widget.Button;
 
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
@@ -16,9 +15,13 @@ public class BleScannerRvAdapter extends RvAdapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RvAdapter.ViewHolder holder, int position) {
-        super.onBindViewHolder(holder, position);
+    public String getExpText(Transiver transiver) {
+        return transiver.getBleExpText();
+    }
+
+    @Override
+    public void onBindViewHolderStep2(ViewHolder holder, int position) {
+        Button expButton = holder.getRvCustomView().getExpButton();
         expButton.setVisibility(View.VISIBLE);
-        exp.setText(transiver.getBleExpText());
     }
 }

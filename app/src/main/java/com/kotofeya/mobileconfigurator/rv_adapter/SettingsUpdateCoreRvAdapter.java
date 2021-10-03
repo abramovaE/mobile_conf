@@ -3,6 +3,8 @@ package com.kotofeya.mobileconfigurator.rv_adapter;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import androidx.fragment.app.DialogFragment;
 import com.kotofeya.mobileconfigurator.App;
@@ -20,11 +22,19 @@ public class SettingsUpdateCoreRvAdapter extends RvAdapter {
     }
 
     @Override
-    public void onBindViewHolder(@NonNull RvAdapter.ViewHolder holder, int position) {
-        super.onBindViewHolder(holder, position);
+    public String getExpText(Transiver transiver) {
+        return "";
+    }
+
+    @Override
+    public void onBindViewHolderStep2(ViewHolder holder, int position) {
+        Transiver transiver = getTransiver(position);
         String version = utils.getVersion(transiver.getSsid());
         String ip = utils.getIp(transiver.getSsid());
-        textItem0.setText((version == null)?"old":"new");
+        TextView textItem0 = holder.getRvCustomView().getTextItem0();
+        RvAdapterView linearLayout = holder.getRvCustomView();
+
+        textItem0.setText((version == null) ? "old" : "new");
         textItem0.setVisibility(View.VISIBLE);
         Logger.d(Logger.SCANNER_ADAPTER_LOG, "transiver selected, ip: " + ip + ", version: " + version);
         if(ip != null) {
@@ -38,8 +48,7 @@ public class SettingsUpdateCoreRvAdapter extends RvAdapter {
                     DialogFragment dialog;
                     if(Downloader.isCoreUpdatesDownloadCompleted()){
                         dialog = new SettingsUpdateCoreFragment.UpdateCoreConfDialog();
-                    }
-                    else{
+                    } else{
                         dialog = new SettingsUpdateCoreFragment.DownloadFilesDialog();
                     }
                     dialog.setArguments(bundle);

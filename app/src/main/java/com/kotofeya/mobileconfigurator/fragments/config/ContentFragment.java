@@ -43,7 +43,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public abstract class ContentFragment extends Fragment implements OnTaskCompleted, PostCommand {
+public abstract class ContentFragment extends Fragment implements OnTaskCompleted, PostCommand, View.OnClickListener{
     public Context context;
     public Utils utils;
     public ImageButton mainBtnRescan;
@@ -106,8 +106,7 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         if(response.startsWith("Ok")) {
             utils.showMessage(message);
             App.get().getFragmentHandler().changeFragment(fragmentTag, false);
-        }
-        else {
+        } else {
             utils.showMessage(errorMessage);
         }
     }
@@ -195,6 +194,9 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         setFields();
     }
 
+    public void stopScan() {
+        utils.getNewBleScanner().stopScan();
+    }
 
     protected abstract void setFields();
 
@@ -224,7 +226,6 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         String command = result.getString(BundleKeys.COMMAND_KEY);
         String ip = result.getString(BundleKeys.IP_KEY);
         String response = result.getString(BundleKeys.RESPONSE_KEY);
-
 
         int resultCode = result.getInt(BundleKeys.RESULT_CODE_KEY);
         String resultStr = result.getString(BundleKeys.RESULT_KEY);
@@ -289,8 +290,6 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     }
 
     public abstract void updateFields();
-
-    public abstract void stopScan();
 
     public static class RebootConfDialog extends DialogFragment {
         @NonNull
@@ -399,6 +398,5 @@ class ContentClickListener implements View.OnClickListener{
         dialog.setArguments(bundle);
         dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
     }
-
 
 }

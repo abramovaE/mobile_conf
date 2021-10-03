@@ -63,7 +63,7 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
             while (null != (line = br.readLine())) {
                 content.append(line);
             }
-            Logger.d(Logger.CHECK_USER_LOG, "Check user response: " + response);
+            Logger.d(Logger.CHECK_USER_LOG, "Check user response: " + content);
             if(response == 200){
                 JSONObject jsonObject = new JSONObject(content.toString());
                 int code = Integer.parseInt(jsonObject.getString("code"));
@@ -98,11 +98,15 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
     @Override
     protected void onPostExecute(Void s) {
         Logger.d(Logger.CHECK_USER_LOG, "On post execute, is user valid: " + isUserValid);
+
 //         TODO: 08.04.2021 remove
 //        isUserValid = true;
 //        App.get().setLevel("full");
+//        callback.doIfUserValid();
+
         Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
         if(callback != null && isUserValid){
+            Logger.d(Logger.CHECK_USER_LOG, "On post execute, level: " + level);
             App.get().setLevel(level);
             callback.doIfUserValid();
         }

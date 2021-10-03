@@ -1,9 +1,5 @@
 package com.kotofeya.mobileconfigurator;
 
-import android.content.Context;
-import android.net.wifi.WifiManager;
-import android.os.Handler;
-
 import java.io.IOException;
 import java.net.InetAddress;
 import java.util.ArrayList;

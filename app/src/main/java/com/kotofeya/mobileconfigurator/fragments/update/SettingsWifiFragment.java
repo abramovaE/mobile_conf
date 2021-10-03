@@ -8,18 +8,12 @@ import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 public class SettingsWifiFragment extends UpdateFragment {
 
     @Override
-    protected void loadUpdates() {
-    }
-    @Override
-    protected void loadVersion() {
-    }
-    @Override
     protected void setMainTextLabelText() {
         mainTxtLabel.setText("Wifi settings");
     }
     @Override
     protected RvAdapterType getAdapterType() {
-        return RvAdapterType.STM_LOG;
+        return RvAdapterType.SETTINGS_WIFI;
     }
     @Override
     public void onStart() {
@@ -27,12 +21,5 @@ public class SettingsWifiFragment extends UpdateFragment {
         super.onStart();
         versionLabel.setVisibility(View.GONE);
         checkVersionButton.setVisibility(View.GONE);
-    }
-    @Override
-    public void setProgressBarVisible() {
-    }
-    @Override
-    public void setProgressBarGone() {
-
     }
 }

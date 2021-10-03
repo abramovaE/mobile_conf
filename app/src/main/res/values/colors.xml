@@ -6,5 +6,8 @@
     <color name="colorConfiguration">#EBEBEB</color>
     <color name="colorRescan">#5E5E5E</color>
     <color name="colorRemember">#9E9E9E</color>
+    <color name="black">#000000</color>
+    <color name="lightGrey">#D1D0D0</color>
+
     <color name="darkGray">#777777</color>
 </resources>

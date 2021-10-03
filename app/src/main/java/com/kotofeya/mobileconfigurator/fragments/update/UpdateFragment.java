@@ -43,7 +43,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public abstract class UpdateFragment extends Fragment implements OnTaskCompleted, ProgressBarInt {
+public abstract class UpdateFragment extends Fragment implements OnTaskCompleted, ProgressBarInt, IUpdateFragment {
 
     public Context context;
     public Utils utils;
@@ -63,8 +63,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     RvAdapter rvAdapter;
     TextView downloadContentUpdateFilesTv;
 
-    protected abstract void loadUpdates();
-    protected abstract void loadVersion();
     protected abstract void setMainTextLabelText();
     protected abstract RvAdapterType getAdapterType();
 
@@ -84,12 +82,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         versionLabel.setText(version);
         checkVersionButton.setVisibility(View.VISIBLE);
         mainBtnRescan.setVisibility(View.VISIBLE);
-    }
-
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        Logger.d(Logger.UPDATE_LOG, "onCreate");
-        super.onCreate(savedInstanceState);
     }
 
     @Nullable
@@ -138,12 +130,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         progressTv = view.findViewById(R.id.progressTv);
         downloadContentUpdateFilesTv = view.findViewById(R.id.downloadCoreUpdateFilesTv);
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        Logger.d(Logger.UPDATE_OS_LOG, "onResume");
-        super.onResume();
     }
 
     protected void scan(){
@@ -285,10 +271,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         });
     }
 
-    @Override
-    public void clearTextLabel(){
-    }
-
     private void uploaded(String ip){
         Logger.d(Logger.UPDATE_LOG, "uploaded: " + ip);
         Transiver transiver = viewModel.getTransiverByIp(ip);
@@ -311,8 +293,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         this.version = version;
         versionLabel.setText(version);
     }
-
-
 
     public static class EnableMobileConfDialog extends DialogFragment {
         @NonNull

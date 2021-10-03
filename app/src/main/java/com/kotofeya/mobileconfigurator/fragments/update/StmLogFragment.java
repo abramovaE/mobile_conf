@@ -5,12 +5,7 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 
 public class StmLogFragment extends UpdateFragment {
-    @Override
-    protected void loadUpdates() {
-    }
-    @Override
-    protected void loadVersion() {
-    }
+
     @Override
     protected void setMainTextLabelText() {
         mainTxtLabel.setText("Stm log");
@@ -26,12 +21,5 @@ public class StmLogFragment extends UpdateFragment {
         super.onStart();
         versionLabel.setVisibility(View.GONE);
         checkVersionButton.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void setProgressBarVisible() {
-    }
-    @Override
-    public void setProgressBarGone() {
     }
 }

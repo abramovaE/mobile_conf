@@ -5,19 +5,14 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 
 public class SettingsScUartFragment extends UpdateFragment {
-    @Override
-    protected void loadUpdates() {
-    }
-    @Override
-    protected void loadVersion() {
-    }
+
     @Override
     protected void setMainTextLabelText() {
         mainTxtLabel.setText("ScUart");
     }
     @Override
     protected RvAdapterType getAdapterType() {
-        return RvAdapterType.STM_LOG;
+        return RvAdapterType.SETTINGS_SCUART;
     }
     @Override
     public void onStart() {
@@ -25,11 +20,5 @@ public class SettingsScUartFragment extends UpdateFragment {
         super.onStart();
         versionLabel.setVisibility(View.GONE);
         checkVersionButton.setVisibility(View.GONE);
-    }
-    @Override
-    public void setProgressBarVisible() {
-    }
-    @Override
-    public void setProgressBarGone() {
     }
 }

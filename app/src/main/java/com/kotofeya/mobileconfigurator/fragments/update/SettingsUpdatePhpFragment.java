@@ -14,18 +14,12 @@ import static com.kotofeya.mobileconfigurator.network.PostCommand.POST_COMMAND_E
 public class SettingsUpdatePhpFragment extends UpdateFragment {
 
     @Override
-    protected void loadUpdates() {
-    }
-    @Override
-    protected void loadVersion() {
-    }
-    @Override
     protected void setMainTextLabelText() {
         mainTxtLabel.setText("Update PHP");
     }
     @Override
     protected RvAdapterType getAdapterType() {
-        return RvAdapterType.STM_LOG;
+        return RvAdapterType.SETTINGS_UPDATE_PHP;
     }
     @Override
     public void onStart() {
@@ -57,13 +51,5 @@ public class SettingsUpdatePhpFragment extends UpdateFragment {
                     break;
             }
         }
-    }
-
-    @Override
-    public void setProgressBarVisible() {
-    }
-    @Override
-    public void setProgressBarGone() {
-
     }
 }

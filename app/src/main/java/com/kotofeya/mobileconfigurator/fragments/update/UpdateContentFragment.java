@@ -30,14 +30,9 @@ public class UpdateContentFragment extends UpdateFragment {
     LinearLayout label;
     private TextView downloadContentUpdateFilesTv;
 
-
     @Override
     public void onTaskCompleted(Bundle bundle) {
         super.onTaskCompleted(bundle);
-    }
-
-    @Override
-    protected void loadUpdates() {
     }
 
     @Override
@@ -47,7 +42,7 @@ public class UpdateContentFragment extends UpdateFragment {
     }
 
     @Override
-    protected void loadVersion() {
+    public void loadVersion() {
         Logger.d(Logger.UPDATE_CONTENT_LOG, "load version");
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         if(isInternetEnabled) {
@@ -105,9 +100,7 @@ public class UpdateContentFragment extends UpdateFragment {
                 createUploadContentToStorageDialog(transportContent).create().show();
             }
         });
-
     }
-
 
     private String getTransportFileKey(String s, boolean isInternetEnabled){
         if(isInternetEnabled){
@@ -117,10 +110,9 @@ public class UpdateContentFragment extends UpdateFragment {
         }
     }
 
-
     private Map<String, String> addToTransportContent(Map<String, String> transportContent,
                                                              String key, String value){
-        UserType userType = UserFactory.getUserType();
+        UserType userType = UserFactory.getUser().getUserType();
         if(userType.equals(UserType.USER_FULL)) {
             transportContent.put(key, value);
         } else if(userType.equals(UserType.USER_TRANSPORT)){
@@ -169,11 +161,7 @@ public class UpdateContentFragment extends UpdateFragment {
                 });
         return builder;
     }
-
-
 }
-
-
 
 //update content -
 //ssid = серийцный номер

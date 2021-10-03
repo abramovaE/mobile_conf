@@ -40,6 +40,8 @@ public class MainMenuFragment extends Fragment implements View.OnClickListener {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.main_fragment, container, false);
         List<UserInterface> interfaces = UserFactory.getUser().getInterfaces();
+
+
         basicScannerbtn = view.findViewById(R.id.main_basic_scanner_btn);
         bleScannerBtn = view.findViewById(R.id.main_ble_scanner_btn);
         updateOSBtn = view.findViewById(R.id.main_update_os_btn);

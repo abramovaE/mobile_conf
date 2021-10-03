@@ -216,7 +216,7 @@ public class Utils implements OnTaskCompleted{
 
     private Map<String, String> addToTransportContent(Map<String, String> transportContent,
                                                              String key, String value){
-        UserType userType = UserFactory.getUserType();
+        UserType userType = UserFactory.getUser().getUserType();
         if(userType.equals(UserType.USER_FULL)) {
             transportContent.put(key, value);
         } else if(userType.equals(UserType.USER_TRANSPORT)){

@@ -25,7 +25,7 @@ public class UpdateStmFragment extends UpdateFragment {
     private static final String PREF_STAT = "stationary";
 
      @Override
-     protected void loadVersion() {
+     public void loadVersion() {
          Logger.d(Logger.UPDATE_STM_LOG, "load version");
          boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         if(isInternetEnabled){
@@ -46,7 +46,7 @@ public class UpdateStmFragment extends UpdateFragment {
     }
 
 
-    protected void loadUpdates(){
+    public void loadUpdates(){
         Downloader downloader = new Downloader(this);
         downloader.execute(Downloader.STM_VERSION_URL);
     }

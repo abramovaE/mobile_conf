@@ -395,7 +395,7 @@ public class Transiver {
     }
 
     public String getExpBasicScanInfo(){
-        Logger.d(Logger.MAIN_LOG, "get exp basic scan info, takeinfo: " + takeInfoFull);
+        Logger.d(Logger.MAIN_LOG, "get exp basic scan info, transiver: " + ssid + ", takeinfo: " + takeInfoFull);
         if(takeInfoFull != null){
             return takeInfoFull.toString();
         }

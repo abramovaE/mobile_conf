@@ -46,14 +46,6 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
     private LocalTime localTime;
 
     @Override
-    protected void loadUpdates() {
-    }
-
-    @Override
-    protected void loadVersion() {
-    }
-
-    @Override
     protected void setMainTextLabelText() {
         mainTxtLabel.setText("Update the core");
     }

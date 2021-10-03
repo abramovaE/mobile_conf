@@ -39,7 +39,7 @@ public class UpdateOsFragment extends UpdateFragment {
     }
 
     @Override
-    protected void loadVersion() {
+    public void loadVersion() {
         Logger.d(Logger.UPDATE_OS_LOG, "load version");
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
         if(isInternetEnabled){
@@ -55,11 +55,11 @@ public class UpdateOsFragment extends UpdateFragment {
 
     @Override
     protected RvAdapterType getAdapterType() {
-        return RvAdapterType.STM_LOG;
+        return RvAdapterType.UPDATE_OS_TYPE;
     }
 
 
-    protected void loadUpdates() {
+    public void loadUpdates() {
         Downloader downloader = new Downloader(this);
         downloader.execute(Downloader.OS_URL);
     }

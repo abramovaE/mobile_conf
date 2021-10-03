@@ -21,7 +21,7 @@ import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
 
 
-public class StationContentFragment extends ContentFragment implements View.OnClickListener, PostCommand {
+public class StationContentFragment extends ContentFragment {
     EditText floorTxt;
     Spinner zummerTypesSpn;
     Spinner zummerVolumeSpn;
@@ -110,11 +110,6 @@ public class StationContentFragment extends ContentFragment implements View.OnCl
     public void updateFields() {
         setModem();
     }
-    @Override
-    public void stopScan() {
-        utils.getNewBleScanner().stopScan();
-    }
-
 
     @Override
     public void onClick(View v) {

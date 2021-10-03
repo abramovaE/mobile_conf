@@ -38,8 +38,6 @@ public class ConfigStatFragment extends ConfigFragment {
         utils.getNewBleScanner().startScan();
     }
 
-
-
     public void basicScan(){
         utils.getTakeInfo();
     }

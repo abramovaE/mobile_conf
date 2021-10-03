@@ -19,7 +19,7 @@ import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 
-public class TransportContentFragment extends ContentFragment implements View.OnClickListener, PostCommand {
+public class TransportContentFragment extends ContentFragment {
     Spinner spnType;
     EditText number;
     Spinner spnDir;
@@ -101,10 +101,6 @@ public class TransportContentFragment extends ContentFragment implements View.On
     @Override
     public void updateFields() {}
 
-    @Override
-    public void stopScan() {
-        utils.getNewBleScanner().stopScan();
-    }
 
 
     @Override

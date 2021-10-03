@@ -3,6 +3,8 @@ package com.kotofeya.mobileconfigurator.rv_adapter;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.TextView;
+
 import androidx.annotation.NonNull;
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
@@ -17,16 +19,25 @@ public class UpdateStmRvAdapter extends RvAdapter{
     public UpdateStmRvAdapter(Context context, Utils utils, List<Transiver> objects) {
         super(context, utils, objects);
     }
+
     @Override
-    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        super.onBindViewHolder(holder, position);
+    public String getExpText(Transiver transiver) {
+        return "";
+    }
+
+
+    @Override
+    public void onBindViewHolderStep2(ViewHolder holder, int position) {
+        TextView textItem1 = holder.getRvCustomView().getTextItem1();
         textItem1.setVisibility(View.VISIBLE);
+        RvAdapterView linearLayout = holder.getRvCustomView();
         linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update stm was pressed");
                 if (Downloader.tempUpdateStmFiles != null && !Downloader.tempUpdateStmFiles.isEmpty()) {
                     Bundle bundle = new Bundle();
+                    Transiver transiver = getTransiver(position);
                     bundle.putString(BundleKeys.IP_KEY, transiver.getIp());
                     bundle.putBoolean(BundleKeys.IS_TRANSPORT_KEY, transiver.isTransport());
                     bundle.putBoolean(BundleKeys.IS_STATIONARY_KEY, transiver.isStationary());
