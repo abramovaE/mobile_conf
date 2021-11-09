@@ -143,8 +143,6 @@ public class Utils implements OnTaskCompleted{
     public void onProgressUpdate(Integer downloaded) {
     }
 
-
-
     public static class MessageDialog extends DialogFragment {
         @NonNull
         @Override
@@ -186,7 +184,7 @@ public class Utils implements OnTaskCompleted{
                         Logger.d(Logger.UTILS_LOG, "results: " + results.size());
                         viewModel.updateResults(results);
                         try {
-                            Thread.sleep(500);
+                            Thread.sleep(2000);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }

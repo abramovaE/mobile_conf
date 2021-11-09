@@ -1,5 +1,7 @@
 package com.kotofeya.mobileconfigurator;
 
+import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
+
 public interface BundleKeys {
 
 
@@ -15,6 +17,9 @@ public interface BundleKeys {
     String SERIAL_KEY = "serial";
     String IS_TRANSPORT_KEY = "isTransport";
     String IS_STATIONARY_KEY = "isStationary";
+    String RESULT = "result";
+    String KEY = "key";
+    String VALUE = "value";
 
 
 }

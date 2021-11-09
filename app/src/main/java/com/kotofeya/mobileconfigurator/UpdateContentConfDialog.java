@@ -38,8 +38,8 @@ public class UpdateContentConfDialog extends DialogFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         Logger.d(Logger.UPDATE_CONTENT_LOG, "dialogContent: " + content[which]);
                         Bundle bundle = new Bundle();
-                        bundle.putString("key", "transp " + content[which]);
-                        bundle.putString("value", contentMap.get(content[which]));
+                        bundle.putString(BundleKeys.KEY, "transp " + content[which]);
+                        bundle.putString(BundleKeys.VALUE, contentMap.get(content[which]));
                         bundle.putString(BundleKeys.IP_KEY, ip);
                         bundle.putBoolean(BundleKeys.IS_TRANSPORT_KEY, isTransport);
                         bundle.putBoolean(BundleKeys.IS_STATIONARY_KEY, isStationary);

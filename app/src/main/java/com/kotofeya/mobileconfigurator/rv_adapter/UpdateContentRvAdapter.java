@@ -24,11 +24,6 @@ public class UpdateContentRvAdapter extends RvAdapter {
     }
 
     @Override
-    public String getExpText(Transiver transiver) {
-        return "";
-    }
-
-    @Override
     public void onBindViewHolderStep2(ViewHolder holder, int position) {
         Transiver transiver = getTransiver(position);
         TextView textItem0 = holder.getRvCustomView().getTextItem0();
@@ -43,11 +38,12 @@ public class UpdateContentRvAdapter extends RvAdapter {
             if (transiver.getIncrementOfContent() == null || transiver.getIncrementOfContent().isEmpty()) {
                 textItem0.setText("no incr");
             } else {
+                String increment = transiver.getIncrementOfContent();
                 if (isTransport) {
                     TransportTransiver t = (TransportTransiver) transiver;
-                    textItem0.setText(t.getCityCode(t.getCity()) + " " + transiver.getIncrementOfContent());
+                    textItem0.setText(t.getCityCode(t.getCity()) + " " + increment);
                 } else {
-                    textItem0.setText(transiver.getIncrementOfContent());
+                    textItem0.setText(increment);
                 }
             }
             textItem1.setText("no updates");
@@ -79,8 +75,8 @@ public class UpdateContentRvAdapter extends RvAdapter {
                         String key = transiver.getSsid();
                         if (Downloader.tempUpdateStationaryContentFiles != null &&
                                 Downloader.tempUpdateStationaryContentFiles.containsKey(key)) {
-                            bundle.putString("key", key);
-                            bundle.putString("value", key + "/data.tar.bz2");
+                            bundle.putString(BundleKeys.KEY, key);
+                            bundle.putString(BundleKeys.VALUE, key + "/data.tar.bz2");
                             dialogFragment = new UploadContentConfDialog();
                         }
                     }

@@ -6,13 +6,10 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.widget.AppCompatTextView;
 import androidx.core.content.ContextCompat;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
-import com.kotofeya.mobileconfigurator.FragmentHandler;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.Utils;
@@ -21,13 +18,11 @@ import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import java.util.List;
 
 public class SettingsUpdatePhpRvAdapter extends RvAdapter {
+
+    public static final String SSH_CONN = "ssh_conn";
+
     public SettingsUpdatePhpRvAdapter(Context context, Utils utils, List<Transiver> objects) {
         super(context, utils, objects);
-    }
-
-    @Override
-    public String getExpText(Transiver transiver) {
-        return "";
     }
 
     @Override
@@ -41,7 +36,7 @@ public class SettingsUpdatePhpRvAdapter extends RvAdapter {
         textItem0.setVisibility(View.VISIBLE);
         Logger.d(Logger.UPDATE_LOG, "update php step 2, version: " + version);
 
-        if(version != null && !version.startsWith("ssh_conn")) {
+        if(version != null && !version.startsWith(SSH_CONN)) {
             textItem0.setTextColor(ContextCompat.getColor(ctx, R.color.black));
             ssid.setTextColor(ContextCompat.getColor(ctx, R.color.black));
         } else {
@@ -51,7 +46,7 @@ public class SettingsUpdatePhpRvAdapter extends RvAdapter {
         linearLayout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (version != null && !version.startsWith("ssh_conn")) {
+                if (version != null && !version.startsWith(SSH_CONN)) {
                     Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update php was pressed");
                     Bundle bundle = new Bundle();
                     bundle.putString(BundleKeys.IP_KEY, transiver.getIp());

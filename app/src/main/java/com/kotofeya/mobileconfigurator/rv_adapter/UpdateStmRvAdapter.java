@@ -21,12 +21,6 @@ public class UpdateStmRvAdapter extends RvAdapter{
     }
 
     @Override
-    public String getExpText(Transiver transiver) {
-        return "";
-    }
-
-
-    @Override
     public void onBindViewHolderStep2(ViewHolder holder, int position) {
         TextView textItem1 = holder.getRvCustomView().getTextItem1();
         textItem1.setVisibility(View.VISIBLE);
@@ -43,7 +37,8 @@ public class UpdateStmRvAdapter extends RvAdapter{
                     bundle.putBoolean(BundleKeys.IS_STATIONARY_KEY, transiver.isStationary());
                     UpdateStmFragment.UpdateStmConfDialog dialog = new UpdateStmFragment.UpdateStmConfDialog();
                     dialog.setArguments(bundle);
-                    dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+                    dialog.show(App.get().getFragmentHandler().getFragmentManager(),
+                            App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
                 }
             }
         });

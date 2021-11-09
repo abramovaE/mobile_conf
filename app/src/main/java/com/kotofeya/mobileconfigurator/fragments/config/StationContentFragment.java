@@ -212,7 +212,13 @@ public class StationContentFragment extends ContentFragment {
                 case FLOOR:
                     showMessageAndChangeFragment(response, "floor changed",
                             "set floor error ", FragmentHandler.CONFIG_STATION_FRAGMENT);
-                    Thread thread = new Thread(new PostInfo(this, ip, sound(Integer.parseInt(zummerTypeSend))));
+                    int zummerType = 0;
+                    if(zummerTypeSend.equals(getResources().getStringArray(R.array.zummer_types)[1])){
+                        zummerType = 2;
+                    } else if(zummerTypeSend.equals(getResources().getStringArray(R.array.zummer_types)[2])){
+                        zummerType = 1;
+                    }
+                    Thread thread = new Thread(new PostInfo(this, ip, sound(zummerType)));
                     thread.start();
                     break;
                 case SOUND:

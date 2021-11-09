@@ -5,8 +5,6 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.wifi.WifiManager;
-import android.os.Handler;
-import android.util.Log;
 
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -14,7 +12,6 @@ import java.util.Collections;
 import java.util.List;
 
 public class InternetConn {
-    WifiManager.LocalOnlyHotspotReservation mReservation;
     private static final ConnectivityManager mConnectivityManager = (ConnectivityManager) App.get().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
     public boolean hasInternetConnection() {

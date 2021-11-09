@@ -13,10 +13,6 @@ public class ConfigStationRvAdapter extends RvAdapter {
     public ConfigStationRvAdapter(Context context, Utils utils, List<Transiver> objects, String fragmentTag) {
         super(context, utils, objects, fragmentTag);
     }
-    @Override
-    public String getExpText(Transiver transiver) {
-        return "";
-    }
 
     @Override
     public void onBindViewHolderStep2(ViewHolder holder, int position) {

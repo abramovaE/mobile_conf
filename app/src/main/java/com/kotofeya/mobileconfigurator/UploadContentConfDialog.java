@@ -3,6 +3,7 @@ package com.kotofeya.mobileconfigurator;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -10,16 +11,11 @@ import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateContentFragment;
 
-
-
-//911 901 18 40 Татьяна николаевна
-//911 285 50 41 Татьяна Владимировна
-
 public class UploadContentConfDialog extends DialogFragment {
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
-        String key = getArguments().getString("key");
-        String value = getArguments().getString("value");
+        String key = getArguments().getString(BundleKeys.KEY);
+        String value = getArguments().getString(BundleKeys.VALUE);
         String ip = getArguments().getString(BundleKeys.IP_KEY);
         boolean isStationary = getArguments().getBoolean(BundleKeys.IS_STATIONARY_KEY);
         boolean isTransport = getArguments().getBoolean(BundleKeys.IS_TRANSPORT_KEY);
@@ -38,8 +34,7 @@ public class UploadContentConfDialog extends DialogFragment {
                     ProgressBarInt progressBarInt = ((UpdateContentFragment) App.get().getFragmentHandler().getCurrentFragment());
                     SshConnection connection = new SshConnection(onTaskCompleted, progressBarInt);
                     connection.execute(ip, TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE, filePath);
-                }
-                else {
+                } else {
                     String downloadCode = null;
                     if(isStationary){
                         downloadCode = TaskCode.UPDATE_STATION_CONTENT_DOWNLOAD_CODE + "";
@@ -49,9 +44,10 @@ public class UploadContentConfDialog extends DialogFragment {
                     }
                     Downloader downloader = new Downloader((UpdateContentFragment) App.get().getFragmentHandler().getCurrentFragment());
                     if(ip != null) {
+                        Logger.d(Logger.CONTENT_LOG, "downloader execute 1");
                         downloader.execute(value, ip, downloadCode);
-                    }
-                    else {
+                    } else {
+                        Logger.d(Logger.CONTENT_LOG, "downloader execute 2");
                         downloader.execute(value, "", TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE + "");
                     }
                 }

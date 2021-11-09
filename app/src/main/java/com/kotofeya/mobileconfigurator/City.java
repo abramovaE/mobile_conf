@@ -10,11 +10,9 @@ public class City implements Serializable {
     @SerializedName("id")
     @Expose
     private int id;
-
     @SerializedName("index")
     @Expose
     private String index;
-
     @SerializedName("fullname")
     @Expose
     private String fullname;
@@ -25,7 +23,6 @@ public class City implements Serializable {
     public int getId() {
         return id;
     }
-
     public void setId(int id) {
         this.id = id;
     }
@@ -33,7 +30,6 @@ public class City implements Serializable {
     public String getIndex() {
         return index;
     }
-
     public void setIndex(String index) {
         this.index = index;
     }
@@ -41,7 +37,6 @@ public class City implements Serializable {
     public String getFullname() {
         return fullname;
     }
-
     public void setFullname(String fullname) {
         this.fullname = fullname;
     }

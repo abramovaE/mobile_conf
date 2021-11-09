@@ -15,11 +15,6 @@ public class ConfigTransportRvAdapter extends RvAdapter {
     }
 
     @Override
-    public String getExpText(Transiver transiver) {
-        return "";
-    }
-
-    @Override
     public void onBindViewHolderStep2(ViewHolder holder, int position) {
         Transiver transiver = getTransiver(position);
         TextView textItem0 = holder.getRvCustomView().getTextItem0();

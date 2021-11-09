@@ -13,6 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
@@ -152,8 +153,8 @@ public class UpdateContentFragment extends UpdateFragment {
                     public void onClick(DialogInterface dialog, int which) {
                         Logger.d(Logger.UPDATE_CONTENT_LOG, "dialogContent: " + content[which]);
                         Bundle bundle = new Bundle();
-                        bundle.putString("key", "transp " + content[which]);
-                        bundle.putString("value", contentMap.get(content[which]));
+                        bundle.putString(BundleKeys.KEY, "transp " + content[which]);
+                        bundle.putString(BundleKeys.VALUE, contentMap.get(content[which]));
                         UploadContentConfDialog d = new UploadContentConfDialog();
                         d.setArguments(bundle);
                         d.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);

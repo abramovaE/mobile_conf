@@ -13,11 +13,6 @@ public class SettingsRvAdapter extends RvAdapter {
     }
 
     @Override
-    public String getExpText(Transiver transiver) {
-        return "";
-    }
-
-    @Override
     public void onBindViewHolderStep2(ViewHolder holder, int position) {
         RvAdapterView linearLayout = holder.getRvCustomView();
         linearLayout.setOnClickListener(configListener(position, fragmentTag));

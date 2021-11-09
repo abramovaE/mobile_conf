@@ -2,7 +2,6 @@ package com.kotofeya.mobileconfigurator.rv_adapter;
 
 import android.content.Context;
 import android.widget.Button;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -11,7 +10,6 @@ import com.kotofeya.mobileconfigurator.R;
 
 
 public class RvAdapterView extends ConstraintLayout {
-
     private TextView ssid;
     private TextView textItem0;
     private TextView textItem1;
@@ -33,23 +31,18 @@ public class RvAdapterView extends ConstraintLayout {
     public TextView getSsid() {
         return ssid;
     }
-
     public TextView getTextItem0() {
         return textItem0;
     }
-
     public TextView getTextItem1() {
         return textItem1;
     }
-
     public TextView getTextItem2() {
         return textItem2;
     }
-
     public TextView getExp() {
         return exp;
     }
-
     public Button getExpButton() {
         return expButton;
     }

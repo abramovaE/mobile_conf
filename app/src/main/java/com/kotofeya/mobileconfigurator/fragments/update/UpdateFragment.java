@@ -209,7 +209,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                     Logger.d(Logger.UPDATE_LOG, "ssh error: " + result);
                     utils.showMessage("Error: " + result);}
                 break;
-
             case TaskCode.DOWNLOADER_ERROR_CODE:
                 Logger.d(Logger.UPDATE_LOG, "downloader error: " + result);
                 utils.showMessage("Error: " + result);

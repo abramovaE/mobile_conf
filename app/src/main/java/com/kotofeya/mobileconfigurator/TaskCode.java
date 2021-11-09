@@ -3,7 +3,6 @@ package com.kotofeya.mobileconfigurator;
 public interface TaskCode {
     int TAKE_CODE = 0;
 
-
     int UPDATE_OS_UPLOAD_CODE = 1;
     int UPDATE_STM_UPLOAD_CODE = 2;
 
@@ -21,7 +20,6 @@ public interface TaskCode {
     int TRANSPORT_CONTENT_VERSION_CODE = 12;
     int STATION_CONTENT_VERSION_CODE = 13;
 
-
     int UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE = 16;
     int UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE = 17;
 
@@ -34,12 +32,8 @@ public interface TaskCode {
     int DOWNLOAD_CITIES_CODE = 20;
     int SEND_LOG_TO_SERVER_CODE = 21;
 
-
     int UPDATE_CORE_UPLOAD_CODE = 22;
     int UPDATE_CORE_DOWNLOAD_CODE = 23;
 
     int UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE  = 24;
-
-
-
 }

@@ -97,11 +97,8 @@ public class TransportContentFragment extends ContentFragment {
             btnContntSend.setEnabled(false);
         }
     }
-
     @Override
     public void updateFields() {}
-
-
 
     @Override
     public void onClick(View v) {

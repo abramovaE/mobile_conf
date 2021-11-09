@@ -136,11 +136,7 @@ public class PostInfo implements Runnable {
             }
             Logger.d(Logger.POST_INFO_LOG, "listener: " + listener);
             reader.close();
-        } catch (MalformedURLException e) {
-            Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage());
-            result.putString(BundleKeys.COMMAND_KEY, PostCommand.POST_COMMAND_ERROR);
-            result.putString(BundleKeys.RESPONSE_KEY, e.getMessage());
-        } catch (ProtocolException e) {
+        } catch (MalformedURLException | ProtocolException e) {
             Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage());
             result.putString(BundleKeys.COMMAND_KEY, PostCommand.POST_COMMAND_ERROR);
             result.putString(BundleKeys.RESPONSE_KEY, e.getMessage());
@@ -150,12 +146,12 @@ public class PostInfo implements Runnable {
             result.putString(BundleKeys.COMMAND_KEY, PostCommand.POST_COMMAND_ERROR);
             result.putString(BundleKeys.RESPONSE_KEY, e.getMessage());
             result.putString(BundleKeys.IP_KEY, ip);
-
         } catch (JSONException e) {
             Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage());
             e.printStackTrace();
+        } finally {
+            listener.onTaskCompleted(result);
         }
-        listener.onTaskCompleted(result);
     }
 
     private String getUrl(String ip, String command)  throws IOException{
@@ -192,12 +188,16 @@ public class PostInfo implements Runnable {
     }
 
     private double getVersion(){
-        switch (version){
-            case "0.1.6":
-                return 1.6;
-            case "0.1.7":
-                return 1.7;
+        if(version.startsWith("0")){
+            return Double.parseDouble(version.replaceFirst("0.", ""));
         }
+//        switch (version){
+//            case "0.1.6":
+//                return 1.6;
+//            case "0.1.7":
+//                return 1.7;
+//
+//        }
         return 0.0;
     }
 }

@@ -52,8 +52,6 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
         }
     }
 
-
-
     @Override
     public void run() {
             String res = "";

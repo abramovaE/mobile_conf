@@ -19,7 +19,7 @@ import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import java.util.List;
 
-public abstract class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
+public abstract class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>  implements ExpTextInt{
     Context ctx;
     LayoutInflater lInflater;
     List<Transiver> objects;
@@ -51,8 +51,6 @@ public abstract class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolde
         ));
         return new ViewHolder(itemView);
     }
-
-    public abstract String getExpText(Transiver transiver);
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
@@ -86,7 +84,6 @@ public abstract class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolde
     protected View.OnClickListener configListener(int position, String fragment) {
         Transiver transiver = getTransiver(position);
         String ssid = transiver.getSsid();
-
         View.OnClickListener onClickListener = new View.OnClickListener() {
             @Override
             public void onClick(View v) {

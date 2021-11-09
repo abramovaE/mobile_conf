@@ -74,8 +74,6 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
     public static final String REBOOT_CLEAR="clear";
 
-
-
     protected void updateUI() {
         Logger.d(Logger.CONTENT_LOG, "update ui, ssid " + ssid + " " + currentTransiver.getSsid());
         if(utils.getVersion(ssid) != null) {

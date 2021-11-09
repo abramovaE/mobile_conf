@@ -22,11 +22,6 @@ public class SettingsUpdateCoreRvAdapter extends RvAdapter {
     }
 
     @Override
-    public String getExpText(Transiver transiver) {
-        return "";
-    }
-
-    @Override
     public void onBindViewHolderStep2(ViewHolder holder, int position) {
         Transiver transiver = getTransiver(position);
         String version = utils.getVersion(transiver.getSsid());

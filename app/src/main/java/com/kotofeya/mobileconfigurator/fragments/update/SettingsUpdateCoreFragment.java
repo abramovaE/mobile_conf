@@ -138,6 +138,9 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
             new LinkedList<>(Arrays.asList(Downloader.tempUpdateCoreFiles)).stream().forEach(it -> sb.append(it.getName()).append("\n"));
             downloadCoreUpdateFilesTv.setText(sb.toString());
         }
+        if(resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
+            Toast.makeText(context, "При загрузке файлов произошла ошибка", Toast.LENGTH_SHORT).show();
+        }
 
         if(res != null && res.contains("загружен")){
             clearTextLabel();

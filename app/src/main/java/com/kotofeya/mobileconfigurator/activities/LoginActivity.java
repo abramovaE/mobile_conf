@@ -20,7 +20,6 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import java.util.List;
 
-
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener, CheckUser.MyCustomCallBack, View.OnKeyListener {
 
     private EditText loginTxt;

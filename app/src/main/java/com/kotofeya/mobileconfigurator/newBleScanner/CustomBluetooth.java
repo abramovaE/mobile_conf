@@ -25,6 +25,7 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
+import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 
 import java.util.ArrayList;
@@ -264,6 +265,7 @@ public class CustomBluetooth {
                 if (isScanning && System.currentTimeMillis() - startScanningTime > SCANNING_TIME_IN_MINUTES * 60000) {
                     stopScan();
                     try {
+                        Logger.d(Logger.BLE_SCANNER_LOG, "try sleep 500");
                         Thread.sleep(500);
                     } catch (InterruptedException e) {
                     }
