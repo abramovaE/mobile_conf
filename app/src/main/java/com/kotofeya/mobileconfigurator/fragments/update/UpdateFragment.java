@@ -26,6 +26,7 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.ProgressBarInt;
+import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapter;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
@@ -43,7 +44,8 @@ import java.util.LinkedList;
 import java.util.List;
 
 
-public abstract class UpdateFragment extends Fragment implements OnTaskCompleted, ProgressBarInt, IUpdateFragment {
+public abstract class UpdateFragment extends Fragment implements OnTaskCompleted, ProgressBarInt,
+        IUpdateFragment, InterfaceUpdateListener {
 
     public Context context;
     public Utils utils;
@@ -63,8 +65,17 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     RvAdapter rvAdapter;
     TextView downloadContentUpdateFilesTv;
 
+    protected AlertDialog scanClientsDialog;
+
+
     protected abstract void setMainTextLabelText();
     protected abstract RvAdapterType getAdapterType();
+
+    @Override
+    public void clientsScanFinished() {
+        scanClientsDialog.dismiss();
+        utils.getTakeInfo(this);
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -134,7 +145,9 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     protected void scan(){
         Logger.d(Logger.UPDATE_LOG, "updateFragment scan");
-        utils.getTakeInfo();
+        scanClientsDialog = utils.getScanClientsDialog().show();
+        utils.updateClients(this);
+//        utils.getTakeInfo(this);
     }
 
     @Override

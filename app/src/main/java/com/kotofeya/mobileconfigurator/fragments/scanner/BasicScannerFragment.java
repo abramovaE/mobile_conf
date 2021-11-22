@@ -7,9 +7,11 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterFactory;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
@@ -22,7 +24,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 
-public class BasicScannerFragment extends ScannerFragment implements OnTaskCompleted {
+public class BasicScannerFragment extends ScannerFragment implements OnTaskCompleted, InterfaceUpdateListener {
+
+    private AlertDialog scanClientsDialog;
 
     private CustomViewModel viewModel;
     @Nullable
@@ -82,7 +86,9 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
 
     public void scan(){
         if(checkPermission()) {
-            utils.getTakeInfo();
+            scanClientsDialog = utils.getScanClientsDialog().show();
+            utils.updateClients(this);
+//            utils.getTakeInfo(this);
         } else {
             askPermission();
         }
@@ -104,5 +110,11 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         Logger.d(Logger.BASIC_SCANNER_LOG, "update ui: " + transivers.size());
         rvAdapter.setObjects(transivers);
         rvAdapter.notifyDataSetChanged();
+    }
+
+    @Override
+    public void clientsScanFinished() {
+        scanClientsDialog.dismiss();
+        utils.getTakeInfo(this);
     }
 }

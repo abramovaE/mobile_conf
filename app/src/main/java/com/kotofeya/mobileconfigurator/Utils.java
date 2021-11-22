@@ -11,7 +11,10 @@ import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
+import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.hotspot.DeviceScanListener;
+import com.kotofeya.mobileconfigurator.hotspot.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth;
@@ -28,10 +31,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Utils implements OnTaskCompleted{
+public class Utils implements OnTaskCompleted, DeviceScanListener {
     public static final int TRANSP_RADIO_TYPE = 0x80;
     public static final int STAT_RADIO_TYPE = 0x40;
     public static final int ALL_RADIO_TYPE = 0;
+
+    public static final String TITLE = "";
+    public static final String MESSAGE = "Сканируем подключенных клиентов";
 
     private List<String> clients;
     private int radioType;
@@ -45,6 +51,9 @@ public class Utils implements OnTaskCompleted{
     private CustomBluetooth newBleScanner;
     private Thread thread;
 
+    private InterfaceUpdateListener interfaceUpdateListener;
+
+
     public Utils(Context context, CustomBluetooth newBleScanner) {
         this.context = context;
         this.viewModel = ViewModelProviders.of((MainActivity)context, new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
@@ -53,10 +62,12 @@ public class Utils implements OnTaskCompleted{
         this.newBleScanner = newBleScanner;
     }
 
-    public void getTakeInfo(){
+    public void getTakeInfo(InterfaceUpdateListener interfaceUpdateListener){
         Logger.d(Logger.UTILS_LOG, "get take info");
         this.futureCounter = 0;
-        updateClients();
+        this.interfaceUpdateListener = interfaceUpdateListener;
+//        updateClients(interfaceUpdateListener);
+
         Logger.d(Logger.UTILS_LOG, "clients: " + clients);
         if (clients.size() > 0) {
             executorService = Executors.newCachedThreadPool();
@@ -76,9 +87,6 @@ public class Utils implements OnTaskCompleted{
         }
     }
 
-    public int getRadioType() {
-        return radioType;
-    }
 
     public void setRadioType(int radioType) {
         this.radioType = radioType;
@@ -143,6 +151,14 @@ public class Utils implements OnTaskCompleted{
     public void onProgressUpdate(Integer downloaded) {
     }
 
+    @Override
+    public void scanFinished(List<String> clients) {
+        this.clients = clients;
+        viewModel.setClients(clients);
+        interfaceUpdateListener.clientsScanFinished();
+    }
+    
+
     public static class MessageDialog extends DialogFragment {
         @NonNull
         @Override
@@ -200,18 +216,17 @@ public class Utils implements OnTaskCompleted{
         return newBleScanner;
     }
 
-    public void updateClients(){
+
+    public void updateClients(InterfaceUpdateListener interfaceUpdateListener){
+        this.interfaceUpdateListener = interfaceUpdateListener;
         String deviceIp = internetConnection.getDeviceIp();
         if(deviceIp != null) {
-//            WiFiLocalHotspot.getInstance().getClientList();
-            clients = WiFiLocalHotspot.getInstance().getClientList(deviceIp);
-            Logger.d(Logger.UPDATE_LOG, "updateClients: " + clients);
-//            clients.remove(deviceIp);
+            WiFiLocalHotspot.getInstance().getClientList(deviceIp, this);
         } else {
             clients = new ArrayList<>();
         }
-        viewModel.setClients(clients);
     }
+
 
     private Map<String, String> addToTransportContent(Map<String, String> transportContent,
                                                              String key, String value){
@@ -251,5 +266,11 @@ public class Utils implements OnTaskCompleted{
             }
         }
         return transportContent;
+    }
+
+    public AlertDialog.Builder getScanClientsDialog(){
+        return new AlertDialog.Builder(context)
+                .setTitle(TITLE)
+                .setMessage(MESSAGE);
     }
 }

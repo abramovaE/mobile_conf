@@ -52,4 +52,9 @@ public class SettingsUpdatePhpFragment extends UpdateFragment {
             }
         }
     }
+
+    @Override
+    public void clientsScanFinished() {
+        scanClientsDialog.dismiss();
+    }
 }

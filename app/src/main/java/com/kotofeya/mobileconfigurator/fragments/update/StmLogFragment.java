@@ -22,4 +22,9 @@ public class StmLogFragment extends UpdateFragment {
         versionLabel.setVisibility(View.GONE);
         checkVersionButton.setVisibility(View.GONE);
     }
+
+    @Override
+    public void clientsScanFinished() {
+        scanClientsDialog.dismiss();
+    }
 }

@@ -10,12 +10,14 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
@@ -34,6 +36,7 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
     RecyclerView rvScanner;
     RvAdapter rvAdapter;
 
+
     public abstract RvAdapter getRvAdapter();
     public abstract void setMainTextLabel();
     public abstract void scan();
@@ -44,6 +47,8 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
         this.utils = ((MainActivity) context).getUtils();
         super.onAttach(context);
     }
+
+
 
     @Override
     public void onStart() {

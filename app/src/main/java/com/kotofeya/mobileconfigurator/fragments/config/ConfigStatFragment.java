@@ -5,9 +5,11 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterFactory;
@@ -15,7 +17,9 @@ import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 
 import java.util.ArrayList;
 
-public class ConfigStatFragment extends ConfigFragment {
+public class ConfigStatFragment extends ConfigFragment implements InterfaceUpdateListener {
+
+    private AlertDialog scanClientsDialog;
 
     @Override
     public RvAdapter getRvAdapter() {
@@ -39,7 +43,8 @@ public class ConfigStatFragment extends ConfigFragment {
     }
 
     public void basicScan(){
-        utils.getTakeInfo();
+        scanClientsDialog = utils.getScanClientsDialog().show();
+        utils.updateClients(this);
     }
 
     @Override
@@ -51,5 +56,11 @@ public class ConfigStatFragment extends ConfigFragment {
             basicScan();
         }
         viewModel.getStationaryInformers().observe(getViewLifecycleOwner(), this::updateUI);
+    }
+
+    @Override
+    public void clientsScanFinished() {
+        scanClientsDialog.dismiss();
+        utils.getTakeInfo(this);
     }
 }

@@ -32,6 +32,7 @@ import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
+import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.Utils;
@@ -43,7 +44,8 @@ import org.jetbrains.annotations.NotNull;
 
 import java.util.List;
 
-public abstract class ContentFragment extends Fragment implements OnTaskCompleted, PostCommand, View.OnClickListener{
+public abstract class ContentFragment extends Fragment implements OnTaskCompleted, PostCommand, View.OnClickListener,
+        InterfaceUpdateListener {
     public Context context;
     public Utils utils;
     public ImageButton mainBtnRescan;
@@ -67,6 +69,14 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
     ContentClickListener contentClickListener;
 
+    protected AlertDialog scanClientsDialog;
+
+    @Override
+    public void clientsScanFinished() {
+        scanClientsDialog.dismiss();
+        utils.getTakeInfo(this);
+
+    }
     public static final String REBOOT_TYPE="rebootType";
     public static final String REBOOT_RASP="rasp";
     public static final String REBOOT_STM="stm";
@@ -261,8 +271,11 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
     private void basicScan(){
         Logger.d(Logger.CONTENT_LOG, "wifi scan");
-        utils.getTakeInfo();
+        scanClientsDialog = utils.getScanClientsDialog().show();
+        utils.updateClients(this);
     }
+
+
 
     @Override
     public void onStart() {

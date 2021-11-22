@@ -3,23 +3,9 @@ package com.kotofeya.mobileconfigurator.activities;
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
-import android.bluetooth.BluetoothAdapter;
-import android.companion.WifiDeviceFilter;
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.Network;
-import android.net.NetworkCapabilities;
-import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiInfo;
-import android.net.wifi.WifiManager;
-import android.net.wifi.aware.WifiAwareManager;
-import android.net.wifi.p2p.WifiP2pManager;
-import android.net.wifi.rtt.WifiRttManager;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
@@ -49,9 +35,8 @@ import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SendLogToServer;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
-import com.kotofeya.mobileconfigurator.WiFiLocalHotspot;
+import com.kotofeya.mobileconfigurator.hotspot.DeviceScanListener;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
-import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.network.SshCommand;
 import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
 import com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth;
@@ -59,8 +44,6 @@ import com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -68,8 +51,6 @@ import java.util.Locale;
 
 import static com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth.REQUEST_BT_ENABLE;
 import static com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth.REQUEST_GPS_ENABLE;
-
-import javax.security.auth.login.LoginException;
 
 
 /*
@@ -79,7 +60,8 @@ import javax.security.auth.login.LoginException;
 после выбора сети подтверждение намерения загрузки - и все, если загрузка прошла успешно - нужно сообщить об этом
  */
 
-public class MainActivity extends AppCompatActivity  implements OnTaskCompleted {
+public class MainActivity extends AppCompatActivity  implements OnTaskCompleted, InterfaceUpdateListener {
+
 
     public final static String TAG = "MainActivity";
     Utils utils;
@@ -96,35 +78,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 
     private CustomViewModel viewModel;
 
-//    private final BroadcastReceiver mBroadcastReceiver1 = new BroadcastReceiver() {
-//        @Override
-//        public void onReceive(Context context, Intent intent) {
-////            Logger.d(TAG, "onReceive()");
-//            final String action = intent.getAction();
-//            Logger.d(TAG, "action: " + action);
-//
-////            if (action.equals()) {
-////                Logger.d(TAG, "onReceive()");
-////                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
-////                switch(state) {
-////                    case BluetoothAdapter.STATE_OFF:
-////                        bScanner.setScanningFalse();
-////                        Logger.d(TAG, "BluetoothAdapter.STATE_OFF");
-////                        break;
-////                    case BluetoothAdapter.STATE_TURNING_OFF:
-////                        Logger.d(TAG, "BluetoothAdapter.STATE_TURNING_OFF");
-////                        break;
-////                    case BluetoothAdapter.STATE_ON:
-////                        Logger.d(TAG, "BluetoothAdapter.STATE_ON");
-////                        startScan();
-////                        break;
-////                    case BluetoothAdapter.STATE_TURNING_ON:
-////                        Logger.d(TAG, "BluetoothAdapter.STATE_TURNING_ON");
-////                        break;
-////                }
-////            }
-//        }
-//    };
+    private AlertDialog scanClientsDialog;
+    FragmentHandler fragmentHandler;
 
 
             @Override
@@ -132,23 +87,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         super.onStart();
         newBleScanner.stopScan();
         utils.startRvTimer();
-        utils.updateClients();
-
-
-//        IntentFilter adapterFilter = new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
-//        adapterFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-//                adapterFilter.addAction(WifiManager.NETWORK_IDS_CHANGED_ACTION);
-//                adapterFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
-//                adapterFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
-//                adapterFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-//
-//                adapterFilter.addAction(WifiRttManager.ACTION_WIFI_RTT_STATE_CHANGED);
-//                adapterFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
-
-
-//        WifiP2pManager p2pManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
-//        p2pManager.
-//        registerReceiver(mBroadcastReceiver1, adapterFilter);
+        scanClientsDialog = utils.getScanClientsDialog().show();
+        utils.updateClients(this);
     }
 
     private void launchHotspotSettings() {
@@ -181,7 +121,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 
         newBleScanner = new CustomBluetooth(this);
         utils = new Utils(this, newBleScanner);
-        FragmentHandler fragmentHandler = new FragmentHandler(this);
+        fragmentHandler = new FragmentHandler(this);
         App.get().setFragmentHandler(fragmentHandler);
         fragmentHandler.changeFragment(FragmentHandler.MAIN_FRAGMENT_TAG, false);
 
@@ -255,6 +195,15 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 
     private void updateUI(List<String> strings) {
         devCountTxt.setText("(" + strings.size() + ")");
+    }
+
+
+
+
+    @Override
+    public void clientsScanFinished() {
+        Logger.d(TAG, "clientsScanFinished()");
+        scanClientsDialog.dismiss();
     }
 
     public static class HotSpotSettingsDialog extends DialogFragment implements CompoundButton.OnCheckedChangeListener {

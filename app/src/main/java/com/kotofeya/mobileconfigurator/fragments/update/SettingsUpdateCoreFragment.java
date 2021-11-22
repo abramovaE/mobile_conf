@@ -26,6 +26,7 @@ import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
 
 import com.kotofeya.mobileconfigurator.TaskCode;
+import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
@@ -37,13 +38,14 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-public class SettingsUpdateCoreFragment extends UpdateFragment {
+public class SettingsUpdateCoreFragment extends UpdateFragment implements InterfaceUpdateListener {
 
     private Button downloadCoreUpdateFilesBtn;
     private TextView downloadCoreUpdateFilesTv;
     private TextView scannerTimer;
     private Thread timerThread;
     private LocalTime localTime;
+    private androidx.appcompat.app.AlertDialog scanClientsDialog;
 
     @Override
     protected void setMainTextLabelText() {
@@ -166,7 +168,9 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            utils.updateClients();
+
+            scanClientsDialog = utils.getScanClientsDialog().show();
+            utils.updateClients(this);
         }
     }
 
@@ -223,6 +227,12 @@ public class SettingsUpdateCoreFragment extends UpdateFragment {
             timerThread.interrupt();
         }
         scannerTimer.setVisibility(View.GONE);
+    }
+
+    @Override
+    public void clientsScanFinished() {
+        scanClientsDialog.dismiss();
+
     }
 
     class CountDownRunner implements Runnable {
