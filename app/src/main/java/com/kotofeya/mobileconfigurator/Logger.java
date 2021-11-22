@@ -93,6 +93,16 @@ public class Logger {
         appendLog(mType.get(type) + ": " + message);
 
     }
+
+
+    public static void d(String type, String message){
+        if (BuildConfig.DEBUG) {
+            Log.d(type, message);
+        }
+        appendLog(type + ": " + message);
+    }
+
+
     public static void e(int type, String message, Throwable throwable){
         if (BuildConfig.DEBUG) {
             Log.e(TAG + "|| " + mType.get(type), message, throwable);

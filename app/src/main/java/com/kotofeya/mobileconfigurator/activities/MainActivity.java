@@ -1,8 +1,25 @@
 package com.kotofeya.mobileconfigurator.activities;
 
+import android.Manifest;
+import android.app.Activity;
 import android.app.Dialog;
+import android.bluetooth.BluetoothAdapter;
+import android.companion.WifiDeviceFilter;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkCapabilities;
+import android.net.wifi.WifiConfiguration;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.net.wifi.aware.WifiAwareManager;
+import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.rtt.WifiRttManager;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.view.LayoutInflater;
@@ -16,6 +33,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProviders;
 
@@ -41,6 +59,8 @@ import com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
@@ -61,6 +81,7 @@ import javax.security.auth.login.LoginException;
 
 public class MainActivity extends AppCompatActivity  implements OnTaskCompleted {
 
+    public final static String TAG = "MainActivity";
     Utils utils;
     TextView label;
     ImageButton mainBtnRescan;
@@ -75,12 +96,59 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
 
     private CustomViewModel viewModel;
 
-    @Override
+//    private final BroadcastReceiver mBroadcastReceiver1 = new BroadcastReceiver() {
+//        @Override
+//        public void onReceive(Context context, Intent intent) {
+////            Logger.d(TAG, "onReceive()");
+//            final String action = intent.getAction();
+//            Logger.d(TAG, "action: " + action);
+//
+////            if (action.equals()) {
+////                Logger.d(TAG, "onReceive()");
+////                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+////                switch(state) {
+////                    case BluetoothAdapter.STATE_OFF:
+////                        bScanner.setScanningFalse();
+////                        Logger.d(TAG, "BluetoothAdapter.STATE_OFF");
+////                        break;
+////                    case BluetoothAdapter.STATE_TURNING_OFF:
+////                        Logger.d(TAG, "BluetoothAdapter.STATE_TURNING_OFF");
+////                        break;
+////                    case BluetoothAdapter.STATE_ON:
+////                        Logger.d(TAG, "BluetoothAdapter.STATE_ON");
+////                        startScan();
+////                        break;
+////                    case BluetoothAdapter.STATE_TURNING_ON:
+////                        Logger.d(TAG, "BluetoothAdapter.STATE_TURNING_ON");
+////                        break;
+////                }
+////            }
+//        }
+//    };
+
+
+            @Override
     public void onStart() {
         super.onStart();
         newBleScanner.stopScan();
         utils.startRvTimer();
         utils.updateClients();
+
+
+//        IntentFilter adapterFilter = new IntentFilter(WifiManager.SUPPLICANT_STATE_CHANGED_ACTION);
+//        adapterFilter.addAction(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+//                adapterFilter.addAction(WifiManager.NETWORK_IDS_CHANGED_ACTION);
+//                adapterFilter.addAction(WifiManager.NETWORK_STATE_CHANGED_ACTION);
+//                adapterFilter.addAction(WifiManager.SUPPLICANT_CONNECTION_CHANGE_ACTION);
+//                adapterFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+//
+//                adapterFilter.addAction(WifiRttManager.ACTION_WIFI_RTT_STATE_CHANGED);
+//                adapterFilter.addAction(ConnectivityManager.CONNECTIVITY_ACTION);
+
+
+//        WifiP2pManager p2pManager = (WifiP2pManager) getSystemService(Context.WIFI_P2P_SERVICE);
+//        p2pManager.
+//        registerReceiver(mBroadcastReceiver1, adapterFilter);
     }
 
     private void launchHotspotSettings() {
@@ -109,6 +177,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main_cl);
+        verifyStoragePermissions(this);
+
         newBleScanner = new CustomBluetooth(this);
         utils = new Utils(this, newBleScanner);
         FragmentHandler fragmentHandler = new FragmentHandler(this);
@@ -143,7 +213,41 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         viewModel = ViewModelProviders.of(this, new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
         viewModel.getClients().observe(this, this::updateUI);
 
+
     }
+
+
+    // Storage Permissions
+    private static final int REQUEST_EXTERNAL_STORAGE = 10;
+    private static String[] PERMISSIONS_STORAGE = {
+            Manifest.permission.READ_EXTERNAL_STORAGE,
+            Manifest.permission.WRITE_EXTERNAL_STORAGE,
+            Manifest.permission.MANAGE_EXTERNAL_STORAGE
+    };
+
+    /**
+     * Checks if the app has permission to write to device storage
+     *
+     * If the app does not has permission then the user will be prompted to grant permissions
+     *
+     * @param activity
+     */
+    public static void verifyStoragePermissions(Activity activity) {
+        // Check if we have write permission
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
+
+        if (permission != PackageManager.PERMISSION_GRANTED) {
+            // We don't have permission so prompt the user
+            ActivityCompat.requestPermissions(
+                    activity,
+                    PERMISSIONS_STORAGE,
+                    REQUEST_EXTERNAL_STORAGE
+            );
+        }
+    }
+
+
+
 
     public CustomViewModel getViewModel() {
         return viewModel;
@@ -282,6 +386,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted 
         }
         super.onStop();
         newBleScanner.stopScan();
+//        unregisterReceiver(mBroadcastReceiver1);
+
     }
 
     @Override

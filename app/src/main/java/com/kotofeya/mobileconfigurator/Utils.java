@@ -203,6 +203,7 @@ public class Utils implements OnTaskCompleted{
     public void updateClients(){
         String deviceIp = internetConnection.getDeviceIp();
         if(deviceIp != null) {
+//            WiFiLocalHotspot.getInstance().getClientList();
             clients = WiFiLocalHotspot.getInstance().getClientList(deviceIp);
             Logger.d(Logger.UPDATE_LOG, "updateClients: " + clients);
 //            clients.remove(deviceIp);
