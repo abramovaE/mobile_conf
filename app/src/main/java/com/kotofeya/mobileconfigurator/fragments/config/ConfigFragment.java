@@ -37,6 +37,8 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
     RvAdapter rvAdapter;
 
 
+
+
     public abstract RvAdapter getRvAdapter();
     public abstract void setMainTextLabel();
     public abstract void scan();

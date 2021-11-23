@@ -26,8 +26,8 @@ public class WiFiLocalHotspot {
     private WiFiLocalHotspot() {}
     private List<String> clients;
 
-    public void getClientList(String deviceIp, DeviceScanListener deviceScanListener){
-        Logger.d(TAG, "getClientList(String deviceIp), deviceIp: " + deviceIp);
+    public void updateClientList(String deviceIp, DeviceScanListener deviceScanListener){
+        Logger.d(TAG, "updateClientList(String deviceIp), deviceIp: " + deviceIp);
         this.deviceScanListener = deviceScanListener;
         if(!isScanning){
             pingClients(deviceIp);
@@ -56,7 +56,7 @@ public class WiFiLocalHotspot {
                 });
     }
 
-    public class PingIp implements Runnable {
+    private class PingIp implements Runnable {
         private static final int timeout = 5000;
         private String host;
         public PingIp(String host) {

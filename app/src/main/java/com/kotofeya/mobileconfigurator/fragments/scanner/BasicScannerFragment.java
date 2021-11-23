@@ -27,8 +27,9 @@ import java.util.List;
 public class BasicScannerFragment extends ScannerFragment implements OnTaskCompleted, InterfaceUpdateListener {
 
     private AlertDialog scanClientsDialog;
-
     private CustomViewModel viewModel;
+    protected AlertDialog getTakeInfoDialog;
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -81,13 +82,18 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         utils.clearClients();
         utils.clearMap();
         viewModel.clearTransivers();
-        scan();
+        scanClientsDialog = utils.getScanClientsDialog().show();
+        utils.updateClients(this);
+//        getTakeInfoDialog = utils.getTakeInfoDialog().show();
+//        utils.getTakeInfo(this);
     }
 
     public void scan(){
         if(checkPermission()) {
-            scanClientsDialog = utils.getScanClientsDialog().show();
-            utils.updateClients(this);
+            getTakeInfoDialog = utils.getTakeInfoDialog().show();
+            utils.getTakeInfo(this);
+//            scanClientsDialog = utils.getScanClientsDialog().show();
+//            utils.updateClients(this);
 //            utils.getTakeInfo(this);
         } else {
             askPermission();
@@ -115,6 +121,12 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
     @Override
     public void clientsScanFinished() {
         scanClientsDialog.dismiss();
+        getTakeInfoDialog = utils.getTakeInfoDialog().show();
         utils.getTakeInfo(this);
+    }
+
+    @Override
+    public void finishedGetTakeInfo(){
+        getTakeInfoDialog.dismiss();
     }
 }

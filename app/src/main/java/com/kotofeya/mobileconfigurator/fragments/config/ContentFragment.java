@@ -70,10 +70,18 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     ContentClickListener contentClickListener;
 
     protected AlertDialog scanClientsDialog;
+    protected AlertDialog getTakeInfoDialog;
+
+
+    @Override
+    public void finishedGetTakeInfo(){
+        getTakeInfoDialog.dismiss();
+    }
 
     @Override
     public void clientsScanFinished() {
         scanClientsDialog.dismiss();
+        getTakeInfoDialog = utils.getTakeInfoDialog().show();
         utils.getTakeInfo(this);
 
     }
@@ -271,8 +279,11 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
 
     private void basicScan(){
         Logger.d(Logger.CONTENT_LOG, "wifi scan");
-        scanClientsDialog = utils.getScanClientsDialog().show();
-        utils.updateClients(this);
+//        scanClientsDialog = utils.getScanClientsDialog().show();
+//        utils.updateClients(this);
+        getTakeInfoDialog = utils.getTakeInfoDialog().show();
+
+        utils.getTakeInfo(this);
     }
 
 

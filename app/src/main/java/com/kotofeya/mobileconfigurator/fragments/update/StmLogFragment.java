@@ -27,4 +27,11 @@ public class StmLogFragment extends UpdateFragment {
     public void clientsScanFinished() {
         scanClientsDialog.dismiss();
     }
+
+
+
+    @Override
+    public void finishedGetTakeInfo() {
+
+    }
 }

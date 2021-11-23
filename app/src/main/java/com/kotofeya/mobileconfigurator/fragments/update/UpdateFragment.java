@@ -66,6 +66,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     TextView downloadContentUpdateFilesTv;
 
     protected AlertDialog scanClientsDialog;
+    protected AlertDialog getTakeInfoDialog;
 
 
     protected abstract void setMainTextLabelText();
@@ -74,7 +75,14 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     @Override
     public void clientsScanFinished() {
         scanClientsDialog.dismiss();
+        getTakeInfoDialog = utils.getTakeInfoDialog().show();
         utils.getTakeInfo(this);
+    }
+
+
+    @Override
+    public void finishedGetTakeInfo(){
+        getTakeInfoDialog.dismiss();
     }
 
     @Override
@@ -95,6 +103,17 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         mainBtnRescan.setVisibility(View.VISIBLE);
     }
 
+
+    private void rescan(){
+        Logger.d(Logger.BASIC_SCANNER_LOG, "rescan");
+        utils.clearClients();
+        utils.clearMap();
+        viewModel.clearTransivers();
+        scanClientsDialog = utils.getScanClientsDialog().show();
+        utils.updateClients(this);
+    }
+
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -107,10 +126,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         mainBtnRescan.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                utils.clearClients();
-                utils.clearMap();
-                viewModel.clearTransivers();
-                scan();
+                rescan();
             }
         });
         progressBar = view.findViewById(R.id.scanner_progressBar);
@@ -145,9 +161,11 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
 
     protected void scan(){
         Logger.d(Logger.UPDATE_LOG, "updateFragment scan");
-        scanClientsDialog = utils.getScanClientsDialog().show();
-        utils.updateClients(this);
-//        utils.getTakeInfo(this);
+//        scanClientsDialog = utils.getScanClientsDialog().show();
+//        utils.updateClients(this);
+        getTakeInfoDialog = utils.getTakeInfoDialog().show();
+
+        utils.getTakeInfo(this);
     }
 
     @Override

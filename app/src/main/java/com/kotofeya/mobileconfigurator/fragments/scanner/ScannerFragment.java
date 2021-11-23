@@ -10,6 +10,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -23,7 +24,6 @@ public abstract class ScannerFragment extends Fragment {
     Utils utils;
     ImageButton mainBtnRescan;
     TextView mainTxtLabel;
-
     RecyclerView rvScanner;
     RvAdapter rvAdapter;
 
@@ -46,8 +46,6 @@ public abstract class ScannerFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onStart() {
-        super.onStart();
-    }
+
+
 }

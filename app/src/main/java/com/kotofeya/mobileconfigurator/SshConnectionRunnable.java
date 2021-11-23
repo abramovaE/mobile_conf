@@ -33,7 +33,8 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
     //req[1] - command
 
     public SshConnectionRunnable(OnTaskCompleted listener, Object...req){
-        Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh runnable: " + Arrays.toString(req));
+        Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh runnable: " + Arrays.toString(req)
+                + ", listener: " + listener);
         this.listener = listener;
         this.ip = (String) req[0];
         this.resultCode = (Integer) req[1];
@@ -60,7 +61,6 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
             ChannelExec channelExec = null;
             Channel channel = null;
             String command = "";
-
             try {
                 JSch jsch = new JSch();
                 session = jsch.getSession("staff", ip, 22);
@@ -97,6 +97,7 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                 }
             }
             catch (Exception e){
+                Logger.d(Logger.SSH_CONNECTION_LOG, "ssh error: " + e.getMessage());
                 res = e.getMessage();
                 command = SshCommand.SSH_COMMAND_ERROR;
             }
@@ -114,6 +115,7 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                 if(session != null) {
                     session.disconnect();
                 }
+
 
                 if (listener != null) {
                     Bundle bundle = new Bundle();

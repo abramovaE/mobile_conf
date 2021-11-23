@@ -79,7 +79,16 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
     private CustomViewModel viewModel;
 
     private AlertDialog scanClientsDialog;
+    private AlertDialog getTakeInfoDialog;
+
     FragmentHandler fragmentHandler;
+
+
+
+    @Override
+    public void finishedGetTakeInfo(){
+        getTakeInfoDialog.dismiss();
+    }
 
 
             @Override

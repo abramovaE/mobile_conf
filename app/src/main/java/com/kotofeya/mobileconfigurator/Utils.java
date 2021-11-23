@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
+import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -13,10 +14,13 @@ import androidx.lifecycle.ViewModelProviders;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.clientsHandler.ClientsHandler;
 import com.kotofeya.mobileconfigurator.hotspot.DeviceScanListener;
 import com.kotofeya.mobileconfigurator.hotspot.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
+import com.kotofeya.mobileconfigurator.network.SshCommand;
+import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
 import com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth;
 import com.kotofeya.mobileconfigurator.newBleScanner.CustomScanResult;
 import com.kotofeya.mobileconfigurator.user.UserFactory;
@@ -31,21 +35,21 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-public class Utils implements OnTaskCompleted, DeviceScanListener {
+public class Utils  {
     public static final int TRANSP_RADIO_TYPE = 0x80;
     public static final int STAT_RADIO_TYPE = 0x40;
     public static final int ALL_RADIO_TYPE = 0;
 
-    public static final String TITLE = "";
-    public static final String MESSAGE = "Сканируем подключенных клиентов";
+    public static final String TITLE_SCAN_CLIENTS = "";
+    public static final String MESSAGE_SCAN_CLIENTS = "Поиск подключенных клиентов";
 
-    private List<String> clients;
+    public static final String TITLE_TAKE_INFO = "";
+    public static final String MESSAGE_TAKE_INFO = "Опрос подключенных трансиверов";
+
     private int radioType;
-    private InternetConn internetConnection;
-    private ExecutorService executorService;
-    private ExecutorService versionExecutorService;
-    private CompletableFuture<Void>[] futures;
-    private int futureCounter;
+//    private InternetConn internetConnection;
+
+
     private Context context;
     private CustomViewModel viewModel;
     private CustomBluetooth newBleScanner;
@@ -57,48 +61,25 @@ public class Utils implements OnTaskCompleted, DeviceScanListener {
     public Utils(Context context, CustomBluetooth newBleScanner) {
         this.context = context;
         this.viewModel = ViewModelProviders.of((MainActivity)context, new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
-        clients = new CopyOnWriteArrayList<>();
-        internetConnection = new InternetConn();
+//        clients = new CopyOnWriteArrayList<>();
+//        internetConnection = new InternetConn();
         this.newBleScanner = newBleScanner;
     }
 
-    public void getTakeInfo(InterfaceUpdateListener interfaceUpdateListener){
-        Logger.d(Logger.UTILS_LOG, "get take info");
-        this.futureCounter = 0;
-        this.interfaceUpdateListener = interfaceUpdateListener;
-//        updateClients(interfaceUpdateListener);
 
-        Logger.d(Logger.UTILS_LOG, "clients: " + clients);
-        if (clients.size() > 0) {
-            executorService = Executors.newCachedThreadPool();
-            versionExecutorService = Executors.newCachedThreadPool();
-            futures = new CompletableFuture[clients.size()];
-            CompletableFuture<Void>[] versFutures = new CompletableFuture[clients.size()];
-            for (int i = 0; i < clients.size(); i++) {
-                String ip = clients.get(i);
-                versFutures[i] = CompletableFuture.runAsync(new PostInfo(this, ip, PostCommand.VERSION), versionExecutorService);
-            }
-            if(versFutures != null){
-                CompletableFuture.allOf(versFutures).thenRun(() -> {
-                    versionExecutorService.shutdown();
-                    return;
-                });
-            }
-        }
-    }
 
 
     public void setRadioType(int radioType) {
         this.radioType = radioType;
     }
 
-    public void removeClient(String ip){
-        Logger.d(Logger.UTILS_LOG, "remove: " + ip);
-        clients.remove(ip);
-    }
+//    public void removeClient(String ip){
+//        Logger.d(Logger.UTILS_LOG, "remove: " + ip);
+//        ClientsHandler.getInstance(context).getClients().remove(ip);
+//    }
 
     public void clearClients(){
-        clients.clear();
+        ClientsHandler.getInstance(context).getClients().clear();
     }
     public void clearMap(){ viewModel.clearMap(); }
 
@@ -113,51 +94,80 @@ public class Utils implements OnTaskCompleted, DeviceScanListener {
         return viewModel.getVersion(ssid);
     }
 
-    @Override
-    public void onTaskCompleted(Bundle result) {
-        Logger.d(Logger.UTILS_LOG, "on task completed, result: " + result);
-        String command = result.getString(BundleKeys.COMMAND_KEY);
-        String ip = result.getString(BundleKeys.IP_KEY);
-        String response = result.getString(BundleKeys.RESPONSE_KEY);
-
-        switch (command){
-            case PostCommand.VERSION:
-//                transiver.setVersion(response);
-                // TODO: 29.04.2021 проверка версии
-                if(response != null){
-                    Logger.d(Logger.UTILS_LOG, "new post info: " + ip + ", version: " + response);
-                    futures[futureCounter] = CompletableFuture.runAsync(new PostInfo((MainActivity)context, ip, PostCommand.TAKE_INFO_FULL, response), executorService);
-                } else {
-                    futures[futureCounter] = CompletableFuture.runAsync(new SshConnectionRunnable((MainActivity)context, ip, SshConnection.TAKE_CODE), executorService);
-                }
-                futureCounter += 1;
-                break;
-
-            case PostCommand.POST_COMMAND_ERROR:
-                futures[futureCounter] = CompletableFuture.runAsync(new SshConnectionRunnable((MainActivity)context, ip, SshConnection.TAKE_CODE), executorService);
-                futureCounter += 1;
-                break;
-
-        }
-        if(futures != null){
-            CompletableFuture.allOf(futures).thenRun(() -> {
-                executorService.shutdown();
-                return;
-            });
-        }
+    public void updateClients(InterfaceUpdateListener interfaceUpdateListener){
+        ClientsHandler.getInstance(context).updateClients(interfaceUpdateListener);
+    }
+    public void getTakeInfo(InterfaceUpdateListener interfaceUpdateListener){
+        Logger.d(Logger.UTILS_LOG, "getTakeInfo(InterfaceUpdateListener interfaceUpdateListener)");
+        ClientsHandler.getInstance(context).getTakeInfo(interfaceUpdateListener);
     }
 
-    @Override
-    public void onProgressUpdate(Integer downloaded) {
-    }
+//        @Override
+//    public void onTaskCompleted(Bundle result) {
+////        Logger.d(Logger.UTILS_LOG, "onTaskCompleted(), futures: " + futures.length);
+//        String command = result.getString(BundleKeys.COMMAND_KEY);
+//        String ip = result.getString(BundleKeys.IP_KEY);
+//        String response = result.getString(BundleKeys.RESPONSE_KEY);
+//        Parcelable parcelableResponse = result.getParcelable(BundleKeys.PARCELABLE_RESPONSE_KEY);
+//
+//        if(command == null){
+//            command = "";
+//        }
+//
+//        Logger.d(Logger.UTILS_LOG, "on task completed, result: " + result);
+//
+//        switch (command){
+////            case PostCommand.VERSION:
+//////                transiver.setVersion(response);
+////                // TODO: 29.04.2021 проверка версии
+////                if(response != null){
+////                    Logger.d(Logger.UTILS_LOG, "new post info: " + ip + ", version: " + response);
+////                    futures[futureCounter] = runPostTakeInfo(ip, response);
+////                } else {
+////                    futures[futureCounter] = runSShTakeInfo(ip);
+////                }
+////                futureCounter += 1;
+////                break;
+//
+////            case PostCommand.POST_COMMAND_ERROR:
+////                futures[futureCounter] = runSShTakeInfo(ip);
+////                futureCounter += 1;
+////                break;
+//
+////            case PostCommand.TAKE_INFO_FULL:
+////                String version = result.getString(BundleKeys.VERSION_KEY);
+////                Logger.d(Logger.MAIN_LOG, "version: " + version);
+////                viewModel.addTakeInfoFull(ip, version, (TakeInfoFull) parcelableResponse, true);
+////                break;
+//
+////            case SshCommand.SSH_TAKE_COMMAND:
+////                viewModel.addTakeInfo(response, true);
+////                break;
+////
+////            case SshCommand.SSH_COMMAND_ERROR:
+////                if (response.contains("Connection refused") || response.contains("Auth fail")) {
+////                    removeClient(ip);
+////                } else {
+////                    showMessage("Error: " + response);
+////                }
+////                break;
+//
+//        }
+////        if(futures != null){
+////            CompletableFuture.allOf(futures).thenRun(() -> {
+////                executorService.shutdown();
+////                Logger.d(Logger.UTILS_LOG, "finishedGetTakeInfo()");
+////                interfaceUpdateListener.finishedGetTakeInfo();
+////                return;
+////            });
+////        }
+//    }
 
-    @Override
-    public void scanFinished(List<String> clients) {
-        this.clients = clients;
-        viewModel.setClients(clients);
-        interfaceUpdateListener.clientsScanFinished();
-    }
-    
+//    @Override
+//    public void onProgressUpdate(Integer downloaded) {
+//    }
+
+
 
     public static class MessageDialog extends DialogFragment {
         @NonNull
@@ -184,9 +194,12 @@ public class Utils implements OnTaskCompleted, DeviceScanListener {
     }
 
     public InternetConn getInternetConnection() {
-        return internetConnection;
+        return ClientsHandler.getInstance(context).getInternetConnection();
     }
-
+    public void removeClient(String ip){
+        Logger.d(Logger.UTILS_LOG, "remove: " + ip);
+        ClientsHandler.getInstance(context).removeClient(ip);
+    }
 
     public void startRvTimer(){
         if(thread != null){
@@ -217,15 +230,6 @@ public class Utils implements OnTaskCompleted, DeviceScanListener {
     }
 
 
-    public void updateClients(InterfaceUpdateListener interfaceUpdateListener){
-        this.interfaceUpdateListener = interfaceUpdateListener;
-        String deviceIp = internetConnection.getDeviceIp();
-        if(deviceIp != null) {
-            WiFiLocalHotspot.getInstance().getClientList(deviceIp, this);
-        } else {
-            clients = new ArrayList<>();
-        }
-    }
 
 
     private Map<String, String> addToTransportContent(Map<String, String> transportContent,
@@ -270,7 +274,14 @@ public class Utils implements OnTaskCompleted, DeviceScanListener {
 
     public AlertDialog.Builder getScanClientsDialog(){
         return new AlertDialog.Builder(context)
-                .setTitle(TITLE)
-                .setMessage(MESSAGE);
+                .setTitle(TITLE_SCAN_CLIENTS)
+                .setMessage(MESSAGE_SCAN_CLIENTS);
+    }
+
+    public AlertDialog.Builder getTakeInfoDialog(){
+        Logger.d(Logger.UTILS_LOG, "getTakeInfoDialog()");
+        return new AlertDialog.Builder(context)
+                .setTitle(TITLE_TAKE_INFO)
+                .setMessage(MESSAGE_TAKE_INFO);
     }
 }
