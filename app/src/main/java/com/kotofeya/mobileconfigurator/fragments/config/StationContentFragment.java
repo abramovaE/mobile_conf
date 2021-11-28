@@ -1,6 +1,5 @@
 package com.kotofeya.mobileconfigurator.fragments.config;
 
-
 import android.os.Bundle;
 import android.view.View;
 
@@ -10,7 +9,7 @@ import android.widget.Spinner;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
-import com.kotofeya.mobileconfigurator.FragmentHandler;
+import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
@@ -20,7 +19,6 @@ import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
 import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
 
-
 public class StationContentFragment extends ContentFragment {
     EditText floorTxt;
     Spinner zummerTypesSpn;
@@ -28,7 +26,6 @@ public class StationContentFragment extends ContentFragment {
     Spinner modemConfigSpn;
     String[] modemConfigs;
     StatTransiver statTransiver;
-
     String zummerTypeSend;
     String zummerVolumeSend;
 

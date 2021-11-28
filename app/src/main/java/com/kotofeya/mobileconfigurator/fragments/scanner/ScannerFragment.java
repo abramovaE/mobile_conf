@@ -45,7 +45,4 @@ public abstract class ScannerFragment extends Fragment {
         mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
         return view;
     }
-
-
-
 }

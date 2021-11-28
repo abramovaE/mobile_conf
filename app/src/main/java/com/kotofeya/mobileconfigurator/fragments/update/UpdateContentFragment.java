@@ -75,7 +75,6 @@ public class UpdateContentFragment extends UpdateFragment {
         return view;
     }
 
-
     private void updateFilesTv(){
         StringBuilder sb = new StringBuilder();
         sb.append("Сохраненные файлы: \n");
@@ -83,7 +82,6 @@ public class UpdateContentFragment extends UpdateFragment {
                 .forEach(it -> sb.append(it.substring(it.lastIndexOf("/") + 1, it.indexOf("_"))).append("\n"));
         downloadContentUpdateFilesTv.setText(sb.toString());
     }
-
 
     @Override
     public void onStart() {

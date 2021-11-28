@@ -46,10 +46,16 @@ import java.util.List;
 
 public abstract class ContentFragment extends Fragment implements OnTaskCompleted, PostCommand, View.OnClickListener,
         InterfaceUpdateListener {
+    public static final String REBOOT_TYPE="rebootType";
+    public static final String REBOOT_RASP="rasp";
+    public static final String REBOOT_STM="stm";
+    public static final String REBOOT_ALL="all";
+    public static final String REBOOT_CLEAR="clear";
+    private final Handler myHandler = new Handler();
+
     public Context context;
     public Utils utils;
     public ImageButton mainBtnRescan;
-    private final Handler myHandler = new Handler();
     protected CustomViewModel viewModel;
     protected String ssid;
     protected View.OnKeyListener onKeyListener;
@@ -68,29 +74,15 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
     protected Transiver currentTransiver;
 
     ContentClickListener contentClickListener;
+    private TextView scannerProgressBarTv;
 
     protected AlertDialog scanClientsDialog;
-    protected AlertDialog getTakeInfoDialog;
-
-
-    @Override
-    public void finishedGetTakeInfo(){
-        getTakeInfoDialog.dismiss();
-    }
 
     @Override
     public void clientsScanFinished() {
         scanClientsDialog.dismiss();
-        getTakeInfoDialog = utils.getTakeInfoDialog().show();
-        utils.getTakeInfo(this);
-
+        utils.getTakeInfo();
     }
-    public static final String REBOOT_TYPE="rebootType";
-    public static final String REBOOT_RASP="rasp";
-    public static final String REBOOT_STM="stm";
-    public static final String REBOOT_ALL="all";
-
-    public static final String REBOOT_CLEAR="clear";
 
     protected void updateUI() {
         Logger.d(Logger.CONTENT_LOG, "update ui, ssid " + ssid + " " + currentTransiver.getSsid());
@@ -112,10 +104,6 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
             updateUI();
         }
     };
-
-    @Override
-    public void onProgressUpdate(Integer downloaded) {
-    }
 
     protected void showMessageAndChangeFragment(@NotNull String response, String message,
                                       String errorMessage, String fragmentTag){
@@ -178,7 +166,17 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         btnClearRasp = view.findViewById(R.id.content_btn_clear);
         btnRebootAll = view.findViewById(R.id.content_btn_all);
         this.ssid = getArguments().getString("ssid");
+        scannerProgressBarTv = view.findViewById(R.id.progressTv);
+        scannerProgressBarTv.setVisibility(View.GONE);
         return view;
+    }
+    private void updateScannerProgressBarTv(Boolean aBoolean) {
+        if(!aBoolean){
+            scannerProgressBarTv.setText(Utils.MESSAGE_TAKE_INFO);
+            scannerProgressBarTv.setVisibility(View.VISIBLE);
+        } else {
+            scannerProgressBarTv.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -187,6 +185,8 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         super.onViewCreated(view, savedInstanceState);
         viewModel = ViewModelProviders.of(getActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
         viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
+        viewModel.getIsGetTakeInfoFinished().observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
+
         currentTransiver = viewModel.getTransiverBySsid(ssid);
         contentClickListener = new ContentClickListener(currentTransiver, utils);
         btnRebootRasp.setOnClickListener(contentClickListener);
@@ -281,9 +281,10 @@ public abstract class ContentFragment extends Fragment implements OnTaskComplete
         Logger.d(Logger.CONTENT_LOG, "wifi scan");
 //        scanClientsDialog = utils.getScanClientsDialog().show();
 //        utils.updateClients(this);
-        getTakeInfoDialog = utils.getTakeInfoDialog().show();
+//        getTakeInfoDialog = utils.getTakeInfoDialog();
+//        getTakeInfoDialog.show();
 
-        utils.getTakeInfo(this);
+        utils.getTakeInfo();
     }
 
 

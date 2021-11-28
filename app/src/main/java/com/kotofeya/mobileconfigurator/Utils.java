@@ -4,7 +4,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.os.Parcelable;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -15,25 +14,14 @@ import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.clientsHandler.ClientsHandler;
-import com.kotofeya.mobileconfigurator.hotspot.DeviceScanListener;
-import com.kotofeya.mobileconfigurator.hotspot.WiFiLocalHotspot;
-import com.kotofeya.mobileconfigurator.network.PostCommand;
-import com.kotofeya.mobileconfigurator.network.PostInfo;
-import com.kotofeya.mobileconfigurator.network.SshCommand;
-import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
 import com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth;
 import com.kotofeya.mobileconfigurator.newBleScanner.CustomScanResult;
 import com.kotofeya.mobileconfigurator.user.UserFactory;
 import com.kotofeya.mobileconfigurator.user.UserType;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class Utils  {
     public static final int TRANSP_RADIO_TYPE = 0x80;
@@ -47,39 +35,28 @@ public class Utils  {
     public static final String MESSAGE_TAKE_INFO = "Опрос подключенных трансиверов";
 
     private int radioType;
-//    private InternetConn internetConnection;
 
+    private ClientsHandler clientsHandler;
 
     private Context context;
     private CustomViewModel viewModel;
     private CustomBluetooth newBleScanner;
     private Thread thread;
 
-    private InterfaceUpdateListener interfaceUpdateListener;
-
-
     public Utils(Context context, CustomBluetooth newBleScanner) {
         this.context = context;
         this.viewModel = ViewModelProviders.of((MainActivity)context, new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
-//        clients = new CopyOnWriteArrayList<>();
-//        internetConnection = new InternetConn();
         this.newBleScanner = newBleScanner;
+        this.clientsHandler = ClientsHandler.getInstance(viewModel);
     }
-
-
-
 
     public void setRadioType(int radioType) {
         this.radioType = radioType;
     }
 
-//    public void removeClient(String ip){
-//        Logger.d(Logger.UTILS_LOG, "remove: " + ip);
-//        ClientsHandler.getInstance(context).getClients().remove(ip);
-//    }
 
     public void clearClients(){
-        ClientsHandler.getInstance(context).getClients().clear();
+        clientsHandler.clearClients();
     }
     public void clearMap(){ viewModel.clearMap(); }
 
@@ -95,79 +72,12 @@ public class Utils  {
     }
 
     public void updateClients(InterfaceUpdateListener interfaceUpdateListener){
-        ClientsHandler.getInstance(context).updateClients(interfaceUpdateListener);
+        clientsHandler.updateClients(interfaceUpdateListener);
     }
-    public void getTakeInfo(InterfaceUpdateListener interfaceUpdateListener){
-        Logger.d(Logger.UTILS_LOG, "getTakeInfo(InterfaceUpdateListener interfaceUpdateListener)");
-        ClientsHandler.getInstance(context).getTakeInfo(interfaceUpdateListener);
+    public void getTakeInfo(){
+        Logger.d(Logger.UTILS_LOG, "getTakeInfo()");
+         clientsHandler.getTakeInfo();
     }
-
-//        @Override
-//    public void onTaskCompleted(Bundle result) {
-////        Logger.d(Logger.UTILS_LOG, "onTaskCompleted(), futures: " + futures.length);
-//        String command = result.getString(BundleKeys.COMMAND_KEY);
-//        String ip = result.getString(BundleKeys.IP_KEY);
-//        String response = result.getString(BundleKeys.RESPONSE_KEY);
-//        Parcelable parcelableResponse = result.getParcelable(BundleKeys.PARCELABLE_RESPONSE_KEY);
-//
-//        if(command == null){
-//            command = "";
-//        }
-//
-//        Logger.d(Logger.UTILS_LOG, "on task completed, result: " + result);
-//
-//        switch (command){
-////            case PostCommand.VERSION:
-//////                transiver.setVersion(response);
-////                // TODO: 29.04.2021 проверка версии
-////                if(response != null){
-////                    Logger.d(Logger.UTILS_LOG, "new post info: " + ip + ", version: " + response);
-////                    futures[futureCounter] = runPostTakeInfo(ip, response);
-////                } else {
-////                    futures[futureCounter] = runSShTakeInfo(ip);
-////                }
-////                futureCounter += 1;
-////                break;
-//
-////            case PostCommand.POST_COMMAND_ERROR:
-////                futures[futureCounter] = runSShTakeInfo(ip);
-////                futureCounter += 1;
-////                break;
-//
-////            case PostCommand.TAKE_INFO_FULL:
-////                String version = result.getString(BundleKeys.VERSION_KEY);
-////                Logger.d(Logger.MAIN_LOG, "version: " + version);
-////                viewModel.addTakeInfoFull(ip, version, (TakeInfoFull) parcelableResponse, true);
-////                break;
-//
-////            case SshCommand.SSH_TAKE_COMMAND:
-////                viewModel.addTakeInfo(response, true);
-////                break;
-////
-////            case SshCommand.SSH_COMMAND_ERROR:
-////                if (response.contains("Connection refused") || response.contains("Auth fail")) {
-////                    removeClient(ip);
-////                } else {
-////                    showMessage("Error: " + response);
-////                }
-////                break;
-//
-//        }
-////        if(futures != null){
-////            CompletableFuture.allOf(futures).thenRun(() -> {
-////                executorService.shutdown();
-////                Logger.d(Logger.UTILS_LOG, "finishedGetTakeInfo()");
-////                interfaceUpdateListener.finishedGetTakeInfo();
-////                return;
-////            });
-////        }
-//    }
-
-//    @Override
-//    public void onProgressUpdate(Integer downloaded) {
-//    }
-
-
 
     public static class MessageDialog extends DialogFragment {
         @NonNull
@@ -194,11 +104,11 @@ public class Utils  {
     }
 
     public InternetConn getInternetConnection() {
-        return ClientsHandler.getInstance(context).getInternetConnection();
+        return clientsHandler.getInternetConnection();
     }
     public void removeClient(String ip){
         Logger.d(Logger.UTILS_LOG, "remove: " + ip);
-        ClientsHandler.getInstance(context).removeClient(ip);
+        clientsHandler.removeClient(ip);
     }
 
     public void startRvTimer(){
@@ -272,16 +182,16 @@ public class Utils  {
         return transportContent;
     }
 
-    public AlertDialog.Builder getScanClientsDialog(){
+    public AlertDialog getScanClientsDialog(){
         return new AlertDialog.Builder(context)
                 .setTitle(TITLE_SCAN_CLIENTS)
-                .setMessage(MESSAGE_SCAN_CLIENTS);
+                .setMessage(MESSAGE_SCAN_CLIENTS)
+                .setCancelable(false)
+                .create();
     }
 
-    public AlertDialog.Builder getTakeInfoDialog(){
-        Logger.d(Logger.UTILS_LOG, "getTakeInfoDialog()");
-        return new AlertDialog.Builder(context)
-                .setTitle(TITLE_TAKE_INFO)
-                .setMessage(MESSAGE_TAKE_INFO);
+    public boolean hasClients(){
+        Logger.d(Logger.UTILS_LOG, "has clients");
+        return clientsHandler.getClients().size() > 0;
     }
 }

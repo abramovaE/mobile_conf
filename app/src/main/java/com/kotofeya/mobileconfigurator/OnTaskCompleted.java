@@ -4,5 +4,5 @@ import android.os.Bundle;
 
 public interface OnTaskCompleted {
     void onTaskCompleted(Bundle result);
-    void onProgressUpdate(Integer downloaded);
+    default void onProgressUpdate(Integer downloaded){}
 }

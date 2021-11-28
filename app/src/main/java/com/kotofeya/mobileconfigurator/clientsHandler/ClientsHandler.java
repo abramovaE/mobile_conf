@@ -1,10 +1,7 @@
 package com.kotofeya.mobileconfigurator.clientsHandler;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
-
-import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
@@ -16,7 +13,6 @@ import com.kotofeya.mobileconfigurator.SshConnectionRunnable;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
-import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.hotspot.DeviceScanListener;
 import com.kotofeya.mobileconfigurator.hotspot.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
@@ -35,28 +31,26 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
 
     private static final String TAG = "ClientsHandler";
     private static ClientsHandler instance;
-    private InterfaceUpdateListener interfaceUpdateListener;
+    private InterfaceUpdateListener scanClientsListener;
     private InternetConn internetConnection;
     private int futureCounter;
     private ExecutorService executorService;
     private ExecutorService versionExecutorService;
     private CompletableFuture<Void>[] futures;
-    private Context context;
     private CustomViewModel viewModel;
+    private boolean isScanning = false;
 
 
-    public static synchronized ClientsHandler getInstance(Context context) {
+    public static synchronized ClientsHandler getInstance(CustomViewModel viewModel) {
         if(instance == null){
-            instance = new ClientsHandler(context);
+            instance = new ClientsHandler(viewModel);
         }
-
         return instance;
     }
-    private ClientsHandler(Context context) {
+    private ClientsHandler(CustomViewModel viewModel) {
         clients = new CopyOnWriteArrayList<>();
         internetConnection = new InternetConn();
-        this.context = context;
-        this.viewModel = ViewModelProviders.of((MainActivity)context, new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
+        this.viewModel = viewModel;
     }
 
     private List<String> clients;
@@ -70,9 +64,10 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
     }
 
     public void updateClients(InterfaceUpdateListener interfaceUpdateListener){
-        this.interfaceUpdateListener = interfaceUpdateListener;
+        this.scanClientsListener = interfaceUpdateListener;
         String deviceIp = internetConnection.getDeviceIp();
         if(deviceIp != null) {
+            isScanning = true;
             WiFiLocalHotspot.getInstance().updateClientList(deviceIp, this);
         } else {
             clients = new ArrayList<>();
@@ -81,33 +76,39 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
 
     @Override
     public void scanFinished(List<String> clients) {
+        isScanning = false;
         this.clients = clients;
         viewModel.setClients(clients);
-        interfaceUpdateListener.clientsScanFinished();
+        scanClientsListener.clientsScanFinished();
     }
 
-    public void getTakeInfo(InterfaceUpdateListener interfaceUpdateListener){
-        Logger.d(TAG, "get take info");
-//        interfaceUpdateListener.startGetTakeInfo();
-        this.futureCounter = 0;
-        this.interfaceUpdateListener = interfaceUpdateListener;
-//        interfaceUpdateListener.startGetTakeInfo();
-        Logger.d(TAG, "clients: " + clients);
-        if (clients.size() > 0) {
-            executorService = Executors.newCachedThreadPool();
-            versionExecutorService = Executors.newCachedThreadPool();
-            futures = new CompletableFuture[clients.size()];
-            CompletableFuture<Void>[] versFutures = new CompletableFuture[clients.size()];
-//            interfaceUpdateListener.startGetTakeInfo();
-            for (int i = 0; i < clients.size(); i++) {
-                String ip = clients.get(i);
-                versFutures[i] = runGetPostVersion(ip);
+    public void getTakeInfo(){
+        if(!isScanning) {
+            viewModel.setTakeInfoFinished(false);
+            Logger.d(TAG, "get take info");
+            this.futureCounter = 0;
+            Logger.d(TAG, "clients: " + clients);
+            if (clients.size() > 0) {
+                executorService = Executors.newCachedThreadPool();
+                versionExecutorService = Executors.newCachedThreadPool();
+                futures = new CompletableFuture[clients.size()];
+                CompletableFuture<Void>[] versFutures = new CompletableFuture[clients.size()];
+                for (int i = 0; i < clients.size(); i++) {
+                    String ip = clients.get(i);
+                    versFutures[i] = runGetPostVersion(ip);
+                }
+                CompletableFuture.allOf(versFutures).thenRun(() -> {
+                    Logger.d(TAG, "versFutures is complete");
+                    versionExecutorService.shutdown();
+                    CompletableFuture.allOf(futures).thenRun(() -> {
+                        executorService.shutdown();
+                        Logger.d(TAG, "finishedGetTakeInfo()");
+                        viewModel.setTakeInfoFinished(true);
+                        return;
+                    });
+                    return;
+                });
             }
-            CompletableFuture.allOf(versFutures).thenRun(() -> {
-                Logger.d(TAG, "versFutures is complete");
-                versionExecutorService.shutdown();
-                return;
-            });
         }
     }
 
@@ -166,19 +167,6 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
                 }
                 break;
         }
-//        for (CompletableFuture<Void> f: futures){
-//            Logger.d(TAG, "f is done: " + f.compl);
-//            Logger.d(TAG, "f is exceptionally: " + f.isCompletedExceptionally());
-//        }
-
-        if(futures != null){
-            CompletableFuture.allOf(futures).thenRun(() -> {
-                executorService.shutdown();
-                Logger.d(TAG, "finishedGetTakeInfo()");
-                interfaceUpdateListener.finishedGetTakeInfo();
-                return;
-            });
-        }
     }
 
     public void removeClient(String ip){
@@ -187,16 +175,15 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
         viewModel.setClients(clients);
     }
 
-    @Override
-    public void onProgressUpdate(Integer downloaded) {
-
-    }
-
     public void showMessage(String message){
         Bundle bundle = new Bundle();
         bundle.putString("message", message);
         Utils.MessageDialog dialog = new Utils.MessageDialog();
         dialog.setArguments(bundle);
         dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+    }
+
+    public void clearClients(){
+        clients.clear();
     }
 }

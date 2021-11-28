@@ -28,14 +28,13 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.City;
 import com.kotofeya.mobileconfigurator.Downloader;
-import com.kotofeya.mobileconfigurator.FragmentHandler;
+import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SendLogToServer;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
-import com.kotofeya.mobileconfigurator.hotspot.DeviceScanListener;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.SshCommand;
 import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
@@ -64,6 +63,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
 
 
     public final static String TAG = "MainActivity";
+    public static City cities[];
+
     Utils utils;
     TextView label;
     ImageButton mainBtnRescan;
@@ -71,32 +72,20 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
     TextView devCountTxt;
     TextView dateTxt;
 
-    public static City cities[];
     private static final int TETHER_REQUEST_CODE = 1;
     private static final String HOTSPOT_DIALOG_TAG = "HOTSPOT_DIALOG";
     private CustomBluetooth newBleScanner;
-
     private CustomViewModel viewModel;
-
     private AlertDialog scanClientsDialog;
-    private AlertDialog getTakeInfoDialog;
-
-    FragmentHandler fragmentHandler;
-
-
+    private FragmentHandler fragmentHandler;
 
     @Override
-    public void finishedGetTakeInfo(){
-        getTakeInfoDialog.dismiss();
-    }
-
-
-            @Override
     public void onStart() {
         super.onStart();
         newBleScanner.stopScan();
         utils.startRvTimer();
-        scanClientsDialog = utils.getScanClientsDialog().show();
+        scanClientsDialog = utils.getScanClientsDialog();
+        scanClientsDialog.show();
         utils.updateClients(this);
     }
 
@@ -124,16 +113,13 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main_cl);
         verifyStoragePermissions(this);
-
         newBleScanner = new CustomBluetooth(this);
         utils = new Utils(this, newBleScanner);
         fragmentHandler = new FragmentHandler(this);
         App.get().setFragmentHandler(fragmentHandler);
         fragmentHandler.changeFragment(FragmentHandler.MAIN_FRAGMENT_TAG, false);
-
         label = findViewById(R.id.main_txt_label);
         mainBtnRescan = findViewById(R.id.main_btn_rescan);
         mainBtnRescan.setVisibility(View.GONE);
@@ -142,14 +128,11 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
         devCountTxt = findViewById(R.id.main_txt_dev_count);
         dateTxt = findViewById(R.id.main_txt_date);
         loginTxt.setText(App.get().getLogin());
-
         Runnable runnable = new CountDownRunner();
         Thread timerThread = new Thread(runnable);
         timerThread.start();
-
         Downloader cityDownloader = new Downloader(this);
         cityDownloader.execute(Downloader.CITY_URL);
-
         if (App.get().isAskForTeneth()) {
             HotSpotSettingsDialog dialog = new HotSpotSettingsDialog();
             dialog.show(fragmentHandler.getFragmentManager(), HOTSPOT_DIALOG_TAG);
@@ -158,13 +141,9 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
         if (isInternetEnabled) {
             new Thread(new SendLogToServer(Logger.getServiceLogString(), this)).start();
         }
-
         viewModel = ViewModelProviders.of(this, new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
         viewModel.getClients().observe(this, this::updateUI);
-
-
     }
-
 
     // Storage Permissions
     private static final int REQUEST_EXTERNAL_STORAGE = 10;
@@ -195,9 +174,6 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
         }
     }
 
-
-
-
     public CustomViewModel getViewModel() {
         return viewModel;
     }
@@ -205,9 +181,6 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
     private void updateUI(List<String> strings) {
         devCountTxt.setText("(" + strings.size() + ")");
     }
-
-
-
 
     @Override
     public void clientsScanFinished() {
@@ -344,8 +317,6 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
         }
         super.onStop();
         newBleScanner.stopScan();
-//        unregisterReceiver(mBroadcastReceiver1);
-
     }
 
     @Override

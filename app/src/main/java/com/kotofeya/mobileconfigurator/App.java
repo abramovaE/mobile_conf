@@ -5,11 +5,9 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
+
 import org.acra.ACRA;
-import org.acra.annotation.AcraCore;
-import org.acra.annotation.AcraHttpSender;
-import org.acra.data.StringFormat;
-import org.acra.sender.HttpSender;
 
 import java.io.File;
 import java.util.HashSet;

@@ -14,8 +14,8 @@ android {
         applicationId "com.kotofeya.mobileconfigurator"
         minSdkVersion 26
         targetSdkVersion 30
-        versionCode 46
-        versionName "6.0"
+        versionCode 48
+        versionName "6.2"
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

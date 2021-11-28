@@ -5,8 +5,10 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkInfo;
+import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 
+import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.UnknownHostException;
@@ -22,8 +24,21 @@ public class InternetConn {
         final NetworkCapabilities capabilities = mConnectivityManager .getNetworkCapabilities(network);
         boolean hasConnection = (capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED));
         Logger.d(Logger.INTERNET_CONN_LOG, "has internet connection: " + hasConnection);
+
         return hasConnection;
     }
+
+
+//    public void isEnabled(){
+//        WifiManager wifiManager = (WifiManager) App.get().getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+//        Method method= null;
+//        try {
+//            method = wifiManager.getClass().getMethod("setWifiApEnabled", WifiConfiguration.class, boolean.class);
+//        } catch (NoSuchMethodException e) {
+//            e.printStackTrace();
+//        }
+//        method.invoke(wifiManager, wifi_configuration, true);
+//    }
 
     public static String getIPAddress(boolean useIPv4) {
         try {

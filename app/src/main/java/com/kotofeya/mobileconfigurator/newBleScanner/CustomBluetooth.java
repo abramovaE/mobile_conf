@@ -36,6 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class CustomBluetooth {
+
     public static final int REQUEST_BT_ENABLE = 4;
     public static final int REQUEST_FINE_LOCATION = 2;
     public static final int REQUEST_GPS_ENABLE = 3;
@@ -44,6 +45,7 @@ public class CustomBluetooth {
     private static final int MAX_APPEARANCE_TIME = 3000;
     private Map<String, CustomScanResult> results;
 
+    private static final String TAG = "CustomBluetooth";
     private BluetoothLeScanner bleScanner;
     private Context context;
     private boolean isPermissionRequested = false;
@@ -212,7 +214,7 @@ public class CustomBluetooth {
     }
 
     public void stopScan(){
-        Log.d("TAG", "stop scanning");
+        Log.d(TAG, "stop scanning");
         if(bleScanner != null) {
             bleScanner.stopScan(scanCallback);
             isScanning = false;

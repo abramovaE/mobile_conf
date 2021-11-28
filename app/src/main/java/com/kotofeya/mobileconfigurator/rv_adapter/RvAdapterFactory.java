@@ -2,7 +2,7 @@ package com.kotofeya.mobileconfigurator.rv_adapter;
 
 import android.content.Context;
 
-import com.kotofeya.mobileconfigurator.FragmentHandler;
+import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import java.util.List;

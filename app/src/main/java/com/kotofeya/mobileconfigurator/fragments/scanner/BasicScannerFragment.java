@@ -4,6 +4,7 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -11,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterFactory;
 import com.kotofeya.mobileconfigurator.TaskCode;
@@ -28,7 +30,7 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
 
     private AlertDialog scanClientsDialog;
     private CustomViewModel viewModel;
-    protected AlertDialog getTakeInfoDialog;
+    private TextView scannerProgressBarTv;
 
     @Nullable
     @Override
@@ -45,11 +47,25 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         rvScanner.setAdapter(rvAdapter);
         utils.getNewBleScanner().stopScan();
         this.viewModel = ViewModelProviders.of(getActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
+        viewModel.getIsGetTakeInfoFinished().observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
+        scannerProgressBarTv = view.findViewById(R.id.progressTv);
+        scannerProgressBarTv.setVisibility(View.GONE);
+
         return view;
+    }
+
+    private void updateScannerProgressBarTv(Boolean aBoolean) {
+        if(!aBoolean){
+            scannerProgressBarTv.setText(Utils.MESSAGE_TAKE_INFO);
+            scannerProgressBarTv.setVisibility(View.VISIBLE);
+        } else {
+            scannerProgressBarTv.setVisibility(View.GONE);
+        }
     }
 
     @Override
     public void onStart() {
+        Logger.d(Logger.BASIC_SCANNER_LOG, "onStart()");
         super.onStart();
         mainBtnRescan.setVisibility(View.VISIBLE);
         utils.getNewBleScanner().stopScan();
@@ -72,39 +88,23 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         }
     }
 
-    @Override
-    public void onProgressUpdate(Integer downloaded) {
-    }
-
-
     private void rescan(){
         Logger.d(Logger.BASIC_SCANNER_LOG, "rescan");
         utils.clearClients();
         utils.clearMap();
         viewModel.clearTransivers();
-        scanClientsDialog = utils.getScanClientsDialog().show();
+        scanClientsDialog = utils.getScanClientsDialog();
+        scanClientsDialog.show();
         utils.updateClients(this);
-//        getTakeInfoDialog = utils.getTakeInfoDialog().show();
-//        utils.getTakeInfo(this);
     }
 
     public void scan(){
-        if(checkPermission()) {
-            getTakeInfoDialog = utils.getTakeInfoDialog().show();
-            utils.getTakeInfo(this);
-//            scanClientsDialog = utils.getScanClientsDialog().show();
-//            utils.updateClients(this);
-//            utils.getTakeInfo(this);
-        } else {
-            askPermission();
+        Logger.d(Logger.BASIC_SCANNER_LOG, "scan()");
+        if(utils.hasClients()) {
+            Logger.d(Logger.BASIC_SCANNER_LOG, "scan2()");
+            utils.getTakeInfo();
         }
     }
-
-    private boolean checkPermission(){
-        return true;
-    }
-
-    private void askPermission(){ }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
@@ -120,13 +120,8 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
 
     @Override
     public void clientsScanFinished() {
+        Logger.d(Logger.BASIC_SCANNER_LOG, "clientsScanFinished()");
         scanClientsDialog.dismiss();
-        getTakeInfoDialog = utils.getTakeInfoDialog().show();
-        utils.getTakeInfo(this);
-    }
-
-    @Override
-    public void finishedGetTakeInfo(){
-        getTakeInfoDialog.dismiss();
+        scan();
     }
 }

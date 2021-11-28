@@ -20,13 +20,6 @@ import java.util.ArrayList;
 public class ConfigStatFragment extends ConfigFragment implements InterfaceUpdateListener {
 
     private AlertDialog scanClientsDialog;
-    protected AlertDialog getTakeInfoDialog;
-
-    @Override
-    public void finishedGetTakeInfo(){
-        getTakeInfoDialog.dismiss();
-    }
-
 
     @Override
     public RvAdapter getRvAdapter() {
@@ -50,10 +43,7 @@ public class ConfigStatFragment extends ConfigFragment implements InterfaceUpdat
     }
 
     public void basicScan(){
-//        scanClientsDialog = utils.getScanClientsDialog().show();
-//        utils.updateClients(this);
-        getTakeInfoDialog = utils.getTakeInfoDialog().show();
-        utils.getTakeInfo(this);
+        utils.getTakeInfo();
     }
 
     @Override
@@ -70,7 +60,6 @@ public class ConfigStatFragment extends ConfigFragment implements InterfaceUpdat
     @Override
     public void clientsScanFinished() {
         scanClientsDialog.dismiss();
-        getTakeInfoDialog = utils.getTakeInfoDialog().show();
-        utils.getTakeInfo(this);
+        utils.getTakeInfo();
     }
 }

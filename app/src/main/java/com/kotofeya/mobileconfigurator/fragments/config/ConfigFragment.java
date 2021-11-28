@@ -10,14 +10,12 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
@@ -35,9 +33,7 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
     protected CustomViewModel viewModel;
     RecyclerView rvScanner;
     RvAdapter rvAdapter;
-
-
-
+    private TextView scannerProgressBarTv;
 
     public abstract RvAdapter getRvAdapter();
     public abstract void setMainTextLabel();
@@ -49,8 +45,6 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
         this.utils = ((MainActivity) context).getUtils();
         super.onAttach(context);
     }
-
-
 
     @Override
     public void onStart() {
@@ -66,9 +60,13 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
         rvScanner = view.findViewById(R.id.rv_scanner);
         mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
         mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
+        scannerProgressBarTv = view.findViewById(R.id.progressTv);
+        scannerProgressBarTv.setVisibility(View.GONE);
+
         utils.getNewBleScanner().stopScan();
         rvAdapter = getRvAdapter();
         rvScanner.setAdapter(rvAdapter);
+
         scan();
         return view;
     }
@@ -77,14 +75,20 @@ public abstract class ConfigFragment extends Fragment implements OnTaskCompleted
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         this.viewModel = ViewModelProviders.of(getActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
+        viewModel.getIsGetTakeInfoFinished().observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
+    }
+
+    private void updateScannerProgressBarTv(Boolean aBoolean) {
+        if(!aBoolean){
+            scannerProgressBarTv.setText(Utils.MESSAGE_TAKE_INFO);
+            scannerProgressBarTv.setVisibility(View.VISIBLE);
+        } else {
+            scannerProgressBarTv.setVisibility(View.GONE);
+        }
     }
 
     protected void updateUI(List<Transiver> transiverList){
         rvAdapter.setObjects(transiverList);
         rvAdapter.notifyDataSetChanged();
-    }
-
-    @Override
-    public void onProgressUpdate(Integer downloaded) {
     }
 }

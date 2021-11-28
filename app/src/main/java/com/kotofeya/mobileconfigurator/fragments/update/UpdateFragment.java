@@ -46,6 +46,8 @@ import java.util.List;
 
 public abstract class UpdateFragment extends Fragment implements OnTaskCompleted, ProgressBarInt,
         IUpdateFragment, InterfaceUpdateListener {
+    protected abstract void setMainTextLabelText();
+    protected abstract RvAdapterType getAdapterType();
 
     public Context context;
     public Utils utils;
@@ -57,32 +59,17 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
     ProgressBar progressBar;
     protected static final int MOBILE_SETTINGS_RESULT = 0;
     protected CustomViewModel viewModel;
-
     protected TextView progressTv;
-
+    protected AlertDialog scanClientsDialog;
 
     RecyclerView rvScanner;
     RvAdapter rvAdapter;
     TextView downloadContentUpdateFilesTv;
 
-    protected AlertDialog scanClientsDialog;
-    protected AlertDialog getTakeInfoDialog;
-
-
-    protected abstract void setMainTextLabelText();
-    protected abstract RvAdapterType getAdapterType();
-
     @Override
     public void clientsScanFinished() {
         scanClientsDialog.dismiss();
-        getTakeInfoDialog = utils.getTakeInfoDialog().show();
-        utils.getTakeInfo(this);
-    }
-
-
-    @Override
-    public void finishedGetTakeInfo(){
-        getTakeInfoDialog.dismiss();
+        utils.getTakeInfo();
     }
 
     @Override
@@ -103,16 +90,15 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         mainBtnRescan.setVisibility(View.VISIBLE);
     }
 
-
     private void rescan(){
         Logger.d(Logger.BASIC_SCANNER_LOG, "rescan");
         utils.clearClients();
         utils.clearMap();
         viewModel.clearTransivers();
-        scanClientsDialog = utils.getScanClientsDialog().show();
+        scanClientsDialog = utils.getScanClientsDialog();
+        scanClientsDialog.show();
         utils.updateClients(this);
     }
-
 
     @Nullable
     @Override
@@ -155,17 +141,25 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         }
         loadVersion();
         progressTv = view.findViewById(R.id.progressTv);
+        progressTv.setVisibility(View.GONE);
+
         downloadContentUpdateFilesTv = view.findViewById(R.id.downloadCoreUpdateFilesTv);
+        viewModel.getIsGetTakeInfoFinished().observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
         return view;
     }
 
     protected void scan(){
         Logger.d(Logger.UPDATE_LOG, "updateFragment scan");
-//        scanClientsDialog = utils.getScanClientsDialog().show();
-//        utils.updateClients(this);
-        getTakeInfoDialog = utils.getTakeInfoDialog().show();
+        utils.getTakeInfo();
+    }
 
-        utils.getTakeInfo(this);
+    private void updateScannerProgressBarTv(Boolean aBoolean) {
+        if(!aBoolean){
+            progressTv.setText(Utils.MESSAGE_TAKE_INFO);
+            progressTv.setVisibility(View.VISIBLE);
+        } else {
+            progressTv.setVisibility(View.GONE);
+        }
     }
 
     @Override
@@ -191,14 +185,12 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
         Logger.d(Logger.UPDATE_LOG, "ip: " + ip);
         Logger.d(Logger.UPDATE_LOG, "response: " + response);
 
-
         int resultCode = result.getInt(BundleKeys.RESULT_CODE_KEY);
         String resultStr = result.getString(BundleKeys.RESULT_KEY);
         String ipStr = result.getString(BundleKeys.IP_KEY);
         Logger.d(Logger.UPDATE_LOG, "ssh task completed: ip: " + ipStr + ", resultCode: " + resultCode);
 
         switch (resultCode){
-
             case 1002:
                  utils.showMessage("Error: " + result);
                  break;
@@ -245,8 +237,7 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                 utils.showMessage("Error: " + result);
                 progressBar.setVisibility(View.GONE);
                 break;
-
-                case TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE:
+            case TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE:
                     String tempFilePath = result.getString(BundleKeys.FILE_PATH_KEY);
                     Logger.d(Logger.UPDATE_LOG, "downloading completed, tfp: " + tempFilePath);
                     App.get().saveUpdateContentFilePaths(tempFilePath);
@@ -254,8 +245,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
                     updateFilesTv();
         }
     }
-
-
 
     private void updateFilesTv(){
         StringBuilder sb = new StringBuilder();
@@ -341,7 +330,6 @@ public abstract class UpdateFragment extends Fragment implements OnTaskCompleted
             builder.setNegativeButton(getString(R.string.cancel), new DialogInterface.OnClickListener() {
                 public void onClick(DialogInterface dialog, int id) {
                     Logger.d(Logger.UPDATE_LOG, "cancel btn was pressed, keep working without mobile internet");
-
                 }
             });
             builder.setCancelable(true);

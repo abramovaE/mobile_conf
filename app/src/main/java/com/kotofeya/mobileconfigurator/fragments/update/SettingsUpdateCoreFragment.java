@@ -169,7 +169,8 @@ public class SettingsUpdateCoreFragment extends UpdateFragment implements Interf
                 e.printStackTrace();
             }
 
-            scanClientsDialog = utils.getScanClientsDialog().show();
+            scanClientsDialog = utils.getScanClientsDialog();
+            scanClientsDialog.show();
             utils.updateClients(this);
         }
     }

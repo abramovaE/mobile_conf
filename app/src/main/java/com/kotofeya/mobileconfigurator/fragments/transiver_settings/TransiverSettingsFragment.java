@@ -70,16 +70,11 @@ public abstract class TransiverSettingsFragment extends Fragment implements View
         this.ssid = getArguments().getString("ssid");
     }
 
-
     final Runnable updateRunnable = new Runnable() {
         public void run() {
             updateUI();
         }
     };
-
-    @Override
-    public void onProgressUpdate(Integer downloaded) {
-    }
 
     public void updateText(String text){
         this.text = text;

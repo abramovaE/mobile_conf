@@ -11,10 +11,11 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 public class WiFiLocalHotspot {
+    public DeviceScanListener deviceScanListener;
     private static final String TAG = "WiFiLocalHotspot";
     private static WiFiLocalHotspot instance;
     private boolean isScanning = false;
-    public DeviceScanListener deviceScanListener;
+    private List<String> clients;
 
     public static synchronized WiFiLocalHotspot getInstance() {
         if(instance == null){
@@ -24,7 +25,6 @@ public class WiFiLocalHotspot {
     }
 
     private WiFiLocalHotspot() {}
-    private List<String> clients;
 
     public void updateClientList(String deviceIp, DeviceScanListener deviceScanListener){
         Logger.d(TAG, "updateClientList(String deviceIp), deviceIp: " + deviceIp);

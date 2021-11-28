@@ -41,6 +41,11 @@ public class CustomViewModel extends ViewModel {
     private MutableLiveData<Transiver> currentStatInformer = new MutableLiveData<>();
     private MutableLiveData<Transiver> currentTranspInformer = new MutableLiveData<>();
 
+    private MutableLiveData<Boolean> isGetTakeInfoFinished = new MutableLiveData<>();
+
+    public MutableLiveData<Boolean> getIsGetTakeInfoFinished() {
+        return isGetTakeInfoFinished;
+    }
 
     public static class ModelFactory extends ViewModelProvider.NewInstanceFactory {
         public ModelFactory() {
@@ -54,6 +59,10 @@ public class CustomViewModel extends ViewModel {
             }
             return null;
         }
+    }
+
+    public void setTakeInfoFinished(boolean b){
+        isGetTakeInfoFinished.postValue(b);
     }
 
     public void addTakeInfoFull(String ip, String version, TakeInfoFull takeInfoFull, boolean createNew){
