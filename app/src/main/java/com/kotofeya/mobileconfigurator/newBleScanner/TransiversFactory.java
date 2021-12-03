@@ -5,9 +5,7 @@ import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
 import com.kotofeya.mobileconfigurator.transivers.TriolInformer;
 
-
 public class TransiversFactory {
-
     public Transiver getInformer(CustomScanResult result){
         int rssi = result.getScanResult().getRssi();
         String address = result.getScanResult().getDevice().getAddress();

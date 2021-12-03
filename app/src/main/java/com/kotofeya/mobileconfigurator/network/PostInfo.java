@@ -53,7 +53,7 @@ public class PostInfo implements Runnable {
 
     @Override
     public void run() {
-        Logger.d(Logger.POST_INFO_LOG, "post command: " +  command);
+        Logger.d(Logger.POST_INFO_LOG, "post command: " +  command + ", ip: " + ip);
         Bundle result = new Bundle();
         URL u;
         try {
@@ -70,31 +70,30 @@ public class PostInfo implements Runnable {
             while (null != (line = br.readLine())) {
                 content.append(line);
             }
-
-            Logger.d(Logger.POST_INFO_LOG, "post command: " +  command +", response: " + response);
-            if(command.startsWith(PostCommand.TRANSP_CONTENT)){
+            Logger.d(Logger.POST_INFO_LOG, "post command: " + command + ", response: " + response + ", ip: " + ip);
+            if (command.startsWith(PostCommand.TRANSP_CONTENT)) {
                 command = PostCommand.TRANSP_CONTENT;
             }
-            if (command.startsWith(PostCommand.WIFI)){
+            if (command.startsWith(PostCommand.WIFI)) {
                 command = PostCommand.WIFI;
             }
-            if (command.startsWith(PostCommand.STATIC)){
+            if (command.startsWith(PostCommand.STATIC)) {
                 command = PostCommand.STATIC;
             }
-            if (command.startsWith(PostCommand.FLOOR)){
+            if (command.startsWith(PostCommand.FLOOR)) {
                 command = PostCommand.FLOOR;
             }
-            if (command.startsWith(PostCommand.SOUND)){
+            if (command.startsWith(PostCommand.SOUND)) {
                 command = PostCommand.SOUND;
             }
 
             result.putString(BundleKeys.COMMAND_KEY, command);
             result.putString(BundleKeys.IP_KEY, ip);
 
-            Logger.d(Logger.POST_INFO_LOG, "post command: " +  command +", response: " + response);
+            Logger.d(Logger.POST_INFO_LOG, "post command: " + command + ", response: " + response + ", ip: " + ip);
 
-            if(response == 200){
-                switch (command){
+            if (response == 200) {
+                switch (command) {
                     case PostCommand.TAKE_INFO_FULL:
                         JSONObject jsonObject = new JSONObject(content.toString()
                                 .replace("<pre>", "")
@@ -102,9 +101,14 @@ public class PostInfo implements Runnable {
                         String command = jsonObject.getString(BundleKeys.COMMAND_KEY);
                         JSONObject properties = jsonObject.getJSONObject("properties");
                         double version = getVersion();
-                        TakeInfoFull takeInfoFull = new GsonBuilder().setVersion(version).create().fromJson(properties.toString(),  TakeInfoFull.class);
-                        result.putParcelable(BundleKeys.PARCELABLE_RESPONSE_KEY, takeInfoFull);
-                        result.putString(BundleKeys.VERSION_KEY, this.version);
+//                        try {
+                            TakeInfoFull takeInfoFull = new GsonBuilder().setVersion(version).create().fromJson(properties.toString(), TakeInfoFull.class);
+                            Logger.d(Logger.POST_INFO_LOG, "takeInfoFull: " + takeInfoFull + ", ip: " + ip);
+                            result.putParcelable(BundleKeys.PARCELABLE_RESPONSE_KEY, takeInfoFull);
+                            result.putString(BundleKeys.VERSION_KEY, version + "");
+//                        } catch (Exception e) {
+//                            Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage() + ", ip: " + ip);
+//                        }
                         break;
                     case PostCommand.VERSION:
                         String ver = content.toString().substring(content.lastIndexOf("version") + 8);
@@ -134,22 +138,24 @@ public class PostInfo implements Runnable {
             } else {
                 result.putString(BundleKeys.COMMAND_KEY, PostCommand.POST_COMMAND_ERROR);
             }
-            Logger.d(Logger.POST_INFO_LOG, "listener: " + listener);
+            Logger.d(Logger.POST_INFO_LOG, "listener: " + listener + ", ip: " + ip);
             reader.close();
-        } catch (MalformedURLException | ProtocolException e) {
-            Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage());
+        }catch (MalformedURLException | ProtocolException e) {
+            Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage() + ", ip: " + ip);
             result.putString(BundleKeys.COMMAND_KEY, PostCommand.POST_COMMAND_ERROR);
             result.putString(BundleKeys.RESPONSE_KEY, e.getMessage());
         } catch (IOException e) {
-            Logger.d(Logger.POST_INFO_LOG, "io exception: " + e.getMessage());
+            Logger.d(Logger.POST_INFO_LOG, "io exception: " + e.getMessage() +
+                    ", ip: " + ip + ", command: " + command + ", cause" + e.getCause());
             e.printStackTrace();
             result.putString(BundleKeys.COMMAND_KEY, PostCommand.POST_COMMAND_ERROR);
             result.putString(BundleKeys.RESPONSE_KEY, e.getMessage());
             result.putString(BundleKeys.IP_KEY, ip);
         } catch (JSONException e) {
-            Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage());
-            e.printStackTrace();
+                Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage() + ", ip: " + ip);
+                e.printStackTrace();
         } finally {
+            Logger.d(Logger.POST_INFO_LOG, "result: " + result  + ", ip: " + ip);
             listener.onTaskCompleted(result);
         }
     }
@@ -188,16 +194,10 @@ public class PostInfo implements Runnable {
     }
 
     private double getVersion(){
+        Logger.d(Logger.POST_INFO_LOG, "getVersion(), ip: " + ip + ", version: " + version);
         if(version.startsWith("0")){
             return Double.parseDouble(version.replaceFirst("0.", ""));
         }
-//        switch (version){
-//            case "0.1.6":
-//                return 1.6;
-//            case "0.1.7":
-//                return 1.7;
-//
-//        }
         return 0.0;
     }
 }

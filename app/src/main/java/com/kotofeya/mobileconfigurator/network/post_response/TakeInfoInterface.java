@@ -23,31 +23,24 @@ public class TakeInfoInterface implements Parcelable {
     public String getName() {
         return name;
     }
-
     public void setName(String name) {
         this.name = name;
     }
-
     public String getMac() {
         return mac;
     }
-
     public void setMac(String mac) {
         this.mac = mac;
     }
-
     public String getIp() {
         return ip;
     }
-
     public void setIp(String ip) {
         this.ip = ip;
     }
-
     public String getRentAddr() {
         return rentAddr;
     }
-
     public void setRentAddr(String rentAddr) {
         this.rentAddr = rentAddr;
     }
@@ -64,7 +57,6 @@ public class TakeInfoInterface implements Parcelable {
         dest.writeString(ip);
         dest.writeString(rentAddr);
     }
-
 
     public static final Parcelable.Creator<TakeInfoInterface> CREATOR = new Parcelable.Creator<TakeInfoInterface>() {
         // распаковываем объект из Parcel

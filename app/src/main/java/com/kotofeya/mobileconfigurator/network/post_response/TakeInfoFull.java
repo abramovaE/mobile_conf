@@ -1,7 +1,5 @@
 package com.kotofeya.mobileconfigurator.network.post_response;
 
-
-
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -124,7 +122,7 @@ public class TakeInfoFull implements Parcelable {
     private String dailyRebootTime;
     @SerializedName("critCpuLoad")
     @Expose
-    private Integer critCpuLoad;
+    private String critCpuLoad;
     @SerializedName("critRamFree")
     @Expose
     private String critRamFree;
@@ -231,143 +229,90 @@ public class TakeInfoFull implements Parcelable {
     public List<TakeInfoInterface> getInterfaces() {
         return interfaces;
     }
-
     public void setInterfaces(List<TakeInfoInterface> interfaces) {
         this.interfaces = interfaces;
     }
-
     public String getScUartVer() {
         return scUartVer;
     }
-
     public void setScUartVer(String scUartVer) {
         this.scUartVer = scUartVer;
     }
-
     public Integer getScUartPid() {
         return scUartPid;
     }
-
     public void setScUartPid(Integer scUartPid) {
         this.scUartPid = scUartPid;
     }
-
     public String getBoardVersion() {
         return boardVersion;
     }
-
     public void setBoardVersion(String boardVersion) {
         this.boardVersion = boardVersion;
     }
-
     public String getStmFirmware() {
         return stmFirmware;
     }
-
     public void setStmFirmware(String stmFirmware) {
         this.stmFirmware = stmFirmware;
     }
-
     public String getStmBootload() {
         return stmBootload;
     }
-
     public void setStmBootload(String stmBootload) {
         this.stmBootload = stmBootload;
     }
-
     public String getCoreLinux() {
         return coreLinux;
     }
-
     public void setCoreLinux(String coreLinux) {
         this.coreLinux = coreLinux;
     }
-
     public String getCompileDate() {
         return compileDate;
     }
-
     public void setCompileDate(String compileDate) {
         this.compileDate = compileDate;
     }
-
     public Integer getIncrCity() {
         return incrCity;
     }
-
     public void setIncrCity(Integer incrCity) {
         this.incrCity = incrCity;
     }
-
     public String getStopTransLocate() {
         return stopTransLocate;
     }
-
     public void setStopTransLocate(String stopTransLocate) {
         this.stopTransLocate = stopTransLocate;
     }
-
     public List<TakeInfoTranspContent> getTranspContents() {
         return transpContents;
     }
-
     public void setTranspContents(List<TakeInfoTranspContent> transpContents) {
         this.transpContents = transpContents;
     }
-
     public List<TakeInfoStatContent> getStatContents() {
         return statContents;
     }
-
-    public void setStatContents(List<TakeInfoStatContent> statContents) {
-        this.statContents = statContents;
-    }
-
-    public String getLogPath() {
-        return logPath;
-    }
-
-    public void setLogPath(String logPath) {
-        this.logPath = logPath;
-    }
-
-    public String getDailyRebootTime() {
-        return dailyRebootTime;
-    }
-
-    public void setDailyRebootTime(String dailyRebootTime) {
-        this.dailyRebootTime = dailyRebootTime;
-    }
-
-    public Integer getCritCpuLoad() {
-        return critCpuLoad;
-    }
-
-    public void setCritCpuLoad(Integer critCpuLoad) {
-        this.critCpuLoad = critCpuLoad;
-    }
-
-    public String getCritRamFree() {
-        return critRamFree;
-    }
-
-    public void setCritRamFree(String critRamFree) {
-        this.critRamFree = critRamFree;
-    }
-
+    public void setStatContents(List<TakeInfoStatContent> statContents) { this.statContents = statContents; }
+    public String getLogPath() { return logPath; }
+    public void setLogPath(String logPath) { this.logPath = logPath; }
+    public String getDailyRebootTime() { return dailyRebootTime; }
+    public void setDailyRebootTime(String dailyRebootTime) { this.dailyRebootTime = dailyRebootTime; }
+    public String getCritCpuLoad() { return critCpuLoad; }
+    public void setCritCpuLoad(String critCpuLoad) { this.critCpuLoad = critCpuLoad; }
+    public String getCritRamFree() { return critRamFree; }
+    public void setCritRamFree(String critRamFree) { this.critRamFree = critRamFree; }
     public List<String> getCrontabTasks() {
         return crontabTasks;
     }
-
     public void setCrontabTasks(List<String> crontabTasks) {
         this.crontabTasks = crontabTasks;
     }
-
     public String getLastReboot() {
         return lastReboot;
     }
-
     public void setLastReboot(String lastReboot) {
         this.lastReboot = lastReboot;
     }
@@ -412,86 +357,21 @@ public class TakeInfoFull implements Parcelable {
         dest.writeParcelableList(statContents, 0);
         dest.writeString(logPath);
         dest.writeString(dailyRebootTime);
-        dest.writeInt(critCpuLoad);
+        dest.writeString(critCpuLoad);
         dest.writeString(critRamFree);
         dest.writeList(crontabTasks);
         dest.writeString(lastReboot);
     }
-
-
-//
-//
-//    // упаковываем объект в Parcel
-//    public void writeToParcel(Parcel parcel, int flags) {
-//        private String type;
-//        private Integer serial;
-//        private String followServer;
-//        private Integer replyInterval;
-//        private Boolean hasPing;
-//        private String systemTime;
-//        private Integer uptime;
-//        private String load1min;
-//        private String load5min;
-//        private String load15min;
-//        private Integer cpuFreq;
-//        private Integer cpuTemperature;
-//        private Integer freeRam;
-//        private String bleMac;
-//        private Integer blePidHci0;
-//        private List<TakeInfoWifiInterface> wifiInterfaces = null;
-//        private String scUartVer;
-//        private Integer scUartPid;
-//        private String boardVersion;
-//        private String stmFirmware;
-//        private String stmBootload;
-//        private String coreLinux;
-//
-//        @SerializedName("compileDate")
-//        @Expose
-//        private String compileDate;
-//        @SerializedName("incrCity")
-//        @Expose
-//        private Integer incrCity;
-//        @SerializedName("stopTransLocate")
-//        @Expose
-//        private String stopTransLocate;
-//        @SerializedName("transpContents")
-//        @Expose
-//        private List<TakeInfoTranspContent> transpContents = null;
-//        @SerializedName("statContents")
-//        @Expose
-//        private List<TakeInfoStatContent> statContents = null;
-//        @SerializedName("logPath")
-//        @Expose
-//        private String logPath;
-//        @SerializedName("dailyRebootTime")
-//        @Expose
-//        private String dailyRebootTime;
-//        @SerializedName("critCpuLoad")
-//        @Expose
-//        private Integer critCpuLoad;
-//        @SerializedName("critRamFree")
-//        @Expose
-//        private String critRamFree;
-//        @SerializedName("crontabTasks")
-//        @Expose
-//        private List<String> crontabTasks = null;
-//        @SerializedName("lastReboot")
-//        @Expose
-//        private String lastReboot;
-//    }
 
     public static final Parcelable.Creator<TakeInfoFull> CREATOR = new Parcelable.Creator<TakeInfoFull>() {
         // распаковываем объект из Parcel
         public TakeInfoFull createFromParcel(Parcel in) {
             return new TakeInfoFull(in);
         }
-
         public TakeInfoFull[] newArray(int size) {
             return new TakeInfoFull[size];
         }
     };
-
 
     @Override
     public String toString() {
@@ -565,143 +445,13 @@ public class TakeInfoFull implements Parcelable {
         coreLinux= parcel.readString();
         compileDate = parcel.readString();
         incrCity = parcel.readInt();;
-//        stopTransLocate = parcel.readString();
         transpContents = parcel.readParcelableList(new ArrayList<>(), TakeInfoTranspContent.class.getClassLoader());
         statContents = parcel.readParcelableList(new ArrayList<>(), TakeInfoStatContent.class.getClassLoader());
         logPath = parcel.readString();
         dailyRebootTime = parcel.readString();
-        critCpuLoad = parcel.readInt();;
+        critCpuLoad = parcel.readString();;
         critRamFree = parcel.readString();
         crontabTasks = parcel.readArrayList(ArrayList.class.getClassLoader());
         lastReboot = parcel.readString();
     }
 }
-//   {"command":"takeInfoFull",
-//"properties":{
-//        "type":"stationary",
-//        "serial":6523,
-//        "followServer":"95.161.142.79",
-//        "replyInterval":30,
-//        "hasPing":true,
-//        "systemTime":"12:40:42",
-//        "uptime":35,
-//        "load1min":" 0.14",
-//        "load5min":"0.08",
-//        "load15min":"0.06",
-//        "cpuFreq":700,
-//        "cpuTemperature":38,
-//        "freeRam":339152,
-//        "bleMac":"b8:27:eb:94:99:6b",
-//        "blePidHci0":111,
-//
-//        "wifiInterfaces":[{
-//        "name":"wlan0",
-//        "mac":"b8:27:eb:6b:66:94",
-//        "ip":"10.42.5.13/24",
-//        "rentAddr":"598sec"}],
-//
-//        "scUartVer":"v2.0.0-core_test",
-//        "scUartPid":294,
-//        "boardVersion":"3.2",
-//        "stmFirmware":"5.50",
-//        "stmBootload":"3.5",
-//        "coreLinux":"stp--g3088c80aeb-dirty",
-//        "compileDate":"2021-04-12 16:23:45",
-//        "incrCity":12,
-//        "stopTransLocate":"spb",
-//
-//        "transpContents":[{
-//        "date":"2021-04-16 09:24:33 ",
-//        "localRouteList":"spb",
-//        "incrRouteList":119}],
-//
-//        "statContents":[{
-//        "content":"ru.json",
-//        "date":"2020-12-15 17:40:45",
-//        "shortInfo":"Мебельная улица. Автобусная остановка."
-//        }],
-//
-//        "logPath":"/overlay/update/logLife",
-//        "dailyRebootTime":"12 hour",
-//        "critCpuLoad":3,
-//        "critRamFree":"50000 Kb",
-//        "crontabTasks":["/usr/local/bin/log_script.sh"," /usr/local/bin/wifiPriority.sh"],
-//        "lastReboot":"2021-04-16_09:39:00 - Restarted system at 12 hours of work  "
-//        }
-//}
-
-
-//{
-//        "command":"takeInfoFull",
-//        "properties":{
-//        "type":{"type":"string"},
-//        "serial":{"type":"integer"},
-//        "followServer":{"type":"string"},
-//        "replyInterval":{"type":"integer"},
-//        "hasPing":{"type":"boolean"},
-//        "systemTime":{"type":"string"},
-//        "uptime":{"type":"integer"},
-//        "load1min":{"type":"string"},
-//        "load5min":{"type":"string"},
-//        "load15min":{"type":"string"},
-//        "cpuFreq":{"type":"integer"},
-//        "cpuTemperature":{"type":"integer"},
-//        "freeRam":{"type":"integer"},
-//        "bleMac":{"type":"string"},
-//        "blePidHci0":{"type":"integer"},
-//
-//        "wifiInterfaces":{
-//        "type":"array",
-//        "items":{
-//        "type":"object",
-//        "properties":{
-//        "name":{"type":"string"},
-//        "mac":{"type":"string"},
-//        "ip":{"type":"string"},
-//        "rentAddr":{"type":"string"}
-//        }
-//        }},
-//        "scUartVer":{"type":"string"},
-//        "scUartPid":{"type":"integer"},
-//        "boardVersion":{"type":"string"},
-//        "stmFirmware":{"type":"string"},
-//        "stmBootload":{"type":"string"},
-//        "coreLinux":{"type":"string"},
-//        "compileDate":{"type":"string"},
-//        "incrCity":{"type":"integer"},
-//        "stopTransLocate":{"type":"string"},
-//
-//        "transpContents":{"type":"array",
-//        "items":{
-//        "type":"object",
-//        "properties":{
-//        "date":{"type":"string"},
-//        "localRouteList":{"type":"string"},
-//        "incrRouteList":{"type":"integer"}
-//        }
-//
-//        }
-//        },
-//        "statContents":{"type":"array",
-//        "items":{
-//        "type":"object",
-//        "properties":{
-//        "content":{"type":"string"},
-//        "date":{"type":"string"},
-//        "shortInfo":{"type":"string"}
-//        }
-//        }
-//        },
-//
-//        "logPath":{"type":"string"},
-//        "dailyRebootTime":{"type":"string"},
-//        "critCpuLoad":{"type":"integer"},
-//        "critRamFree":{"type":"string"},
-//        "crontabTasks":{"type":"array",
-//        "items":{
-//        "type":"string"
-//        }
-//        },
-//        "lastReboot":{"type":"string"}
-//        }
-//        }

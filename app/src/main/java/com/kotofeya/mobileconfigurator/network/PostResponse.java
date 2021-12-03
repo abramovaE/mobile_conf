@@ -17,15 +17,12 @@ public class PostResponse {
     public TakeInfoFull getTakeInfoFull() {
         return takeInfoFull;
     }
-
     public void setTakeInfoFull(TakeInfoFull takeInfoFull) {
         this.takeInfoFull = takeInfoFull;
     }
-
     public TakeInfoFull getCommand() {
         return command;
     }
-
     public void setCommand(TakeInfoFull command) {
         this.command = command;
     }

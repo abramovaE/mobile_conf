@@ -49,28 +49,14 @@ public class StatTransiver extends Transiver {
         return (getRawData()[18] & 0xFF);
     }
 
-    private String[] point0;
-    private String[] point1;
-    private String[] point2;
-    private String[] point3;
-    private String[] point4;
-    private String[][] sPoints;
-//    private Stat stat;
-
     private int cityIndex;
     private int type;
     private int floor;
     public StatTransiver(int rssi, String address, String deviceName, byte[] data){
         super(rssi, address, deviceName, data);
-        this.point0 = new String[4];
-        this.point1 = new String[4];
-        this.point2 = new String[4];
-        this.point3 = new String[4];
-        this.point4 = new String[4];
         setCityIndex();
         setType();
         setFloor();
-//        setStat();
     }
 
 
@@ -82,11 +68,6 @@ public class StatTransiver extends Transiver {
         super.setBtPackVersion();
         super.setTransiverType();
         super.setIncrement();
-        this.point0 = new String[4];
-        this.point1 = new String[4];
-        this.point2 = new String[4];
-        this.point3 = new String[4];
-        this.point4 = new String[4];
         setCityIndex();
         setType();
         setFloor();

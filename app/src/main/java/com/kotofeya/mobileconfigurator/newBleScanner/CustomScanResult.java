@@ -30,6 +30,4 @@ public class CustomScanResult {
     public int getTransiverType(){
         return scanResult.getScanRecord().getBytes()[14] & 0xff;
     }
-
-
 }

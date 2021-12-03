@@ -26,7 +26,6 @@ public interface PostCommand {
     String UPDATE_PHP = "update_php";
     String UPDATE_CORE = "update_core";
 
-
     String FLOOR = "floor";
     String SOUND = "sound";
     String VOLUME = "volume";

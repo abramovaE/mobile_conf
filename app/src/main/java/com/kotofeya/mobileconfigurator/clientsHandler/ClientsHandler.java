@@ -131,7 +131,7 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
         String response = result.getString(BundleKeys.RESPONSE_KEY);
         String ip = result.getString(BundleKeys.IP_KEY);
         Parcelable parcelableResponse = result.getParcelable(BundleKeys.PARCELABLE_RESPONSE_KEY);
-        Logger.d(TAG, "onTaskCompleted(Bundle result), command: " + command);
+        Logger.d(TAG, "onTaskCompleted(Bundle result), command: " + command + ", ip: " + ip);
         if(command == null){
             command = "";
         }
@@ -152,7 +152,7 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
                 break;
             case PostCommand.TAKE_INFO_FULL:
                 String version = result.getString(BundleKeys.VERSION_KEY);
-                Logger.d(TAG, "version: " + version);
+                Logger.d(TAG, "version: " + version  + ", ip: " + ip);
                 viewModel.addTakeInfoFull(ip, version, (TakeInfoFull) parcelableResponse, true);
                 break;
             case SshCommand.SSH_TAKE_COMMAND:

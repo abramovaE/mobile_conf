@@ -66,12 +66,13 @@ public class CustomViewModel extends ViewModel {
     }
 
     public void addTakeInfoFull(String ip, String version, TakeInfoFull takeInfoFull, boolean createNew){
-        Logger.d(Logger.VIEW_MODEL_LOG, "add take info full: " + takeInfoFull.getSerial() + ", version: " + version);
+        Logger.d(Logger.VIEW_MODEL_LOG, "add take info full: " + takeInfoFull.getSerial()
+                + ", version: " + version  + ", ip: " + ip);
         List<Transiver> transiversValue = transivers.getValue();
         if(transiversValue == null){
             transiversValue = new CopyOnWriteArrayList<>();
         }
-        Logger.d(Logger.VIEW_MODEL_LOG, "transivers value: " + transiversValue);
+//        Logger.d(Logger.VIEW_MODEL_LOG, "transivers value: " + transiversValue);
 
         boolean isExist = false;
         String ssid = takeInfoFull.getSerial() + "";
