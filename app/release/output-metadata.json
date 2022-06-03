@@ -10,9 +10,9 @@
     {
       "type": "SINGLE",
       "filters": [],
-      "versionCode": 49,
-      "versionName": "6.3",
-      "outputFile": "mc-6.3-49.apk"
+      "versionCode": 51,
+      "versionName": "6.5",
+      "outputFile": "mc-6.5-51.apk"
     }
   ]
 }

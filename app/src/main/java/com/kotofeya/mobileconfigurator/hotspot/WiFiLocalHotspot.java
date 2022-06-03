@@ -12,7 +12,7 @@ import java.util.concurrent.Executors;
 
 public class WiFiLocalHotspot {
     public DeviceScanListener deviceScanListener;
-    private static final String TAG = "WiFiLocalHotspot";
+    private static final String TAG = WiFiLocalHotspot.class.getSimpleName();
     private static WiFiLocalHotspot instance;
     private boolean isScanning = false;
     private List<String> clients;
@@ -41,7 +41,9 @@ public class WiFiLocalHotspot {
         clients = new ArrayList<>();
         String host = deviceIp.substring(0, deviceIp.lastIndexOf("."));
         Logger.d(TAG, "device ip substring: " + host);
+
         ExecutorService executorService = Executors.newFixedThreadPool(256);
+
         CompletableFuture<Void>[] futures = new CompletableFuture[256];
         for (int i = 0; i < 256; i++) {
             futures[i] = CompletableFuture.runAsync(new PingIp(host + "." + i), executorService);
@@ -58,7 +60,7 @@ public class WiFiLocalHotspot {
 
     private class PingIp implements Runnable {
         private static final int timeout = 5000;
-        private String host;
+        private final String host;
         public PingIp(String host) {
             this.host = host;
         }
@@ -72,7 +74,7 @@ public class WiFiLocalHotspot {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                Logger.d(TAG, "exception: " + e.getLocalizedMessage());
+                Logger.d(TAG, "Ping ip exception: " + e.getLocalizedMessage());
             }
         }
     }

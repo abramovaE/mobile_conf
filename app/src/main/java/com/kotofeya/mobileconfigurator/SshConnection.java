@@ -47,6 +47,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
 
     private OnTaskCompleted listener;
     private ProgressBarInt progressBarIntListener;
+//    private int fi
 
     private String ip;
     private int resultCode;
@@ -63,6 +64,13 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
         Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh connection, coreupdmap: " + coreUpdateIteration);
             this.listener = listener;
             this.progressBarIntListener = progressBarIntListener;
+    }
+
+    public SshConnection(OnTaskCompleted listener, ProgressBarInt progressBarIntListener, int filePosition, String ip){
+        coreUpdateIteration.put(ip, filePosition);
+        Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh connection, coreupdmap: " + filePosition);
+        this.listener = listener;
+        this.progressBarIntListener = progressBarIntListener;
     }
 
     int transferred;
@@ -107,7 +115,9 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             switch (resultCode) {
 
                 case UPDATE_OS_UPLOAD_CODE:
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + REBOOT_COMMAND);
+                    Logger.d(Logger.SSH_CONNECTION_LOG,
+                            "result code: " + resultCode +
+                                    ", exec command: " + REBOOT_COMMAND);
                     transferred = 0;
                     uploadToOverlayUpdate(session, new File(App.get().getUpdateOsFilePath()));
                     execCommand(session, REBOOT_COMMAND);

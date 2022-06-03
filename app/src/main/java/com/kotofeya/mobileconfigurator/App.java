@@ -32,8 +32,6 @@ public class App extends Application {
     private String login;
     private String level;
 
-    private Context context;
-    private FragmentHandler fragmentHandler;
     private SharedPreferences preferences;
     private String updateOsFilePath;
     private String updateOsFileVersion;
@@ -42,12 +40,12 @@ public class App extends Application {
     private File[] updateCoreFilesPath;
     private Set<String> updateContentFilePaths;
 
-    String password;
-    boolean isRemembered;
+    private String password;
+    private boolean isRemembered;
 
 
     public Set<String> getUpdateContentFilePaths() {
-        Logger.d(Logger.APP_LOG, "getupdatecontentpaths: " + updateContentFilePaths);
+        Logger.d(Logger.APP_LOG, "getUpdateContentFilePaths(): " + updateContentFilePaths);
         return updateContentFilePaths;
     }
     public void setUpdateContentFilePaths(Set<String> paths) {
@@ -171,24 +169,11 @@ public class App extends Application {
         this.updateOsFileVersion = updateOsFileVersion;
     }
 
-    public Context getContext() {
-        return context;
-    }
-    public void setContext(Context context) {
-        this.context = context;
-    }
-
-    public FragmentHandler getFragmentHandler() {
-        return fragmentHandler;
-    }
-    public void setFragmentHandler(FragmentHandler fragmentHandler) {
-        this.fragmentHandler = fragmentHandler;
-    }
-
     public String getLevel() {
         return level;
     }
     public void setLevel(String level) {
         this.level = level;
     }
+
 }

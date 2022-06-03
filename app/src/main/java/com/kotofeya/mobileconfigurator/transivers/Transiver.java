@@ -471,7 +471,7 @@ public class Transiver {
     String getSecondPartExpInfo(){return "";}
 
     public String getStringDoorStatus(int doorStatus) {
-        Context ctx = App.get().getContext();
+        Context ctx = App.get().getApplicationContext();
         switch (doorStatus) {
             case 0:
                 return ctx.getString(R.string.doorsClosed);
@@ -561,7 +561,7 @@ public class Transiver {
     }
 
     public static String formatSsid(String ssid){
-        if(ssid.startsWith("stp")) {
+        if(ssid != null && ssid.startsWith("stp")) {
             ssid = Integer.parseInt(ssid.replace("stp", "")) + "";
         }
         return ssid;

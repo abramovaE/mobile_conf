@@ -105,5 +105,8 @@
     <string name="main_settings_update_core_btn">Update the core</string>
 
     <string name="remember_me">Remember me</string>
+    <string name="confirm_upload_update_os">Confirm the upload of the updates</string>
+    <string name="upload_btn">Upload</string>
+    <string name="cancel_btn">Cancel</string>
 
 </resources>

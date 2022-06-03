@@ -13,30 +13,32 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.MainMenuFragment;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
-import com.kotofeya.mobileconfigurator.fragments.settings.SettingsFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.ConfigStatFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.ConfigTransportFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.StationContentFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.TransportContentFragment;
+import com.kotofeya.mobileconfigurator.fragments.scanner.BasicScannerFragment;
+import com.kotofeya.mobileconfigurator.fragments.scanner.BleScannerFragment;
+import com.kotofeya.mobileconfigurator.fragments.settings.SettingsFragment;
+import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransceiverSettingsNetworkFragment;
+import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransceiverSettingsScUartFragment;
+import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransceiverSettingsWifiFragment;
+import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransceiverStmLogFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsNetworkFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsScUartFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsUpdateCoreFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsUpdatePhpFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsWifiFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.StmLogFragment;
-import com.kotofeya.mobileconfigurator.fragments.scanner.BasicScannerFragment;
-import com.kotofeya.mobileconfigurator.fragments.scanner.BleScannerFragment;
-import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransiverSettingsNetworkFragment;
-import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransiverSettingsScUartFragment;
-import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransiverSettingsWifiFragment;
-import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransiverStmLogFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateContentFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateStmFragment;
 
 public class FragmentHandler {
 
+    private static final String TAG = FragmentHandler.class.getSimpleName();
     private FragmentManager fragmentManager;
+    private Context context;
     private Fragment currentFragment;
 
     public final static String MAIN_FRAGMENT_TAG = "MAIN_FRAGMENT";
@@ -70,12 +72,25 @@ public class FragmentHandler {
     public final static String DOWNLOAD_FILES_DIALOG = "DOWNLOAD_FILES_DIALOG";
     public final static String DIALOG_FRAGMENT_TAG = "DIALOG_FRAGMENT";
 
+    public void showMessage(String message) {
+        ((MainActivity) context).runOnUiThread(new Runnable() {
+            public void run() {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                builder.setMessage(message);
+                builder.setPositiveButton(R.string.ok, (dialog, id) -> {
+                });
+                builder.setCancelable(true);
+                builder.show();
+            }
+        });
+    }
 
     public FragmentManager getFragmentManager() {
         return fragmentManager;
     }
 
     public FragmentHandler(Context context){
+        this.context = context;
         fragmentManager = ((MainActivity) context).getSupportFragmentManager();
     }
 
@@ -108,19 +123,19 @@ public class FragmentHandler {
                 case STM_LOG_FRAGMENT:
                     return new StmLogFragment();
                 case TRANSIVER_STM_LOG_FRAGMENT:
-                    return new TransiverStmLogFragment();
+                    return new TransceiverStmLogFragment();
                 case SETTINGS_WIFI_FRAGMENT:
                     return new SettingsWifiFragment();
                 case TRANSIVER_SETTINGS_WIFI_FRAGMENT:
-                    return new TransiverSettingsWifiFragment();
+                    return new TransceiverSettingsWifiFragment();
                 case SETTINGS_NETWORK_FRAGMENT:
                     return new SettingsNetworkFragment();
                 case TRANSIVER_SETTINGS_NETWORK_FRAGMENT:
-                    return new TransiverSettingsNetworkFragment();
+                    return new TransceiverSettingsNetworkFragment();
                 case SETTINGS_SCUART_FRAGMENT:
                     return new SettingsScUartFragment();
                 case TRANSIVER_SETTINGS_SCUART_FRAGMENT:
-                    return new TransiverSettingsScUartFragment();
+                    return new TransceiverSettingsScUartFragment();
                 case SETTINGS_UPDATE_PHP_FRAGMENT:
                     return new SettingsUpdatePhpFragment();
                 case SETTINGS_UPDATE_CORE_FRAGMENT:
@@ -131,31 +146,26 @@ public class FragmentHandler {
     }
 
     public void changeFragmentBundle(String fragmentTag, Bundle bundle){
-        Logger.d(Logger.FRAGMENT_LOG, "change fragment to: " + fragmentTag + ", bundle: " + bundle);
+        Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName() + ": " + fragmentTag + ", " + bundle);
         Fragment fragment = getFragment(fragmentTag);
         fragment.setArguments(bundle);
-        if(fragmentTag.equals(TRANSPORT_CONTENT_FRAGMENT) || fragmentTag.equals(STATION_CONTENT_FRAGMENT)){
-            setFragment(fragment, fragmentTag, true);
-
-        } else {
-            setFragment(fragment, fragmentTag, true);
-        }
+        setFragment(fragment, fragmentTag, true);
     }
 
     public void changeFragment(String fragmentTag){
-        Logger.d(Logger.FRAGMENT_LOG, "change fragment to: " + fragmentTag);
+        Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName() + ": " + fragmentTag);
         Fragment fragment = getFragment(fragmentTag);
         setFragment(fragment, fragmentTag, true);
     }
 
     public void changeFragment(String fragmentTag, boolean stacked){
-        Logger.d(Logger.FRAGMENT_LOG, "change fragment to: " + fragmentTag + ", stacked: " + stacked);
+        Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName() + ": " + fragmentTag + ", " + stacked);
         Fragment fragment = getFragment(fragmentTag);
         setFragment(fragment, fragmentTag, stacked);
     }
 
     private void setFragment(Fragment fragment, String tag, boolean stacked){
-        Logger.d(Logger.FRAGMENT_LOG, "set fragment: " + tag + ", stacked: " + stacked);
+        Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName() + ": " + tag + ", " + stacked);
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment, tag);

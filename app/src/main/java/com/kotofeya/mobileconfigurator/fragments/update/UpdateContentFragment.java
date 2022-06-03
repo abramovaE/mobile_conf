@@ -5,20 +5,21 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.UpdateContentConfDialog;
 import com.kotofeya.mobileconfigurator.UploadContentConfDialog;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
+import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import com.kotofeya.mobileconfigurator.user.UserFactory;
 import com.kotofeya.mobileconfigurator.user.UserType;
 
@@ -28,16 +29,13 @@ import java.util.Map;
 
 public class UpdateContentFragment extends UpdateFragment {
 
-    LinearLayout label;
-    private TextView downloadContentUpdateFilesTv;
-
     @Override
     public void onTaskCompleted(Bundle bundle) {
         super.onTaskCompleted(bundle);
     }
 
     @Override
-    protected void scan() {
+    public void scan() {
         super.scan();
         utils.getNewBleScanner().startScan();
     }
@@ -56,7 +54,7 @@ public class UpdateContentFragment extends UpdateFragment {
 
     @Override
     protected void setMainTextLabelText() {
-        mainTxtLabel.setText(R.string.update_content_main_txt_label);
+        viewModel.setMainTxtLabel(getString(R.string.update_content_main_txt_label));
     }
 
     @Override
@@ -66,11 +64,10 @@ public class UpdateContentFragment extends UpdateFragment {
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
-        label = view.findViewById(R.id.update_content_label);
-        downloadContentUpdateFilesTv = view.findViewById(R.id.downloadCoreUpdateFilesTv);
-        downloadContentUpdateFilesTv.setVisibility(View.VISIBLE);
+        binding.downloadCoreUpdateFilesTv.setVisibility(View.VISIBLE);
         updateFilesTv();
         return view;
     }
@@ -78,26 +75,23 @@ public class UpdateContentFragment extends UpdateFragment {
     private void updateFilesTv(){
         StringBuilder sb = new StringBuilder();
         sb.append("Сохраненные файлы: \n");
-        new LinkedList<>(App.get().getUpdateContentFilePaths()).stream()
+        new LinkedList<>(App.get().getUpdateContentFilePaths())
                 .forEach(it -> sb.append(it.substring(it.lastIndexOf("/") + 1, it.indexOf("_"))).append("\n"));
-        downloadContentUpdateFilesTv.setText(sb.toString());
+        binding.downloadCoreUpdateFilesTv.setText(sb.toString());
     }
 
     @Override
     public void onStart() {
         Logger.d(Logger.UPDATE_CONTENT_LOG, "update content fragment onStart");
         super.onStart();
-        versionLabel.setVisibility(View.GONE);
-        mainBtnRescan.setVisibility(View.VISIBLE);
-        label.setVisibility(View.VISIBLE);
+        binding.versionLabel.setVisibility(View.GONE);
+        viewModel.setMainBtnRescanVisibility(View.VISIBLE);
+        binding.updateContentLabel.setVisibility(View.VISIBLE);
         utils.getNewBleScanner().startScan();
-        checkVersionButton.setText("Загрузить файлы для обновления в память телефона");
-        checkVersionButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Map<String, String> transportContent = getTransportContent();
-                createUploadContentToStorageDialog(transportContent).create().show();
-            }
+        binding.checkVersionBtn.setText("Загрузить файлы для обновления в память телефона");
+        binding.checkVersionBtn.setOnClickListener(v -> {
+            Map<String, String> transportContent = getTransportContent();
+            createUploadContentToStorageDialog(transportContent).create().show();
         });
     }
 
@@ -142,7 +136,7 @@ public class UpdateContentFragment extends UpdateFragment {
     }
 
     private AlertDialog.Builder createUploadContentToStorageDialog(Map<String, String> contentMap){
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         builder.setTitle("Choose the city for upload");
         String[] content = contentMap.keySet().toArray(new String[contentMap.size()]);
         builder.setItems(content,
@@ -155,10 +149,42 @@ public class UpdateContentFragment extends UpdateFragment {
                         bundle.putString(BundleKeys.VALUE, contentMap.get(content[which]));
                         UploadContentConfDialog d = new UploadContentConfDialog();
                         d.setArguments(bundle);
-                        d.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+                        d.show(fragmentHandler.getFragmentManager(), fragmentHandler.CONFIRMATION_DIALOG_TAG);
                     }
                 });
         return builder;
+    }
+
+    @Override
+    public void adapterItemOnClick(Transiver transiver) {
+
+        boolean isTransport = transiver.isTransport();
+        boolean isStationary = transiver.isStationary();
+
+        Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update content was pressed, isTransport: " +
+                isTransport + ", isStationary: " + isStationary);
+        utils.getNewBleScanner().stopScan();
+        Bundle bundle = new Bundle();
+        bundle.putString(BundleKeys.IP_KEY, transiver.getIp());
+        bundle.putBoolean(BundleKeys.IS_TRANSPORT_KEY, isTransport);
+        bundle.putBoolean(BundleKeys.IS_STATIONARY_KEY, isStationary);
+        DialogFragment dialogFragment = null;
+        if (isTransport) {
+            dialogFragment = new UpdateContentConfDialog();
+        } else if (isStationary) {
+            String key = transiver.getSsid();
+            if (Downloader.tempUpdateStationaryContentFiles != null &&
+                    Downloader.tempUpdateStationaryContentFiles.containsKey(key)) {
+                bundle.putString(BundleKeys.KEY, key);
+                bundle.putString(BundleKeys.VALUE, key + "/data.tar.bz2");
+                dialogFragment = new UploadContentConfDialog();
+            }
+        }
+        if (dialogFragment != null) {
+            dialogFragment.setArguments(bundle);
+            dialogFragment.show(fragmentHandler.getFragmentManager(),
+                    fragmentHandler.CONFIRMATION_DIALOG_TAG);
+        }
     }
 }
 

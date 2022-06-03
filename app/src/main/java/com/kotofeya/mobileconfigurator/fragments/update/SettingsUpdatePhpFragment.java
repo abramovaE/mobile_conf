@@ -2,20 +2,24 @@ package com.kotofeya.mobileconfigurator.fragments.update;
 
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
+import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import static com.kotofeya.mobileconfigurator.network.PostCommand.POST_COMMAND_ERROR;
 
 public class SettingsUpdatePhpFragment extends UpdateFragment {
+    public static final String SSH_CONN = "ssh_conn";
 
     @Override
     protected void setMainTextLabelText() {
-        mainTxtLabel.setText("Update PHP");
+        viewModel.setMainTxtLabel("Update PHP");
     }
     @Override
     protected RvAdapterType getAdapterType() {
@@ -25,29 +29,24 @@ public class SettingsUpdatePhpFragment extends UpdateFragment {
     public void onStart() {
         Logger.d(Logger.STM_LOG_LOG, "onStart");
         super.onStart();
-        versionLabel.setVisibility(View.GONE);
-        checkVersionButton.setVisibility(View.GONE);
+        binding.versionLabel.setVisibility(View.GONE);
+        binding.checkVersionBtn.setVisibility(View.GONE);
     }
     @Override
     public void onTaskCompleted(Bundle result) {
         String command = result.getString(BundleKeys.COMMAND_KEY);
-        String ip = result.getString(BundleKeys.IP_KEY);
         String response = result.getString(BundleKeys.RESPONSE_KEY);
-        Logger.d(Logger.TRANSIVER_STM_LOG_LOG, "on task completed, result: " + result);
-        Logger.d(Logger.TRANSIVER_STM_LOG_LOG, "command: " + command);
-        Logger.d(Logger.TRANSIVER_STM_LOG_LOG, "ip: " + ip);
-        Logger.d(Logger.TRANSIVER_STM_LOG_LOG, "response: " + response);
         if(command != null) {
             switch (command) {
                 case PostCommand.UPDATE_PHP:
                     if(response.startsWith("Ok")){
-                        utils.showMessage("Php version updated successfully");
+                        fragmentHandler.showMessage("Php version updated successfully");
                     } else {
-                        utils.showMessage("Updating Php version failed");
+                        fragmentHandler.showMessage("Updating Php version failed");
                     }
                     break;
                 case POST_COMMAND_ERROR:
-                    utils.showMessage(response);
+                    fragmentHandler.showMessage(response);
                     break;
             }
         }
@@ -56,5 +55,20 @@ public class SettingsUpdatePhpFragment extends UpdateFragment {
     @Override
     public void clientsScanFinished() {
         scanClientsDialog.dismiss();
+    }
+
+    @Override
+    public void adapterItemOnClick(Transiver transiver) {
+        if (version != null && !version.startsWith(SSH_CONN)) {
+            Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update php was pressed");
+            Bundle bundle = new Bundle();
+            bundle.putString(BundleKeys.IP_KEY, transiver.getIp());
+            UpdatePhpConfDialog dialog = new UpdatePhpConfDialog();
+            dialog.setArguments(bundle);
+            dialog.show(fragmentHandler.getFragmentManager(),
+                    FragmentHandler.CONFIRMATION_DIALOG_TAG);
+        } else {
+            Toast.makeText(requireActivity(), "Не удается установить ssh-подключение", Toast.LENGTH_SHORT).show();
+        }
     }
 }

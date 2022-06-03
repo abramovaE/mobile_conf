@@ -7,34 +7,32 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 
-import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
-import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
-import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterFactory;
+import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
+import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
-
-import java.util.ArrayList;
+import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 public class ConfigStatFragment extends ConfigFragment implements InterfaceUpdateListener {
 
     private AlertDialog scanClientsDialog;
 
     @Override
-    public RvAdapter getRvAdapter() {
-        return RvAdapterFactory.getRvAdapter(context, utils, RvAdapterType.CONFIG_STATION, new ArrayList<>());
-    }
-
-    @Override
     public void setMainTextLabel() {
-        mainTxtLabel.setText(R.string.config_stat_main_txt_label);
+        viewModel.setMainTxtLabel(getString(R.string.config_stat_main_txt_label));
     }
 
     @Override
     public void scan(){
         utils.setRadioType(Utils.STAT_RADIO_TYPE);
         utils.getNewBleScanner().startScan();
+    }
+
+    @Override
+    protected RvAdapterType getAdapterType() {
+        return RvAdapterType.CONFIG_STATION;
     }
 
     @Override
@@ -50,7 +48,6 @@ public class ConfigStatFragment extends ConfigFragment implements InterfaceUpdat
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if(viewModel.needScanStationaryTransivers()){
-            Logger.d(Logger.CONFIG_LOG, "scan for ip");
             utils.getNewBleScanner().stopScan();
             basicScan();
         }
@@ -61,5 +58,13 @@ public class ConfigStatFragment extends ConfigFragment implements InterfaceUpdat
     public void clientsScanFinished() {
         scanClientsDialog.dismiss();
         utils.getTakeInfo();
+    }
+
+    @Override
+    public void adapterItemOnClick(Transiver transiver) {
+        String ssid = transiver.getSsid();
+        Bundle bundle = new Bundle();
+        bundle.putString(BundleKeys.SSID_KEY, ssid);
+        fragmentHandler.changeFragmentBundle(FragmentHandler.STATION_CONTENT_FRAGMENT, bundle);
     }
 }

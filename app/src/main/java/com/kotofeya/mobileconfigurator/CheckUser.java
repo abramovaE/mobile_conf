@@ -53,6 +53,7 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
             u = new URL(url_checkUser);
             HttpURLConnection httpsURLConnection = getConnection(u);
             httpsURLConnection.connect();
+
             int response = httpsURLConnection.getResponseCode();
             BufferedReader br;
             StringBuilder content;
@@ -137,14 +138,15 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
         List<NameValuePair> params = new ArrayList<>();
         params.add(new BasicNameValuePair("login", login));
         params.add(new BasicNameValuePair("password", password));
-
         OutputStream os = c.getOutputStream();
         BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
         writer.write(getQuery(params));
+        
         writer.flush();
         writer.close();
         os.close();
         c.connect();
+
         return c;
     }
 }

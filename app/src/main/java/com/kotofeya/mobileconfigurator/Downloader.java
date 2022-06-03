@@ -96,7 +96,8 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     }
 
     private void createUpdateOsFile() {
-        File outputDir = App.get().getContext().getExternalFilesDir(null);
+
+        File outputDir = App.get().getApplicationContext().getExternalFilesDir(null);
         Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateOsFile: " + tempUpdateOsFile);
         if(tempUpdateOsFile != null && tempUpdateOsFile.exists()){
             Logger.d(Logger.DOWNLOAD_LOG, "delete exist file");
@@ -107,7 +108,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     }
 
     private void createUpdateCoreFiles() {
-        File outputDir = App.get().getContext().getExternalFilesDir(null);
+        File outputDir = App.get().getApplicationContext().getExternalFilesDir(null);
         Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateCoreFiles: " + tempUpdateCoreFiles);
         tempUpdateCoreFiles = new File[4];
         Logger.d(Logger.DOWNLOAD_LOG, " creating new temp core files");
@@ -192,7 +193,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 
     @Override
     protected void onPostExecute(Bundle result) {
-        Logger.d(Logger.DOWNLOAD_LOG, "onPostExecute, result: " + result);
+//        Logger.d(Logger.DOWNLOAD_LOG, "onPostExecute, result: " + result);
         listener.onTaskCompleted(result);
     }
 

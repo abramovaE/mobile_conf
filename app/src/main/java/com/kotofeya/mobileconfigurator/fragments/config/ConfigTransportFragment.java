@@ -6,20 +6,16 @@ import android.view.View;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
-import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterFactory;
+import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
+import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
-import java.util.ArrayList;
 
 public class ConfigTransportFragment extends ConfigFragment {
 
-    @Override
-    public RvAdapter getRvAdapter() {
-        return RvAdapterFactory.getRvAdapter(context, utils, RvAdapterType.CONFIG_TRANSPORT, new ArrayList<>());
-    }
     @Override
     public void scan(){
         utils.setRadioType(Utils.TRANSP_RADIO_TYPE);
@@ -27,8 +23,13 @@ public class ConfigTransportFragment extends ConfigFragment {
     }
 
     @Override
+    protected RvAdapterType getAdapterType() {
+        return RvAdapterType.CONFIG_TRANSPORT;
+    }
+
+    @Override
     public void setMainTextLabel() {
-        mainTxtLabel.setText(R.string.config_transp_main_txt_label);
+        viewModel.setMainTxtLabel(getString(R.string.config_transp_main_txt_label));
     }
 
     @Override
@@ -38,5 +39,13 @@ public class ConfigTransportFragment extends ConfigFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         viewModel.getTranspInformers().observe(getViewLifecycleOwner(), this::updateUI);
+    }
+
+    @Override
+    public void adapterItemOnClick(Transiver transiver) {
+        String ssid = transiver.getSsid();
+        Bundle bundle = new Bundle();
+        bundle.putString(BundleKeys.SSID_KEY, ssid);
+        fragmentHandler.changeFragmentBundle(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT, bundle);
     }
 }

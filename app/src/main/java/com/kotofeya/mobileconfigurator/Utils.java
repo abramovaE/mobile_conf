@@ -1,13 +1,8 @@
 package com.kotofeya.mobileconfigurator;
 
-import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.os.Bundle;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
-import androidx.fragment.app.DialogFragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
@@ -19,6 +14,7 @@ import com.kotofeya.mobileconfigurator.newBleScanner.CustomScanResult;
 import com.kotofeya.mobileconfigurator.user.UserFactory;
 import com.kotofeya.mobileconfigurator.user.UserType;
 
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -31,17 +27,20 @@ public class Utils  {
     public static final String TITLE_SCAN_CLIENTS = "";
     public static final String MESSAGE_SCAN_CLIENTS = "Поиск подключенных клиентов";
 
-    public static final String TITLE_TAKE_INFO = "";
     public static final String MESSAGE_TAKE_INFO = "Опрос подключенных трансиверов";
+
+    private final ClientsHandler clientsHandler;
+
+    private final Context context;
+    private final CustomViewModel viewModel;
+    private final CustomBluetooth newBleScanner;
+    private Thread thread;
 
     private int radioType;
 
-    private ClientsHandler clientsHandler;
-
-    private Context context;
-    private CustomViewModel viewModel;
-    private CustomBluetooth newBleScanner;
-    private Thread thread;
+    public void setRadioType(int radioType) {
+        this.radioType = radioType;
+    }
 
     public Utils(Context context, CustomBluetooth newBleScanner) {
         this.context = context;
@@ -50,19 +49,10 @@ public class Utils  {
         this.clientsHandler = ClientsHandler.getInstance(viewModel);
     }
 
-    public void setRadioType(int radioType) {
-        this.radioType = radioType;
-    }
-
-
     public void clearClients(){
         clientsHandler.clearClients();
     }
     public void clearMap(){ viewModel.clearMap(); }
-
-    public static String byteArrayToBitString(byte b) {
-        return String.format("%8s", Integer.toBinaryString(b)).replace(' ', '0');
-    }
 
     public String getIp(String ssid){
         return viewModel.getIp(ssid);
@@ -71,37 +61,23 @@ public class Utils  {
         return viewModel.getVersion(ssid);
     }
 
+    public void stopClientsHandler(){
+        clientsHandler.stopScanning();
+    }
+
     public void updateClients(InterfaceUpdateListener interfaceUpdateListener){
         clientsHandler.updateClients(interfaceUpdateListener);
+//        clientsHandler.pingIp()
     }
+
     public void getTakeInfo(){
         Logger.d(Logger.UTILS_LOG, "getTakeInfo()");
          clientsHandler.getTakeInfo();
     }
 
-    public static class MessageDialog extends DialogFragment {
-        @NonNull
-        @Override
-        public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-            String message = getArguments().getString("message");
-            builder.setMessage(message);
-            builder.setPositiveButton("ok", new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                }
-            });
-            builder.setCancelable(true);
-            return builder.create();
-        }
-    }
 
-    public void showMessage(String message){
-        Bundle bundle = new Bundle();
-        bundle.putString("message", message);
-        Utils.MessageDialog dialog = new Utils.MessageDialog();
-        dialog.setArguments(bundle);
-        dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
-    }
+
+
 
     public InternetConn getInternetConnection() {
         return clientsHandler.getInternetConnection();
@@ -110,6 +86,14 @@ public class Utils  {
         Logger.d(Logger.UTILS_LOG, "remove: " + ip);
         clientsHandler.removeClient(ip);
     }
+
+//    public void showMessage(String message){
+//        Bundle bundle = new Bundle();
+//        bundle.putString("message", message);
+//        MessageDialog dialog = new MessageDialog();
+//        dialog.setArguments(bundle);
+//        dialog.show(App.get().getFragmentHandler().getFragmentManager(), App.get().getFragmentHandler().CONFIRMATION_DIALOG_TAG);
+//    }
 
     public void startRvTimer(){
         if(thread != null){
@@ -168,16 +152,11 @@ public class Utils  {
     public Map<String, String> getTransportContent(){
         Map<String, String> transportContent = new HashMap<>();
         boolean isInternetEnabled = getInternetConnection().hasInternetConnection();
-        if(!isInternetEnabled) {
-            for (String s : App.get().getUpdateContentFilePaths()) {
-                String key = getTransportFileKey(s, isInternetEnabled);
-                transportContent = addToTransportContent(transportContent, key, s);
-            }
-        } else {
-            for (String s : Downloader.tempUpdateTransportContentFiles) {
-                String key = getTransportFileKey(s, isInternetEnabled);
-                transportContent = addToTransportContent(transportContent, key, s);
-            }
+        Collection<String> collection = (isInternetEnabled) ? Downloader.tempUpdateTransportContentFiles :
+                App.get().getUpdateContentFilePaths();
+        for (String s : collection) {
+            String key = getTransportFileKey(s, isInternetEnabled);
+            transportContent = addToTransportContent(transportContent, key, s);
         }
         return transportContent;
     }

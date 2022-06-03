@@ -1,6 +1,7 @@
 package com.kotofeya.mobileconfigurator.rv_adapter;
 
 import android.content.Context;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -10,12 +11,12 @@ import com.kotofeya.mobileconfigurator.R;
 
 
 public class RvAdapterView extends ConstraintLayout {
-    private TextView ssid;
-    private TextView textItem0;
-    private TextView textItem1;
-    private TextView textItem2;
-    private TextView exp;
-    private Button expButton;
+    private final TextView ssid;
+    private final TextView textItem0;
+    private final TextView textItem1;
+    private final TextView textItem2;
+    private final TextView exp;
+    private final Button expButton;
 
     public RvAdapterView(Context context) {
         super(context);
@@ -28,22 +29,48 @@ public class RvAdapterView extends ConstraintLayout {
         expButton = findViewById(R.id.scanner_lv_exp_btn);
     }
 
-    public TextView getSsid() {
-        return ssid;
+    public void setSsid(String ssid){
+        this.ssid.setText(ssid);
     }
-    public TextView getTextItem0() {
-        return textItem0;
+    public void setSsidColor(int color){
+        ssid.setTextColor(color);
     }
-    public TextView getTextItem1() {
-        return textItem1;
+    public void setTextItem0Color(int color){
+        textItem0.setTextColor(color);
     }
-    public TextView getTextItem2() {
-        return textItem2;
+    public void setTextItem0Visibility(int visibility){
+        textItem0.setVisibility(visibility);
     }
-    public TextView getExp() {
-        return exp;
+    public void setTextItem1Visibility(int visibility){
+        textItem1.setVisibility(visibility);
     }
-    public Button getExpButton() {
-        return expButton;
+    public void setTextItem2Visibility(int visibility){
+        textItem2.setVisibility(visibility);
+    }
+    public void setTextItem0Text(String text){
+        textItem0.setText(text);
+    }
+    public void setTextItem1Text(String text){
+        textItem1.setText(text);
+    }
+    public void setTextItem2Text(String text){
+        textItem2.setText(text);
+    }
+    public void setExpBtnVisibility(int visibility){
+        expButton.setVisibility(visibility);
+    }
+    public void setExpVisibility(){
+        exp.setVisibility(exp.getVisibility() == View.GONE ? View.VISIBLE : View.GONE);
+    }
+    public void setExpText(String text){
+        exp.setText(text);
+    }
+
+    public void setExpButtonText() {
+        expButton.setText(exp.getVisibility() == View.GONE ? "+" : "-");
+    }
+
+    public void setExpButtonListener(View.OnClickListener listener) {
+        expButton.setOnClickListener(listener);
     }
 }

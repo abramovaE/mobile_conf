@@ -1,48 +1,59 @@
 package com.kotofeya.mobileconfigurator.fragments.scanner;
 
-import android.content.Context;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.lifecycle.ViewModelProviders;
 
-import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapter;
+import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.databinding.ScannerFragmentClBinding;
+import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapter;
+import com.kotofeya.mobileconfigurator.transivers.Transiver;
+
+import java.util.List;
 
 public abstract class ScannerFragment extends Fragment {
-    Context context;
-    Utils utils;
-    ImageButton mainBtnRescan;
-    TextView mainTxtLabel;
-    RecyclerView rvScanner;
-    RvAdapter rvAdapter;
 
-    abstract void scan();
+    private static final String TAG = ScannerFragment.class.getSimpleName();
+    protected ScannerFragmentClBinding binding;
+    protected FragmentHandler fragmentHandler;
+    protected CustomViewModel viewModel;
+    protected Utils utils;
+    protected RvAdapter rvAdapter;
+    protected ScannerFragmentVM scannerFragmentVM;
 
-    @Override
-    public void onAttach(Context context) {
-        this.context = context;
-        this.utils = ((MainActivity) context).getUtils();
-        super.onAttach(context);
-    }
+    public abstract void scan();
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.scanner_fragment_cl, container, false);
-        rvScanner = view.findViewById(R.id.rv_scanner);
-        mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
-        mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
-        return view;
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        binding = ScannerFragmentClBinding.inflate(inflater, container, false);
+        viewModel = ViewModelProviders.of(requireActivity(),
+                new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
+        viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
+        utils = ((MainActivity) requireActivity()).getUtils();
+        fragmentHandler = ((MainActivity) requireActivity()).getFragmentHandler();
+
+        scannerFragmentVM = ViewModelProviders.of(requireActivity()).get(ScannerFragmentVM.class);
+        return binding.getRoot();
+    }
+
+    @SuppressLint("NotifyDataSetChanged")
+    protected void updateUI(List<Transiver> transceivers){
+        Logger.d(TAG, "updateUI()");
+        rvAdapter.setObjects(transceivers);
+        rvAdapter.notifyDataSetChanged();
     }
 }

@@ -415,6 +415,8 @@ public class TakeInfoFull implements Parcelable {
                 "lastReboot: " + lastReboot + '\n';
     }
 
+    public TakeInfoFull(){}
+
     // конструктор, считывающий данные из Parcel
     private TakeInfoFull(Parcel parcel) {
         type = parcel.readString();
@@ -455,3 +457,8 @@ public class TakeInfoFull implements Parcelable {
         lastReboot = parcel.readString();
     }
 }
+
+
+//try: 1.15, props: {"type":"","serial":"","followServer":"","replyInterval":"","hasPing":"false","systemTime":"14:39:58","uptime":"52","load1min":"0.05","load5min":"0.08","load15min":"0.08","cpuFreq":"700","cpuTemperature":"31","freeRam":"312128","bleMac":"b8:27:eb:c6:26:40","blePidHci0":"111","bleIntervalMin":"160","bleIntervalMax":"160","bleScanIntervalScan":"96","bleScanIntervalWindow":"32","phpVer":"0.1.15","scUartVer":"1.6.0.9-debug","scUartPid":"289","boardVersion":"","stmFirmware":"","stmBootload":"","coreLinux":"stp-2021.08.2","compileDate":"2021-11-11 12:02:19","logPath":"","dailyRebootTime":"","critCpuLoad":"","critRamFree":"","crontabTasks":["* * * * * \/usr\/local\/bin\/log_script.sh","* * * * * \/usr\/local\/bin\/wifiPriority.sh",""],"lastReboot":"2021-08-30_21:13:02 - Restarted system at 12 hours of work"}
+//exception: java.lang.NumberFormatException: empty String, ip: 192.168.238.155
+//try: 1.15, props: {"type":"stopTrans","serial":"7706","followServer":"95.161.142.79","replyInterval":"30","hasPing":"true","systemTime":"14:39:58","uptime":"1:52","load1min":"0.12","load5min":"0.09","load15min":"0.03","cpuFreq":"700","cpuTemperature":"35","freeRam":"310836","bleMac":"b8:27:eb:ad:8f:23","blePidHci0":"111","bleIntervalMin":"160","bleIntervalMax":"160","bleScanIntervalScan":"96","bleScanIntervalWindow":"32","phpVer":"0.1.15","scUartVer":"1.6.0.9-debug","scUartPid":"290","boardVersion":"3.2","stmFirmware":"5.49","stmBootload":"3.4","coreLinux":"stp-2021.08.2","compileDate":"2021-11-11 12:02:19","logPath":"","dailyRebootTime":"","critCpuLoad":"","critRamFree":"","crontabTasks":["* * * * * \/usr\/local\/bin\/log_script.sh","* * * * * \/usr\/local\/bin\/wifiPriority.sh",""],"lastReboot":""}

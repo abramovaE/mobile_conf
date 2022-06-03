@@ -1,9 +1,11 @@
 package com.kotofeya.mobileconfigurator.activities;
 
+import static com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth.REQUEST_BT_ENABLE;
+import static com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth.REQUEST_GPS_ENABLE;
+
 import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -12,7 +14,6 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -28,13 +29,14 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.City;
 import com.kotofeya.mobileconfigurator.Downloader;
-import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SendLogToServer;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.databinding.ActivityMainClBinding;
+import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.SshCommand;
 import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
@@ -48,29 +50,15 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import static com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth.REQUEST_BT_ENABLE;
-import static com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth.REQUEST_GPS_ENABLE;
-
-
-/*
-5. Обновление контента - при нажатии на стационарном трансивере ничего не происходит,
-(данные актуальной версии подтягиваются с обсервера), если на сервере нет архива нужно об этом сообщить пользователю,
-6. Обновление контента - при нажатии на транспортный трансивер вылетает окно выбора маршрутной сети,
-после выбора сети подтверждение намерения загрузки - и все, если загрузка прошла успешно - нужно сообщить об этом
- */
 
 public class MainActivity extends AppCompatActivity  implements OnTaskCompleted, InterfaceUpdateListener {
 
+    public final static String TAG = MainActivity.class.getSimpleName();
+    public static City[] cities;
 
-    public final static String TAG = "MainActivity";
-    public static City cities[];
+    private ActivityMainClBinding binding;
 
     Utils utils;
-    TextView label;
-    ImageButton mainBtnRescan;
-    TextView loginTxt;
-    TextView devCountTxt;
-    TextView dateTxt;
 
     private static final int TETHER_REQUEST_CODE = 1;
     private static final String HOTSPOT_DIALOG_TAG = "HOTSPOT_DIALOG";
@@ -91,7 +79,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
 
     private void launchHotspotSettings() {
         Intent tetherSettings = new Intent();
-        tetherSettings.setClassName("com.android.settings", "com.android.settings.TetherSettings");
+        tetherSettings.setClassName("com.android.settings",
+                "com.android.settings.TetherSettings");
         startActivityForResult(tetherSettings, TETHER_REQUEST_CODE);
     }
 
@@ -102,32 +91,36 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
             case TETHER_REQUEST_CODE:
                 break;
             case REQUEST_BT_ENABLE:
-                newBleScanner.startScan();
-                break;
             case REQUEST_GPS_ENABLE:
                 newBleScanner.startScan();
                 break;
         }
     }
 
+
+    public FragmentHandler getFragmentHandler(){
+        if(fragmentHandler == null){
+            fragmentHandler = new FragmentHandler(this);
+        }
+        return fragmentHandler;
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_cl);
+        binding = ActivityMainClBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
+
         verifyStoragePermissions(this);
         newBleScanner = new CustomBluetooth(this);
         utils = new Utils(this, newBleScanner);
         fragmentHandler = new FragmentHandler(this);
-        App.get().setFragmentHandler(fragmentHandler);
+
         fragmentHandler.changeFragment(FragmentHandler.MAIN_FRAGMENT_TAG, false);
-        label = findViewById(R.id.main_txt_label);
-        mainBtnRescan = findViewById(R.id.main_btn_rescan);
-        mainBtnRescan.setVisibility(View.GONE);
-        label.setText(R.string.main_menu_main_label);
-        loginTxt = findViewById(R.id.main_txt_login);
-        devCountTxt = findViewById(R.id.main_txt_dev_count);
-        dateTxt = findViewById(R.id.main_txt_date);
-        loginTxt.setText(App.get().getLogin());
+
+        binding.mainBtnRescan.setVisibility(View.GONE);
+        binding.mainTxtLabel.setText(R.string.main_menu_main_label);
+
+        binding.mainTxtLogin.setText(App.get().getLogin());
         Runnable runnable = new CountDownRunner();
         Thread timerThread = new Thread(runnable);
         timerThread.start();
@@ -143,29 +136,30 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
         }
         viewModel = ViewModelProviders.of(this, new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
         viewModel.getClients().observe(this, this::updateUI);
+
+        viewModel.mainTxtLabel().observe(this, this::updateMainTxtLabel);
+        viewModel.mainBtnRescanVisibility().observe(this, this::updateBtnRescanVisibility);
     }
 
-    // Storage Permissions
+    private void updateBtnRescanVisibility(Integer integer) {
+        binding.mainBtnRescan.setVisibility(integer);
+    }
+
+    private void updateMainTxtLabel(String s) {
+        binding.mainTxtLabel.setText(s);
+    }
+
     private static final int REQUEST_EXTERNAL_STORAGE = 10;
-    private static String[] PERMISSIONS_STORAGE = {
+    private static final String[] PERMISSIONS_STORAGE = {
             Manifest.permission.READ_EXTERNAL_STORAGE,
             Manifest.permission.WRITE_EXTERNAL_STORAGE,
             Manifest.permission.MANAGE_EXTERNAL_STORAGE
     };
 
-    /**
-     * Checks if the app has permission to write to device storage
-     *
-     * If the app does not has permission then the user will be prompted to grant permissions
-     *
-     * @param activity
-     */
-    public static void verifyStoragePermissions(Activity activity) {
-        // Check if we have write permission
-        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
 
+    public static void verifyStoragePermissions(Activity activity) {
+        int permission = ActivityCompat.checkSelfPermission(activity, Manifest.permission.WRITE_EXTERNAL_STORAGE);
         if (permission != PackageManager.PERMISSION_GRANTED) {
-            // We don't have permission so prompt the user
             ActivityCompat.requestPermissions(
                     activity,
                     PERMISSIONS_STORAGE,
@@ -179,7 +173,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
     }
 
     private void updateUI(List<String> strings) {
-        devCountTxt.setText("(" + strings.size() + ")");
+        String text = "(" + strings.size() + ")";
+        binding.mainTxtDevCount.setText(text);
     }
 
     @Override
@@ -192,19 +187,13 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
         @NonNull
         @Override
         public Dialog onCreateDialog(Bundle savedInstanceState) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
             builder.setTitle(getResources().getString(R.string.hotspot_dialog_title));
             View dialogView = LayoutInflater.from(getActivity()).inflate(R.layout.access_point_dialog, null);
             builder.setView(dialogView);
-            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                    ((MainActivity) getContext()).launchHotspotSettings();
-                }
-            });
-            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                public void onClick(DialogInterface dialog, int id) {
-                }
-            });
+            builder.setPositiveButton(R.string.ok, (dialog, id) ->
+                    ((MainActivity) requireActivity()).launchHotspotSettings());
+            builder.setNegativeButton(R.string.cancel, (dialog, id) -> {});
             builder.setCancelable(true);
             CheckBox doNotAskAgain = dialogView.findViewById(R.id.doNotAskCheckbox);
             doNotAskAgain.setOnCheckedChangeListener(this);
@@ -220,8 +209,8 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
 
     @Override
     public void onBackPressed() {
-        label.setText(R.string.main_menu_main_label);
-        mainBtnRescan.setVisibility(View.GONE);
+        binding.mainTxtLabel.setText(R.string.main_menu_main_label);
+        binding.mainBtnRescan.setVisibility(View.GONE);
         super.onBackPressed();
     }
 
@@ -245,7 +234,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
             if (response.contains("Connection refused") || response.contains("Auth fail")) {
                 utils.removeClient(ip);
             } else {
-                utils.showMessage("Error: " + response);
+                fragmentHandler.showMessage("Error: " + response);
             }
         } else if (command.equals(PostCommand.TAKE_INFO_FULL)) {
             String version = result.getString(BundleKeys.VERSION_KEY);
@@ -253,7 +242,6 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
             viewModel.addTakeInfoFull(ip, version, (TakeInfoFull) parcelableResponse, true);
         } else if (command.equals(SshCommand.SSH_TAKE_COMMAND)) {
             viewModel.addTakeInfo(response, true);
-        } else if (resultCode == TaskCode.SEND_LOG_TO_SERVER_CODE) {
         } else if (resultCode == TaskCode.DOWNLOAD_CITIES_CODE) {
             getCities(res);
         } else if (resultCode == TaskCode.SEND_LOG_TO_SERVER_CODE) {
@@ -268,7 +256,7 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
     private void getCities(String res) {
         try {
             JSONObject jObject = new JSONObject(res);
-            this.cities = new Gson().fromJson(jObject.get("city").toString(), City[].class);
+            cities = new Gson().fromJson(jObject.get("city").toString(), City[].class);
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -279,15 +267,13 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
     }
 
     public void doWork() {
-        runOnUiThread(new Runnable() {
-            public void run() {
-                try {
-                    TextView txtCurrentTime = findViewById(R.id.main_txt_date);
-                    SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy/HH:mm:ss", Locale.getDefault());
-                    String currentDateandTime = sdf.format(new Date());
-                    txtCurrentTime.setText(currentDateandTime);
-                } catch (Exception e) {
-                }
+        runOnUiThread(() -> {
+            try {
+                TextView txtCurrentTime = findViewById(R.id.main_txt_date);
+                SimpleDateFormat sdf = new SimpleDateFormat("dd.MM.yy/HH:mm:ss", Locale.getDefault());
+                String currentDateTime = sdf.format(new Date());
+                txtCurrentTime.setText(currentDateTime);
+            } catch (Exception e) {
             }
         });
     }
@@ -310,13 +296,14 @@ public class MainActivity extends AppCompatActivity  implements OnTaskCompleted,
     protected void onStop() {
         Logger.d(Logger.MAIN_LOG, "main activity on stop");
         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
-        Thread setnToServer = null;
+        Thread setToServer;
         if (isInternetEnabled) {
-            setnToServer = new Thread(new SendLogToServer(Logger.getServiceLogString(), this));
-            setnToServer.start();
+            setToServer = new Thread(new SendLogToServer(Logger.getServiceLogString(), this));
+            setToServer.start();
         }
-        super.onStop();
         newBleScanner.stopScan();
+        utils.stopClientsHandler();
+        super.onStop();
     }
 
     @Override

@@ -7,26 +7,27 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.Utils;
+import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 
 public class SettingsFragment extends Fragment implements CompoundButton.OnCheckedChangeListener {
 
-    TextView mainTxtLabel;
+
     public Context context;
     public Utils utils;
-    private CheckBox showAccessPointDialog;
+    private CustomViewModel viewModel;
 
     @Override
-    public void onAttach(Context context) {
+    public void onAttach(@NonNull Context context) {
         this.context = context;
         this.utils = ((MainActivity) context).getUtils();
         super.onAttach(context);
@@ -35,15 +36,15 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
     @Override
     public void onStart() {
         super.onStart();
-        mainTxtLabel.setText(R.string.main_settings_btn);
+        viewModel.setMainTxtLabel(getString(R.string.main_settings_btn));
     }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.settings_fragment, container, false);
-        mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
-        showAccessPointDialog = view.findViewById(R.id.settings_doNotAskCheckbox);
+        viewModel = ViewModelProviders.of(requireActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
+        CheckBox showAccessPointDialog = view.findViewById(R.id.settings_doNotAskCheckbox);
         showAccessPointDialog.setChecked(App.get().isAskForTeneth());
         showAccessPointDialog.setOnCheckedChangeListener(this);
         return view;

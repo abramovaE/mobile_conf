@@ -4,70 +4,62 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
+import android.widget.ImageButton;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.OnTaskCompleted;
+import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterFactory;
-import com.kotofeya.mobileconfigurator.TaskCode;
-import com.kotofeya.mobileconfigurator.OnTaskCompleted;
-import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import java.util.ArrayList;
-import java.util.List;
 
 
 public class BasicScannerFragment extends ScannerFragment implements OnTaskCompleted, InterfaceUpdateListener {
 
     private AlertDialog scanClientsDialog;
-    private CustomViewModel viewModel;
-    private TextView scannerProgressBarTv;
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = super.onCreateView(inflater, container, savedInstanceState);
-        mainTxtLabel.setText(R.string.basic_scan_main_txt_label);
-        mainBtnRescan.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                rescan();
-            }
-        });
-        rvAdapter = RvAdapterFactory.getRvAdapter(context, utils, RvAdapterType.BASIC_SCANNER_TYPE, new ArrayList<>());
-        rvScanner.setAdapter(rvAdapter);
-        utils.getNewBleScanner().stopScan();
-        this.viewModel = ViewModelProviders.of(getActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
-        viewModel.getIsGetTakeInfoFinished().observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
-        scannerProgressBarTv = view.findViewById(R.id.progressTv);
-        scannerProgressBarTv.setVisibility(View.GONE);
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        super.onCreateView(inflater, container, savedInstanceState);
+        rvAdapter = RvAdapterFactory.getRvAdapter(
+                RvAdapterType.BASIC_SCANNER_TYPE, new ArrayList<>(), null);
+        binding.rvScanner.setAdapter(rvAdapter);
+        viewModel.setMainTxtLabel(getString(R.string.basic_scan_main_txt_label));
 
-        return view;
+        ImageButton mainBtnRescan = requireActivity().findViewById(R.id.main_btn_rescan);
+        mainBtnRescan.setOnClickListener(v -> rescan());
+
+        utils.getNewBleScanner().stopScan();
+        viewModel.getIsGetTakeInfoFinished().observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
+        binding.progressTv.setVisibility(View.GONE);
+
+        return binding.getRoot();
     }
 
     private void updateScannerProgressBarTv(Boolean aBoolean) {
         if(!aBoolean){
-            scannerProgressBarTv.setText(Utils.MESSAGE_TAKE_INFO);
-            scannerProgressBarTv.setVisibility(View.VISIBLE);
+            binding.progressTv.setText(Utils.MESSAGE_TAKE_INFO);
+            binding.progressTv.setVisibility(View.VISIBLE);
         } else {
-            scannerProgressBarTv.setVisibility(View.GONE);
+            binding.progressTv.setVisibility(View.GONE);
         }
     }
 
     @Override
     public void onStart() {
-        Logger.d(Logger.BASIC_SCANNER_LOG, "onStart()");
         super.onStart();
-        mainBtnRescan.setVisibility(View.VISIBLE);
+        viewModel.setMainBtnRescanVisibility(View.VISIBLE);
         utils.getNewBleScanner().stopScan();
         viewModel.clearTransivers();
         scan();
@@ -82,10 +74,12 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         if(resultCode == TaskCode.SSH_ERROR_CODE){
             if(res.contains("Connection refused") || res.contains("Auth fail")){
                 utils.removeClient(result.getString("ip"));
-            } else {utils.showMessage("Error: " + result);}
+            } else {
+                fragmentHandler.showMessage("Error: " + result);
+            }
         }
         else if(resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
-            utils.showMessage("Error: " + result);
+            fragmentHandler.showMessage("Error: " + result);
         }
     }
 
@@ -99,24 +93,11 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         utils.updateClients(this);
     }
 
+    @Override
     public void scan(){
-        Logger.d(Logger.BASIC_SCANNER_LOG, "scan()");
         if(utils.hasClients()) {
-            Logger.d(Logger.BASIC_SCANNER_LOG, "scan2()");
             utils.getTakeInfo();
         }
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
-        viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
-    }
-
-    private void updateUI(List<Transiver> transivers){
-        Logger.d(Logger.BASIC_SCANNER_LOG, "update ui: " + transivers.size());
-        rvAdapter.setObjects(transivers);
-        rvAdapter.notifyDataSetChanged();
     }
 
     @Override

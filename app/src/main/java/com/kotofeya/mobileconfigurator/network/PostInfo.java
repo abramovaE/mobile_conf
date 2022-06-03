@@ -53,7 +53,7 @@ public class PostInfo implements Runnable {
 
     @Override
     public void run() {
-        Logger.d(Logger.POST_INFO_LOG, "post command: " +  command + ", ip: " + ip);
+//        Logger.d(Logger.POST_INFO_LOG, "post command: " +  command + ", ip: " + ip);
         Bundle result = new Bundle();
         URL u;
         try {
@@ -61,6 +61,8 @@ public class PostInfo implements Runnable {
             HttpURLConnection httpsURLConnection = getConnection(u);
             httpsURLConnection.connect();
             int response = httpsURLConnection.getResponseCode();
+//            Logger.d(Logger.POST_INFO_LOG, "post command: " + command + ", response: " + response + ", ip: " + ip);
+
             BufferedReader br;
             StringBuilder content;
             InputStreamReader reader = new InputStreamReader(httpsURLConnection.getInputStream());
@@ -70,7 +72,6 @@ public class PostInfo implements Runnable {
             while (null != (line = br.readLine())) {
                 content.append(line);
             }
-            Logger.d(Logger.POST_INFO_LOG, "post command: " + command + ", response: " + response + ", ip: " + ip);
             if (command.startsWith(PostCommand.TRANSP_CONTENT)) {
                 command = PostCommand.TRANSP_CONTENT;
             }
@@ -90,24 +91,34 @@ public class PostInfo implements Runnable {
             result.putString(BundleKeys.COMMAND_KEY, command);
             result.putString(BundleKeys.IP_KEY, ip);
 
-            Logger.d(Logger.POST_INFO_LOG, "post command: " + command + ", response: " + response + ", ip: " + ip);
 
             if (response == 200) {
+
+
                 switch (command) {
                     case PostCommand.TAKE_INFO_FULL:
+//                        Logger.d(Logger.POST_INFO_LOG, "post command: " + command +
+//                                ", content: " + content + ", ip: " + ip);
                         JSONObject jsonObject = new JSONObject(content.toString()
                                 .replace("<pre>", "")
                                 .replace("</pre>", ""));
                         String command = jsonObject.getString(BundleKeys.COMMAND_KEY);
                         JSONObject properties = jsonObject.getJSONObject("properties");
                         double version = getVersion();
+
+
 //                        try {
+                            result.putString(BundleKeys.VERSION_KEY, version + "");
+                            Logger.d(Logger.POST_INFO_LOG, "try: " + version + ", props: " + properties);
                             TakeInfoFull takeInfoFull = new GsonBuilder().setVersion(version).create().fromJson(properties.toString(), TakeInfoFull.class);
                             Logger.d(Logger.POST_INFO_LOG, "takeInfoFull: " + takeInfoFull + ", ip: " + ip);
                             result.putParcelable(BundleKeys.PARCELABLE_RESPONSE_KEY, takeInfoFull);
-                            result.putString(BundleKeys.VERSION_KEY, version + "");
 //                        } catch (Exception e) {
+////                            TakeInfoFull takeInfoFull = new TakeInfoFull();
+////                            result.putParcelable(BundleKeys.PARCELABLE_RESPONSE_KEY, takeInfoFull);
+//
 //                            Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage() + ", ip: " + ip);
+//                            listener.onTaskCompleted(result);
 //                        }
                         break;
                     case PostCommand.VERSION:

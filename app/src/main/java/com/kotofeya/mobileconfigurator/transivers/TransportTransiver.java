@@ -196,8 +196,7 @@ public class TransportTransiver extends Transiver {
     private void setDirection(){
         if(super.intVesion == VERSION_NEW){
             this.direction = (rawData[7] >> 4) & 0b00000011;
-        }
-        else {
+        } else {
             this.direction = rawData[6] & 0xff;
         }
         Logger.d(Logger.TRANSPORT_TRANSIVER_LOG, "set direction: " + direction);
@@ -205,8 +204,7 @@ public class TransportTransiver extends Transiver {
     private void setCityIndex(){
         if(super.intVesion == Transiver.VERSION_NEW){
             this.cityIndex = (((rawData[12] & 0xff)) + (rawData[13] & 0xff));
-        }
-        else {
+        } else {
             this.cityIndex = 0;
         }
     }
@@ -216,17 +214,14 @@ public class TransportTransiver extends Transiver {
         sb.append("\"");
         if(number == 0xEEEE){
             sb.append(App.get().getResources().getString(R.string.withoutNumber));
-        }
-        else {
+        } else {
             if (super.intVesion == Transiver.VERSION_NEW) {
                 if(super.btPackVersion == 0) {
                     sb.append(getFullNumnerVer0());
-                }
-                else if(super.btPackVersion > 0){
+                } else if(super.btPackVersion > 0){
                     sb.append(getFullNumnerVer1());
                 }
-            }
-            else {
+            } else {
                 sb.append(number);
                 sb.append(getLitera(rawData[5]));
             }

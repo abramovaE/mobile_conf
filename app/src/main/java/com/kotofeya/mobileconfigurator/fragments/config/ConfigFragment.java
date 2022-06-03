@@ -1,94 +1,92 @@
 package com.kotofeya.mobileconfigurator.fragments.config;
 
-import android.content.Context;
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
-import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.databinding.ScannerFragmentClBinding;
+import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
+import com.kotofeya.mobileconfigurator.rv_adapter.AdapterListener;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapter;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterFactory;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
+import java.util.ArrayList;
 import java.util.List;
 
 
-public abstract class ConfigFragment extends Fragment implements OnTaskCompleted {
-    TextView mainTxtLabel;
-    public Context context;
-    public Utils utils;
-    public ImageButton mainBtnRescan;
-    protected CustomViewModel viewModel;
-    RecyclerView rvScanner;
-    RvAdapter rvAdapter;
-    private TextView scannerProgressBarTv;
+public abstract class ConfigFragment extends Fragment implements OnTaskCompleted, AdapterListener {
 
-    public abstract RvAdapter getRvAdapter();
+    public Utils utils;
+    protected CustomViewModel viewModel;
+    RvAdapter rvAdapter;
+
     public abstract void setMainTextLabel();
     public abstract void scan();
 
-    @Override
-    public void onAttach(Context context) {
-        this.context = context;
-        this.utils = ((MainActivity) context).getUtils();
-        super.onAttach(context);
-    }
+    protected ScannerFragmentClBinding binding;
+    protected FragmentHandler fragmentHandler;
 
     @Override
     public void onStart() {
         super.onStart();
         setMainTextLabel();
-        mainBtnRescan.setVisibility(View.GONE);
+        viewModel.setMainBtnRescanVisibility(View.GONE);
     }
+
+    protected abstract RvAdapterType getAdapterType();
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.scanner_fragment_cl, container, false);
-        rvScanner = view.findViewById(R.id.rv_scanner);
-        mainTxtLabel = ((MainActivity)context).findViewById(R.id.main_txt_label);
-        mainBtnRescan = ((MainActivity)context).findViewById(R.id.main_btn_rescan);
-        scannerProgressBarTv = view.findViewById(R.id.progressTv);
-        scannerProgressBarTv.setVisibility(View.GONE);
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
+        binding = ScannerFragmentClBinding.inflate(getLayoutInflater(), container, false);
+        viewModel = ViewModelProviders.of(requireActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
+        fragmentHandler = ((MainActivity) requireActivity()).getFragmentHandler();
 
+        binding.progressTv.setVisibility(View.GONE);
+
+        utils = ((MainActivity) requireActivity()).getUtils();
         utils.getNewBleScanner().stopScan();
-        rvAdapter = getRvAdapter();
-        rvScanner.setAdapter(rvAdapter);
+        rvAdapter = RvAdapterFactory.getRvAdapter(getAdapterType(),
+                new ArrayList<>(), this);
+        binding.rvScanner.setAdapter(rvAdapter);
 
         scan();
-        return view;
+        return binding.getRoot();
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        this.viewModel = ViewModelProviders.of(getActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
         viewModel.getIsGetTakeInfoFinished().observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
     }
 
     private void updateScannerProgressBarTv(Boolean aBoolean) {
         if(!aBoolean){
-            scannerProgressBarTv.setText(Utils.MESSAGE_TAKE_INFO);
-            scannerProgressBarTv.setVisibility(View.VISIBLE);
+            binding.progressTv.setText(Utils.MESSAGE_TAKE_INFO);
+            binding.progressTv.setVisibility(View.VISIBLE);
         } else {
-            scannerProgressBarTv.setVisibility(View.GONE);
+            binding.progressTv.setVisibility(View.GONE);
         }
     }
 
-    protected void updateUI(List<Transiver> transiverList){
-        rvAdapter.setObjects(transiverList);
+    @SuppressLint("NotifyDataSetChanged")
+    protected void updateUI(List<Transiver> transceiverList){
+        rvAdapter.setObjects(transceiverList);
         rvAdapter.notifyDataSetChanged();
     }
 }

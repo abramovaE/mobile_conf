@@ -1,6 +1,9 @@
 package com.kotofeya.mobileconfigurator.activities;
 
+import android.view.View;
+
 import androidx.annotation.NonNull;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
@@ -23,15 +26,16 @@ import java.util.stream.Collectors;
 
 public class CustomViewModel extends ViewModel {
     private  MutableLiveData<List<String>> clients = new MutableLiveData<>();
-    public MutableLiveData<List<String>> getClients(){return clients;}
+    public LiveData<List<String>> getClients(){return clients;}
     public void setClients(List<String> clients){this.clients.postValue(clients);}
 
-    private MutableLiveData<List<Transiver>> transivers = new MutableLiveData<>();
+    private MutableLiveData<List<Transiver>> transivers = new MutableLiveData<>(new CopyOnWriteArrayList<>());
     private MutableLiveData<List<Transiver>> stationaryInformers = new MutableLiveData<>();
     private MutableLiveData<List<Transiver>> transpInformers = new MutableLiveData<>();
-    public MutableLiveData<List<Transiver>> getTransivers(){return transivers;}
-    public MutableLiveData<List<Transiver>> getStationaryInformers() { return stationaryInformers; }
-    public MutableLiveData<List<Transiver>> getTranspInformers() {
+
+    public LiveData<List<Transiver>> getTransivers(){return transivers;}
+    public LiveData<List<Transiver>> getStationaryInformers() { return stationaryInformers; }
+    public LiveData<List<Transiver>> getTranspInformers() {
         return transpInformers;
     }
 
@@ -43,9 +47,31 @@ public class CustomViewModel extends ViewModel {
 
     private MutableLiveData<Boolean> isGetTakeInfoFinished = new MutableLiveData<>();
 
-    public MutableLiveData<Boolean> getIsGetTakeInfoFinished() {
+    public LiveData<Boolean> getIsGetTakeInfoFinished() {
         return isGetTakeInfoFinished;
     }
+
+    private MutableLiveData<String> _mainTxtLabel = new MutableLiveData<>("");
+    public LiveData<String> mainTxtLabel(){return _mainTxtLabel;}
+    public void setMainTxtLabel(String mainTxtLabel){
+        _mainTxtLabel.postValue(mainTxtLabel);
+    }
+
+    private MutableLiveData<Integer> _mainBtnRescanVisibility = new MutableLiveData<Integer>(View.VISIBLE);
+    public LiveData<Integer> mainBtnRescanVisibility(){return  _mainBtnRescanVisibility;}
+    public void setMainBtnRescanVisibility(int visibility){
+        _mainBtnRescanVisibility.postValue(visibility);
+    }
+
+    private MutableLiveData<String> _transceiverSettingsText = new MutableLiveData<>("");
+    public LiveData<String> transceiverSettingsText(){return _transceiverSettingsText;}
+    public void setTransceiverSettingsText(String transceiverSettingsText){
+        _transceiverSettingsText.postValue(transceiverSettingsText);
+    }
+
+
+
+
 
     public static class ModelFactory extends ViewModelProvider.NewInstanceFactory {
         public ModelFactory() {
@@ -69,11 +95,6 @@ public class CustomViewModel extends ViewModel {
         Logger.d(Logger.VIEW_MODEL_LOG, "add take info full: " + takeInfoFull.getSerial()
                 + ", version: " + version  + ", ip: " + ip);
         List<Transiver> transiversValue = transivers.getValue();
-        if(transiversValue == null){
-            transiversValue = new CopyOnWriteArrayList<>();
-        }
-//        Logger.d(Logger.VIEW_MODEL_LOG, "transivers value: " + transiversValue);
-
         boolean isExist = false;
         String ssid = takeInfoFull.getSerial() + "";
         ssid = Transiver.formatSsid(ssid);
@@ -194,11 +215,7 @@ public class CustomViewModel extends ViewModel {
     public void clearTransivers(){
         Logger.d(Logger.VIEW_MODEL_LOG, "clear transivers");
         List<Transiver> transiversValue = transivers.getValue();
-        if(transiversValue != null) {
-            transiversValue.clear();
-        } else {
-            transiversValue = new CopyOnWriteArrayList<>();
-        }
+        transiversValue.clear();
         postTransiversValueToAllLists(transiversValue);
     }
 
@@ -214,11 +231,7 @@ public class CustomViewModel extends ViewModel {
             this.currentTranspInformer.postValue(getTransiverBySsid(currentTranspInformer.getValue().getSsid()));
         }
         List<Transiver> transiversList = new CopyOnWriteArrayList<>();
-        if(transiversList == null){
-            transiversList = new CopyOnWriteArrayList<>();
-        } else {
-            transiversList.clear();
-        }
+        transiversList.clear();
         transiversList.addAll(statList);
         transiversList.addAll(transpList);
         for(Transiver transiver: transiversList){
@@ -275,7 +288,7 @@ public class CustomViewModel extends ViewModel {
         return ssidIpMap.get(ssid);
     }
 
-    public String getVersion(String ssid){
+    public static String getVersion(String ssid){
         Logger.d(Logger.VIEW_MODEL_LOG, "get version, map: " + ssidVersionMap);
         Logger.d(Logger.VIEW_MODEL_LOG, "get version, ssid: " + ssid);
         return ssidVersionMap.get(ssid);

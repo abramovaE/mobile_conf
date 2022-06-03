@@ -26,7 +26,7 @@ public class Logger {
     public static final int UTILS_LOG = 4;
     public static final int FILTER_LOG = 5;
     public static final int SCANNER_ADAPTER_LOG = 6;
-    public static final int UPDATE_OS_LOG = 7;
+
     public static final int SSH_CONNECTION_LOG = 8;
     public static final int DOWNLOAD_LOG = 9;
     public static final int STATION_CONTEN_LOG = 10;
@@ -61,7 +61,7 @@ public class Logger {
         mType.put(UTILS_LOG, "Utils_task");
         mType.put(FILTER_LOG, "Filter_task");
         mType.put(SCANNER_ADAPTER_LOG, "Scanner_adapter_task");
-        mType.put(UPDATE_OS_LOG, "Update_os_task");
+//        mType.put(UPDATE_OS_LOG, "Update_os_task");
         mType.put(SSH_CONNECTION_LOG,"Ssh_connection_task");
         mType.put(DOWNLOAD_LOG,"Download_task");
         mType.put(STATION_CONTEN_LOG, "Station_content_task");
@@ -116,7 +116,7 @@ public class Logger {
         File file = getLogFile();
         try {
             BufferedReader reader = new BufferedReader(new FileReader(file));
-            String s = null;
+            String s;
             while ((s = reader.readLine()) != null){
                 sb.append(s);
                 sb.append("\n");
@@ -136,8 +136,7 @@ public class Logger {
 
 
     private static File getLogFile() {
-        File file = new File(App.get().getCacheDir(), LOG_FILE);
-        return file;
+        return new File(App.get().getCacheDir(), LOG_FILE);
     }
 
     private static void createLog() {
