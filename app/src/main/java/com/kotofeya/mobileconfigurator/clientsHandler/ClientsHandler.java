@@ -4,7 +4,6 @@ import android.os.Bundle;
 import android.os.Parcelable;
 
 import com.kotofeya.mobileconfigurator.BundleKeys;
-import com.kotofeya.mobileconfigurator.InternetConn;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.SshConnection;
@@ -66,18 +65,12 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
     }
 
     private void updateClients(boolean isNeedPoll){
+        Logger.d(TAG, "updateClients(boolean isNeedPoll), isScanning: " + isScanning);
         if(!isScanning) {
             clientsList.clear();
             isScanning = true;
             viewModel.setClientsScanning(true);
-            String deviceIp = InternetConn.getDeviceIp();
-            Logger.d(TAG, "devIp: " + deviceIp);
-            if (deviceIp != null) {
-                WiFiLocalHotspot.getInstance().updateClientList(deviceIp, this, isNeedPoll);
-            } else {
-                clients = new ArrayList<>();
-                updateClientsFinished(clients);
-            }
+            WiFiLocalHotspot.getInstance().updateClientList(this, isNeedPoll);
         }
     }
 
@@ -86,6 +79,7 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
         this.clients = clients;
         viewModel.setClients(clients);
         viewModel.setClientsScanning(false);
+//        viewModel.setTakeInfoFinished(true);
     }
 
     @Override
@@ -94,13 +88,11 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
         updateClientsFinished(clients);
         if(isNeedPoll) {
             pollConnectedClients();
-        } else {
-
         }
     }
 
     public void pollConnectedClients(){
-        Logger.d(TAG, "pollClients()");
+        Logger.d(TAG, "pollClients(), clients: " + clients);
         if(!isScanning) {
             viewModel.setTakeInfoFinished(false);
             Logger.d(TAG, "get take info");
@@ -124,6 +116,8 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
                         viewModel.setTakeInfoFinished(true);
                     });
                 });
+            } else {
+                viewModel.setTakeInfoFinished(true);
             }
         }
     }

@@ -98,9 +98,11 @@ public class CustomViewModel extends ViewModel {
     private MutableLiveData<Transiver> currentTranspInformer = new MutableLiveData<>();
 
     private MutableLiveData<Boolean> isGetTakeInfoFinished = new MutableLiveData<>();
-
     public LiveData<Boolean> getIsGetTakeInfoFinished() {
         return isGetTakeInfoFinished;
+    }
+    public void setTakeInfoFinished(boolean b){
+        isGetTakeInfoFinished.postValue(b);
     }
 
     private MutableLiveData<String> _mainTxtLabel = new MutableLiveData<>("");
@@ -139,9 +141,6 @@ public class CustomViewModel extends ViewModel {
         }
     }
 
-    public void setTakeInfoFinished(boolean b){
-        isGetTakeInfoFinished.postValue(b);
-    }
 
     public void addTakeInfoFull(String ip, String version, TakeInfoFull takeInfoFull){
         Logger.d(Logger.VIEW_MODEL_LOG, "add take info full: " + takeInfoFull.getSerial()
@@ -271,21 +270,12 @@ public class CustomViewModel extends ViewModel {
         postTransiversValueToAllLists(transiversValue);
     }
 
-
-
-
-
     public String getIp(String ssid){
         ssid = Transiver.formatSsid(ssid);
-        Logger.d(Logger.VIEW_MODEL_LOG, "get ip, ssid: " + ssid);
-        Logger.d(Logger.VIEW_MODEL_LOG, "get ip, ssidipMap: " + ssidIpMap);
-        Logger.d(Logger.VIEW_MODEL_LOG, "get ip, ssidipMap: " + ssidIpMap.get(ssid));
         return ssidIpMap.get(ssid);
     }
 
     public static String getVersion(String ssid){
-        Logger.d(Logger.VIEW_MODEL_LOG, "get version, map: " + ssidVersionMap);
-        Logger.d(Logger.VIEW_MODEL_LOG, "get version, ssid: " + ssid);
         return ssidVersionMap.get(ssid);
     }
 

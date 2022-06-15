@@ -77,6 +77,7 @@ public abstract class ScannerFragment extends Fragment {
     }
 
     private void updateScannerProgressBarTv(Boolean aBoolean) {
+        Logger.d(TAG, "updateScannerProgressBarTv(Boolean aBoolean): " + aBoolean);
         if(!aBoolean){
             binding.progressTv.setText(Utils.MESSAGE_TAKE_INFO);
             binding.progressTv.setVisibility(View.VISIBLE);

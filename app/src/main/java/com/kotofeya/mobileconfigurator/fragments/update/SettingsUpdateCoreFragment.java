@@ -1,12 +1,10 @@
 package com.kotofeya.mobileconfigurator.fragments.update;
 
 import android.app.AlertDialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -18,6 +16,7 @@ import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.ClientsDiffUtil;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
@@ -92,10 +91,8 @@ public class SettingsUpdateCoreFragment extends UpdateFragment{
     private void updateClients(List<String> strings) {
         List<String> oldClients = rvAdapter.getObjects().stream()
                 .map(it -> it.getSsid()).collect(Collectors.toList());
-
         ClientsDiffUtil clientsDiffUtil = new ClientsDiffUtil(oldClients, strings);
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(clientsDiffUtil);
-
         rvAdapter.setObjects(rvAdapter.getObjects().stream().
                 filter(it -> strings.contains(it.getIp())).collect(Collectors.toList()));
         diffResult.dispatchUpdatesTo(rvAdapter);
@@ -118,13 +115,15 @@ public class SettingsUpdateCoreFragment extends UpdateFragment{
         String ip = result.getString(BundleKeys.IP_KEY);
 
         if(resultCode == Downloader.UPDATE_CORE_DOWNLOAD_CODE){
-            Toast.makeText(getActivity(), "Файлы, необходимые для обновления скачаны", Toast.LENGTH_SHORT).show();
+            Toast.makeText(getActivity(),
+                    "Файлы, необходимые для обновления скачаны", Toast.LENGTH_SHORT).show();
             StringBuilder sb = new StringBuilder();
             new LinkedList<>(Arrays.asList(Downloader.tempUpdateCoreFiles)).forEach(it -> sb.append(it.getName()).append("\n"));
             binding.downloadCoreUpdateFilesTv.setText(sb.toString());
         }
         if(resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
-            Toast.makeText(requireActivity(), "При загрузке файлов произошла ошибка", Toast.LENGTH_SHORT).show();
+            Toast.makeText(requireActivity(),
+                    "При загрузке файлов произошла ошибка", Toast.LENGTH_SHORT).show();
         }
 
         if(res != null && res.contains("загружен")){
@@ -149,6 +148,20 @@ public class SettingsUpdateCoreFragment extends UpdateFragment{
         Logger.d(TAG, "updateUI()");
         super.updateUI(transceivers);
         stopTimer();
+        for(Transiver t: transceivers){
+            String ip = t.getIp();
+            if(ip != null) {
+                Logger.d(Logger.UPDATE_CORE_LOG, "coreUpdateIteration ip: " + ip);
+                Logger.d(Logger.UPDATE_CORE_LOG, "coreUpdateIteration: " + t.getSsid() + " " + SshConnection.getCoreUpdateIteration(ip));
+                int coreUpdateIteration = SshConnection.getCoreUpdateIteration(ip);
+                if(coreUpdateIteration > 0 && coreUpdateIteration < 4){
+                    binding.progressTv.setVisibility(View.VISIBLE);
+                    binding.progressTv.setText(getProgressTvText(t.getSsid(), coreUpdateIteration));
+                    uploadFile(ip, t.getSsid(), coreUpdateIteration);
+                    break;
+                }
+            }
+        }
     }
 
 
@@ -188,31 +201,53 @@ public class SettingsUpdateCoreFragment extends UpdateFragment{
         if(ip != null) {
             Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update core was pressed");
             if (Downloader.isCoreUpdatesDownloadCompleted()) {
-                showChooseFileDialog(ip, ssid);
-//                showConfirmDialog(ip, ssid);
+//                showChooseFileDialog(ip, ssid);
+                showConfirmDialog(ip, ssid);
             } else {
                 fragmentHandler.showMessage("Please, download files for update from server");
             }
         }
     }
 
-    private void showChooseFileDialog(String ip, String ssid){
+
+    private void showConfirmDialog(String ip, String ssid){
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-        builder.setTitle("Select the file to upload");
+        builder.setTitle(R.string.confirmation_is_required);
+        builder.setMessage("Confirm the update the core");
 
-        String[] array = new String[Downloader.tempUpdateCoreFiles.length];
-        for(int i = 0; i < Downloader.tempUpdateCoreFiles.length; i++){
-            array[i] = Downloader.tempUpdateCoreFiles[i].getName();
-        }
-
-        ArrayAdapter<String> adapter = new ArrayAdapter(requireActivity(),
-                android.R.layout.select_dialog_item, array);
-
-        DialogInterface.OnClickListener myClickListener = (dialog, which) -> uploadFile(ip, ssid, which);
-        builder.setAdapter(adapter, myClickListener);
+        builder.setPositiveButton("Update", (dialog, id) -> {
+            if(Downloader.isCoreUpdatesDownloadCompleted()){
+                SshConnection.resetCoreFilesCounter(ip);
+                ((SettingsUpdateCoreFragment) fragmentHandler.getCurrentFragment())
+                        .uploadFile(ip, ssid, 0);
+            } else {
+                Toast.makeText(getActivity(),
+                        "please, download files from server at start",
+                        Toast.LENGTH_SHORT).show();
+            }
+        });
+        builder.setNegativeButton("cancel", (dialog, id) -> { });
         builder.setCancelable(true);
         builder.show();
     }
+//
+//    private void showChooseFileDialog(String ip, String ssid){
+//        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
+//        builder.setTitle("Select the file to upload");
+//
+//        String[] array = new String[Downloader.tempUpdateCoreFiles.length];
+//        for(int i = 0; i < Downloader.tempUpdateCoreFiles.length; i++){
+//            array[i] = Downloader.tempUpdateCoreFiles[i].getName();
+//        }
+//
+//        ArrayAdapter<String> adapter = new ArrayAdapter(requireActivity(),
+//                android.R.layout.select_dialog_item, array);
+//
+//        DialogInterface.OnClickListener myClickListener = (dialog, which) -> uploadFile(ip, ssid, which);
+//        builder.setAdapter(adapter, myClickListener);
+//        builder.setCancelable(true);
+//        builder.show();
+//    }
 
 
     class CountDownRunner implements Runnable {
@@ -243,6 +278,7 @@ public class SettingsUpdateCoreFragment extends UpdateFragment{
 
 
     public void uploadFile(String ip, String serial, int coreUpdateIteration){
+        Logger.d(TAG, "uploadFile(), serial: " + serial + ", iteration: " + coreUpdateIteration);
         setProgressTvText(getProgressTvText(serial, coreUpdateIteration));
         SshConnection connection = new SshConnection(this, this, coreUpdateIteration, ip);
         connection.execute(ip, SshConnection.UPDATE_CORE_UPLOAD_CODE);
