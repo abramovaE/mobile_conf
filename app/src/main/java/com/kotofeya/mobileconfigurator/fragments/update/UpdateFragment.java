@@ -1,5 +1,6 @@
 package com.kotofeya.mobileconfigurator.fragments.update;
 
+import android.annotation.SuppressLint;
 import android.app.Dialog;
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,8 +8,6 @@ import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageButton;
-import android.widget.ProgressBar;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,56 +16,28 @@ import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
+import com.kotofeya.mobileconfigurator.InternetConn;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.ProgressBarInt;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
-import com.kotofeya.mobileconfigurator.Utils;
-import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
-import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.fragments.scanner.ScannerFragment;
 import com.kotofeya.mobileconfigurator.rv_adapter.AdapterListener;
-import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterFactory;
-import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 
 public abstract class UpdateFragment extends ScannerFragment
         implements OnTaskCompleted, ProgressBarInt,
-        IUpdateFragment, InterfaceUpdateListener, AdapterListener {
+        IUpdateFragment,  AdapterListener {
 
     private static final String TAG = UpdateFragment.class.getSimpleName();
     protected String version = "version";
-    ProgressBar progressBar;
 
     protected static final int MOBILE_SETTINGS_RESULT = 0;
-
-    protected AlertDialog scanClientsDialog;
-
-
-
-    protected FragmentHandler fragmentHandler;
-
-
-    protected abstract void setMainTextLabelText();
-    protected abstract RvAdapterType getAdapterType();
-
-    @Override
-    public void scan(){
-        utils.getTakeInfo();
-    }
-
-    @Override
-    public void clientsScanFinished() {
-        scanClientsDialog.dismiss();
-        utils.getTakeInfo();
-    }
-
 
     @Override
     public void onStart() {
@@ -76,19 +47,9 @@ public abstract class UpdateFragment extends ScannerFragment
         binding.versionLabel.setText(version);
         binding.checkVersionBtn.setVisibility(View.VISIBLE);
         viewModel.setMainBtnRescanVisibility(View.VISIBLE);
-//        scan();
     }
 
-
-    private void rescan(){
-        Logger.d(TAG, "rescan");
-        utils.clearClients();
-        utils.clearMap();
-        viewModel.clearTransivers();
-        scanClientsDialog = utils.getScanClientsDialog();
-        scanClientsDialog.show();
-        utils.updateClients(this);
-    }
+    public AdapterListener getAdapterListener(){return this;}
 
     @Nullable
     @Override
@@ -97,57 +58,24 @@ public abstract class UpdateFragment extends ScannerFragment
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater,container,savedInstanceState);
 
-        fragmentHandler = ((MainActivity) requireActivity()).getFragmentHandler();
-
-        ImageButton mainBtnRescan = requireActivity().findViewById(R.id.main_btn_rescan);
-        mainBtnRescan.setOnClickListener(v -> rescan());
-
-        progressBar = binding.scannerProgressBar;
-
         binding.checkVersionBtn.setOnClickListener(v -> {
             Logger.d(TAG, "check updates button was pressed");
-            boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
+            boolean isInternetEnabled = InternetConn.hasInternetConnection();
             if(isInternetEnabled){
-                progressBar.setVisibility(View.VISIBLE);
+                binding.scannerProgressBar.setVisibility(View.VISIBLE);
                 loadUpdates();
             }
             else {
                 EnableMobileConfDialog dialog = new EnableMobileConfDialog();
-                FragmentHandler fragmentHandler = ((MainActivity)getActivity()).getFragmentHandler();
                 dialog.show(fragmentHandler.getFragmentManager(),
                         FragmentHandler.ENABLE_MOBILE_DIALOG_TAG);
             }
         });
-
-        setMainTextLabelText();
-        rvAdapter = RvAdapterFactory.getRvAdapter(getAdapterType(),
-                new ArrayList<>(), this);
-        binding.rvScanner.setAdapter(rvAdapter);
-        if(utils.getNewBleScanner() != null) {
-            utils.getNewBleScanner().stopScan();
-        }
         loadVersion();
-
-        binding.progressTv.setVisibility(View.GONE);
-
-        viewModel.getIsGetTakeInfoFinished().observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
         scan();
         return binding.getRoot();
     }
 
-//    @Override
-//    public void scan(){
-//        utils.getTakeInfo();
-//    }
-
-    private void updateScannerProgressBarTv(Boolean aBoolean) {
-        if(!aBoolean){
-            binding.progressTv.setText(Utils.MESSAGE_TAKE_INFO);
-            binding.progressTv.setVisibility(View.VISIBLE);
-        } else {
-            binding.progressTv.setVisibility(View.GONE);
-        }
-    }
 
     @Override
     public void onTaskCompleted(Bundle result) {
@@ -161,8 +89,6 @@ public abstract class UpdateFragment extends ScannerFragment
         switch (resultCode){
             case 1002:
                 fragmentHandler.showMessage("Error: " + result);
-//                MessageDialog.showMessage(fr, "Error: " + result);
-//                 utils.showMessage("Error: " + result);
                  break;
             case TaskCode.UPDATE_OS_UPLOAD_CODE:
             case TaskCode.UPDATE_STM_UPLOAD_CODE:
@@ -181,9 +107,8 @@ public abstract class UpdateFragment extends ScannerFragment
                 break;
             case TaskCode.UPDATE_OS_DOWNLOAD_CODE:
                 Logger.d(TAG, "downloaded: " + result);
-                progressBar.setVisibility(View.GONE);
+                binding.scannerProgressBar.setVisibility(View.GONE);
                 fragmentHandler.showMessage(getString(R.string.downloaded));
-//                utils.showMessage(getString(R.string.downloaded));
                 break;
             case TaskCode.UPDATE_STM_DOWNLOAD_CODE:
                 downloadBySsh(ipStr, SshConnection.UPDATE_STM_UPLOAD_CODE, result, View.GONE);
@@ -195,21 +120,19 @@ public abstract class UpdateFragment extends ScannerFragment
                 downloadBySsh(ipStr, SshConnection.UPDATE_STATION_CONTENT_UPLOAD_CODE, result, View.VISIBLE);
                 break;
             case TaskCode.SSH_ERROR_CODE:
-                progressBar.setVisibility(View.GONE);
+                binding.scannerProgressBar.setVisibility(View.GONE);
                 if(resultStr.contains("Connection refused") || resultStr.contains("Auth fail")){
                     Logger.d(TAG, "result: " + result + ", remove client: " + ipStr);
-                    utils.removeClient(ipStr);
+                    clientsHandler.removeClient(ipStr);
                 } else {
                     Logger.d(TAG, "ssh error: " + result);
                     fragmentHandler.showMessage("Error: " + result);
-//                    utils.showMessage("Error: " + result);
                 }
                 break;
             case TaskCode.DOWNLOADER_ERROR_CODE:
                 Logger.d(TAG, "downloader error: " + result);
                 fragmentHandler.showMessage("Error: " + result);
-//                utils.showMessage("Error: " + result);
-                progressBar.setVisibility(View.GONE);
+                binding.scannerProgressBar.setVisibility(View.GONE);
                 break;
             case TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE:
                     String tempFilePath = result.getString(BundleKeys.FILE_PATH_KEY);
@@ -230,38 +153,33 @@ public abstract class UpdateFragment extends ScannerFragment
 
     @Override
     public void onProgressUpdate(Integer downloaded) {
-        progressBar.setProgress(downloaded);
+        binding.scannerProgressBar.setProgress(downloaded);
     }
 
     @Override
-    public void setProgressBarVisible() {
-        getActivity().runOnUiThread(() -> progressBar.setVisibility(View.VISIBLE));
-    }
-
-    @Override
-    public void setProgressBarGone(){
-        requireActivity().runOnUiThread(() -> progressBar.setVisibility(View.GONE));
+    public void setProgressBarVisibility(int visibility) {
+        requireActivity().runOnUiThread(() -> binding.scannerProgressBar.setVisibility(visibility));
     }
 
     @Override
     public void clearProgressBar(){
-        requireActivity().runOnUiThread(() -> progressBar.setProgress(0));
+        requireActivity().runOnUiThread(() -> binding.scannerProgressBar.setProgress(0));
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private void uploaded(String ip){
         Logger.d(TAG, "uploaded: " + ip);
         Transiver transiver = viewModel.getTransiverByIp(ip);
         viewModel.removeTransiver(transiver);
         rvAdapter.notifyDataSetChanged();
         fragmentHandler.showMessage(getString(R.string.uploaded));
-//        utils.showMessage(getString(R.string.uploaded));
-        progressBar.setVisibility(View.GONE);
+        binding.scannerProgressBar.setVisibility(View.GONE);
     }
 
     private void downloadBySsh(String ip, int taskCode, Bundle bundle, int progressBarVisibility){
         String filePath = bundle.getString(BundleKeys.FILE_PATH_KEY);
         Logger.d(TAG, "download by ssh " + ", ip: " + ip + ", taskCode: " + taskCode + ", filepath: " + filePath);
-        progressBar.setVisibility(progressBarVisibility);
+        binding.scannerProgressBar.setVisibility(progressBarVisibility);
         SshConnection connection = new SshConnection(this, this);
         connection.execute(ip, taskCode, filePath);
     }

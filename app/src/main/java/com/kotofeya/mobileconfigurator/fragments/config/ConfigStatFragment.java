@@ -5,59 +5,41 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AlertDialog;
 
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.Utils;
-import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
-public class ConfigStatFragment extends ConfigFragment implements InterfaceUpdateListener {
-
-    private AlertDialog scanClientsDialog;
-
+public class ConfigStatFragment extends ConfigFragment {
     @Override
-    public void setMainTextLabel() {
-        viewModel.setMainTxtLabel(getString(R.string.config_stat_main_txt_label));
-    }
-
-    @Override
-    public void scan(){
-        utils.setRadioType(Utils.STAT_RADIO_TYPE);
-        utils.getNewBleScanner().startScan();
-    }
-
-    @Override
-    protected RvAdapterType getAdapterType() {
+    public RvAdapterType getAdapterType() {
         return RvAdapterType.CONFIG_STATION;
     }
 
     @Override
-    public void onTaskCompleted(Bundle result) {
-        utils.getNewBleScanner().startScan();
-    }
-
-    public void basicScan(){
-        utils.getTakeInfo();
+    public void setMainTextLabelText() {
+        viewModel.setMainTxtLabel(getString(R.string.config_stat_main_txt_label));
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        if(viewModel.needScanStationaryTransivers()){
-            utils.getNewBleScanner().stopScan();
-            basicScan();
-        }
+        basicScan();
         viewModel.getStationaryInformers().observe(getViewLifecycleOwner(), this::updateUI);
+        viewModel.isClientsScanning().observe(getViewLifecycleOwner(), this::updateClientsScanning);
     }
 
-    @Override
-    public void clientsScanFinished() {
-        scanClientsDialog.dismiss();
-        utils.getTakeInfo();
+    public void basicScan(){
+        clientsHandler.pollConnectedClients();
+    }
+
+
+    private void updateClientsScanning(Boolean aBoolean) {
+        if(!aBoolean){
+            clientsHandler.pollConnectedClients();
+        }
     }
 
     @Override

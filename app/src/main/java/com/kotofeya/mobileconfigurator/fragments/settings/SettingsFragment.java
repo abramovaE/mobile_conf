@@ -1,6 +1,5 @@
 package com.kotofeya.mobileconfigurator.fragments.settings;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -15,23 +14,11 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
-import com.kotofeya.mobileconfigurator.activities.MainActivity;
 
 public class SettingsFragment extends Fragment implements CompoundButton.OnCheckedChangeListener {
 
-
-    public Context context;
-    public Utils utils;
     private CustomViewModel viewModel;
-
-    @Override
-    public void onAttach(@NonNull Context context) {
-        this.context = context;
-        this.utils = ((MainActivity) context).getUtils();
-        super.onAttach(context);
-    }
 
     @Override
     public void onStart() {

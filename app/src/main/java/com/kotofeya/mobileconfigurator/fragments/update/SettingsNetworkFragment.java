@@ -11,18 +11,19 @@ import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 public class SettingsNetworkFragment extends UpdateFragment {
 
+    private static final String TAG = SettingsNetworkFragment.class.getSimpleName();
     @Override
-    protected void setMainTextLabelText() {
+    public void setMainTextLabelText() {
         viewModel.setMainTxtLabel("Network settings");
     }
     @Override
-    protected RvAdapterType getAdapterType() {
+    public RvAdapterType getAdapterType() {
         return RvAdapterType.SETTINGS;
     }
 
     @Override
     public void onStart() {
-        Logger.d(Logger.STM_LOG_LOG, "onStart()");
+        Logger.d(TAG, "onStart()");
         super.onStart();
         binding.versionLabel.setVisibility(View.GONE);
         binding.checkVersionBtn.setVisibility(View.GONE);

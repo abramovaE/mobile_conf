@@ -8,7 +8,6 @@ import androidx.annotation.Nullable;
 
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
@@ -17,23 +16,14 @@ import com.kotofeya.mobileconfigurator.transivers.Transiver;
 public class ConfigTransportFragment extends ConfigFragment {
 
     @Override
-    public void scan(){
-        utils.setRadioType(Utils.TRANSP_RADIO_TYPE);
-        utils.getNewBleScanner().startScan();
-    }
-
-    @Override
-    protected RvAdapterType getAdapterType() {
+    public RvAdapterType getAdapterType() {
         return RvAdapterType.CONFIG_TRANSPORT;
     }
 
     @Override
-    public void setMainTextLabel() {
+    public void setMainTextLabelText() {
         viewModel.setMainTxtLabel(getString(R.string.config_transp_main_txt_label));
     }
-
-    @Override
-    public void onTaskCompleted(Bundle result) {}
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {

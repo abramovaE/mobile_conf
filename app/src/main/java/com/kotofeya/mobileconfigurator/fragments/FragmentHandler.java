@@ -18,7 +18,6 @@ import com.kotofeya.mobileconfigurator.fragments.config.ConfigTransportFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.StationContentFragment;
 import com.kotofeya.mobileconfigurator.fragments.config.TransportContentFragment;
 import com.kotofeya.mobileconfigurator.fragments.scanner.BasicScannerFragment;
-import com.kotofeya.mobileconfigurator.fragments.scanner.BleScannerFragment;
 import com.kotofeya.mobileconfigurator.fragments.settings.SettingsFragment;
 import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransceiverSettingsNetworkFragment;
 import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransceiverSettingsScUartFragment;
@@ -102,8 +101,6 @@ public class FragmentHandler {
                     return new MainMenuFragment();
                 case BASIC_SCANNER_FRAGMENT:
                     return new BasicScannerFragment();
-                case BLE_SCANNER_FRAGMENT:
-                    return new BleScannerFragment();
                 case UPDATE_OS_FRAGMENT:
                     return new UpdateOsFragment();
                 case UPDATE_STM_FRAGMENT:

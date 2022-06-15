@@ -68,32 +68,33 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
                 holder.setExpButtonText();
             });
 
+            if(adapterType != null) {
 
-            switch (adapterType){
-                case SETTINGS:
-                    holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
-                    break;
-
-                case CONFIG_STATION:
-                    if (isStationary) {
-                        holder.setIncrement(increment);
-                        holder.setTextItem0Visibility(View.VISIBLE);
+                switch (adapterType) {
+                    case SETTINGS:
                         holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
-                    }
-                    break;
+                        break;
 
-                case CONFIG_TRANSPORT:
-                    if (isTransport) {
-                        TransportTransiver transportTransiver = (TransportTransiver) transiver;
-                        holder.setTextItem0Text(transportTransiver.getTransportType() + " / " + transportTransiver.getFullNumber());
-                        holder.setTextItem0Visibility(View.VISIBLE);
-                        holder.setTextItem1Text(transportTransiver.getStringDirection());
-                        holder.setTextItem1Visibility(View.VISIBLE);
-                        holder.setCustomViewOnClickListener(v-> adapterListener.adapterItemOnClick(transiver));
-                    }
-                    break;
+                    case CONFIG_STATION:
+                        if (isStationary) {
+                            holder.setIncrement(increment);
+                            holder.setTextItem0Visibility(View.VISIBLE);
+                            holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
+                        }
+                        break;
 
-                case UPDATE_CONTENT_TYPE:
+                    case CONFIG_TRANSPORT:
+                        if (isTransport) {
+                            TransportTransiver transportTransiver = (TransportTransiver) transiver;
+                            holder.setTextItem0Text(transportTransiver.getTransportType() + " / " + transportTransiver.getFullNumber());
+                            holder.setTextItem0Visibility(View.VISIBLE);
+                            holder.setTextItem1Text(transportTransiver.getStringDirection());
+                            holder.setTextItem1Visibility(View.VISIBLE);
+                            holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
+                        }
+                        break;
+
+                    case UPDATE_CONTENT_TYPE:
                         holder.setTextItem0Visibility(View.VISIBLE);
                         holder.setIncrement(increment);
                         holder.setTextItem1Text("no updates");
@@ -112,30 +113,31 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
                         }
                         holder.setTextItem1Visibility(View.VISIBLE);
                         holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
-                    break;
+                        break;
 
-                case UPDATE_STM_TYPE:
-                    holder.setTextItem1Visibility(View.VISIBLE);
-                    holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
-                    break;
+                    case UPDATE_STM_TYPE:
+                        holder.setTextItem1Visibility(View.VISIBLE);
+                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
+                        break;
 
-                case UPDATE_OS_TYPE:
-                    holder.setTextItem0Visibility(View.VISIBLE);
-                    holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
-                    break;
+                    case UPDATE_OS_TYPE:
+                        holder.setTextItem0Visibility(View.VISIBLE);
+                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
+                        break;
 
-                case SETTINGS_UPDATE_CORE:
-                    holder.setTextItem0Text((version == null) ? "old" : "new");
-                    holder.setTextItem0Visibility(View.VISIBLE);
-                    holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
-                    break;
+                    case SETTINGS_UPDATE_CORE:
+                        holder.setTextItem0Text((version == null) ? "old" : "new");
+                        holder.setTextItem0Visibility(View.VISIBLE);
+                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
+                        break;
 
-                case SETTINGS_UPDATE_PHP:
-                    holder.setTextItem0Text(version);
-                    holder.setTextItem0Visibility(View.VISIBLE);
-                    holder.setVersionColor(version);
-                    holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
-                    break;
+                    case SETTINGS_UPDATE_PHP:
+                        holder.setTextItem0Text(version);
+                        holder.setTextItem0Visibility(View.VISIBLE);
+                        holder.setVersionColor(version);
+                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
+                        break;
+                }
             }
         }
     }

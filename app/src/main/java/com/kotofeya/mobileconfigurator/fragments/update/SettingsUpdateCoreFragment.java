@@ -18,10 +18,8 @@ import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.ClientsDiffUtil;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
-import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
@@ -33,20 +31,19 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-public class SettingsUpdateCoreFragment extends
-        UpdateFragment implements InterfaceUpdateListener {
+public class SettingsUpdateCoreFragment extends UpdateFragment{
 
     private static final String TAG = SettingsUpdateCoreFragment.class.getSimpleName();
     private Thread timerThread;
     private LocalTime localTime;
 
     @Override
-    protected void setMainTextLabelText() {
+    public void setMainTextLabelText() {
         viewModel.setMainTxtLabel("Update the core");
     }
 
     @Override
-    protected RvAdapterType getAdapterType() {
+    public RvAdapterType getAdapterType() {
         return RvAdapterType.SETTINGS_UPDATE_CORE;
     }
 
@@ -68,19 +65,19 @@ public class SettingsUpdateCoreFragment extends
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = super.onCreateView(inflater, container, savedInstanceState);
 
         binding.downloadCoreUpdateFilesBtn.setVisibility(View.VISIBLE);
 
         binding.downloadCoreUpdateFilesBtn.setOnClickListener(v -> {
-//            View view1 = SettingsUpdateCoreFragment.this.getView();
-//            ProgressBar progressBar = binding.scannerProgressBar view1.findViewById(R.id.scanner_progressBar);
-            progressBar.setVisibility(View.VISIBLE);
+            binding.scannerProgressBar.setVisibility(View.VISIBLE);
             Downloader downloader = new Downloader(SettingsUpdateCoreFragment.this);
             downloader.execute(Downloader.CORE_URLS);
         });
-//        downloadContentUpdateFilesTv = view.findViewById(R.id.downloadCoreUpdateFilesTv);
+
         binding.downloadCoreUpdateFilesTv.setVisibility(View.VISIBLE);
         updateFilesTv();
         viewModel.getClients().observe(getViewLifecycleOwner(), this::updateClients);
@@ -95,8 +92,6 @@ public class SettingsUpdateCoreFragment extends
     private void updateClients(List<String> strings) {
         List<String> oldClients = rvAdapter.getObjects().stream()
                 .map(it -> it.getSsid()).collect(Collectors.toList());
-        Logger.d(Logger.UPDATE_CORE_LOG, "oldClients: " + oldClients);
-        Logger.d(Logger.UPDATE_CORE_LOG, "newClients: " + strings);
 
         ClientsDiffUtil clientsDiffUtil = new ClientsDiffUtil(oldClients, strings);
         DiffUtil.DiffResult diffResult = DiffUtil.calculateDiff(clientsDiffUtil);
@@ -116,7 +111,7 @@ public class SettingsUpdateCoreFragment extends
     @Override
     public void onTaskCompleted(Bundle result) {
 
-        progressBar.setVisibility(View.GONE);
+        binding.scannerProgressBar.setVisibility(View.GONE);
 
         int resultCode = result.getInt(BundleKeys.RESULT_CODE_KEY);
         String res = result.getString("result");
@@ -140,12 +135,8 @@ public class SettingsUpdateCoreFragment extends
             AlertDialog.Builder dialog = new AlertDialog.Builder(getActivity());
             dialog.setMessage(res);
             dialog.setCancelable(false);
-            dialog.setPositiveButton("Ok", (dialog1, which) -> {
-                utils.removeClient(ip);
-//                scanClientsDialog = utils.getScanClientsDialog();
-//                scanClientsDialog.show();
-//                utils.updateClients(this);
-            });
+            dialog.setPositiveButton("Ok", (dialog1, which) ->
+                    clientsHandler.removeClient(ip));
             dialog.show();
         }
     }
@@ -158,24 +149,8 @@ public class SettingsUpdateCoreFragment extends
         Logger.d(TAG, "updateUI()");
         super.updateUI(transceivers);
         stopTimer();
-//        for(Transiver t: transceivers){
-//            String ip = t.getIp();
-//            if(ip != null) {
-//                int coreUpdateIteration = SshConnection.getCoreUpdateIteration(ip);
-//                if(coreUpdateIteration > 0 && coreUpdateIteration < 4){
-//                    binding.progressTv.setVisibility(View.VISIBLE);
-//                    binding.progressTv.setText(getProgressTvText(t.getSsid(), coreUpdateIteration));
-//                    uploadFile(ip, t.getSsid(), coreUpdateIteration);
-//                    break;
-//                }
-//            }
-//        }
     }
 
-    @Override
-    public void setProgressBarGone() {
-        super.setProgressBarGone();
-    }
 
     @Override
     public void clearTextLabel(){
@@ -206,17 +181,10 @@ public class SettingsUpdateCoreFragment extends
         binding.scannerTimer.setVisibility(View.GONE);
     }
 
-//    @Override
-//    public void clientsScanFinished() {
-//        Logger.d(TAG, "clientsScanFinished()");
-//        scanClientsDialog.dismiss();
-//////        scan();
-//    }
-
     @Override
     public void adapterItemOnClick(Transiver transiver) {
         String ssid = transiver.getSsid();
-        String ip = utils.getIp(ssid);
+        String ip = viewModel.getIp(ssid);
         if(ip != null) {
             Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update core was pressed");
             if (Downloader.isCoreUpdatesDownloadCompleted()) {
@@ -226,27 +194,6 @@ public class SettingsUpdateCoreFragment extends
                 fragmentHandler.showMessage("Please, download files for update from server");
             }
         }
-    }
-
-    private void showConfirmDialog(String ip, String ssid){
-        AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
-        builder.setTitle(R.string.confirmation_is_required);
-        builder.setMessage("Confirm the update the core");
-
-        builder.setPositiveButton("Update", (dialog, id) -> {
-            if(Downloader.isCoreUpdatesDownloadCompleted()){
-                SshConnection.resetCoreFilesCounter(ip);
-                ((SettingsUpdateCoreFragment) fragmentHandler.getCurrentFragment())
-                        .uploadFile(ip, ssid, 0);
-            } else {
-                Toast.makeText(getActivity(),
-                        "please, download files from server at start",
-                        Toast.LENGTH_SHORT).show();
-            }
-        });
-        builder.setNegativeButton("cancel", (dialog, id) -> { });
-        builder.setCancelable(true);
-        builder.show();
     }
 
     private void showChooseFileDialog(String ip, String ssid){
@@ -261,9 +208,7 @@ public class SettingsUpdateCoreFragment extends
         ArrayAdapter<String> adapter = new ArrayAdapter(requireActivity(),
                 android.R.layout.select_dialog_item, array);
 
-        DialogInterface.OnClickListener myClickListener = (dialog, which) -> {
-            uploadFile(ip, ssid, which);
-        };
+        DialogInterface.OnClickListener myClickListener = (dialog, which) -> uploadFile(ip, ssid, which);
         builder.setAdapter(adapter, myClickListener);
         builder.setCancelable(true);
         builder.show();

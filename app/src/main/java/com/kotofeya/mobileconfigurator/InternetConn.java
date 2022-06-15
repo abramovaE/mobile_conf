@@ -4,22 +4,18 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
-import android.net.NetworkInfo;
-import android.net.wifi.WifiConfiguration;
-import android.net.wifi.WifiManager;
 
-import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.net.UnknownHostException;
-import java.util.Arrays;
+import java.net.SocketException;
 import java.util.Collections;
 import java.util.List;
 
 public class InternetConn {
+    public static final String TAG = InternetConn.class.getSimpleName();
     private static final ConnectivityManager mConnectivityManager = (ConnectivityManager) App.get().getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
 
-    public boolean hasInternetConnection() {
+    public static boolean hasInternetConnection() {
         final Network network = mConnectivityManager.getActiveNetwork();
         final NetworkCapabilities capabilities = mConnectivityManager .getNetworkCapabilities(network);
         boolean hasConnection = (capabilities != null && capabilities.hasCapability(NetworkCapabilities.NET_CAPABILITY_VALIDATED));
@@ -40,48 +36,64 @@ public class InternetConn {
 //        method.invoke(wifiManager, wifi_configuration, true);
 //    }
 
-    public static String getIPAddress(boolean useIPv4) {
-        try {
-            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
-            for (NetworkInterface intf : interfaces) {
-                List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
-                for (InetAddress addr : addrs) {
-                    if (!addr.isLoopbackAddress()) {
-                        String sAddr = addr.getHostAddress();
-                        //boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr);
-                        boolean isIPv4 = sAddr.indexOf(':')<0;
+//    public static String getIPAddress(boolean useIPv4) {
+//        try {
+//            List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
+//            for (NetworkInterface intf : interfaces) {
+//                List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
+//                for (InetAddress addr : addrs) {
+//                    if (!addr.isLoopbackAddress()) {
+//                        String sAddr = addr.getHostAddress();
+//                        //boolean isIPv4 = InetAddressUtils.isIPv4Address(sAddr);
+//                        boolean isIPv4 = sAddr.indexOf(':')<0;
+//
+//                        if (useIPv4) {
+//                            if (isIPv4)
+//                                return sAddr;
+//                        } else {
+//                            if (!isIPv4) {
+//                                int delim = sAddr.indexOf('%'); // drop ip6 zone suffix
+//                                return delim<0 ? sAddr.toUpperCase() : sAddr.substring(0, delim).toUpperCase();
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        } catch (Exception ignored) { } // for now eat exceptions
+//        return "";
+//    }
 
-                        if (useIPv4) {
-                            if (isIPv4)
-                                return sAddr;
-                        } else {
-                            if (!isIPv4) {
-                                int delim = sAddr.indexOf('%'); // drop ip6 zone suffix
-                                return delim<0 ? sAddr.toUpperCase() : sAddr.substring(0, delim).toUpperCase();
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Exception ignored) { } // for now eat exceptions
-        return "";
-    }
 
-    public String getDeviceIp() {
+
+//    public static String getLocalIpAddress() {
+//        try {
+//            for (Enumeration<NetworkInterface> en = NetworkInterface.getNetworkInterfaces(); en.hasMoreElements();) {
+//                NetworkInterface intf = en.nextElement();
+//                for (Enumeration<InetAddress> enumIpAddr = intf.getInetAddresses(); enumIpAddr.hasMoreElements();) {
+//                    InetAddress inetAddress = enumIpAddr.nextElement();
+//                    if (!inetAddress.isLoopbackAddress() && inetAddress instanceof Inet4Address) {
+//                        return inetAddress.getHostAddress();
+//                    }
+//                }
+//            }
+//        } catch (SocketException ex) {
+//            ex.printStackTrace();
+//        }
+//        return null;
+//    }
+
+    public static String getDeviceIp() {
         Logger.d(Logger.INTERNET_CONN_LOG, "getDeviceIp()");
         try {
             List<NetworkInterface> interfaces = Collections.list(NetworkInterface.getNetworkInterfaces());
             for (NetworkInterface intf : interfaces) {
-
-                List<InetAddress> addrs = Collections.list(intf.getInetAddresses());
-                for (InetAddress addr : addrs) {
-                    String sAddr = addr.getHostAddress();
-                    if (sAddr.startsWith("192")) {
-                        return sAddr;
-                    }
+                InetAddress address = Collections.list(intf.getInetAddresses())
+                        .stream().filter(it->it.getHostAddress().startsWith("192")).findAny().orElse(null);
+                if(address != null){
+                    return address.getHostAddress();
                 }
             }
-        } catch (Exception ex) {
+        } catch (SocketException ex) {
             Logger.d(Logger.INTERNET_CONN_LOG, "exception: " + ex + ", cause: " + ex.getCause());
         }
         return null;

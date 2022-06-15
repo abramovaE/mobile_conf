@@ -18,6 +18,7 @@ import java.util.List;
 
 public class MainMenuFragment extends Fragment {
 
+    private static final String TAG = MainMenuFragment.class.getSimpleName();
     private FragmentHandler fragmentHandler;
 
     @Override
@@ -26,6 +27,7 @@ public class MainMenuFragment extends Fragment {
                              Bundle savedInstanceState) {
         MainFragmentBinding binding = MainFragmentBinding.inflate(inflater, container, false);
         List<UserInterface> interfaces = UserFactory.getUser().getInterfaces();
+        Logger.d(TAG, "mainMenuIntf(): " + interfaces);
         fragmentHandler = ((MainActivity)requireActivity()).getFragmentHandler();
 
         if(interfaces.contains(UserInterface.WIFI_SCANNER)){
@@ -36,14 +38,14 @@ public class MainMenuFragment extends Fragment {
             binding.mainBasicScannerBtn.setVisibility(View.VISIBLE);
             binding.mainTvScanner.setVisibility(View.VISIBLE);
         }
-        if(interfaces.contains(UserInterface.BLE_SCANNER)){
-            binding.mainBleScannerBtn.setOnClickListener(v->{
-                Logger.d(Logger.MAIN_LOG, "bluetooth scanner was pressed");
-                fragmentHandler.changeFragment(FragmentHandler.BLE_SCANNER_FRAGMENT);
-            });
-            binding.mainBleScannerBtn.setVisibility(View.VISIBLE);
-            binding.mainTvScanner.setVisibility(View.VISIBLE);
-        }
+//        if(interfaces.contains(UserInterface.BLE_SCANNER)){
+//            binding.mainBleScannerBtn.setOnClickListener(v->{
+//                Logger.d(Logger.MAIN_LOG, "bluetooth scanner was pressed");
+//                fragmentHandler.changeFragment(FragmentHandler.BLE_SCANNER_FRAGMENT);
+//            });
+//            binding.mainBleScannerBtn.setVisibility(View.VISIBLE);
+//            binding.mainTvScanner.setVisibility(View.VISIBLE);
+//        }
         if(interfaces.contains(UserInterface.UPDATE_OS)){
             binding.mainUpdateOsBtn.setOnClickListener(v->{
                 Logger.d(Logger.MAIN_LOG, "update os was pressed");

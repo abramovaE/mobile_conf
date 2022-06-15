@@ -1,24 +1,11 @@
 package com.kotofeya.mobileconfigurator.transivers;
 
-import android.bluetooth.le.ScanResult;
-
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.R;
 
 
 public class StatTransiver extends Transiver {
 
-    public StatTransiver(ScanResult result) {
-        super(result);
-    }
-
-    public StatTransiver(String ssid, String ip, String macWifi, String macBt, String boardVersion, String osVersion,
-                              String stmFirmware, String stmBootloader, String core, String modem, String incrementOfContent,
-                              String uptime, String cpuTemp, String load, String tType) {
-        super(ssid, ip, macWifi, macBt, boardVersion, osVersion,
-            stmFirmware, stmBootloader, core, modem, incrementOfContent,
-            uptime, cpuTemp, load, tType);
-    }
     @Override
     String getFirstPartExpInfo() {
         return "";
@@ -60,19 +47,6 @@ public class StatTransiver extends Transiver {
     }
 
 
-    public void updateTransiver(int rssi, String address, String deviceName, byte[] data){
-        super.rssi = rssi;
-        this.address = address;
-        setRawData(data);
-        super.setSSidAndVersion(deviceName);
-        super.setBtPackVersion();
-        super.setTransiverType();
-        super.setIncrement();
-        setCityIndex();
-        setType();
-        setFloor();
-    }
-
     private void setCityIndex(){
         if(super.btPackVersion > 0){
             int city = (((rawData[12] & 0xff)) + (rawData[13] & 0xff));
@@ -107,14 +81,4 @@ public class StatTransiver extends Transiver {
             this.floor = 0;
         }
     }
-//    private void setStat(){
-//        this.stat = App.get().getDBHelper().readStat(getSsid(), App.get().getLanguage());
-//        if(this.stat != null){
-//            setPoint0(this.stat.getPoint0());
-//            setPoint1(this.stat.getPoint1());
-//            setPoint2(this.stat.getPoint2());
-//            setPoint3(this.stat.getPoint3());
-//            setPoint4(this.stat.getPoint4());
-//        }
-//    }
 }

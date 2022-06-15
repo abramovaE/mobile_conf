@@ -10,7 +10,6 @@ import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.SshConnectionRunnable;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
-import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.hotspot.DeviceScanListener;
 import com.kotofeya.mobileconfigurator.hotspot.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
@@ -29,8 +28,6 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
 
     private static final String TAG = ClientsHandler.class.getSimpleName();
     private static ClientsHandler instance;
-    private InterfaceUpdateListener scanClientsListener;
-    private final InternetConn internetConnection;
     private int futureCounter;
     private ExecutorService executorService;
     private ExecutorService versionExecutorService;
@@ -38,7 +35,13 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
     private final CustomViewModel viewModel;
     private boolean isScanning = false;
 
+//    list of clients ip
+    private List<String> clients;
+    private List<Client> clientsList;
+
+
     public void stopScanning(){
+        Logger.d(TAG, "stopScanning()");
         if(executorService != null) {
             executorService.shutdown();
         }
@@ -46,8 +49,7 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
             versionExecutorService.shutdown();
         }
         isScanning = false;
-        Logger.d(TAG, "stopScanning");
-        scanClientsListener.clientsScanFinished();
+        viewModel.setClientsScanning(false);
     }
 
     public static ClientsHandler getInstance(CustomViewModel viewModel) {
@@ -59,43 +61,46 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
 
     private ClientsHandler(CustomViewModel viewModel) {
         clients = new CopyOnWriteArrayList<>();
-        internetConnection = new InternetConn();
         this.viewModel = viewModel;
+        clientsList = new ArrayList<>();
     }
 
-    private List<String> clients;
-
-    public List<String> getClients() {
-        return clients;
-    }
-
-    public InternetConn getInternetConnection() {
-        return internetConnection;
-    }
-
-    public void updateClients(InterfaceUpdateListener interfaceUpdateListener){
+    private void updateClients(boolean isNeedPoll){
         if(!isScanning) {
-            this.scanClientsListener = interfaceUpdateListener;
-            String deviceIp = internetConnection.getDeviceIp();
+            clientsList.clear();
+            isScanning = true;
+            viewModel.setClientsScanning(true);
+            String deviceIp = InternetConn.getDeviceIp();
+            Logger.d(TAG, "devIp: " + deviceIp);
             if (deviceIp != null) {
-                isScanning = true;
-                WiFiLocalHotspot.getInstance().updateClientList(deviceIp, this);
+                WiFiLocalHotspot.getInstance().updateClientList(deviceIp, this, isNeedPoll);
             } else {
                 clients = new ArrayList<>();
+                updateClientsFinished(clients);
             }
         }
     }
 
-    @Override
-    public void scanFinished(List<String> clients) {
-        Logger.d(TAG, "scanFinished()");
+    private void updateClientsFinished(List<String> clients){
         isScanning = false;
         this.clients = clients;
         viewModel.setClients(clients);
-        scanClientsListener.clientsScanFinished();
+        viewModel.setClientsScanning(false);
     }
 
-    public void getTakeInfo(){
+    @Override
+    public void pingClientsFinished(List<String> clients, boolean isNeedPoll) {
+        Logger.d(TAG, "pingClientsFinished()");
+        updateClientsFinished(clients);
+        if(isNeedPoll) {
+            pollConnectedClients();
+        } else {
+
+        }
+    }
+
+    public void pollConnectedClients(){
+        Logger.d(TAG, "pollClients()");
         if(!isScanning) {
             viewModel.setTakeInfoFinished(false);
             Logger.d(TAG, "get take info");
@@ -110,10 +115,9 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
                     String ip = clients.get(i);
                     verFutures[i] = runGetPostVersion(ip);
                 }
-                CompletableFuture.allOf(verFutures).thenRun(() -> {
+                CompletableFuture.allOf(verFutures).whenComplete((a0, ex0) -> {
                     Logger.d(TAG, "verFutures is complete");
                     versionExecutorService.shutdown();
-
                     CompletableFuture.allOf(futures).whenComplete((a, ex) -> {
                         executorService.shutdown();
                         Logger.d(TAG, "finishedGetTakeInfo()");
@@ -126,7 +130,9 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
 
     private CompletableFuture<Void> runGetPostVersion(String ip){
         Logger.d(TAG, "runGetPostVersion(String ip), ip: " + ip);
-        return CompletableFuture.runAsync(new PostInfo(this, ip, PostCommand.VERSION), versionExecutorService);
+        return CompletableFuture.runAsync(
+                new PostInfo(this, ip, PostCommand.VERSION),
+                versionExecutorService);
     }
     private CompletableFuture<Void> runSShTakeInfo(String ip){
         Logger.d(TAG, "runSShTakeInfo(String ip), ip: " + ip);
@@ -139,51 +145,69 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
 
     @Override
     public void onTaskCompleted(Bundle result) {
-
+        Logger.d(TAG, "onTaskCompleted(Bundle result)");
         String command = result.getString(BundleKeys.COMMAND_KEY);
         String response = result.getString(BundleKeys.RESPONSE_KEY);
         String ip = result.getString(BundleKeys.IP_KEY);
+        String errorMessage = result.getString(BundleKeys.ERROR_MESSAGE);
+
         Parcelable parcelableResponse = result.getParcelable(BundleKeys.PARCELABLE_RESPONSE_KEY);
-
-
         Logger.d(TAG, "onTaskCompleted(Bundle result), command: " + command + ", ip: " + ip + ", futures: " + futures.length);
-
-
-
         if(command == null){
             command = "";
         }
-        switch (command){
-            case PostCommand.VERSION:
-                if(response != null){
-//                    Logger.d(TAG, "new post info: " + ip + ", version: " + response);
-                    Logger.d(TAG, "new future take post: " + futureCounter);
-                    futures[futureCounter++] = runPostTakeInfo(ip, response);
-                } else {
+
+//        if(errorMessage != null || !errorMessage.isEmpty()){
+//            Client client = new Client(ip);
+//            clientsList.add(client);
+//        } else {
+            switch (command) {
+                case PostCommand.VERSION:
+                    if (response != null) {
+                        Logger.d(TAG, "new future take post: " + futureCounter);
+                        futures[futureCounter++] = runPostTakeInfo(ip, response);
+                    } else {
+                        Logger.d(TAG, "new future take ssh: " + futureCounter);
+                        futures[futureCounter++] = runSShTakeInfo(ip);
+                    }
+                    break;
+                case PostCommand.POST_COMMAND_ERROR:
                     Logger.d(TAG, "new future take ssh: " + futureCounter);
                     futures[futureCounter++] = runSShTakeInfo(ip);
-                }
-                break;
-            case PostCommand.POST_COMMAND_ERROR:
-                Logger.d(TAG, "new future take ssh: " + futureCounter);
-                futures[futureCounter++] = runSShTakeInfo(ip);
-                break;
-            case PostCommand.TAKE_INFO_FULL:
-                String version = result.getString(BundleKeys.VERSION_KEY);
-                Logger.d(TAG, "version: " + version  + ", ip: " + ip);
-                viewModel.addTakeInfoFull(ip, version, (TakeInfoFull) parcelableResponse, true);
-                break;
-            case SshCommand.SSH_TAKE_COMMAND:
-                viewModel.addTakeInfo(response, true);
-                break;
-            case SshCommand.SSH_COMMAND_ERROR:
-                Logger.d(TAG, "response: " + response);
-                if (response.contains("Connection refused") || response.contains("Auth fail")) {
+                    break;
+
+                case PostCommand.TAKE_INFO_FULL:
+                    String version = result.getString(BundleKeys.VERSION_KEY);
+//                    Logger.d(TAG, "version: " + version + ", ip: " + ip);
+//                    Client client = clientsList.stream().filter(it -> it.getIp().equals(ip)).findAny().orElse(null);
+//                    if (client != null) {
+//                        client.setVersion(version);
+//                        Transiver transiver = createTakeInfoFullTransceiver(ip, version, (TakeInfoFull) parcelableResponse);
+//                        client.setTransiver(transiver);
+//                    }
+//                    clientsList.add(client);
+                viewModel.addTakeInfoFull(ip, version, (TakeInfoFull) parcelableResponse);
+                    break;
+                case SshCommand.SSH_TAKE_COMMAND:
+//                    Client c = clientsList.stream().filter(it -> it.getIp().equals(ip)).findAny().orElse(null);
+//                    if (c != null) {
+//                        c.setVersion("");
+//                        Transiver transiver = createTakeInfoTransceiver(ip, "", response);
+//                        c.setTransiver(transiver);
+//                    }
+//                    clientsList.add(c);
+                viewModel.addTakeInfo(response);
+                    break;
+                case SshCommand.SSH_COMMAND_ERROR:
+                    Logger.d(TAG, "response: " + response);
+//                if (response.contains("Connection refused") || response.contains("Auth fail")) {
                     removeClient(ip);
-                }
-                break;
+//                }
+                    break;
+//            }
         }
 
+//        viewModel.setWifiClients(clientsList);
     }
 
     public void removeClient(String ip){
@@ -195,4 +219,62 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
     public void clearClients(){
         clients.clear();
     }
+
+//
+//    private Transiver createTakeInfoFullTransceiver(String ip, String version, TakeInfoFull takeInfoFull){
+//        String ssid = takeInfoFull.getSerial() + "";
+//        ssid = Transiver.formatSsid(ssid);
+//        Transiver transiver = new Transiver(ip);
+//        transiver.setTakeInfoFull(takeInfoFull);
+//        transiver.setVersion(version);
+//        transiver.setSsid(ssid);
+//        return transiver;
+//    }
+//
+//    public Transiver createTakeInfoTransceiver(String ipT, String version, String takeInfo){
+//        String[] info = takeInfo.split("\n");
+//        String ssid = info[1].trim();
+//        String ip = info[2].trim();
+//        String macWifi = info[3].trim();
+//        String macBt = info[4].trim();
+//        String boardVersion = info[5].trim();
+//        String osVersion = info[6].trim();
+//        String stmFirmware = info[7].trim();
+//        String stmBootloader = info[8].trim();
+//        String core = info[9].trim();
+//        String modem = info[10].trim();
+//        String incrementOfContent = info[11].trim();
+//        String uptime = info[12].trim();
+//        String cpuTemp = info[13].trim();
+//        String load = info[14].trim();
+//        String tType = info[17].trim();
+//        Transiver t = new Transiver(ip);
+//        t.setSsid(ssid);
+//        t.setIp(ip);
+//        t.setMacWifi(macWifi);
+//        t.setMacBt(macBt);
+//        t.setBoardVersion(boardVersion);
+//        t.setOsVersion(osVersion);
+//        t.setStmFirmware(stmFirmware);
+//        t.setStmBootloader(stmBootloader);
+//        t.setCore(core);
+//        t.setModem(modem);
+//        t.setIncrementOfContent(incrementOfContent);
+//        t.setUptime(uptime);
+//        t.setCpuTemp(cpuTemp);
+//        t.setLoad(load);
+//        t.setTType(tType);
+//        return t;
+//    }
+
+
+
+    public void updateConnectedClients(){
+        updateClients(false);
+    }
+
+    public void updateAndPollConnectedClients(){
+        updateClients(true);
+    }
+
 }

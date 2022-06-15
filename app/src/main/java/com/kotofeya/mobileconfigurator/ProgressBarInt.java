@@ -1,8 +1,8 @@
 package com.kotofeya.mobileconfigurator;
 
 public interface ProgressBarInt {
-    default void setProgressBarVisible(){}
-    default void setProgressBarGone(){}
+    default void setProgressBarVisibility(int visibility){}
+//    default void setProgressBarGone(){}
     default void clearProgressBar(){}
     default void clearTextLabel(){}
 }

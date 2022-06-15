@@ -13,11 +13,11 @@ public class StmLogFragment extends UpdateFragment {
 
 
     @Override
-    protected void setMainTextLabelText() {
+    public void setMainTextLabelText() {
         viewModel.setMainTxtLabel("Stm log");
     }
     @Override
-    protected RvAdapterType getAdapterType() {
+    public RvAdapterType getAdapterType() {
         return RvAdapterType.SETTINGS;
     }
 
@@ -27,11 +27,6 @@ public class StmLogFragment extends UpdateFragment {
         super.onStart();
         binding.versionLabel.setVisibility(View.GONE);
         binding.checkVersionBtn.setVisibility(View.GONE);
-    }
-
-    @Override
-    public void clientsScanFinished() {
-        scanClientsDialog.dismiss();
     }
 
     @Override

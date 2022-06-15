@@ -14,6 +14,7 @@ import androidx.fragment.app.DialogFragment;
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Downloader;
+import com.kotofeya.mobileconfigurator.InternetConn;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.UpdateContentConfDialog;
@@ -29,21 +30,11 @@ import java.util.Map;
 
 public class UpdateContentFragment extends UpdateFragment {
 
-    @Override
-    public void onTaskCompleted(Bundle bundle) {
-        super.onTaskCompleted(bundle);
-    }
-
-    @Override
-    public void scan() {
-        super.scan();
-        utils.getNewBleScanner().startScan();
-    }
 
     @Override
     public void loadVersion() {
         Logger.d(Logger.UPDATE_CONTENT_LOG, "load version");
-        boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
+        boolean isInternetEnabled = InternetConn.hasInternetConnection();
         if(isInternetEnabled) {
             Downloader transpDownloader = new Downloader(this);
             transpDownloader.execute(Downloader.TRANSPORT_CONTENT_VERSION_URL);
@@ -53,12 +44,12 @@ public class UpdateContentFragment extends UpdateFragment {
     }
 
     @Override
-    protected void setMainTextLabelText() {
+    public void setMainTextLabelText() {
         viewModel.setMainTxtLabel(getString(R.string.update_content_main_txt_label));
     }
 
     @Override
-    protected RvAdapterType getAdapterType() {
+    public RvAdapterType getAdapterType() {
         return RvAdapterType.UPDATE_CONTENT_TYPE;
     }
 
@@ -87,7 +78,7 @@ public class UpdateContentFragment extends UpdateFragment {
         binding.versionLabel.setVisibility(View.GONE);
         viewModel.setMainBtnRescanVisibility(View.VISIBLE);
         binding.updateContentLabel.setVisibility(View.VISIBLE);
-        utils.getNewBleScanner().startScan();
+
         binding.checkVersionBtn.setText("Загрузить файлы для обновления в память телефона");
         binding.checkVersionBtn.setOnClickListener(v -> {
             Map<String, String> transportContent = getTransportContent();
@@ -120,7 +111,7 @@ public class UpdateContentFragment extends UpdateFragment {
 
     private Map<String, String> getTransportContent(){
         Map<String, String> transportContent = new HashMap<>();
-        boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
+        boolean isInternetEnabled = InternetConn.hasInternetConnection();
         if(!isInternetEnabled) {
             for (String s : App.get().getUpdateContentFilePaths()) {
                 String key = getTransportFileKey(s, isInternetEnabled);
@@ -161,9 +152,6 @@ public class UpdateContentFragment extends UpdateFragment {
         boolean isTransport = transiver.isTransport();
         boolean isStationary = transiver.isStationary();
 
-        Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update content was pressed, isTransport: " +
-                isTransport + ", isStationary: " + isStationary);
-        utils.getNewBleScanner().stopScan();
         Bundle bundle = new Bundle();
         bundle.putString(BundleKeys.IP_KEY, transiver.getIp());
         bundle.putBoolean(BundleKeys.IS_TRANSPORT_KEY, isTransport);

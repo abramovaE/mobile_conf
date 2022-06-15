@@ -33,36 +33,56 @@ public class PostInfo implements Runnable {
     private OnTaskCompleted listener;
     private ProgressBarInt progressBarIntListener;
 
-    private String command;
+    private String urlCommand;
     private String version;
 
-    public PostInfo(OnTaskCompleted listener, String ip, String command) {
-        Logger.d(Logger.POST_INFO_LOG, "new post: " + command + ", ip: " + ip);
+    public PostInfo(OnTaskCompleted listener, String ip, String urlCommand) {
+        Logger.d(Logger.POST_INFO_LOG, "new post: " + urlCommand + ", ip: " + ip);
         this.listener = listener;
-        this.command = command;
+        this.urlCommand = urlCommand;
         this.ip = ip;
     }
 
-    public PostInfo(OnTaskCompleted listener, String ip, String command, String version) {
-        Logger.d(Logger.POST_INFO_LOG, "new post: " + command + ", ip: " + ip + ", version: " + version);
+    public PostInfo(OnTaskCompleted listener, String ip, String urlCommand, String version) {
+        Logger.d(Logger.POST_INFO_LOG, "new post: " + urlCommand + ", ip: " + ip + ", version: " + version);
         this.listener = listener;
-        this.command = command;
+        this.urlCommand = urlCommand;
         this.ip = ip;
         this.version = version;
     }
 
+    private String formatCommand(){
+        if (urlCommand.startsWith(PostCommand.TRANSP_CONTENT)) {
+            return PostCommand.TRANSP_CONTENT;
+        }
+        if (urlCommand.startsWith(PostCommand.WIFI)) {
+            return PostCommand.WIFI;
+        }
+        if (urlCommand.startsWith(PostCommand.STATIC)) {
+            return PostCommand.STATIC;
+        }
+        if (urlCommand.startsWith(PostCommand.FLOOR)) {
+            return PostCommand.FLOOR;
+        }
+        if (urlCommand.startsWith(PostCommand.SOUND)) {
+            return PostCommand.SOUND;
+        }
+        return urlCommand;
+    }
+
     @Override
     public void run() {
-//        Logger.d(Logger.POST_INFO_LOG, "post command: " +  command + ", ip: " + ip);
         Bundle result = new Bundle();
         URL u;
+        String formattedCommand = formatCommand();
+        result.putString(BundleKeys.IP_KEY, ip);
+        result.putString(BundleKeys.COMMAND_KEY, formattedCommand);
+
         try {
-            u = new URL(getUrl(ip, command));
+            u = new URL(getUrl(ip, urlCommand));
             HttpURLConnection httpsURLConnection = getConnection(u);
             httpsURLConnection.connect();
             int response = httpsURLConnection.getResponseCode();
-//            Logger.d(Logger.POST_INFO_LOG, "post command: " + command + ", response: " + response + ", ip: " + ip);
-
             BufferedReader br;
             StringBuilder content;
             InputStreamReader reader = new InputStreamReader(httpsURLConnection.getInputStream());
@@ -72,57 +92,23 @@ public class PostInfo implements Runnable {
             while (null != (line = br.readLine())) {
                 content.append(line);
             }
-            if (command.startsWith(PostCommand.TRANSP_CONTENT)) {
-                command = PostCommand.TRANSP_CONTENT;
-            }
-            if (command.startsWith(PostCommand.WIFI)) {
-                command = PostCommand.WIFI;
-            }
-            if (command.startsWith(PostCommand.STATIC)) {
-                command = PostCommand.STATIC;
-            }
-            if (command.startsWith(PostCommand.FLOOR)) {
-                command = PostCommand.FLOOR;
-            }
-            if (command.startsWith(PostCommand.SOUND)) {
-                command = PostCommand.SOUND;
-            }
-
-            result.putString(BundleKeys.COMMAND_KEY, command);
-            result.putString(BundleKeys.IP_KEY, ip);
-
-
             if (response == 200) {
-
-
-                switch (command) {
+                switch (formattedCommand) {
                     case PostCommand.TAKE_INFO_FULL:
-//                        Logger.d(Logger.POST_INFO_LOG, "post command: " + command +
-//                                ", content: " + content + ", ip: " + ip);
                         JSONObject jsonObject = new JSONObject(content.toString()
                                 .replace("<pre>", "")
                                 .replace("</pre>", ""));
-                        String command = jsonObject.getString(BundleKeys.COMMAND_KEY);
                         JSONObject properties = jsonObject.getJSONObject("properties");
                         double version = getVersion();
 
-
-//                        try {
-                            result.putString(BundleKeys.VERSION_KEY, version + "");
-                            Logger.d(Logger.POST_INFO_LOG, "try: " + version + ", props: " + properties);
-                            TakeInfoFull takeInfoFull = new GsonBuilder().setVersion(version).create().fromJson(properties.toString(), TakeInfoFull.class);
-                            Logger.d(Logger.POST_INFO_LOG, "takeInfoFull: " + takeInfoFull + ", ip: " + ip);
-                            result.putParcelable(BundleKeys.PARCELABLE_RESPONSE_KEY, takeInfoFull);
-//                        } catch (Exception e) {
-////                            TakeInfoFull takeInfoFull = new TakeInfoFull();
-////                            result.putParcelable(BundleKeys.PARCELABLE_RESPONSE_KEY, takeInfoFull);
-//
-//                            Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage() + ", ip: " + ip);
-//                            listener.onTaskCompleted(result);
-//                        }
+                        result.putString(BundleKeys.VERSION_KEY, version + "");
+                        Logger.d(Logger.POST_INFO_LOG, "try: " + version + ", props: " + properties);
+                        TakeInfoFull takeInfoFull = new GsonBuilder().setVersion(version).create().fromJson(properties.toString(), TakeInfoFull.class);
+                        Logger.d(Logger.POST_INFO_LOG, "takeInfoFull: " + takeInfoFull + ", ip: " + ip);
+                        result.putParcelable(BundleKeys.PARCELABLE_RESPONSE_KEY, takeInfoFull);
                         break;
                     case PostCommand.VERSION:
-                        String ver = content.toString().substring(content.lastIndexOf("version") + 8);
+                        String ver = content.substring(content.lastIndexOf("version") + 8);
                         result.putString(BundleKeys.RESPONSE_KEY, ver);
                         break;
                     case PostCommand.STM_UPDATE_LOG:
@@ -147,6 +133,7 @@ public class PostInfo implements Runnable {
                         break;
                 }
             } else {
+                result.putString(BundleKeys.ERROR_MESSAGE, "responseCode =  " + response);
                 result.putString(BundleKeys.COMMAND_KEY, PostCommand.POST_COMMAND_ERROR);
             }
             Logger.d(Logger.POST_INFO_LOG, "listener: " + listener + ", ip: " + ip);
@@ -155,16 +142,19 @@ public class PostInfo implements Runnable {
             Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage() + ", ip: " + ip);
             result.putString(BundleKeys.COMMAND_KEY, PostCommand.POST_COMMAND_ERROR);
             result.putString(BundleKeys.RESPONSE_KEY, e.getMessage());
+            result.putString(BundleKeys.ERROR_MESSAGE, "MalformedURLException | ProtocolException e =  " + e.getMessage());
         } catch (IOException e) {
             Logger.d(Logger.POST_INFO_LOG, "io exception: " + e.getMessage() +
-                    ", ip: " + ip + ", command: " + command + ", cause" + e.getCause());
+                    ", ip: " + ip + ", command: " + formattedCommand + ", cause" + e.getCause());
             e.printStackTrace();
             result.putString(BundleKeys.COMMAND_KEY, PostCommand.POST_COMMAND_ERROR);
             result.putString(BundleKeys.RESPONSE_KEY, e.getMessage());
-            result.putString(BundleKeys.IP_KEY, ip);
+            result.putString(BundleKeys.ERROR_MESSAGE, "IOException e =  " + e.getMessage());
         } catch (JSONException e) {
                 Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage() + ", ip: " + ip);
                 e.printStackTrace();
+            result.putString(BundleKeys.ERROR_MESSAGE, "JSONException e =  " + e.getMessage());
+
         } finally {
             Logger.d(Logger.POST_INFO_LOG, "result: " + result  + ", ip: " + ip);
             listener.onTaskCompleted(result);
@@ -212,3 +202,5 @@ public class PostInfo implements Runnable {
         return 0.0;
     }
 }
+
+

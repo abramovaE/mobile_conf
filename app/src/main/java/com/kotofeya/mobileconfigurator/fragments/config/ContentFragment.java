@@ -29,10 +29,9 @@ import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
-import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
-import com.kotofeya.mobileconfigurator.activities.InterfaceUpdateListener;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.clientsHandler.ClientsHandler;
 import com.kotofeya.mobileconfigurator.databinding.ContentFragmentBinding;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
@@ -44,8 +43,7 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 
 public abstract class ContentFragment extends Fragment
-        implements OnTaskCompleted, PostCommand, View.OnClickListener,
-        InterfaceUpdateListener {
+        implements OnTaskCompleted, PostCommand, View.OnClickListener {
 
     public static final String REBOOT_TYPE="rebootType";
     public static final String REBOOT_RASP="rasp";
@@ -57,8 +55,6 @@ public abstract class ContentFragment extends Fragment
 
     protected ContentFragmentBinding binding;
 
-    public Utils utils;
-
     protected CustomViewModel viewModel;
     protected String ssid;
     protected View.OnKeyListener onKeyListener;
@@ -68,25 +64,17 @@ public abstract class ContentFragment extends Fragment
     protected Transiver currentTransceiver;
 
     ContentClickListener contentClickListener;
-//    private TextView scannerProgressBarTv;
-
-    protected AlertDialog scanClientsDialog;
     protected FragmentHandler fragmentHandler;
-
-    @Override
-    public void clientsScanFinished() {
-        scanClientsDialog.dismiss();
-        utils.getTakeInfo();
-    }
+    protected ClientsHandler clientsHandler;
 
     protected void updateUI() {
         Logger.d(Logger.CONTENT_LOG, "update ui, ssid " + ssid + " " + currentTransceiver.getSsid());
-        if(utils.getVersion(ssid) != null) {
+        if(CustomViewModel.getVersion(ssid) != null) {
             binding.contentBtnRasp.setEnabled(true);
             binding.contentBtnStm.setEnabled(true);
             binding.contentBtnClear.setEnabled(true);
             binding.contentBtnSend.setEnabled(true);
-            if(!utils.getVersion(ssid).equals("ssh_conn")){
+            if(!CustomViewModel.getVersion(ssid).equals("ssh_conn")){
                 binding.contentBtnAll.setVisibility(View.VISIBLE);
                 binding.contentBtnAll.setEnabled(true);
             }
@@ -108,7 +96,7 @@ public abstract class ContentFragment extends Fragment
 
     @Override
     public void onAttach(@NonNull Context context) {
-        this.utils = ((MainActivity) requireActivity()).getUtils();
+
         super.onAttach(context);
 
         onKeyListener = (v, keyCode, event) -> {
@@ -151,8 +139,17 @@ public abstract class ContentFragment extends Fragment
 
         this.ssid = getArguments().getString("ssid");
 
+        viewModel.isClientsScanning().observe(getViewLifecycleOwner(), this::updateClientsScanFinished);
+        this.clientsHandler = ClientsHandler.getInstance(viewModel);
         return binding.getRoot();
     }
+
+    private void updateClientsScanFinished(Boolean aBoolean) {
+        if(!aBoolean){
+            clientsHandler.pollConnectedClients();
+        }
+    }
+
     private void updateScannerProgressBarTv(Boolean aBoolean) {
         if(!aBoolean){
 //            if(scannerProgressBarTv != null) {
@@ -176,7 +173,13 @@ public abstract class ContentFragment extends Fragment
 
         currentTransceiver = viewModel.getTransiverBySsid(ssid);
 
-        contentClickListener = new ContentClickListener(currentTransceiver, utils, fragmentHandler);
+
+        String ip = currentTransceiver.getIp();
+        if(ip == null){
+            ip = viewModel.getIp(currentTransceiver.getSsid());
+        }
+
+        contentClickListener = new ContentClickListener(currentTransceiver, ip, fragmentHandler);
         contentClickListener.setListener(this);
 
         binding.contentBtnRasp.setOnClickListener(contentClickListener);
@@ -196,9 +199,6 @@ public abstract class ContentFragment extends Fragment
         setFields();
     }
 
-    public void stopScan() {
-        utils.getNewBleScanner().stopScan();
-    }
 
     protected abstract void setFields();
 
@@ -208,7 +208,7 @@ public abstract class ContentFragment extends Fragment
         Transiver transiver = transceivers.stream().filter(it->it.getSsid().equals(ssid)).findAny().orElse(null);
         if(transiver != null){
             Logger.d(Logger.CONTENT_LOG, "transceiver: " + transiver);
-            if(utils.getIp(ssid) != null){
+            if(viewModel.getIp(ssid) != null){
                 currentTransceiver.setIp(transiver.getIp());
                 currentTransceiver.setVersion(transiver.getVersion());
                 Logger.d(Logger.CONTENT_LOG, "update ip: " + currentTransceiver.getIp());
@@ -262,12 +262,7 @@ public abstract class ContentFragment extends Fragment
 
     private void basicScan(){
         Logger.d(Logger.CONTENT_LOG, "wifi scan");
-//        scanClientsDialog = utils.getScanClientsDialog().show();
-//        utils.updateClients(this);
-//        getTakeInfoDialog = utils.getTakeInfoDialog();
-//        getTakeInfoDialog.show();
-
-        utils.getTakeInfo();
+        clientsHandler.pollConnectedClients();
     }
 
 
@@ -281,15 +276,13 @@ public abstract class ContentFragment extends Fragment
         if(!refreshButtons()){
             basicScan();
         }
-        stopScan();
         viewModel.setMainBtnRescanVisibility(View.GONE);
-//        mainBtnRescan.setVisibility(View.GONE);
     }
 
     public boolean refreshButtons(){
         Logger.d(Logger.CONTENT_LOG, "refresh buttons, currentTransceiverIp: " +
-                currentTransceiver.getIp() +" " + utils.getIp(currentTransceiver.getSsid()));
-        if(currentTransceiver.getIp() != null || utils.getIp(currentTransceiver.getSsid()) != null){
+                currentTransceiver.getIp() +" " + viewModel.getIp(currentTransceiver.getSsid()));
+        if(currentTransceiver.getIp() != null || viewModel.getIp(currentTransceiver.getSsid()) != null){
             myHandler.post(updateRunnable);
             return true;
         }
@@ -367,30 +360,26 @@ public abstract class ContentFragment extends Fragment
 
 class ContentClickListener implements View.OnClickListener{
     private final Transiver transiver;
-    private final Utils utils;
     private final FragmentHandler fragmentHandler;
     private OnTaskCompleted listener;
+    private String ip;
 
     public void setListener(OnTaskCompleted listener) {
         this.listener = listener;
     }
 
     public ContentClickListener(Transiver transiver,
-                                Utils utils,
+                                String ip,
                                 FragmentHandler fragmentHandler){
         this.transiver = transiver;
-        this.utils = utils;
         this.fragmentHandler = fragmentHandler;
+        this.ip = ip;
     }
 
     @Override
     public void onClick(View v) {
-        String ip = transiver.getIp();
-        if(ip == null){
-            ip = utils.getIp(transiver.getSsid());
-        }
 
-        String version = utils.getVersion(transiver.getSsid());
+        String version = CustomViewModel.getVersion(transiver.getSsid());
         Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + ip + ", version: " + version);
         Bundle bundle = new Bundle();
         bundle.putString(BundleKeys.IP_KEY, ip);

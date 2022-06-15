@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog;
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Downloader;
+import com.kotofeya.mobileconfigurator.InternetConn;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
@@ -38,7 +39,7 @@ public class UpdateOsFragment extends UpdateFragment {
     @Override
     public void loadVersion() {
         Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName());
-        boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
+        boolean isInternetEnabled = InternetConn.hasInternetConnection();
         if(isInternetEnabled){
             Downloader downloader = new Downloader(this);
             downloader.execute(Downloader.OS_VERSION_URL);
@@ -46,12 +47,12 @@ public class UpdateOsFragment extends UpdateFragment {
     }
 
     @Override
-    protected void setMainTextLabelText() {
+    public void setMainTextLabelText() {
         viewModel.setMainTxtLabel(getString(R.string.update_os_main_txt_label));
     }
 
     @Override
-    protected RvAdapterType getAdapterType() {
+    public RvAdapterType getAdapterType() {
         return RvAdapterType.UPDATE_OS_TYPE;
     }
 

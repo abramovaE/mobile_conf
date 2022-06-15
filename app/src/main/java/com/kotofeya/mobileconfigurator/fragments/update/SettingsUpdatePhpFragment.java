@@ -1,9 +1,10 @@
 package com.kotofeya.mobileconfigurator.fragments.update;
 
+import static com.kotofeya.mobileconfigurator.network.PostCommand.POST_COMMAND_ERROR;
+
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Toast;
-
 
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
@@ -12,17 +13,15 @@ import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
-import static com.kotofeya.mobileconfigurator.network.PostCommand.POST_COMMAND_ERROR;
-
 public class SettingsUpdatePhpFragment extends UpdateFragment {
     public static final String SSH_CONN = "ssh_conn";
 
     @Override
-    protected void setMainTextLabelText() {
+    public void setMainTextLabelText() {
         viewModel.setMainTxtLabel("Update PHP");
     }
     @Override
-    protected RvAdapterType getAdapterType() {
+    public RvAdapterType getAdapterType() {
         return RvAdapterType.SETTINGS_UPDATE_PHP;
     }
     @Override
@@ -50,11 +49,6 @@ public class SettingsUpdatePhpFragment extends UpdateFragment {
                     break;
             }
         }
-    }
-
-    @Override
-    public void clientsScanFinished() {
-        scanClientsDialog.dismiss();
     }
 
     @Override

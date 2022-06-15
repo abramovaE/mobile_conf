@@ -25,8 +25,9 @@ public class UpdatePhpConfDialog extends DialogFragment {
 
         builder.setPositiveButton("Update", (dialog, id) -> {
             FragmentHandler fragmentHandler = ((MainActivity)requireActivity()).getFragmentHandler();
-            Thread thread = new Thread(new PostInfo((SettingsUpdatePhpFragment) fragmentHandler.getCurrentFragment(), ip,
-                    PostCommand.UPDATE_PHP));
+            Thread thread = new Thread(
+                    new PostInfo((SettingsUpdatePhpFragment) fragmentHandler.getCurrentFragment(),
+                            ip, PostCommand.UPDATE_PHP));
             thread.start();
         });
         builder.setNegativeButton("cancel", (dialog, id) -> {

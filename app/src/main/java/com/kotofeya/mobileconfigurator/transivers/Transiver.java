@@ -1,19 +1,12 @@
 package com.kotofeya.mobileconfigurator.transivers;
 
-import android.bluetooth.le.ScanResult;
 import android.content.Context;
-import android.util.Log;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
-import com.kotofeya.mobileconfigurator.newBleScanner.CustomBluetooth;
-import com.kotofeya.mobileconfigurator.newBleScanner.CustomScanResult;
-
-import java.io.UnsupportedEncodingException;
-import java.util.Arrays;
 
 public class Transiver {
 
@@ -82,7 +75,6 @@ public class Transiver {
 
     public Transiver(String ssid, String ip) {
         this.ssid = ssid;
-
         this.ip = ip;
     }
 
@@ -90,20 +82,6 @@ public class Transiver {
         this.ip = ip;
     }
 
-    public Transiver(ScanResult result) {
-        rssi = result.getRssi();
-        address = result.getDevice().getAddress();
-        rawData = CustomBluetooth.getFullData(result);
-        if(result.getScanRecord().getDeviceName().equals("stp")){
-            int i = (((rawData[2] & 0xFF) << 16) + ((rawData[3] & 0xFF) << 8) + (rawData[4] & 0xFF));
-            ssid = String.valueOf(i);
-            transVersion = VERSION_NEW;
-        }
-        else {
-            ssid = result.getScanRecord().getDeviceName();
-            transVersion = VERSION_OLD;
-        }
-    }
 
     public String getSsid() {
         if(takeInfoFull != null){
@@ -384,10 +362,10 @@ public class Transiver {
 
     public boolean isTransport(){
         if(rawData != null){
-            if(rawData.length >= 22 && (rawData[5] & 0xff) == Utils.TRANSP_RADIO_TYPE) {
+            if(rawData.length >= 22 && (rawData[5] & 0xff) == Utils.TRANSPORT_RADIO_TYPE) {
                 return true;
             }
-            else if ((rawData[0] & 0xff) == Utils.TRANSP_RADIO_TYPE) {
+            else if ((rawData[0] & 0xff) == Utils.TRANSPORT_RADIO_TYPE) {
                 return true;
             }
         }

@@ -115,7 +115,7 @@ public class TransportContentFragment extends ContentFragment {
         String lit3 = liter3.getText().toString().toLowerCase();
         int dir = spnDir.getSelectedItemPosition();
         String dirHex = dir + "";
-        String ip = utils.getIp(transportTransiver.getSsid());
+        String ip = viewModel.getIp(transportTransiver.getSsid());
         updateTransportContent(ip, typeHex, numHex, dirHex, lit1, lit2, lit3);
     }
 

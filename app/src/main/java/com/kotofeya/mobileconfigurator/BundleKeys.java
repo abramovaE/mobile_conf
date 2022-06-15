@@ -1,7 +1,5 @@
 package com.kotofeya.mobileconfigurator;
 
-import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
-
 public interface BundleKeys {
 
 
@@ -20,6 +18,7 @@ public interface BundleKeys {
     String RESULT = "result";
     String KEY = "key";
     String VALUE = "value";
+    String ERROR_MESSAGE = "error_message";
 
 
 }

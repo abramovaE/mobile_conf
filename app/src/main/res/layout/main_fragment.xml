@@ -29,13 +29,13 @@
                 android:text="@string/main_basic_scanner_btn"
                 style="@style/MainMenuBtnStyle"
                 android:visibility="gone" />
-            <Button
-                android:id="@+id/main_ble_scanner_btn"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/main_ble_scanner_btn"
-                style="@style/MainMenuBtnStyle"
-                android:visibility="gone"/>
+<!--            <Button-->
+<!--                android:id="@+id/main_ble_scanner_btn"-->
+<!--                android:layout_width="match_parent"-->
+<!--                android:layout_height="wrap_content"-->
+<!--                android:text="@string/main_ble_scanner_btn"-->
+<!--                style="@style/MainMenuBtnStyle"-->
+<!--                android:visibility="gone"/>-->
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"

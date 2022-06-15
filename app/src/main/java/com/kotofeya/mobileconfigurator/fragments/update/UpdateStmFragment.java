@@ -9,6 +9,7 @@ import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Downloader;
+import com.kotofeya.mobileconfigurator.InternetConn;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.TaskCode;
@@ -28,7 +29,7 @@ public class UpdateStmFragment extends UpdateFragment {
      @Override
      public void loadVersion() {
          Logger.d(Logger.UPDATE_STM_LOG, "load version");
-         boolean isInternetEnabled = utils.getInternetConnection().hasInternetConnection();
+         boolean isInternetEnabled = InternetConn.hasInternetConnection();
         if(isInternetEnabled){
             Downloader downloader = new Downloader(this);
             downloader.execute(Downloader.STM_VERSION_URL);
@@ -36,12 +37,12 @@ public class UpdateStmFragment extends UpdateFragment {
     }
 
     @Override
-    protected void setMainTextLabelText() {
+    public void setMainTextLabelText() {
         viewModel.setMainTxtLabel(getString(R.string.update_stm_main_txt_label));
     }
 
     @Override
-    protected RvAdapterType getAdapterType() {
+    public RvAdapterType getAdapterType() {
         return RvAdapterType.SETTINGS;
     }
 

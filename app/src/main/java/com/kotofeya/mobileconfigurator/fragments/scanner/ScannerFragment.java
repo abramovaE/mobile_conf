@@ -15,11 +15,16 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.Utils;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.clientsHandler.ClientsHandler;
 import com.kotofeya.mobileconfigurator.databinding.ScannerFragmentClBinding;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
+import com.kotofeya.mobileconfigurator.rv_adapter.AdapterListener;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapter;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterFactory;
+import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public abstract class ScannerFragment extends Fragment {
@@ -28,11 +33,9 @@ public abstract class ScannerFragment extends Fragment {
     protected ScannerFragmentClBinding binding;
     protected FragmentHandler fragmentHandler;
     protected CustomViewModel viewModel;
-    protected Utils utils;
     protected RvAdapter rvAdapter;
     protected ScannerFragmentVM scannerFragmentVM;
-
-    public abstract void scan();
+    protected ClientsHandler clientsHandler;
 
     @Nullable
     @Override
@@ -40,20 +43,55 @@ public abstract class ScannerFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = ScannerFragmentClBinding.inflate(inflater, container, false);
+        binding.progressTv.setVisibility(View.GONE);
+
         viewModel = ViewModelProviders.of(requireActivity(),
                 new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
-        viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
-        utils = ((MainActivity) requireActivity()).getUtils();
+
         fragmentHandler = ((MainActivity) requireActivity()).getFragmentHandler();
 
         scannerFragmentVM = ViewModelProviders.of(requireActivity()).get(ScannerFragmentVM.class);
+        clientsHandler = ClientsHandler.getInstance(viewModel);
+
+        viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
+        viewModel.getIsGetTakeInfoFinished().observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
+        viewModel.isClientsScanning().observe(getViewLifecycleOwner(), this::updateClientsScanning);
+
+        rvAdapter = RvAdapterFactory.getRvAdapter(getAdapterType(),
+                new ArrayList<>(), getAdapterListener());
+        binding.rvScanner.setAdapter(rvAdapter);
+        setMainTextLabelText();
         return binding.getRoot();
     }
+
+    public abstract RvAdapterType getAdapterType();
+    public abstract AdapterListener getAdapterListener();
+
+    public abstract void setMainTextLabelText();
 
     @SuppressLint("NotifyDataSetChanged")
     protected void updateUI(List<Transiver> transceivers){
         Logger.d(TAG, "updateUI()");
         rvAdapter.setObjects(transceivers);
         rvAdapter.notifyDataSetChanged();
+    }
+
+    private void updateScannerProgressBarTv(Boolean aBoolean) {
+        if(!aBoolean){
+            binding.progressTv.setText(Utils.MESSAGE_TAKE_INFO);
+            binding.progressTv.setVisibility(View.VISIBLE);
+        } else {
+            binding.progressTv.setVisibility(View.GONE);
+        }
+    }
+
+    public void scan(){
+        clientsHandler.pollConnectedClients();
+    }
+
+    private void updateClientsScanning(Boolean aBoolean) {
+        if(!aBoolean){
+            scan();
+        }
     }
 }

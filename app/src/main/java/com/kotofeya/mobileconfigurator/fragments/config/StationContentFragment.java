@@ -11,6 +11,7 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.SshConnectionRunnable;
+import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
@@ -79,16 +80,16 @@ public class StationContentFragment extends ContentFragment {
                 }
             }
         } else {
-            String ip = utils.getIp(statTransiver.getSsid());
-            String version = utils.getVersion(statTransiver.getSsid());
+            String ip = viewModel.getIp(statTransiver.getSsid());
+            String version = CustomViewModel.getVersion(statTransiver.getSsid());
             if(version != null && version.equals("ssh_conn")) {
                 new SshConnectionRunnable(((MainActivity) requireActivity()), ip, SshConnection.TAKE_CODE);
             }
         }
     }
     protected void updateBtnContentSendState(){
-        String ip = utils.getIp(statTransiver.getSsid());
-        String version = utils.getVersion(statTransiver.getSsid());
+        String ip = viewModel.getIp(statTransiver.getSsid());
+        String version = CustomViewModel.getVersion(statTransiver.getSsid());
         Logger.d(Logger.STATION_CONTEN_LOG, "update btn content send state: ip - " + ip + ", version: " + version);
         binding.contentBtnSend.setEnabled((!floorTxt.getText().toString().isEmpty()
                 || zumTypesSpn.getSelectedItemPosition() > 0
@@ -104,7 +105,7 @@ public class StationContentFragment extends ContentFragment {
 
     @Override
     public void onClick(View v) {
-        String version = utils.getVersion(currentTransceiver.getSsid());
+        String version = CustomViewModel.getVersion(currentTransceiver.getSsid());
         String floorSend = floorTxt.getText().toString();
         zumTypeSend = zumTypesSpn.getSelectedItem().toString();
         zumVolumeSend = zumVolumeSpn.getSelectedItem().toString();
@@ -141,7 +142,7 @@ public class StationContentFragment extends ContentFragment {
             }
             String ip = statTransiver.getIp();
             if(ip == null){
-                ip = utils.getIp(statTransiver.getSsid());
+                ip = viewModel.getIp(statTransiver.getSsid());
             }
             Logger.d(Logger.STATION_CONTEN_LOG, "send command: " + command.toString());
 
@@ -154,7 +155,7 @@ public class StationContentFragment extends ContentFragment {
             } else if(zumTypeSend.equals(getResources().getStringArray(R.array.zummer_types)[2])){
                 zumType = 1;
             }
-            String ip = utils.getIp(statTransiver.getSsid());
+            String ip = viewModel.getIp(statTransiver.getSsid());
             Thread thread = new Thread(new PostInfo(this, ip, floor(Integer.parseInt(floorSend))));
             thread.start();
         }

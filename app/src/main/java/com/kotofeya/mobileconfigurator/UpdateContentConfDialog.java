@@ -9,7 +9,11 @@ import androidx.fragment.app.DialogFragment;
 
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
+import com.kotofeya.mobileconfigurator.user.UserFactory;
+import com.kotofeya.mobileconfigurator.user.UserType;
 
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
 
 public class UpdateContentConfDialog extends DialogFragment {
@@ -22,11 +26,47 @@ public class UpdateContentConfDialog extends DialogFragment {
         this.isStationary = requireArguments().getBoolean(BundleKeys.IS_STATIONARY_KEY);
         Logger.d(Logger.UPDATE_CONTENT_LOG, "isTransport: " + isTransport +", isStationary: " + isStationary);
         String ip = requireArguments().getString(BundleKeys.IP_KEY);
-        Map<String, String> transportContent = ((MainActivity) requireActivity()).getUtils().getTransportContent();
+        Map<String, String> transportContent = getTransportContent();
         AlertDialog.Builder builder = createUpdateContentConfDialog(ip, transportContent);
         builder.setCancelable(true);
         return builder.create();
     }
+
+    private Map<String, String> addToTransportContent(Map<String, String> transportContent,
+                                                             String key, String value){
+        UserType userType = UserFactory.getUser().getUserType();
+        if(userType.equals(UserType.USER_FULL)) {
+            transportContent.put(key, value);
+        } else if(userType.equals(UserType.USER_TRANSPORT)){
+            String login = App.get().getLogin();
+            String region = login.substring(login.lastIndexOf("_") + 1);
+            if(value.contains(region) || value.contains("zzz")) {
+                transportContent.put(key, value);
+            }
+        }
+        return transportContent;
+    }
+
+    private String getTransportFileKey(String s, boolean isInternetEnabled){
+        if(isInternetEnabled){
+            return s.substring(0, s.indexOf("/"));
+        } else {
+            return s.substring(s.lastIndexOf("/") + 1).split("_")[0];
+        }
+    }
+
+    public Map<String, String> getTransportContent(){
+        Map<String, String> transportContent = new HashMap<>();
+        boolean isInternetEnabled = InternetConn.hasInternetConnection();
+        Collection<String> collection = (isInternetEnabled) ? Downloader.tempUpdateTransportContentFiles :
+                App.get().getUpdateContentFilePaths();
+        for (String s : collection) {
+            String key = getTransportFileKey(s, isInternetEnabled);
+            transportContent = addToTransportContent(transportContent, key, s);
+        }
+        return transportContent;
+    }
+
 
     private AlertDialog.Builder createUpdateContentConfDialog(String ip, Map<String, String> contentMap){
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());

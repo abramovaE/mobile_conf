@@ -9,18 +9,17 @@ import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
-
 public class SettingsWifiFragment extends UpdateFragment {
 
     private static final String TAG = SettingsWifiFragment.class.getSimpleName();
 
     @Override
-    protected void setMainTextLabelText() {
+    public void setMainTextLabelText() {
         viewModel.setMainTxtLabel("Wifi settings");
     }
 
     @Override
-    protected RvAdapterType getAdapterType() {
+    public RvAdapterType getAdapterType() {
         return RvAdapterType.SETTINGS;
     }
 

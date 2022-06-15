@@ -2,6 +2,7 @@ package com.kotofeya.mobileconfigurator;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.view.View;
 
 
 import com.jcraft.jsch.Channel;
@@ -327,7 +328,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                 @Override
                 public void init(int op, String src, String dest, long max) {
                     progressBarIntListener.clearProgressBar();
-                    progressBarIntListener.setProgressBarVisible();
+                    progressBarIntListener.setProgressBarVisibility(View.VISIBLE);
                 }
                 @Override
                 public boolean count(long count) {
@@ -339,7 +340,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                 @Override
                 public void end() {
                     Logger.d(Logger.SSH_CONNECTION_LOG, "end transfering");
-                    progressBarIntListener.setProgressBarGone();
+                    progressBarIntListener.setProgressBarVisibility(View.GONE);
                 }
             });
         } catch (JSchException | SftpException e) {

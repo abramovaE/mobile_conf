@@ -1,7 +1,5 @@
 package com.kotofeya.mobileconfigurator.activities;
 
-import android.view.View;
-
 import androidx.annotation.NonNull;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
@@ -9,15 +7,14 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.kotofeya.mobileconfigurator.Logger;
+import com.kotofeya.mobileconfigurator.clientsHandler.Client;
+import com.kotofeya.mobileconfigurator.clientsHandler.ClientsHandler;
 import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
-import com.kotofeya.mobileconfigurator.newBleScanner.CustomScanResult;
-import com.kotofeya.mobileconfigurator.newBleScanner.MySettings;
-import com.kotofeya.mobileconfigurator.newBleScanner.TransiversFactory;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
+import java.io.IOException;
+import java.net.InetAddress;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,9 +22,64 @@ import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
 
 public class CustomViewModel extends ViewModel {
+
+    private static final String TAG = CustomViewModel.class.getSimpleName();
+
+    private MutableLiveData<List<Client>> _wifiClients = new MutableLiveData<>(new ArrayList());
+    public LiveData<List<Client>> wifiClients = _wifiClients;
+    public void setWifiClients(List<Client> clients){
+        List<Transiver> transiverList = new ArrayList<>();
+        clients.stream().forEach(it->transiverList.add(it.getTransiver()));
+        _wifiClients.postValue(clients);
+        transivers.postValue(transiverList);
+    }
+
+
+    private MutableLiveData<Boolean> _isHotspotDialogShowing = new MutableLiveData<>();
+    public LiveData<Boolean> isHotspotDialogShowing = _isHotspotDialogShowing;
+    public void setIsHotspotDialogShowing(Boolean b){_isHotspotDialogShowing.postValue(b);}
+
     private  MutableLiveData<List<String>> clients = new MutableLiveData<>();
     public LiveData<List<String>> getClients(){return clients;}
-    public void setClients(List<String> clients){this.clients.postValue(clients);}
+    public void setClients(List<String> clients){
+        Logger.d(TAG, "setClients(): " + clients);
+        this.clients.postValue(clients);
+    }
+
+
+        private boolean isReachable(String s){
+            try {
+                InetAddress address = InetAddress.getByName(s);
+                boolean reachable = address.isReachable(1000);
+                return reachable;
+            }
+            catch (IOException e) {
+                e.printStackTrace();
+            }
+            return false;
+        }
+
+
+
+    private MutableLiveData<Boolean> _isClientsScanning = new MutableLiveData<>();
+    public LiveData<Boolean> isClientsScanning(){return _isClientsScanning;}
+    public void setClientsScanning(Boolean value){_isClientsScanning.postValue(value);}
+
+    private MutableLiveData<String> _time = new MutableLiveData<>("");
+    public LiveData<String> time(){return _time;}
+    public void setTime(String time){_time.postValue(time);}
+
+//
+//    private MutableLiveData<Boolean> _isBleScanning = new MutableLiveData<>();
+//    public LiveData<Boolean> isBleScanning(){return _isBleScanning;}
+//    public void setBleScanning(Boolean value){_isBleScanning.postValue(value);}
+
+
+
+
+    private ClientsHandler clientsHandler;
+
+
 
     private MutableLiveData<List<Transiver>> transivers = new MutableLiveData<>(new CopyOnWriteArrayList<>());
     private MutableLiveData<List<Transiver>> stationaryInformers = new MutableLiveData<>();
@@ -57,7 +109,7 @@ public class CustomViewModel extends ViewModel {
         _mainTxtLabel.postValue(mainTxtLabel);
     }
 
-    private MutableLiveData<Integer> _mainBtnRescanVisibility = new MutableLiveData<Integer>(View.VISIBLE);
+    private MutableLiveData<Integer> _mainBtnRescanVisibility = new MutableLiveData<Integer>();
     public LiveData<Integer> mainBtnRescanVisibility(){return  _mainBtnRescanVisibility;}
     public void setMainBtnRescanVisibility(int visibility){
         _mainBtnRescanVisibility.postValue(visibility);
@@ -91,7 +143,7 @@ public class CustomViewModel extends ViewModel {
         isGetTakeInfoFinished.postValue(b);
     }
 
-    public void addTakeInfoFull(String ip, String version, TakeInfoFull takeInfoFull, boolean createNew){
+    public void addTakeInfoFull(String ip, String version, TakeInfoFull takeInfoFull){
         Logger.d(Logger.VIEW_MODEL_LOG, "add take info full: " + takeInfoFull.getSerial()
                 + ", version: " + version  + ", ip: " + ip);
         List<Transiver> transiversValue = transivers.getValue();
@@ -113,7 +165,7 @@ public class CustomViewModel extends ViewModel {
             tr.setVersion(version);
             tr.setSsid(ssid);
         }
-        if(!isExist && createNew) {
+        if(!isExist) {
             Logger.d(Logger.VIEW_MODEL_LOG, "add new transiver, version: " + version);
             Transiver transiver = new Transiver(ip);
             transiver.setTakeInfoFull(takeInfoFull);
@@ -129,7 +181,7 @@ public class CustomViewModel extends ViewModel {
         Logger.d(Logger.VIEW_MODEL_LOG, "post value: " + transivers.getValue());
     }
 
-    public synchronized void addTakeInfo(String takeInfo, boolean createNew){
+    public synchronized void addTakeInfo(String takeInfo){
         Logger.d(Logger.VIEW_MODEL_LOG, "transivers: " + transivers.getValue());
         Logger.d(Logger.VIEW_MODEL_LOG, "add take info: " + takeInfo);
         List<Transiver> transiversValue = transivers.getValue();
@@ -174,7 +226,7 @@ public class CustomViewModel extends ViewModel {
                 isExist = true;
             }
         }
-        if(!isExist && createNew) {
+        if(!isExist) {
             Logger.d(Logger.VIEW_MODEL_LOG, "add new transiver, transivers: " + transiversValue.size());
             Transiver transiver = new Transiver(ssid, ip, macWifi, macBt, boardVersion, osVersion,
                     stmFirmware, stmBootloader, core, modem, incrementOfContent,
@@ -219,66 +271,9 @@ public class CustomViewModel extends ViewModel {
         postTransiversValueToAllLists(transiversValue);
     }
 
-    public void updateResults(List<CustomScanResult> results){
-        List<Transiver> statList = filterInformers(results, MySettings.STATIONARY);
-        List<Transiver> transpList = filterInformers(results, MySettings.TRANSPORT);
-        this.stationaryInformers.postValue(statList);
-        this.transpInformers.postValue(transpList);
-        if(currentStatInformer.getValue() !=  null){
-            this.currentStatInformer.postValue(getTransiverBySsid(currentStatInformer.getValue().getSsid()));
-        }
-        if(currentTranspInformer.getValue() !=  null){
-            this.currentTranspInformer.postValue(getTransiverBySsid(currentTranspInformer.getValue().getSsid()));
-        }
-        List<Transiver> transiversList = new CopyOnWriteArrayList<>();
-        transiversList.clear();
-        transiversList.addAll(statList);
-        transiversList.addAll(transpList);
-        for(Transiver transiver: transiversList){
-            transiver.setIp(ssidIpMap.get(transiver.getSsid()));
-            transiver.setVersion(ssidVersionMap.get(transiver.getSsid()));
-            Logger.d(Logger.VIEW_MODEL_LOG, "ssidmap: " + ssidIpMap);
-        }
-        Logger.d(Logger.VIEW_MODEL_LOG, "update result transivers: " + transiversList);
-        postTransiversValueToAllLists(transiversList);
-    }
 
-    private List<Transiver> filterInformers(List<CustomScanResult> results, int radioType){
-        List<CustomScanResult> res = filter(results, radioType);
-        List<Transiver> informers = new CopyOnWriteArrayList<>();
-        for(CustomScanResult customScanResult: res){
-            Transiver informer = createInformer(customScanResult);
-            if(informer != null){
-                informers.add(informer);
-            }
-        }
-        ArrayList<Transiver> temp = new ArrayList<>();
-        temp.addAll(informers);
-        Collections.sort(temp, new Comparator<Transiver>(){
-            @Override
-            public int compare(Transiver o1, Transiver o2) {
-                return o1.getSsid().compareTo(o2.getSsid());
-            }
-        });
-        informers.clear();
-        informers.addAll(temp);
-        return informers;
-    }
 
-    private List<CustomScanResult> filter(List<CustomScanResult> results, int radioType){
-        if(radioType == MySettings.STATIONARY){
-            return  results.stream().filter(r-> (
-                    r.getTransiverType() == radioType) ||
-                    (r.getTransiverType() == MySettings.TRIOL)
-            ).collect(Collectors.toList());
-        }
-        return  results.stream().filter(r-> r.getTransiverType() == radioType).collect(Collectors.toList());
-    }
 
-    private Transiver createInformer(CustomScanResult result) {
-        TransiversFactory factory = new TransiversFactory();
-        return factory.getInformer(result);
-    }
 
     public String getIp(String ssid){
         ssid = Transiver.formatSsid(ssid);
@@ -296,22 +291,22 @@ public class CustomViewModel extends ViewModel {
 
     public void clearMap(){ ssidIpMap.clear(); }
 
-    public boolean needScanStationaryTransivers() {
-        List<Transiver> transiverList = transivers.getValue();
-        if(transiverList == null || transiverList.size() == 0){
-            return true;
-        }
-        for(Transiver t: transiverList){
-            if(t.isStationary() || !t.isTransport()){
-                if(t.getIp() == null || getIp(t.getSsid()) == null){
-                    Logger.d(Logger.VIEW_MODEL_LOG, "needScanStationaryTransivers: " + true);
-                    return true;
-                }
-            }
-        }
-        Logger.d(Logger.VIEW_MODEL_LOG, "needScanStationaryTransivers: " + false);
-        return false;
-    }
+//    public boolean needScanStationaryTransivers() {
+//        List<Transiver> transiverList = transivers.getValue();
+//        if(transiverList == null || transiverList.size() == 0){
+//            return true;
+//        }
+//        for(Transiver t: transiverList){
+//            if(t.isStationary() || !t.isTransport()){
+//                if(t.getIp() == null || getIp(t.getSsid()) == null){
+//                    Logger.d(Logger.VIEW_MODEL_LOG, "needScanStationaryTransivers: " + true);
+//                    return true;
+//                }
+//            }
+//        }
+//        Logger.d(Logger.VIEW_MODEL_LOG, "needScanStationaryTransivers: " + false);
+//        return false;
+//    }
 
     private void postTransiversValueToAllLists(List<Transiver> transiversList){
         transivers.postValue(transiversList);
