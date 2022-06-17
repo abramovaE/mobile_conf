@@ -4,8 +4,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 
-
-import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
@@ -18,27 +16,24 @@ import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Properties;
 
 public class SshConnection extends AsyncTask<Object, Object, String> implements TaskCode{
 
+    private static final String TAG = SshConnection.class.getSimpleName();
     private static final String REBOOT_COMMAND = "sudo reboot";
     private static final String REBOOT_STM_COMMAND =  "/usr/local/bin/call --cmd REST 0";
     private static final String CLEAR_RASP_COMMAND = "/sudo rm - f /var/www/html/data/*/* /var/www/html/data/*";
     private static final String SEND_TRANSPORT_CONTENT_COMMAND = "/usr/local/bin/call --cmd TSCFG";
-    private static final String SEND_STATION_CONTENT_COMMAND = "send station content command";
 
     public static final String FLOOR_COMMAND = "/usr/local/bin/call --cmd FLOOR";
     public static final String ZUMMER_TYPE_COMMAND = "/usr/local/bin/call --cmd SNDTYPE";
-    public static final String ZUMMER_VOLUME_COMMAND = "";
+
     public static final String MODEM_CONFIG_MEGAF_BEELINE_COMMAND = "sudo sed -I ’s/megafon-m2m/beeline-m2m/g’ /etc/init.d/S99stp-tools";
     public static final String MODEM_CONFIG_BEELINE_MEGAF_COMMAND = "sudo sed -I ’s/beeline-m2m/megafon-m2m/g’ /etc/init.d/S99stp-tools";
 
@@ -46,229 +41,121 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
     private static final String DELETE_UPDATE_STM_LOG_COMMAND = "sudo rm /var/www/html/data/stm_update_log";
     private static final String CREATE_UPDATE_STM_LOG_COMMAND = "sudo touch /var/www/html/data/stm_update_log";
 
-    private OnTaskCompleted listener;
+    private final OnTaskCompleted listener;
     private ProgressBarInt progressBarIntListener;
-//    private int fi
 
-    private String ip;
+    private final String ip;
     private int resultCode;
+    private String serial;
+    private int iteration;
+    private int transferred;
 
-    private static Map<String, Integer> coreUpdateIteration = new HashMap<>();
-
-
-    public SshConnection(OnTaskCompleted listener){
-        Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh connection, coreupdmap: " + coreUpdateIteration);
+    public SshConnection(String ip, OnTaskCompleted listener){
+        this.ip = ip;
         this.listener = listener;
     }
 
-    public SshConnection(OnTaskCompleted listener, ProgressBarInt progressBarIntListener){
-        Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh connection, coreupdmap: " + coreUpdateIteration);
-            this.listener = listener;
-            this.progressBarIntListener = progressBarIntListener;
-    }
-
-    public SshConnection(OnTaskCompleted listener, ProgressBarInt progressBarIntListener, int filePosition, String ip){
-        coreUpdateIteration.put(ip, filePosition);
-        Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh connection, coreupdmap: " + filePosition);
+    public SshConnection(String ip, OnTaskCompleted listener, ProgressBarInt progressBarIntListener){
+        this.ip = ip;
         this.listener = listener;
         this.progressBarIntListener = progressBarIntListener;
     }
 
-    int transferred;
-        // req[0] - ip
-        //req[1] - command
+    public SshConnection(String ip,
+                         OnTaskCompleted listener,
+                         ProgressBarInt progressBarIntListener,
+                         int filePosition,
+                         String serial){
+        this.ip = ip;
+        this.listener = listener;
+        this.progressBarIntListener = progressBarIntListener;
+        this.serial = serial;
+        this.iteration = filePosition;
+    }
 
+        //req[0] - command
     protected String doInBackground(Object...req) {
-
         String res = "";
         Session session = null;
-        ChannelSftp channelSftp = null;
-        ChannelExec channelExec = null;
-        Channel channel = null;
-        String filePath;
         File file;
-        File binFile;
-        String moveCommand;
-
         try {
             JSch jsch = new JSch();
-            this.ip = (String) req[0];
-            this.resultCode = (Integer) req[1];
-
-            Logger.d(Logger.SSH_CONNECTION_LOG, "try ssh connection, ip: " + ip);
-
+            this.resultCode = (Integer) req[0];
+            Logger.d(TAG, "try ssh connection, ip: " + ip);
             session = jsch.getSession("staff", ip, 22);
             session.setPassword("staff");
-
-            ByteArrayOutputStream baos = null;
             // Avoid asking for key confirmation
             Properties prop = new Properties();
             prop.put("StrictHostKeyChecking", "no");
-
-
-
             session.setConfig(prop);
-
-            Logger.d(Logger.SSH_CONNECTION_LOG, ip + " config is set, connecting");
+            Logger.d(TAG, ip + " config is set, connecting");
             session.connect();
-            Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());
-
+            Logger.d(TAG, ip + " isConnected: " + session.isConnected());
+            String cmd;
             switch (resultCode) {
-
                 case UPDATE_OS_UPLOAD_CODE:
-                    Logger.d(Logger.SSH_CONNECTION_LOG,
-                            "result code: " + resultCode +
-                                    ", exec command: " + REBOOT_COMMAND);
+                    cmd = getExecCommand(resultCode);
                     transferred = 0;
                     uploadToOverlayUpdate(session, new File(App.get().getUpdateOsFilePath()));
-                    execCommand(session, REBOOT_COMMAND);
+                    execCommand(session, cmd);
                     break;
-
                 case UPDATE_STM_UPLOAD_CODE:
                     execCommand(session, CLEAR_ARCHIVE_DIR_COMMAND);
-                    filePath = (String) req[2];
-                    file = new File(filePath);
-                    binFile = getBinFromArchive(file);
+                    file = new File((String) req[1]);
+                    File binFile = getBinFromArchive(file);
                     uploadToOverlayUpdate(session, binFile);
-                    moveCommand = "sudo mv " + "/overlay/update/" + binFile.getName() + " /var/www/html/data/archive/" + binFile.getName();
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + moveCommand + ";" + DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND);
-                    execCommand(session, moveCommand + ";" + DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND);
+                    cmd = getExecCommand(resultCode, binFile.getName());
+                    execCommand(session, cmd);
                     break;
-
-
                 case UPDATE_CORE_UPLOAD_CODE:
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "update core uploading started, coreUpdateIteration: " + coreUpdateIteration);
                     transferred = 0;
-                    int coreUpdateIterationInt = coreUpdateIteration.get(ip);
-
-                    if(coreUpdateIterationInt < Downloader.tempUpdateCoreFiles.length) {
-                        File f = Downloader.tempUpdateCoreFiles[coreUpdateIterationInt];
+                    if(iteration < Downloader.tempUpdateCoreFiles.length) {
+                        File f = Downloader.tempUpdateCoreFiles[iteration];
                         String fileName = f.getName();
-                        String renameCommand = "";
-
-                        switch (coreUpdateIterationInt){
-                            case 0:
-                                if (fileName.contains("root_prepare")) {
-                                    Logger.d(Logger.SSH_CONNECTION_LOG, "file: " + f);
-                                    Logger.d(Logger.SSH_CONNECTION_LOG, "filename: " + fileName);
-
-                                    uploadToOverlayUpdate(session, f);
-                                    renameCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/" + "root.img.bz2";
-                                    execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
-                                    coreUpdateIterationInt += 1;
-                                    res = fileName + " загружен на устройство. Трансивер перезагружается. " +
-                                            "Обновите список трансиверов примерно через 3 минуты.";
-                                }
-                                break;
-                            case 1:
-                                if (fileName.contains("boot-old.img.bz2")) {
-                                    Logger.d(Logger.SSH_CONNECTION_LOG, "filename: " + fileName);
-
-                                    uploadToOverlayUpdate(session, f);
-                                    execCommand(session, REBOOT_COMMAND);
-                                    coreUpdateIterationInt += 1;
-                                    res = fileName + " загружен на устройство. Трансивер перезагружается. " +
-                                            "Обновите список трансиверов примерно через 2 минуты.";
-                                }
-                                break;
-                            case 2:
-                                if (fileName.contains("boot-new.img.bz2")) {
-                                    Logger.d(Logger.SSH_CONNECTION_LOG, "filename: " + fileName);
-
-                                    uploadToOverlayUpdate(session, f);
-//                                    renameCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/" + "boot-new.img.bz2";
-//                                    execCommand(session, renameCommand);
-                                    coreUpdateIterationInt += 1;
-
-                                    f = Downloader.tempUpdateCoreFiles[coreUpdateIterationInt];
-                                    fileName = f.getName();
-
-                                    Logger.d(Logger.SSH_CONNECTION_LOG, "filename: " + fileName);
-
-                                    uploadToOverlayUpdate(session, f);
-                                    renameCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/" + "root-new.img.bz2";
-                                    execCommand(session, renameCommand + ";" + REBOOT_COMMAND);
-                                    coreUpdateIterationInt += 1;
-
-                                    res = Downloader.tempUpdateCoreFiles[2].getName() + " " + Downloader.tempUpdateCoreFiles[3].getName() +
-                                            " загружены на устройство. Трансивер перезагружается. " +
-                                            "Обновите список трансиверов примерно через 5 минут";
-                                    break;
-                                }
+                        res = getCoreResultString(iteration,  fileName);
+                        if( iteration == 2){
+                            Logger.d(TAG, "filename: " + fileName);
+                            uploadToOverlayUpdate(session, f);
+                            iteration += 1;
+                            f = Downloader.tempUpdateCoreFiles[iteration];
+                            fileName = f.getName();
                         }
-                        coreUpdateIteration.put(ip, coreUpdateIterationInt);
-                    }
-                    if(coreUpdateIterationInt == Downloader.tempUpdateCoreFiles.length){
-                        resetCoreFilesCounter(ip);
+                        Logger.d(TAG, "filename: " + fileName);
+                        uploadToOverlayUpdate(session, f);
+                        cmd = getCoreExecCommand(iteration, fileName);
+                        execCommand(session, cmd);
+                        iteration += 1;
                     }
                     break;
-
                 case UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE:
                 case UPDATE_STATION_CONTENT_UPLOAD_CODE:
-//                    uploadMoveReboot(session, (String) req[2]);
-//                    Logger.d(Logger.SSH_CONNECTION_LOG, "update station upload file: " + req[2]);
-
                     transferred = 0;
-                    filePath = (String) req[2];
-                    file = new File(filePath);
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "update station upload file: " + file);
+                    file = new File((String) req[1]);
+                    Logger.d(TAG, "update station upload file: " + file);
                     uploadToOverlayUpdate(session, file);
-
-                    if(file.getName().contains("_")){
-                        String newFileName = file.getName().replace("_", "/");
-                        moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/" + newFileName;
-                    }
-                    else {
-                        moveCommand = "sudo mv " + "/overlay/update/" + file.getName() + " /overlay/update/www-data/" + file.getName();
-                    }
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + moveCommand + ";" + REBOOT_COMMAND);
-                    execCommand(session, moveCommand + ";" + REBOOT_COMMAND);
+                    cmd = getExecCommand(resultCode, file.getName());
+                    execCommand(session, cmd);
                     break;
-
                 case REBOOT_CODE:
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + REBOOT_COMMAND);
-                    execCommand(session, REBOOT_COMMAND);
-                    break;
-
                 case REBOOT_STM_CODE:
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + REBOOT_STM_COMMAND);
-                    res = execCommand(session, REBOOT_STM_COMMAND);
-                    break;
-
                 case CLEAR_RASP_CODE:
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + CLEAR_RASP_COMMAND);
-                    res = execCommand(session, CLEAR_RASP_COMMAND);
+                    cmd = getExecCommand(resultCode);
+                    execCommand(session, cmd);
                     break;
-
                 case SEND_TRANSPORT_CONTENT_CODE:
-                    String command = SEND_TRANSPORT_CONTENT_COMMAND + " " + req[2] + " " + req[3] + " " + req[4] + " " + req[5];
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + command);
-                    res = execCommand(session, command);
+                    cmd = SEND_TRANSPORT_CONTENT_COMMAND + " " + req[1] + " " + req[2] + " " + req[3] + " " + req[4];
+                    res = execCommand(session, cmd);
                     break;
-
                 case SEND_STATION_CONTENT_CODE:
-                    String comm = (String) req[2];
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "result code: " + resultCode + ", exec command: " + comm);
-                    res = execCommand(session, comm);
+                    cmd = (String) req[1];
+                    res = execCommand(session, cmd);
                     break;
             }
-        }
-        catch (Exception e){
-            Logger.d(Logger.SSH_CONNECTION_LOG, "exception: " + e.getMessage() + " " + e.getCause());
+        } catch (Exception e){
+            Logger.d(TAG, "exception: " + e.getMessage() + " " + e.getCause());
                 res = e.getMessage();
                 this.resultCode = SSH_ERROR_CODE;
-        }
-
-        finally {
-            if(channel != null){
-                channel.disconnect();
-            }
-            if(channelExec != null){
-                channelExec.disconnect();
-            }
-            if(channelSftp != null){
-                channelSftp.disconnect();
-            }
+        } finally {
             if(session != null) {
                 session.disconnect();
             }
@@ -276,17 +163,93 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
         return res;
     }
 
+    private String getExecCommand(int taskCode){
+        String cmd = "";
+        switch (taskCode){
+            case REBOOT_CODE:
+            case UPDATE_OS_UPLOAD_CODE:
+                cmd =  REBOOT_COMMAND;
+                break;
+            case REBOOT_STM_CODE:
+                cmd = REBOOT_STM_COMMAND;
+                break;
+            case CLEAR_RASP_CODE:
+                cmd = CLEAR_RASP_COMMAND;
+                break;
+        }
+        Logger.d(TAG, "getExecCommand(), taskCode: " + taskCode + ", cmd: " + cmd);
+        return cmd;
+    }
+
+    private String getExecCommand(int taskCode, String fileName){
+        String moveCommand;
+        String cmd = "";
+        switch (taskCode){
+            case UPDATE_STM_UPLOAD_CODE:
+                moveCommand = "sudo mv " + "/overlay/update/" + fileName + " /var/www/html/data/archive/" + fileName;
+                cmd = moveCommand + ";" + DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND;
+                break;
+            case UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE:
+            case UPDATE_STATION_CONTENT_UPLOAD_CODE:
+                String newFileName = (fileName.contains("_")) ? fileName.replace("_", "/") : fileName;
+                moveCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/www-data/" + newFileName;
+                cmd = moveCommand + ";" + REBOOT_COMMAND;
+                break;
+        }
+        Logger.d(TAG, "getExecCommand(), taskCode: " + taskCode + ", cmd: " + cmd);
+        return cmd;
+    }
+
+    private String getCoreExecCommand(int iteration, String fileName){
+        String renameCommand;
+        String cmd = "";
+        switch (iteration){
+            case 0:
+                renameCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/" + "root.img.bz2";
+                cmd = renameCommand + ";" + REBOOT_COMMAND;
+                break;
+            case 1:
+                cmd = REBOOT_COMMAND;
+                break;
+            case 3:
+                renameCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/" + "root-new.img.bz2";
+                cmd = renameCommand + ";" + REBOOT_COMMAND;
+                break;
+        }
+        Logger.d(TAG, "getCoreExecCommand(), iteration: " + iteration + ", cmd: " + cmd);
+        return cmd;
+    }
+
+    private String getCoreResultString(int iteration, String fileName){
+        switch (iteration){
+            case 0:
+                return fileName + " загружен на устройство. Трансивер перезагружается. " +
+                        "Обновите список трансиверов примерно через 3 минуты.";
+            case 1:
+                return fileName + " загружен на устройство. Трансивер перезагружается. " +
+                        "Обновите список трансиверов примерно через 2 минуты.";
+            case 2:
+                return Downloader.tempUpdateCoreFiles[2].getName() + " " +
+                        Downloader.tempUpdateCoreFiles[3].getName() +
+                        " загружены на устройство. Трансивер перезагружается. " +
+                        "Обновите список трансиверов примерно через 5 минут";
+        }
+        return "";
+    }
+
     protected void onPostExecute(String result) {
         if (listener != null) {
             Bundle bundle = new Bundle();
-            bundle.putString(BundleKeys.IP_KEY, this.ip);
-            bundle.putInt(BundleKeys.RESULT_CODE_KEY, this.resultCode);
+            bundle.putString(BundleKeys.IP_KEY, ip);
+            bundle.putInt(BundleKeys.RESULT_CODE_KEY, resultCode);
             bundle.putString(BundleKeys.RESULT_KEY, result);
+            bundle.putString(BundleKeys.SERIAL_KEY, serial);
+            bundle.putInt(BundleKeys.NEW_ITERATION, iteration);
             listener.onTaskCompleted(bundle);
         }
     }
     private String execCommand(Session session, String command) throws IOException {
-        Logger.d(Logger.SSH_CONNECTION_LOG, "exec command: " + command);
+        Logger.d(TAG, "exec command: " + command);
         String res = "";
         ChannelExec channelExec = null;
         InputStream commandOutput = null;
@@ -297,7 +260,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             channelExec.connect();
             commandOutput = channelExec.getInputStream();
             Thread.sleep(2000);
-            int readByte = 0;
+            int readByte;
             while ((readByte = commandOutput.read()) != -1) {
                 sb.append((char) readByte);
             }
@@ -305,8 +268,7 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
         } catch (JSchException | IOException | InterruptedException e) {
             e.printStackTrace();
             this.resultCode = SSH_ERROR_CODE;
-        }
-        finally {
+        } finally {
             if(commandOutput != null){
                 commandOutput.close();
             }
@@ -314,12 +276,11 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                 channelExec.disconnect();
             }
         }
-        Logger.d(Logger.SSH_CONNECTION_LOG, "exec command: " + command + " result: " + res);
+        Logger.d(TAG, "exec command: " + command + " result: " + res);
         return res;
     }
     private void uploadToOverlayUpdate(Session session, File file){
-        Logger.d(Logger.SSH_CONNECTION_LOG, "uploading file: " + file.getName() +" length: " + file.length());
-
+        Logger.d(TAG, "uploading file: " + file.getName() +" length: " + file.length());
         ChannelSftp channelSftp = null;
         try {
             channelSftp = (ChannelSftp) session.openChannel("sftp");
@@ -333,21 +294,20 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                 @Override
                 public boolean count(long count) {
                     transferred += count;
-                    Double fileLength = Double.valueOf(file.length());
+                    double fileLength = (double) file.length();
                     listener.onProgressUpdate((int) (100 * (transferred / fileLength)));
                     return true;
                 }
                 @Override
                 public void end() {
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "end transfering");
+                    Logger.d(TAG, "end transferring");
                     progressBarIntListener.setProgressBarVisibility(View.GONE);
                 }
             });
         } catch (JSchException | SftpException e) {
             e.printStackTrace();
             this.resultCode = SSH_ERROR_CODE;
-        }
-        finally {
+        } finally {
             if(channelSftp != null){
                 channelSftp.disconnect();
             }
@@ -358,13 +318,13 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
         try (FileInputStream in = new FileInputStream(file);
              BZip2CompressorInputStream bzIn = new BZip2CompressorInputStream(in);
              TarArchiveInputStream tarIn = new TarArchiveInputStream(bzIn)){
-        ArchiveEntry entry = null;
+        ArchiveEntry entry;
 
         while (null != (entry = tarIn.getNextEntry())){
             if (entry.getSize() < 1){
                 continue;
             }
-            Logger.d(Logger.SSH_CONNECTION_LOG, "tar entry: " + entry.getName() + ", isContainsBin: " + entry.getName().contains(".bin"));
+            Logger.d(TAG, "tar entry: " + entry.getName() + ", isContainsBin: " + entry.getName().contains(".bin"));
 
             if(entry.getName().contains(".bin")){
                 if(entry.getName().contains("static")){
@@ -378,13 +338,13 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     }
                     binFile = new File(file.getParent() + "/mobile_" + s);
                 }
-                Logger.d(Logger.SSH_CONNECTION_LOG, "bin file size: " + binFile.length() + ", bin file name: " + binFile.getName());
+//                Logger.d(TAG, "bin file size: " + binFile.length() + ", bin file name: " + binFile.getName());
                 try(FileOutputStream fileOutputStream = new FileOutputStream(binFile)) {
-                    int i = 0;
+                    int i;
                     while ((i = tarIn.read()) > 0) {
                         fileOutputStream.write(i);
                     }
-                    Logger.d(Logger.SSH_CONNECTION_LOG, "bin file size: " + binFile.length() + ", bin file name: " + binFile.getName());
+//                    Logger.d(TAG, "bin file size: " + binFile.length() + ", bin file name: " + binFile.getName());
                 }
             }
         }
@@ -393,25 +353,5 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             this.resultCode = SSH_ERROR_CODE;
         }
         return binFile;
-    }
-
-    public static void resetCoreFilesCounter(String ip){
-        Logger.d(Logger.SSH_CONNECTION_LOG, "core files counter: " + coreUpdateIteration);
-        coreUpdateIteration.put(ip, 0);
-    }
-
-    public static int getCoreUpdateIteration(String ip){
-        if(coreUpdateIteration.containsKey(ip)) {
-            return coreUpdateIteration.get(ip);
-        }
-        return 0;
-    }
-
-    public static Map<String, Integer> getCoreUpdateIterations(){
-        Map<String, Integer> res = new HashMap<>();
-        for(Map.Entry<String, Integer> pair: coreUpdateIteration.entrySet()){
-            res.put(pair.getKey(), getCoreUpdateIteration(pair.getKey()));
-        }
-        return res;
     }
 }

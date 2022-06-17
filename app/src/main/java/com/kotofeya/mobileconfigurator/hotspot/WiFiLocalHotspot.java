@@ -41,8 +41,7 @@ public class WiFiLocalHotspot {
             BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
             String line;
             while ((line = bufferedReader.readLine()) != null) {
-                Logger.d(TAG, "line: " + line);
-
+//                Logger.d(TAG, "line: " + line);
                 if (line.startsWith("192.168.")) {
                     connectedIp.add(line.split(" ")[0]);
                 }

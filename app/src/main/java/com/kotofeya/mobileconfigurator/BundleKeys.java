@@ -19,6 +19,7 @@ public interface BundleKeys {
     String KEY = "key";
     String VALUE = "value";
     String ERROR_MESSAGE = "error_message";
+    String NEW_ITERATION = "new_iteration";
 
 
 }

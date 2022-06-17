@@ -34,7 +34,6 @@ import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.clientsHandler.ClientsHandler;
 import com.kotofeya.mobileconfigurator.databinding.ActivityMainClBinding;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
-import com.kotofeya.mobileconfigurator.hotspot.WiFiLocalHotspot;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -148,6 +147,7 @@ public class MainActivity extends AppCompatActivity
         viewModel.clearMap();
         viewModel.clearTransivers();
         clientsHandler.updateAndPollConnectedClients();
+        viewModel.rescanPressed();
     }
 
     private void updateTime(String s) {

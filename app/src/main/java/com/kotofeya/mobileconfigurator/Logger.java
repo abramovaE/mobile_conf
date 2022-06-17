@@ -27,7 +27,7 @@ public class Logger {
     public static final int FILTER_LOG = 5;
     public static final int SCANNER_ADAPTER_LOG = 6;
 
-    public static final int SSH_CONNECTION_LOG = 8;
+
     public static final int DOWNLOAD_LOG = 9;
     public static final int STATION_CONTEN_LOG = 10;
     public static final int TRANSPORT_CONTENT_LOG = 11;
@@ -61,8 +61,7 @@ public class Logger {
         mType.put(UTILS_LOG, "Utils_task");
         mType.put(FILTER_LOG, "Filter_task");
         mType.put(SCANNER_ADAPTER_LOG, "Scanner_adapter_task");
-//        mType.put(UPDATE_OS_LOG, "Update_os_task");
-        mType.put(SSH_CONNECTION_LOG,"Ssh_connection_task");
+
         mType.put(DOWNLOAD_LOG,"Download_task");
         mType.put(STATION_CONTEN_LOG, "Station_content_task");
         mType.put(TRANSPORT_CONTENT_LOG, "Transport_content_task");

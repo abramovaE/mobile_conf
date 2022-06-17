@@ -34,8 +34,8 @@ public class UploadContentConfDialog extends DialogFragment {
                         ", taskCode: " + TaskCode.UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE + ", filepath: " + value);
                 OnTaskCompleted onTaskCompleted = ((UpdateContentFragment) fragmentHandler.getCurrentFragment());
                 ProgressBarInt progressBarInt = ((UpdateContentFragment) fragmentHandler.getCurrentFragment());
-                SshConnection connection = new SshConnection(onTaskCompleted, progressBarInt);
-                connection.execute(ip, TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE, value);
+                SshConnection connection = new SshConnection(ip, onTaskCompleted, progressBarInt);
+                connection.execute(TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE, value);
             } else {
                 String downloadCode = null;
                 if(isStationary){

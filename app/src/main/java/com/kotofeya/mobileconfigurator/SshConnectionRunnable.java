@@ -20,6 +20,7 @@ import java.util.Properties;
 
 public class SshConnectionRunnable implements Runnable, TaskCode {
 
+    private static final String TAG = SshConnectionRunnable.class.getSimpleName();
     private OnTaskCompleted listener;
     private String ip;
     private int resultCode;
@@ -33,7 +34,7 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
     //req[1] - command
 
     public SshConnectionRunnable(OnTaskCompleted listener, Object...req){
-        Logger.d(Logger.SSH_CONNECTION_LOG, "new ssh runnable: " + Arrays.toString(req)
+        Logger.d(TAG, "new ssh runnable: " + Arrays.toString(req)
                 + ", listener: " + listener);
         this.listener = listener;
         this.ip = (String) req[0];
@@ -71,7 +72,7 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                 prop.put("StrictHostKeyChecking", "no");
                 session.setConfig(prop);
                 session.connect();
-                Logger.d(Logger.SSH_CONNECTION_LOG, ip + " isConnected: " + session.isConnected());
+                Logger.d(TAG, ip + " isConnected: " + session.isConnected());
 
                 switch (resultCode) {
                     case TAKE_CODE:
@@ -95,14 +96,11 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                         res = baos.toString().substring(baos.toString().lastIndexOf("$typeT") + 7, baos.toString().lastIndexOf("$ exit"));
                         break;
                 }
-            }
-            catch (Exception e){
-                Logger.d(Logger.SSH_CONNECTION_LOG, "ssh error: " + e.getMessage());
+            } catch (Exception e){
+                Logger.d(TAG, "ssh error: " + e.getMessage());
                 res = e.getMessage();
                 command = SshCommand.SSH_COMMAND_ERROR;
-            }
-
-            finally {
+            } finally {
                 if(channel != null){
                     channel.disconnect();
                 }
@@ -115,8 +113,6 @@ public class SshConnectionRunnable implements Runnable, TaskCode {
                 if(session != null) {
                     session.disconnect();
                 }
-
-
                 if (listener != null) {
                     Bundle bundle = new Bundle();
                     bundle.putString(BundleKeys.COMMAND_KEY, command);

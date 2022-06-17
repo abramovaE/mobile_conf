@@ -7,14 +7,9 @@ import androidx.lifecycle.ViewModel;
 import androidx.lifecycle.ViewModelProvider;
 
 import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.clientsHandler.Client;
-import com.kotofeya.mobileconfigurator.clientsHandler.ClientsHandler;
 import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,14 +20,18 @@ public class CustomViewModel extends ViewModel {
 
     private static final String TAG = CustomViewModel.class.getSimpleName();
 
-    private MutableLiveData<List<Client>> _wifiClients = new MutableLiveData<>(new ArrayList());
-    public LiveData<List<Client>> wifiClients = _wifiClients;
-    public void setWifiClients(List<Client> clients){
-        List<Transiver> transiverList = new ArrayList<>();
-        clients.stream().forEach(it->transiverList.add(it.getTransiver()));
-        _wifiClients.postValue(clients);
-        transivers.postValue(transiverList);
-    }
+//    private MutableLiveData<List<Client>> _wifiClients = new MutableLiveData<>(new ArrayList());
+//    public LiveData<List<Client>> wifiClients = _wifiClients;
+//    public void setWifiClients(List<Client> clients){
+//        List<Transiver> transiverList = new ArrayList<>();
+//        clients.stream().forEach(it->transiverList.add(it.getTransiver()));
+//        _wifiClients.postValue(clients);
+//        transivers.postValue(transiverList);
+//    }
+
+    private MutableLiveData<Boolean> _rescanPressed = new MutableLiveData<>();
+    public LiveData<Boolean> isRescanPressed = _rescanPressed;
+    public void rescanPressed(){_rescanPressed.postValue(true);}
 
 
     private MutableLiveData<Boolean> _isHotspotDialogShowing = new MutableLiveData<>();
@@ -47,17 +46,6 @@ public class CustomViewModel extends ViewModel {
     }
 
 
-        private boolean isReachable(String s){
-            try {
-                InetAddress address = InetAddress.getByName(s);
-                boolean reachable = address.isReachable(1000);
-                return reachable;
-            }
-            catch (IOException e) {
-                e.printStackTrace();
-            }
-            return false;
-        }
 
 
 
@@ -77,7 +65,7 @@ public class CustomViewModel extends ViewModel {
 
 
 
-    private ClientsHandler clientsHandler;
+//    private ClientsHandler clientsHandler;
 
 
 
@@ -94,8 +82,8 @@ public class CustomViewModel extends ViewModel {
     private static Map<String, String> ssidIpMap = new HashMap<>();
     private static Map<String, String> ssidVersionMap = new HashMap<>();
 
-    private MutableLiveData<Transiver> currentStatInformer = new MutableLiveData<>();
-    private MutableLiveData<Transiver> currentTranspInformer = new MutableLiveData<>();
+//    private MutableLiveData<Transiver> currentStatInformer = new MutableLiveData<>();
+//    private MutableLiveData<Transiver> currentTranspInformer = new MutableLiveData<>();
 
     private MutableLiveData<Boolean> isGetTakeInfoFinished = new MutableLiveData<>();
     public LiveData<Boolean> getIsGetTakeInfoFinished() {
@@ -123,8 +111,11 @@ public class CustomViewModel extends ViewModel {
         _transceiverSettingsText.postValue(transceiverSettingsText);
     }
 
+    public void updateTransivers() {
 
-
+        transivers.postValue(transivers.getValue().stream().
+                filter(it -> clients.getValue().contains(it.getIp())).collect(Collectors.toList()));
+    }
 
 
     public static class ModelFactory extends ViewModelProvider.NewInstanceFactory {
@@ -279,7 +270,10 @@ public class CustomViewModel extends ViewModel {
         return ssidVersionMap.get(ssid);
     }
 
-    public void clearMap(){ ssidIpMap.clear(); }
+    public void clearMap(){
+        ssidIpMap.clear();
+        ssidVersionMap.clear();
+    }
 
 //    public boolean needScanStationaryTransivers() {
 //        List<Transiver> transiverList = transivers.getValue();

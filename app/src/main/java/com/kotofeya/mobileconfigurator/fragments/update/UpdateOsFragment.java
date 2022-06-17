@@ -92,8 +92,9 @@ public class UpdateOsFragment extends UpdateFragment {
 
     private void uploadUpdates(String ip){
         SshConnection connection = new SshConnection(
+                ip,
                 UpdateOsFragment.this,
                 UpdateOsFragment.this);
-        connection.execute(ip, SshConnection.UPDATE_OS_UPLOAD_CODE);
+        connection.execute(SshConnection.UPDATE_OS_UPLOAD_CODE);
     }
 }

@@ -23,9 +23,21 @@ public class TransportTransiver extends Transiver {
     private String fullNumber;
 
 
-    public TransportTransiver(String ssid, String ip, String macWifi, String macBt, String boardVersion, String osVersion,
-                     String stmFirmware, String stmBootloader, String core, String modem, String incrementOfContent,
-                     String uptime, String cpuTemp, String load, String tType) {
+    public TransportTransiver(String ssid,
+                              String ip,
+                              String macWifi,
+                              String macBt,
+                              String boardVersion,
+                              String osVersion,
+                              String stmFirmware,
+                              String stmBootloader,
+                              String core,
+                              String modem,
+                              String incrementOfContent,
+                              String uptime,
+                              String cpuTemp,
+                              String load,
+                              String tType) {
         super(ssid, ip, macWifi, macBt, boardVersion, osVersion,
                  stmFirmware, stmBootloader, core, modem, incrementOfContent,
                  uptime, cpuTemp, load, tType);
@@ -132,15 +144,15 @@ public class TransportTransiver extends Transiver {
         return "";
     }
 
-    public TransportTransiver(int rssi, String address, String deviceName, byte[] data) {
-        super(rssi, address, deviceName, data);
-        setNumber();
-        setTransportType();
-        setTransportTypeMain();
-        setDirection();
-        setCityIndex();
-        setFullNumber();
-    }
+//    public TransportTransiver(int rssi, String address, String deviceName, byte[] data) {
+//        super(rssi, address, deviceName, data);
+//        setNumber();
+//        setTransportType();
+//        setTransportTypeMain();
+//        setDirection();
+//        setCityIndex();
+//        setFullNumber();
+//    }
 
 
     private void setNumber(){

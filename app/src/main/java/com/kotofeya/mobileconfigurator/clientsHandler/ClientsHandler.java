@@ -113,7 +113,8 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
                     CompletableFuture.allOf(futures).whenComplete((a, ex) -> {
                         executorService.shutdown();
                         Logger.d(TAG, "finishedGetTakeInfo()");
-                        viewModel.setTakeInfoFinished(true);
+//                        viewModel.setTakeInfoFinished(true);
+
                     });
                 });
             } else {
@@ -159,14 +160,17 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
                 case PostCommand.VERSION:
                     if (response != null) {
                         Logger.d(TAG, "new future take post: " + futureCounter);
+                        viewModel.setTakeInfoFinished(false);
                         futures[futureCounter++] = runPostTakeInfo(ip, response);
                     } else {
                         Logger.d(TAG, "new future take ssh: " + futureCounter);
+                        viewModel.setTakeInfoFinished(false);
                         futures[futureCounter++] = runSShTakeInfo(ip);
                     }
                     break;
                 case PostCommand.POST_COMMAND_ERROR:
                     Logger.d(TAG, "new future take ssh: " + futureCounter);
+                    viewModel.setTakeInfoFinished(false);
                     futures[futureCounter++] = runSShTakeInfo(ip);
                     break;
 
@@ -180,7 +184,9 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
 //                        client.setTransiver(transiver);
 //                    }
 //                    clientsList.add(client);
-                viewModel.addTakeInfoFull(ip, version, (TakeInfoFull) parcelableResponse);
+                    viewModel.setTakeInfoFinished(true);
+
+                    viewModel.addTakeInfoFull(ip, version, (TakeInfoFull) parcelableResponse);
                     break;
                 case SshCommand.SSH_TAKE_COMMAND:
 //                    Client c = clientsList.stream().filter(it -> it.getIp().equals(ip)).findAny().orElse(null);
@@ -190,13 +196,17 @@ public class ClientsHandler implements DeviceScanListener, OnTaskCompleted {
 //                        c.setTransiver(transiver);
 //                    }
 //                    clientsList.add(c);
-                viewModel.addTakeInfo(response);
+                    viewModel.setTakeInfoFinished(true);
+
+                    viewModel.addTakeInfo(response);
                     break;
                 case SshCommand.SSH_COMMAND_ERROR:
                     Logger.d(TAG, "response: " + response);
 //                if (response.contains("Connection refused") || response.contains("Auth fail")) {
                     removeClient(ip);
 //                }
+                    viewModel.setTakeInfoFinished(true);
+
                     break;
 //            }
         }

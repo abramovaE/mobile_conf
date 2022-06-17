@@ -138,8 +138,8 @@ public class TransportContentFragment extends ContentFragment {
                 }
                 Logger.d(Logger.TRANSPORT_CONTENT_LOG, "send: " + typeHex + " " + numHex + " "
                         + dirHex + " " + lit1 + " " + lit2 + " " + lit3);
-                SshConnection connection = new SshConnection(((TransportContentFragment) fragmentHandler.getCurrentFragment()));
-                connection.execute(ip, SshConnection.SEND_TRANSPORT_CONTENT_CODE, typeHex, numHex, litHex, dirHex);
+                SshConnection connection = new SshConnection(ip, ((TransportContentFragment) fragmentHandler.getCurrentFragment()));
+                connection.execute(SshConnection.SEND_TRANSPORT_CONTENT_CODE, typeHex, numHex, litHex, dirHex);
             }
         }
     }

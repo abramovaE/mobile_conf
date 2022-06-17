@@ -151,16 +151,17 @@ public abstract class ContentFragment extends Fragment
     }
 
     private void updateScannerProgressBarTv(Boolean aBoolean) {
-        if(!aBoolean){
+
+//        if(!aBoolean){
 //            if(scannerProgressBarTv != null) {
 //                scannerProgressBarTv.setText(Utils.MESSAGE_TAKE_INFO);
 //                scannerProgressBarTv.setVisibility(View.VISIBLE);
 //            }
-        } else {
+//        } else {
 //            if(scannerProgressBarTv != null) {
 //                scannerProgressBarTv.setVisibility(View.GONE);
 //            }
-        }
+//        }
     }
 
     @Override
@@ -333,16 +334,16 @@ public abstract class ContentFragment extends Fragment
                             thread.start();
                         }
                     } else {
-                        SshConnection connection = new SshConnection(listener);
+                        SshConnection connection = new SshConnection(ip, listener);
                         switch (rebootType) {
                             case REBOOT_RASP:
-                                connection.execute(ip, SshConnection.REBOOT_CODE);
+                                connection.execute(SshConnection.REBOOT_CODE);
                                 break;
                             case REBOOT_STM:
-                                connection.execute(ip, SshConnection.REBOOT_STM_CODE);
+                                connection.execute(SshConnection.REBOOT_STM_CODE);
                                 break;
                             case REBOOT_CLEAR:
-                                connection.execute(ip, SshConnection.CLEAR_RASP_CODE);
+                                connection.execute(SshConnection.CLEAR_RASP_CODE);
                                 break;
                         }
                     }

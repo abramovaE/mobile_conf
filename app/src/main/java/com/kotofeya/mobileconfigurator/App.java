@@ -5,18 +5,20 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 
-import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
-
 import org.acra.ACRA;
 
 import java.io.File;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 //@AcraCore(buildConfigClass = BuildConfig.class, reportFormat = StringFormat.KEY_VALUE_LIST)
 //@AcraHttpSender(uri = "http://95.161.210.44/mobile_conf_acra.php",
 //        httpMethod = HttpSender.Method.POST)
 public class App extends Application {
+
+    private static final String TAG = Application.class.getSimpleName();
 
     private static App instance;
     private static final String PREF_NAME = "mobile_conf_pref";
@@ -28,6 +30,8 @@ public class App extends Application {
     private static final String IS_ASK_FOR_TENETH = "is_ask_for_teneth";
     private static final String UPDATE_OS_FILE_PATH = "update_os_file_path";
     private static final String UPDATE_OS_FILE_VERSION = "update_os_file_version";
+    private static final String SSID_ITERATION = "ssid_iteration";
+
 
     private String login;
     private String level;
@@ -42,6 +46,39 @@ public class App extends Application {
 
     private String password;
     private boolean isRemembered;
+
+    private Map<String, Integer> coreUpdateSsidIteration;
+
+
+    public Map<String, Integer> getCoreUpdateSsidIteration() {
+        return coreUpdateSsidIteration;
+    }
+
+    public void setCoreUpdateIterationsToPrefs(Map<String, Integer> map){
+        Logger.d(TAG, "setCoreUpdateIterationsToPrefs(), map: " + map);
+        Set<String> set = new HashSet<>();
+        for (Map.Entry<String, Integer> pair: map.entrySet()){
+            if(pair.getValue() > 0) {
+                String value = pair.getKey() + "_" + pair.getValue();
+                set.add(value);
+            }
+        }
+        preferences.edit().putStringSet(SSID_ITERATION, set).commit();
+        this.coreUpdateSsidIteration = map;
+    }
+
+    private Map<String, Integer> getCoreUpdateIterationsFromPref(){
+
+        Map<String, Integer> map = new HashMap<>();
+        Set<String> set = preferences.getStringSet(SSID_ITERATION, new HashSet<>());
+        for(String s:  set){
+            String[] ssidIteration = s.split("_");
+            map.put(ssidIteration[0], Integer.parseInt(ssidIteration[1]));
+        }
+        Logger.d(TAG, "getCoreUpdateIterationsFromPrefs(), map: " + map);
+
+        return map;
+    }
 
 
     public Set<String> getUpdateContentFilePaths() {
@@ -110,6 +147,7 @@ public class App extends Application {
         password = preferences.getString(PASSWORD, "");
         isRemembered = preferences.getBoolean(IS_REMEMBERED, false);
         updateContentFilePaths = preferences.getStringSet(UPDATE_CONTENT_FILES, new HashSet<>());
+        coreUpdateSsidIteration = getCoreUpdateIterationsFromPref();
     }
 
     public boolean isRemembered() {
@@ -174,6 +212,20 @@ public class App extends Application {
     }
     public void setLevel(String level) {
         this.level = level;
+    }
+
+
+    public void resetCoreFilesCounter(String serial){
+        Logger.d(TAG, "resetCoreFilesCounter(), serial: " + serial);
+        coreUpdateSsidIteration.put(serial, 0);
+        setCoreUpdateIterationsToPrefs(coreUpdateSsidIteration);
+    }
+
+    public void putSsidIteration(String serial, int iteration){
+        Logger.d(TAG, "putSsidIteration(), serial: " +
+                serial + ", iteration: " + iteration);
+        coreUpdateSsidIteration.put(serial, iteration);
+        setCoreUpdateIterationsToPrefs(coreUpdateSsidIteration);
     }
 
 }

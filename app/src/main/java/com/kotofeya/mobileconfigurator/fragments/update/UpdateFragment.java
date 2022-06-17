@@ -180,8 +180,8 @@ public abstract class UpdateFragment extends ScannerFragment
         String filePath = bundle.getString(BundleKeys.FILE_PATH_KEY);
         Logger.d(TAG, "download by ssh " + ", ip: " + ip + ", taskCode: " + taskCode + ", filepath: " + filePath);
         binding.scannerProgressBar.setVisibility(progressBarVisibility);
-        SshConnection connection = new SshConnection(this, this);
-        connection.execute(ip, taskCode, filePath);
+        SshConnection connection = new SshConnection(ip, this, this);
+        connection.execute(taskCode, filePath);
     }
 
     private void setVersion(String version){

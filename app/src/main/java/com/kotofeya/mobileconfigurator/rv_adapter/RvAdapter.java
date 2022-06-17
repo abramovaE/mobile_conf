@@ -127,6 +127,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
 
                     case SETTINGS_UPDATE_CORE:
                         holder.setTextItem0Text((version == null) ? "old" : "new");
+//                        holder.setTextItem0Text(transiver.getOsVersion());
                         holder.setTextItem0Visibility(View.VISIBLE);
                         holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
                         break;

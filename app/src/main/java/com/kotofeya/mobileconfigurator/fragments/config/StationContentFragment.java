@@ -146,8 +146,8 @@ public class StationContentFragment extends ContentFragment {
             }
             Logger.d(Logger.STATION_CONTEN_LOG, "send command: " + command.toString());
 
-            SshConnection connection = new SshConnection(((StationContentFragment) fragmentHandler.getCurrentFragment()));
-            connection.execute(ip, SshConnection.SEND_STATION_CONTENT_CODE, command.toString());
+            SshConnection connection = new SshConnection(ip, ((StationContentFragment) fragmentHandler.getCurrentFragment()));
+            connection.execute(SshConnection.SEND_STATION_CONTENT_CODE, command.toString());
         } else if(version != null){
             int zumType = 0;
             if(zumTypeSend.equals(getResources().getStringArray(R.array.zummer_types)[1])){

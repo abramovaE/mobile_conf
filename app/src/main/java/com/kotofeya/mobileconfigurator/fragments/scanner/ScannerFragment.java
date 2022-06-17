@@ -87,12 +87,14 @@ public abstract class ScannerFragment extends Fragment {
     }
 
     public void scan(){
+        Logger.d(TAG, "scan()");
         clientsHandler.pollConnectedClients();
     }
 
     private void updateClientsScanning(Boolean aBoolean) {
-        if(!aBoolean){
-            scan();
-        }
+        Logger.d(TAG, "updateClientsScanning(): " + aBoolean);
+//        if(!aBoolean){
+//            scan();
+//        }
     }
 }

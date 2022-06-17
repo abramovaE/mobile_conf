@@ -139,6 +139,9 @@ public class Transiver {
     }
 
     public String getCore() {
+        if(takeInfoFull != null){
+            return takeInfoFull.getCoreLinux();
+        }
         return core;
     }
 
