@@ -17,7 +17,6 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
-import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
@@ -107,6 +106,7 @@ public class SettingsUpdateCoreFragment extends UpdateFragment{
     @Override
     public void onTaskCompleted(Bundle result) {
 
+//        viewModel.set_progressTvVisibility();
         binding.scannerProgressBar.setVisibility(View.GONE);
 
         int resultCode = result.getInt(BundleKeys.RESULT_CODE_KEY);
@@ -128,6 +128,7 @@ public class SettingsUpdateCoreFragment extends UpdateFragment{
                     "При загрузке файлов произошла ошибка", Toast.LENGTH_SHORT).show();
         }
         if(res != null && res.contains("загружен")){
+
             clearTextLabel();
             startTimer();
             App.get().putSsidIteration(serial, newIteration);
@@ -161,13 +162,12 @@ public class SettingsUpdateCoreFragment extends UpdateFragment{
                 Integer coreUpdateIteration = coreUpdateSsidIteration.get(t.getSsid());
                 if(coreUpdateIteration != null){
                     if(coreUpdateIteration > 0 && coreUpdateIteration < 4){
-                        binding.progressTv.setVisibility(View.VISIBLE);
-                        binding.progressTv.setText(getProgressTvText(t.getSsid(), coreUpdateIteration));
+                        setProgressTvText(getProgressTvText(t.getSsid(), coreUpdateIteration));
                         Logger.d(TAG, "coreUpdateIteration ip: " + ip +
                                 ", iteration: " + coreUpdateIteration);
                         if(coreUpdateIteration == 1){
-                            String version = CustomViewModel.getVersion(t.getSsid());
-                            version = (version == null) ? "old" : "new";
+//                            String version = CustomViewModel.getVersion(t.getSsid());
+//                            version = (version == null) ? "old" : "new";
 //                            if(version.equals("new")){
 //                                Logger.d(TAG, "transceiver has already updated");
 //                            } else {
@@ -195,10 +195,8 @@ public class SettingsUpdateCoreFragment extends UpdateFragment{
     @Override
     public void clearTextLabel(){
         Logger.d(Logger.UPDATE_CORE_LOG, "clearTextLabel()");
-        requireActivity().runOnUiThread(() -> {
-            binding.progressTv.setVisibility(View.GONE);
-            binding.progressTv.setText("");
-        });
+        viewModel.set_progressTvVisibility(false);
+        viewModel.set_progressTvText("");
     }
 
     public void startTimer(){
@@ -300,8 +298,8 @@ public class SettingsUpdateCoreFragment extends UpdateFragment{
 
 
     public void setProgressTvText(String text){
-        binding.progressTv.setVisibility(View.VISIBLE);
-        binding.progressTv.setText(text);
+        viewModel.set_progressTvVisibility(true);
+        viewModel.set_progressTvText(text);
     }
 
 

@@ -16,7 +16,7 @@ import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
-import com.kotofeya.mobileconfigurator.transivers.StatTransiver;
+import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 public class StationContentFragment extends ContentFragment {
     EditText floorTxt;
@@ -24,17 +24,19 @@ public class StationContentFragment extends ContentFragment {
     Spinner zumVolumeSpn;
     Spinner modemConfigSpn;
     String[] modemConfigs;
-    StatTransiver statTransiver;
+    Transiver statTransiver;
     String zumTypeSend;
     String zumVolumeSend;
 
     @Override
     protected void setFields() {
-        statTransiver = (StatTransiver) viewModel.getTransiverBySsid(ssid);
-        viewModel.setMainTxtLabel(statTransiver.getSsid() + " (" + statTransiver.getStringType() + ")");
+        statTransiver = viewModel.getTransiverBySsid(ssid);
+        viewModel.setMainTxtLabel(statTransiver.getSsid() + " ("
+//               + statTransiver.getStringType()
+                + ")");
 
         floorTxt = binding.contentTxt0;
-        floorTxt.setText(String.valueOf(statTransiver.getFloor()));
+//        floorTxt.setText(String.valueOf(statTransiver.getFloor()));
         floorTxt.setVisibility(View.VISIBLE);
         floorTxt.addTextChangedListener(textWatcher);
         floorTxt.setOnKeyListener(onKeyListener);
@@ -156,8 +158,10 @@ public class StationContentFragment extends ContentFragment {
                 zumType = 1;
             }
             String ip = viewModel.getIp(statTransiver.getSsid());
-            Thread thread = new Thread(new PostInfo(this, ip, floor(Integer.parseInt(floorSend))));
-            thread.start();
+            if(!floorSend.isEmpty()) {
+                Thread thread = new Thread(new PostInfo(this, ip, floor(Integer.parseInt(floorSend))));
+                thread.start();
+            }
         }
     }
 

@@ -14,7 +14,7 @@ import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
-import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
+import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -26,18 +26,19 @@ public class TransportContentFragment extends ContentFragment {
     EditText liter1;
     EditText liter2;
     EditText liter3;
-    TransportTransiver transportTransiver;
+    Transiver transportTransiver;
 
     @Override
     protected void setFields() {
-        transportTransiver = (TransportTransiver) viewModel.getTransiverBySsid(ssid);
+        transportTransiver = viewModel.getTransiverBySsid(ssid);
         Logger.d(Logger.TRANSPORT_CONTENT_LOG, "getBySsid: " + transportTransiver);
         Logger.d(Logger.TRANSPORT_CONTENT_LOG, "ip: " + viewModel.getIp(transportTransiver.getSsid()));
 
-        viewModel.setMainTxtLabel(transportTransiver.getSsid() +
-                "\n (" + transportTransiver.getTransportType() +
-                "/" + transportTransiver.getFullNumber() +
-                "/" + transportTransiver.getStringDirection() + ")");
+        viewModel.setMainTxtLabel(transportTransiver.getSsid()
+//                 + "\n (" + transportTransiver.getTransportType() +
+//                "/" + transportTransiver.getFullNumber() +
+//                "/" + transportTransiver.getStringDirection() + ")"
+        );
 
 
         spnType = binding.contentSpn0;
@@ -45,33 +46,33 @@ public class TransportContentFragment extends ContentFragment {
         ArrayAdapter<String> adapter = new ArrayAdapter<>(requireActivity(), android.R.layout.simple_spinner_item, transports);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnType.setAdapter(adapter);
-        spnType.setSelection(transportTransiver.getTransportType());
+//        spnType.setSelection(transportTransiver.getTransportType());
         spnType.setVisibility(View.VISIBLE);
         spnType.setOnItemSelectedListener(onItemSelectedListener);
 
         liter1 = binding.contentTxt1;
-        liter1.setText(transportTransiver.getLiteraN(1));
+//        liter1.setText(transportTransiver.getLiteraN(1));
         liter1.setHint(R.string.content_transport_litera3_hint);
         liter1.setVisibility(View.VISIBLE);
         liter1.addTextChangedListener(textWatcher);
         liter1.setOnKeyListener(onKeyListener);
 
         number = binding.contentTxt2;
-        number.setText(String.valueOf(transportTransiver.getNumber()));
+//        number.setText(String.valueOf(transportTransiver.getNumber()));
         number.setHint(R.string.content_transport_number_hint);
         number.setVisibility(View.VISIBLE);
         number.addTextChangedListener(textWatcher);
         number.setOnKeyListener(onKeyListener);
 
         liter2 = binding.contentTxt3;
-        liter2.setText(transportTransiver.getLiteraN(2));
+//        liter2.setText(transportTransiver.getLiteraN(2));
         liter2.setHint(R.string.content_transport_litera1_hint);
         liter2.setVisibility(View.VISIBLE);
         liter2.addTextChangedListener(textWatcher);
         liter2.setOnKeyListener(onKeyListener);
 
         liter3 = binding.contentTxt4;
-        liter3.setText(transportTransiver.getLiteraN(3));
+//        liter3.setText(transportTransiver.getLiteraN(3));
         liter3.setHint(R.string.content_transport_litera2_hint);
         liter3.setVisibility(View.VISIBLE);
         liter3.addTextChangedListener(textWatcher);
@@ -82,7 +83,7 @@ public class TransportContentFragment extends ContentFragment {
         ArrayAdapter<String> adapterDir = new ArrayAdapter<>(requireActivity(), android.R.layout.simple_spinner_item, directions);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spnDir.setAdapter(adapterDir);
-        spnDir.setSelection(transportTransiver.getDirection());
+//        spnDir.setSelection(transportTransiver.getDirection());
         spnDir.setVisibility(View.VISIBLE);
         spnType.setOnItemSelectedListener(onItemSelectedListener);
         updateBtnContentSendState();

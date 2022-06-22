@@ -132,12 +132,16 @@ public abstract class ContentFragment extends Fragment
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
 
         binding = ContentFragmentBinding.inflate(inflater, container, false);
         fragmentHandler = ((MainActivity) requireActivity()).getFragmentHandler();
 
         this.ssid = getArguments().getString("ssid");
+
+        viewModel = ViewModelProviders.of(requireActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
 
         viewModel.isClientsScanning().observe(getViewLifecycleOwner(), this::updateClientsScanFinished);
         this.clientsHandler = ClientsHandler.getInstance(viewModel);
@@ -168,7 +172,6 @@ public abstract class ContentFragment extends Fragment
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         Logger.d(Logger.CONTENT_LOG, "on view created");
         super.onViewCreated(view, savedInstanceState);
-        viewModel = ViewModelProviders.of(requireActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
         viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
         viewModel.getIsGetTakeInfoFinished().observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
 

@@ -46,16 +46,26 @@ public class CustomViewModel extends ViewModel {
     }
 
 
+    private MutableLiveData<Boolean> _progressTvVisibility = new MutableLiveData<>(false);
+    public LiveData<Boolean> getProgressTvVisibility(){return _progressTvVisibility;}
+    public void set_progressTvVisibility(boolean visibility){_progressTvVisibility.postValue(visibility);}
+
+    private MutableLiveData<String> _progressTvText = new MutableLiveData<>("");
+    public LiveData<String> getProgressTvText(){return _progressTvText;}
+    public void set_progressTvText(String text){_progressTvText.postValue(text);}
 
 
 
-    private MutableLiveData<Boolean> _isClientsScanning = new MutableLiveData<>();
+
+    private MutableLiveData<Boolean> _isClientsScanning = new MutableLiveData<>(false);
     public LiveData<Boolean> isClientsScanning(){return _isClientsScanning;}
     public void setClientsScanning(Boolean value){_isClientsScanning.postValue(value);}
 
     private MutableLiveData<String> _time = new MutableLiveData<>("");
     public LiveData<String> time(){return _time;}
     public void setTime(String time){_time.postValue(time);}
+
+
 
 //
 //    private MutableLiveData<Boolean> _isBleScanning = new MutableLiveData<>();
@@ -297,4 +307,7 @@ public class CustomViewModel extends ViewModel {
         stationaryInformers.postValue(transiversList.stream().filter(it-> it.getTType().equals("stationary")).collect(Collectors.toList()));
         transpInformers.postValue(transiversList.stream().filter(it->it.getTType().equals("transport")).collect(Collectors.toList()));
     }
+
+
+//    public void load
 }

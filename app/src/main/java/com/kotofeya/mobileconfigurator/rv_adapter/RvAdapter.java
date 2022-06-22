@@ -3,16 +3,17 @@ package com.kotofeya.mobileconfigurator.rv_adapter;
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
+
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Downloader;
+import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.transivers.Transiver;
-import com.kotofeya.mobileconfigurator.transivers.TransportTransiver;
 
 import java.util.List;
 import java.util.Map;
@@ -23,6 +24,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
     private RvAdapterType adapterType;
     protected AdapterListener adapterListener;
     public static final String SSH_CONN = "ssh_conn";
+    private static final String TAG = RvAdapter.class.getSimpleName();
 
     public RvAdapter(List<Transiver> objects) {
         this.objects = objects;
@@ -84,12 +86,15 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
                         break;
 
                     case CONFIG_TRANSPORT:
+                        Logger.d(TAG, "rvAdapter: " + adapterType);
+                        Logger.d(TAG, "rvAdapter listener: " + adapterListener);
+
                         if (isTransport) {
-                            TransportTransiver transportTransiver = (TransportTransiver) transiver;
-                            holder.setTextItem0Text(transportTransiver.getTransportType() + " / " + transportTransiver.getFullNumber());
-                            holder.setTextItem0Visibility(View.VISIBLE);
-                            holder.setTextItem1Text(transportTransiver.getStringDirection());
-                            holder.setTextItem1Visibility(View.VISIBLE);
+//                            TransportTransiver transportTransiver = (TransportTransiver) transiver;
+//                            holder.setTextItem0Text(transportTransiver.getTransportType() + " / " + transportTransiver.getFullNumber());
+//                            holder.setTextItem0Visibility(View.VISIBLE);
+//                            holder.setTextItem1Text(transportTransiver.getStringDirection());
+//                            holder.setTextItem1Visibility(View.VISIBLE);
                             holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
                         }
                         break;
@@ -99,8 +104,8 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
                         holder.setIncrement(increment);
                         holder.setTextItem1Text("no updates");
                         if (isTransport) {
-                            TransportTransiver t = (TransportTransiver) transiver;
-                            holder.setTextItem0Text(t.getCityCode(t.getCity()) + " " + increment);
+//                            TransportTransiver t = (TransportTransiver) transiver;
+//                            holder.setTextItem0Text(t.getCityCode(t.getCity()) + " " + increment);
                             if (Downloader.tempUpdateTransportContentFiles != null) {
                                 holder.setTextItem1Text("          ");
                             }
@@ -188,6 +193,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
             customView.setExpBtnVisibility(visibility);
         }
         public void setCustomViewOnClickListener(View.OnClickListener listener){
+//            customView.setClickable(true);
             customView.setOnClickListener(listener);
         }
         public void setExpText(String text){

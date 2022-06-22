@@ -43,10 +43,11 @@ public abstract class ScannerFragment extends Fragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         binding = ScannerFragmentClBinding.inflate(inflater, container, false);
-        binding.progressTv.setVisibility(View.GONE);
+
 
         viewModel = ViewModelProviders.of(requireActivity(),
                 new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
+
 
         fragmentHandler = ((MainActivity) requireActivity()).getFragmentHandler();
 
@@ -57,10 +58,13 @@ public abstract class ScannerFragment extends Fragment {
         viewModel.getIsGetTakeInfoFinished().observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
         viewModel.isClientsScanning().observe(getViewLifecycleOwner(), this::updateClientsScanning);
 
+        viewModel.set_progressTvVisibility(false);
         rvAdapter = RvAdapterFactory.getRvAdapter(getAdapterType(),
                 new ArrayList<>(), getAdapterListener());
         binding.rvScanner.setAdapter(rvAdapter);
         setMainTextLabelText();
+
+
         return binding.getRoot();
     }
 
@@ -79,10 +83,10 @@ public abstract class ScannerFragment extends Fragment {
     private void updateScannerProgressBarTv(Boolean aBoolean) {
         Logger.d(TAG, "updateScannerProgressBarTv(Boolean aBoolean): " + aBoolean);
         if(!aBoolean){
-            binding.progressTv.setText(Utils.MESSAGE_TAKE_INFO);
-            binding.progressTv.setVisibility(View.VISIBLE);
+            viewModel.set_progressTvText(Utils.MESSAGE_TAKE_INFO);
+            viewModel.set_progressTvVisibility(true);
         } else {
-            binding.progressTv.setVisibility(View.GONE);
+            viewModel.set_progressTvVisibility(false);
         }
     }
 

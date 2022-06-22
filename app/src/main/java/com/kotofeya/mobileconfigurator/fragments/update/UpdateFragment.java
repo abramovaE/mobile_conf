@@ -73,7 +73,24 @@ public abstract class UpdateFragment extends ScannerFragment
         });
         loadVersion();
         scan();
+
+        viewModel.getProgressTvVisibility().observe(getViewLifecycleOwner(), this::updateProgressTvVisibility);
+        viewModel.getProgressTvText().observe(getViewLifecycleOwner(), this::updateProgressTvText);
         return binding.getRoot();
+    }
+
+
+
+    private void updateProgressTvText(String s) {
+        binding.progressTv.setText(s);
+    }
+
+    private void updateProgressTvVisibility(Boolean aBoolean) {
+        if(aBoolean){
+            binding.progressTv.setVisibility(View.VISIBLE);
+        } else {
+            binding.progressTv.setVisibility(View.GONE);
+        }
     }
 
 

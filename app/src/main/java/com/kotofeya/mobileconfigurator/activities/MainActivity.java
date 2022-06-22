@@ -237,7 +237,11 @@ public class MainActivity extends AppCompatActivity
     public void onBackPressed() {
         binding.mainTxtLabel.setText(R.string.main_menu_main_label);
         binding.mainBtnRescan.setVisibility(View.GONE);
-        super.onBackPressed();
+        if(fragmentHandler.getCurrentFragment().getTag().equals(FragmentHandler.CONFIG_TRANSPORT_FRAGMENT)){
+            fragmentHandler.changeFragment(FragmentHandler.MAIN_FRAGMENT_TAG);
+        } else {
+            super.onBackPressed();
+        }
     }
 
     @Override

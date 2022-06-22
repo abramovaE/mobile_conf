@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class UpdateContentConfDialog extends DialogFragment {
+    private static final String TAG = UpdateContentConfDialog.class.getSimpleName();
     boolean isTransport;
     boolean isStationary;
     @NonNull
@@ -24,7 +25,7 @@ public class UpdateContentConfDialog extends DialogFragment {
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         this.isTransport = requireArguments().getBoolean(BundleKeys.IS_TRANSPORT_KEY);
         this.isStationary = requireArguments().getBoolean(BundleKeys.IS_STATIONARY_KEY);
-        Logger.d(Logger.UPDATE_CONTENT_LOG, "isTransport: " + isTransport +", isStationary: " + isStationary);
+        Logger.d(TAG, "isTransport: " + isTransport +", isStationary: " + isStationary);
         String ip = requireArguments().getString(BundleKeys.IP_KEY);
         Map<String, String> transportContent = getTransportContent();
         AlertDialog.Builder builder = createUpdateContentConfDialog(ip, transportContent);
@@ -35,7 +36,7 @@ public class UpdateContentConfDialog extends DialogFragment {
     private Map<String, String> addToTransportContent(Map<String, String> transportContent,
                                                              String key, String value){
         UserType userType = UserFactory.getUser().getUserType();
-        if(userType.equals(UserType.USER_FULL)) {
+        if(userType.equals(UserType.USER_FULL) || userType.equals(UserType.USER_UPDATE_CORE)) {
             transportContent.put(key, value);
         } else if(userType.equals(UserType.USER_TRANSPORT)){
             String login = App.get().getLogin();
@@ -56,6 +57,7 @@ public class UpdateContentConfDialog extends DialogFragment {
     }
 
     public Map<String, String> getTransportContent(){
+
         Map<String, String> transportContent = new HashMap<>();
         boolean isInternetEnabled = InternetConn.hasInternetConnection();
         Collection<String> collection = (isInternetEnabled) ? Downloader.tempUpdateTransportContentFiles :
@@ -74,7 +76,7 @@ public class UpdateContentConfDialog extends DialogFragment {
         String[] content = contentMap.keySet().toArray(new String[contentMap.size()]);
         builder.setItems(content,
                 (dialog, which) -> {
-                    Logger.d(Logger.UPDATE_CONTENT_LOG, "dialogContent: " + content[which]);
+                    Logger.d(TAG, "dialogContent: " + content[which]);
                     Bundle bundle = new Bundle();
                     bundle.putString(BundleKeys.KEY, "transp " + content[which]);
                     bundle.putString(BundleKeys.VALUE, contentMap.get(content[which]));

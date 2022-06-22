@@ -30,11 +30,12 @@ import java.util.Map;
 
 public class UpdateContentFragment extends UpdateFragment {
 
+    public static final String TAG = UpdateContentFragment.class.getSimpleName();
 
     @Override
     public void loadVersion() {
-        Logger.d(Logger.UPDATE_CONTENT_LOG, "load version");
         boolean isInternetEnabled = InternetConn.hasInternetConnection();
+        Logger.d(TAG, "loadVersion(), isInternetEnabled: " + isInternetEnabled);
         if(isInternetEnabled) {
             Downloader transpDownloader = new Downloader(this);
             transpDownloader.execute(Downloader.TRANSPORT_CONTENT_VERSION_URL);
@@ -73,7 +74,7 @@ public class UpdateContentFragment extends UpdateFragment {
 
     @Override
     public void onStart() {
-        Logger.d(Logger.UPDATE_CONTENT_LOG, "update content fragment onStart");
+        Logger.d(TAG, "onStart()");
         super.onStart();
         binding.versionLabel.setVisibility(View.GONE);
         viewModel.setMainBtnRescanVisibility(View.VISIBLE);
@@ -94,10 +95,13 @@ public class UpdateContentFragment extends UpdateFragment {
         }
     }
 
-    private Map<String, String> addToTransportContent(Map<String, String> transportContent,
-                                                             String key, String value){
+    private Map<String, String> addToTransportContent(
+            Map<String, String> transportContent,
+            String key,
+            String value){
+        Logger.d(TAG, "addToTransportContent(): " + transportContent + " " + key + " " + value);
         UserType userType = UserFactory.getUser().getUserType();
-        if(userType.equals(UserType.USER_FULL)) {
+        if(userType.equals(UserType.USER_FULL) || userType.equals(UserType.USER_UPDATE_CORE)) {
             transportContent.put(key, value);
         } else if(userType.equals(UserType.USER_TRANSPORT)){
             String login = App.get().getLogin();
@@ -112,29 +116,38 @@ public class UpdateContentFragment extends UpdateFragment {
     private Map<String, String> getTransportContent(){
         Map<String, String> transportContent = new HashMap<>();
         boolean isInternetEnabled = InternetConn.hasInternetConnection();
+        Logger.d(TAG, "getTransportContent(), isInternetEnabled: " + isInternetEnabled);
+
         if(!isInternetEnabled) {
             for (String s : App.get().getUpdateContentFilePaths()) {
                 String key = getTransportFileKey(s, isInternetEnabled);
                 transportContent = addToTransportContent(transportContent, key, s);
             }
         } else {
-            for (String s : Downloader.tempUpdateTransportContentFiles) {
-                String key = getTransportFileKey(s, isInternetEnabled);
-                transportContent = addToTransportContent(transportContent, key, s);
+            if(Downloader.tempUpdateTransportContentFiles != null) {
+                Logger.d(TAG, "tempUpdateTransportContentFiles: "
+                        + Downloader.tempUpdateTransportContentFiles);
+                for (String s : Downloader.tempUpdateTransportContentFiles) {
+                    String key = getTransportFileKey(s, isInternetEnabled);
+                    transportContent = addToTransportContent(transportContent, key, s);
+                }
             }
         }
+        Logger.d(TAG, "getTransportContent(): " + transportContent);
         return transportContent;
     }
 
     private AlertDialog.Builder createUploadContentToStorageDialog(Map<String, String> contentMap){
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         builder.setTitle("Choose the city for upload");
+        Logger.d(TAG, "contentMap: " + contentMap);
+
         String[] content = contentMap.keySet().toArray(new String[contentMap.size()]);
         builder.setItems(content,
                 new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        Logger.d(Logger.UPDATE_CONTENT_LOG, "dialogContent: " + content[which]);
+                        Logger.d(TAG, "dialogContent: " + content[which]);
                         Bundle bundle = new Bundle();
                         bundle.putString(BundleKeys.KEY, "transp " + content[which]);
                         bundle.putString(BundleKeys.VALUE, contentMap.get(content[which]));

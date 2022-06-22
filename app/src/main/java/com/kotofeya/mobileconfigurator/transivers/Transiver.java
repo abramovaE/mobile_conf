@@ -352,27 +352,35 @@ public class Transiver {
 
 
     public boolean isStationary() {
-        if(rawData != null){
-            if(rawData.length == 3 && (rawData[0]&0xff) == Utils.STAT_RADIO_TYPE){
-                return true;
-            }
-            else if(rawData.length >= 22 && (rawData[5]&0xff) == Utils.STAT_RADIO_TYPE){
-                return true;
-            }
+        if(takeInfoFull != null){
+            return takeInfoFull.getType().equalsIgnoreCase("stationary");
         }
-        return false;
+        else {
+            if (rawData != null) {
+                if (rawData.length == 3 && (rawData[0] & 0xff) == Utils.STAT_RADIO_TYPE) {
+                    return true;
+                } else if (rawData.length >= 22 && (rawData[5] & 0xff) == Utils.STAT_RADIO_TYPE) {
+                    return true;
+                }
+            }
+            return false;
+        }
     }
 
     public boolean isTransport(){
-        if(rawData != null){
-            if(rawData.length >= 22 && (rawData[5] & 0xff) == Utils.TRANSPORT_RADIO_TYPE) {
-                return true;
+        if(takeInfoFull != null){
+            return takeInfoFull.getType().equalsIgnoreCase("transport");
+        } else {
+            if(rawData != null){
+                if(rawData.length >= 22 && (rawData[5] & 0xff) == Utils.TRANSPORT_RADIO_TYPE) {
+                    return true;
+                }
+                else if ((rawData[0] & 0xff) == Utils.TRANSPORT_RADIO_TYPE) {
+                    return true;
+                }
             }
-            else if ((rawData[0] & 0xff) == Utils.TRANSPORT_RADIO_TYPE) {
-                return true;
-            }
+            return false;
         }
-        return false;
     }
 
     public String getExpBasicScanInfo(){

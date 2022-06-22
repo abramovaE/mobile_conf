@@ -3,8 +3,6 @@ package com.kotofeya.mobileconfigurator;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
-import com.kotofeya.mobileconfigurator.network.PostInfo;
-
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -22,6 +20,8 @@ import java.util.List;
 import java.util.Map;
 
 public class Downloader extends AsyncTask<String, Integer, Bundle> implements TaskCode{
+    private static final String TAG = Downloader.class.getSimpleName();
+
     public static final String CITY_URL = "http://95.161.210.44/update/city.json";
     public static final String OS_VERSION_URL = "http://95.161.210.44/update/rootimg";
     public static final String STM_VERSION_URL = "http://95.161.210.44/update/data/stm";
@@ -75,7 +75,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 
     @Override
     protected Bundle doInBackground(String... url) {
-        Logger.d(Logger.DOWNLOAD_LOG, "doInBackground, ulr.length: " + url.length);
+        Logger.d(TAG, "doInBackground(), ulr.length: " + url.length);
         if(url.length > 1) {
             currentIp = url[1];
         }
@@ -86,7 +86,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
             return getContent(url[0]);
         }
         catch (Exception ex) {
-            Logger.d(Logger.DOWNLOAD_LOG, "getContentException: " + ex.getMessage() + " " + ex.getCause());
+            Logger.d(TAG, "getContentException: " + ex.getMessage() + " " + ex.getCause());
             Bundle bundle = new Bundle();
             bundle.putString(BundleKeys.RESULT, ex.getMessage());
             bundle.putString(BundleKeys.IP_KEY, currentIp);
@@ -98,25 +98,25 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     private void createUpdateOsFile() {
 
         File outputDir = App.get().getApplicationContext().getExternalFilesDir(null);
-        Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateOsFile: " + tempUpdateOsFile);
+        Logger.d(TAG, "tempUpdateOsFile: " + tempUpdateOsFile);
         if(tempUpdateOsFile != null && tempUpdateOsFile.exists()){
-            Logger.d(Logger.DOWNLOAD_LOG, "delete exist file");
+            Logger.d(TAG, "delete exist file");
             tempUpdateOsFile.delete();
         }
-        Logger.d(Logger.DOWNLOAD_LOG, " creating new temp os file");
+        Logger.d(TAG, " creating new temp os file");
         tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
     }
 
     private void createUpdateCoreFiles() {
         File outputDir = App.get().getApplicationContext().getExternalFilesDir(null);
-        Logger.d(Logger.DOWNLOAD_LOG, "tempUpdateCoreFiles: " + tempUpdateCoreFiles);
+        Logger.d(TAG, "tempUpdateCoreFiles: " + tempUpdateCoreFiles);
         tempUpdateCoreFiles = new File[4];
-        Logger.d(Logger.DOWNLOAD_LOG, " creating new temp core files");
+        Logger.d(TAG, " creating new temp core files");
         tempUpdateCoreFiles[0] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[0]));
         tempUpdateCoreFiles[1] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[1]));
         tempUpdateCoreFiles[2] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[2]));
         tempUpdateCoreFiles[3] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[3]));
-        Logger.d(Logger.DOWNLOAD_LOG, "new temp core files created: " + tempUpdateCoreFiles);
+        Logger.d(TAG, "new temp core files created: " + tempUpdateCoreFiles);
     }
 
     private File createTempUpdateFile(String fileName){
@@ -178,7 +178,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     }
 
     private String getTempFileName(int currentAction, String stringUrl) throws MalformedURLException {
-        Logger.d(Logger.DOWNLOAD_LOG, "getTempFileName: " + stringUrl + ", currentAction: " + currentAction);
+        Logger.d(TAG, "getTempFileName: " + stringUrl + ", currentAction: " + currentAction);
         switch (currentAction){
             case UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE:
             case UPDATE_STATION_CONTENT_DOWNLOAD_CODE:
@@ -201,7 +201,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 
         Bundle bundle = new Bundle();
         bundle.putString(BundleKeys.IP_KEY, currentIp);
-        Logger.d(Logger.DOWNLOAD_LOG, "getContent: " + stringUrl + ", action: " + currentAction);
+        Logger.d(TAG, "getContent: " + stringUrl + ", action: " + currentAction);
         try {
             if(currentAction == UPDATE_STM_DOWNLOAD_CODE ||
                     currentAction == UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE ||
@@ -220,15 +220,15 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                     IS_CORE_FILES_EXIST.clear();
                     createUpdateCoreFiles();
                     for(int i = 0; i< COREURLS.length; i++){
-                        Logger.d(Logger.DOWNLOAD_LOG, "core file: "  + tempUpdateCoreFiles[i] + " is downloading");
+                        Logger.d(TAG, "core file: "  + tempUpdateCoreFiles[i] + " is downloading");
                         publishProgress(0);
                         c = getConnection(new URL(COREURLS[i]));
                         input = c.getInputStream();
                         writeToFile(input, tempUpdateCoreFiles[i]);
-                        Logger.d(Logger.DOWNLOAD_LOG, "core file: "  + tempUpdateCoreFiles[i] + " is downloaded");
+                        Logger.d(TAG, "core file: "  + tempUpdateCoreFiles[i] + " is downloaded");
                         IS_CORE_FILES_EXIST.add(i, true);
                     }
-                    Logger.d(Logger.DOWNLOAD_LOG, "core files downloaded");
+                    Logger.d(TAG, "core files downloaded");
                     bundle.putInt(BundleKeys.RESULT_CODE_KEY, UPDATE_CORE_DOWNLOAD_CODE);
                     bundle.putString(BundleKeys.IP_KEY, currentIp);
 
@@ -282,9 +282,10 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                             try(BufferedReader r1 = new BufferedReader(new InputStreamReader(input))) {
                                 while ((s = r1.readLine()) != null) {
                                     if (s.contains("href")) {
-                                        Logger.d(Logger.DOWNLOAD_LOG, "s transp: " + s);
-                                        Logger.d(Logger.DOWNLOAD_LOG, "sub s transp: " + s.substring(s.indexOf("./") + 2, s.indexOf("\">")));
-                                        tempUpdateTransportContentFiles.add(s.substring(s.indexOf("./") + 2, s.indexOf("\">")));
+                                        String subS = s.substring(s.indexOf("./") + 2, s.indexOf("\">"));
+                                        Logger.d(TAG, "s transp: " + s);
+                                        Logger.d(TAG, "subS transp: " + subS);
+                                        tempUpdateTransportContentFiles.add(subS);
                                     }
                                 }
                             }
@@ -307,7 +308,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                             return bundle;
                         case CITY_URL:
                             url = new URL(CITY_URL);
-                            Logger.d(Logger.DOWNLOAD_LOG, "url: " + url);
+                            Logger.d(TAG, "url: " + url);
                             c = getConnection(url);
                             input = c.getInputStream();
                             byte cityData[] = new byte[4096];
@@ -326,7 +327,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                 }
         }
         } catch (IOException e) {
-            Logger.d(Logger.DOWNLOAD_LOG, "exception: " + e);
+            Logger.d(TAG, "exception: " + e);
             bundle.putInt(BundleKeys.RESULT_CODE_KEY, TaskCode.DOWNLOADER_ERROR_CODE);
         }
         return bundle;
@@ -340,7 +341,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     }
 
     public static boolean isCoreUpdatesDownloadCompleted(){
-        Logger.d(Logger.DOWNLOAD_LOG, "isCoreUpdatesDownloadCompleted: " +
+        Logger.d(TAG, "isCoreUpdatesDownloadCompleted: " +
                 (!IS_CORE_FILES_EXIST.isEmpty() &&  IS_CORE_FILES_EXIST.stream().allMatch(it->true)));
         return !IS_CORE_FILES_EXIST.isEmpty() && IS_CORE_FILES_EXIST.stream().allMatch(it->true);
     }

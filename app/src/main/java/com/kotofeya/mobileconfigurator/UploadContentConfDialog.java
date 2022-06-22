@@ -12,6 +12,8 @@ import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateContentFragment;
 
 public class UploadContentConfDialog extends DialogFragment {
+    private static final String TAG = UploadContentConfDialog.class.getSimpleName();
+
     @NonNull
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         String key = requireArguments().getString(BundleKeys.KEY);
@@ -20,7 +22,7 @@ public class UploadContentConfDialog extends DialogFragment {
         boolean isStationary = requireArguments().getBoolean(BundleKeys.IS_STATIONARY_KEY);
         boolean isTransport = requireArguments().getBoolean(BundleKeys.IS_TRANSPORT_KEY);
 
-        Logger.d(Logger.UPDATE_CONTENT_LOG, "ip: " + ip + ", key: " + key + ", value: " + value +
+        Logger.d(TAG, "ip: " + ip + ", key: " + key + ", value: " + value +
                 ", isStationary: " + isStationary + ", isTransport: " + isTransport);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
@@ -30,7 +32,7 @@ public class UploadContentConfDialog extends DialogFragment {
 
         builder.setPositiveButton("upload", (dialog, id) -> {
             if(value.length() > 20 && value.contains("_")){
-                Logger.d(Logger.UPDATE_CONTENT_LOG, "download by ssh " + ", ip: " + ip +
+                Logger.d(TAG, "download by ssh " + ", ip: " + ip +
                         ", taskCode: " + TaskCode.UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE + ", filepath: " + value);
                 OnTaskCompleted onTaskCompleted = ((UpdateContentFragment) fragmentHandler.getCurrentFragment());
                 ProgressBarInt progressBarInt = ((UpdateContentFragment) fragmentHandler.getCurrentFragment());

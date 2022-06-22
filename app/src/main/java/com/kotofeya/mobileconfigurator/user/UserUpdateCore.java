@@ -9,6 +9,8 @@ public class UserUpdateCore implements UserLevel {
         List<UserInterface> userInterfaces = new ArrayList<>();
 //        userInterfaces.add(UserInterface.WIFI_SCANNER);
         userInterfaces.add(UserInterface.SETTINGS_UPDATE_CORE);
+        userInterfaces.add(UserInterface.CONF_TRANSPORT);
+        userInterfaces.add(UserInterface.UPDATE_CONTENT);
         return userInterfaces;
     }
 
