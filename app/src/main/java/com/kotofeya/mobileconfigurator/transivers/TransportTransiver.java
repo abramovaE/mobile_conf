@@ -11,6 +11,7 @@ import java.io.UnsupportedEncodingException;
 
 public class TransportTransiver extends Transiver {
 
+    public static final String TAG = TransportTransiver.class.getSimpleName();
     public static final int PARK = 0;
     public static final int DIRECT = 1;
     public static final int REVERSE = 2;
@@ -64,7 +65,7 @@ public class TransportTransiver extends Transiver {
             else {
                 number = ((rawData[3] & 0xff) << 8) + (rawData[4] & 0xff) + "";
             }
-            Logger.d(Logger.TRANSPORT_CONTENT_LOG, "number: " + number);
+            Logger.d(TAG, "number: " + number);
             return Integer.parseInt(number);
         }
 

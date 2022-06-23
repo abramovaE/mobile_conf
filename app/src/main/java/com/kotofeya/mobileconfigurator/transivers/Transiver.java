@@ -10,6 +10,7 @@ import com.kotofeya.mobileconfigurator.network.post_response.TakeInfoFull;
 
 public class Transiver {
 
+    private static final String TAG = Transiver.class.getSimpleName();
     int BUZZER_DISABLED = 3;
     int BUZZER_READY = 0;
     int BUZZER_ON = 1;
@@ -496,7 +497,7 @@ public class Transiver {
     }
 
     public void setTakeInfoFull(TakeInfoFull takeInfoFull) {
-        Logger.d(Logger.TRANSPORT_CONTENT_LOG, "set take info full: " + takeInfoFull);
+        Logger.d(TAG, "set take info full: " + takeInfoFull);
         this.takeInfoFull = takeInfoFull;
     }
 

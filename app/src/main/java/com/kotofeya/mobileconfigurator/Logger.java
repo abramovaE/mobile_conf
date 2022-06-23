@@ -29,7 +29,7 @@ public class Logger {
 
 
     public static final int STATION_CONTEN_LOG = 10;
-    public static final int TRANSPORT_CONTENT_LOG = 11;
+
     public static final int CONTENT_LOG = 12;
     public static final int WIFI_LOG = 13;
 
@@ -42,7 +42,7 @@ public class Logger {
     public static final int TRANSPORT_TRANSIVER_LOG = 20;
     public static final int CHECK_USER_LOG = 21;
     public static final int VIEW_MODEL_LOG = 22;
-    public static final int POST_INFO_LOG = 23;
+
     public static final int FRAGMENT_LOG = 24;
     public static final int STM_LOG_LOG = 25;
     public static final int TRANSIVER_STM_LOG_LOG = 26;
@@ -63,7 +63,7 @@ public class Logger {
         mType.put(SCANNER_ADAPTER_LOG, "Scanner_adapter_task");
 
         mType.put(STATION_CONTEN_LOG, "Station_content_task");
-        mType.put(TRANSPORT_CONTENT_LOG, "Transport_content_task");
+
         mType.put(CONTENT_LOG, "Content_task");
         mType.put(WIFI_LOG, "Wifi_task");
         mType.put(APP_LOG, "App_task");
@@ -74,7 +74,7 @@ public class Logger {
         mType.put(TRANSPORT_TRANSIVER_LOG, "Transport_transiver_task");
         mType.put(CHECK_USER_LOG, "Check_user_task");
         mType.put(VIEW_MODEL_LOG, "View_model_task");
-        mType.put(POST_INFO_LOG, "Post_info_task");
+
         mType.put(FRAGMENT_LOG, "Fragment_task");
         mType.put(STM_LOG_LOG, "Stm_log_task");
         mType.put(TRANSIVER_STM_LOG_LOG, "Transiver_stm_log_task");

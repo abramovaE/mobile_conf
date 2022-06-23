@@ -20,6 +20,8 @@ import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
 
 public class TransportContentFragment extends ContentFragment {
+    private static final String TAG = TransportContentFragment.class.getSimpleName();
+
     Spinner spnType;
     EditText number;
     Spinner spnDir;
@@ -31,8 +33,8 @@ public class TransportContentFragment extends ContentFragment {
     @Override
     protected void setFields() {
         transportTransiver = viewModel.getTransiverBySsid(ssid);
-        Logger.d(Logger.TRANSPORT_CONTENT_LOG, "getBySsid: " + transportTransiver);
-        Logger.d(Logger.TRANSPORT_CONTENT_LOG, "ip: " + viewModel.getIp(transportTransiver.getSsid()));
+        Logger.d(TAG, "getBySsid: " + transportTransiver);
+        Logger.d(TAG, "ip: " + viewModel.getIp(transportTransiver.getSsid()));
 
         viewModel.setMainTxtLabel(transportTransiver.getSsid()
 //                 + "\n (" + transportTransiver.getTransportType() +
@@ -108,8 +110,7 @@ public class TransportContentFragment extends ContentFragment {
         int num = 61166;
         try {
             num = Integer.parseInt(number.getText().toString());
-        }catch (NumberFormatException e){
-        }
+        } catch (NumberFormatException e){ }
         String numHex = num + "";
         String lit1 = liter1.getText().toString().toLowerCase();
         String lit2 = liter2.getText().toString().toLowerCase();
@@ -123,7 +124,7 @@ public class TransportContentFragment extends ContentFragment {
 
     private void updateTransportContent(String ip, String typeHex, String numHex, String dirHex, String lit1, String lit2, String lit3) {
         String version = CustomViewModel.getVersion(transportTransiver.getSsid());
-        Logger.d(Logger.TRANSPORT_CONTENT_LOG, "update transport content version: " + version);
+        Logger.d(TAG, "updateTransportContent(), version: " + version);
 
         if(version != null){
             if (!version.equals("ssh_conn")) {
@@ -137,7 +138,7 @@ public class TransportContentFragment extends ContentFragment {
                 } catch (UnsupportedEncodingException e) {
                     e.printStackTrace();
                 }
-                Logger.d(Logger.TRANSPORT_CONTENT_LOG, "send: " + typeHex + " " + numHex + " "
+                Logger.d(TAG, "send: " + typeHex + " " + numHex + " "
                         + dirHex + " " + lit1 + " " + lit2 + " " + lit3);
                 SshConnection connection = new SshConnection(ip, ((TransportContentFragment) fragmentHandler.getCurrentFragment()));
                 connection.execute(SshConnection.SEND_TRANSPORT_CONTENT_CODE, typeHex, numHex, litHex, dirHex);

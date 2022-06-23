@@ -29,6 +29,8 @@ import java.util.List;
 
 public class PostInfo implements Runnable {
 
+    private static final String TAG = PostInfo.class.getSimpleName();
+
     private  String ip;
     private OnTaskCompleted listener;
     private ProgressBarInt progressBarIntListener;
@@ -37,14 +39,14 @@ public class PostInfo implements Runnable {
     private String version;
 
     public PostInfo(OnTaskCompleted listener, String ip, String urlCommand) {
-        Logger.d(Logger.POST_INFO_LOG, "new post: " + urlCommand + ", ip: " + ip);
+        Logger.d(TAG, "PostInfo(): " + urlCommand + ", ip: " + ip);
         this.listener = listener;
         this.urlCommand = urlCommand;
         this.ip = ip;
     }
 
     public PostInfo(OnTaskCompleted listener, String ip, String urlCommand, String version) {
-        Logger.d(Logger.POST_INFO_LOG, "new post: " + urlCommand + ", ip: " + ip + ", version: " + version);
+        Logger.d(TAG, "PostInfo: " + urlCommand + ", ip: " + ip + ", version: " + version);
         this.listener = listener;
         this.urlCommand = urlCommand;
         this.ip = ip;
@@ -92,6 +94,8 @@ public class PostInfo implements Runnable {
             while (null != (line = br.readLine())) {
                 content.append(line);
             }
+            Logger.d(TAG, "run(), content: " + content);
+
             if (response == 200) {
                 switch (formattedCommand) {
                     case PostCommand.TAKE_INFO_FULL:
@@ -100,11 +104,10 @@ public class PostInfo implements Runnable {
                                 .replace("</pre>", ""));
                         JSONObject properties = jsonObject.getJSONObject("properties");
                         double version = getVersion();
-
                         result.putString(BundleKeys.VERSION_KEY, version + "");
-                        Logger.d(Logger.POST_INFO_LOG, "try: " + version + ", props: " + properties);
+                        Logger.d(TAG, "run(), version: " + version + ", props: " + properties);
                         TakeInfoFull takeInfoFull = new GsonBuilder().setVersion(version).create().fromJson(properties.toString(), TakeInfoFull.class);
-                        Logger.d(Logger.POST_INFO_LOG, "takeInfoFull: " + takeInfoFull + ", ip: " + ip);
+                        Logger.d(TAG, "run(), takeInfoFull: " + takeInfoFull + ", ip: " + ip);
                         result.putParcelable(BundleKeys.PARCELABLE_RESPONSE_KEY, takeInfoFull);
                         break;
                     case PostCommand.VERSION:
@@ -136,27 +139,26 @@ public class PostInfo implements Runnable {
                 result.putString(BundleKeys.ERROR_MESSAGE, "responseCode =  " + response);
                 result.putString(BundleKeys.COMMAND_KEY, PostCommand.POST_COMMAND_ERROR);
             }
-            Logger.d(Logger.POST_INFO_LOG, "listener: " + listener + ", ip: " + ip);
+            Logger.d(TAG, "listener: " + listener + ", ip: " + ip);
             reader.close();
         }catch (MalformedURLException | ProtocolException e) {
-            Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage() + ", ip: " + ip);
+            Logger.d(TAG, "exception: " + e.getMessage() + ", ip: " + ip);
             result.putString(BundleKeys.COMMAND_KEY, PostCommand.POST_COMMAND_ERROR);
             result.putString(BundleKeys.RESPONSE_KEY, e.getMessage());
             result.putString(BundleKeys.ERROR_MESSAGE, "MalformedURLException | ProtocolException e =  " + e.getMessage());
         } catch (IOException e) {
-            Logger.d(Logger.POST_INFO_LOG, "io exception: " + e.getMessage() +
+            Logger.d(TAG, "io exception: " + e.getMessage() +
                     ", ip: " + ip + ", command: " + formattedCommand + ", cause" + e.getCause());
             e.printStackTrace();
             result.putString(BundleKeys.COMMAND_KEY, PostCommand.POST_COMMAND_ERROR);
             result.putString(BundleKeys.RESPONSE_KEY, e.getMessage());
             result.putString(BundleKeys.ERROR_MESSAGE, "IOException e =  " + e.getMessage());
         } catch (JSONException e) {
-                Logger.d(Logger.POST_INFO_LOG, "exception: " + e.getMessage() + ", ip: " + ip);
+                Logger.d(TAG, "exception: " + e.getMessage() + ", ip: " + ip);
                 e.printStackTrace();
             result.putString(BundleKeys.ERROR_MESSAGE, "JSONException e =  " + e.getMessage());
-
         } finally {
-            Logger.d(Logger.POST_INFO_LOG, "result: " + result  + ", ip: " + ip);
+            Logger.d(TAG, "result: " + result  + ", ip: " + ip);
             listener.onTaskCompleted(result);
         }
     }
@@ -195,7 +197,7 @@ public class PostInfo implements Runnable {
     }
 
     private double getVersion(){
-        Logger.d(Logger.POST_INFO_LOG, "getVersion(), ip: " + ip + ", version: " + version);
+        Logger.d(TAG, "getVersion(), ip: " + ip + ", version: " + version);
         if(version.startsWith("0")){
             return Double.parseDouble(version.replaceFirst("0.", ""));
         }

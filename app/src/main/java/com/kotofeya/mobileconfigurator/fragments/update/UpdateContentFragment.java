@@ -99,7 +99,7 @@ public class UpdateContentFragment extends UpdateFragment {
             Map<String, String> transportContent,
             String key,
             String value){
-        Logger.d(TAG, "addToTransportContent(): " + transportContent + " " + key + " " + value);
+//        Logger.d(TAG, "addToTransportContent(): " + transportContent + " " + key + " " + value);
         UserType userType = UserFactory.getUser().getUserType();
         if(userType.equals(UserType.USER_FULL) || userType.equals(UserType.USER_UPDATE_CORE)) {
             transportContent.put(key, value);
@@ -161,10 +161,8 @@ public class UpdateContentFragment extends UpdateFragment {
 
     @Override
     public void adapterItemOnClick(Transiver transiver) {
-
         boolean isTransport = transiver.isTransport();
         boolean isStationary = transiver.isStationary();
-
         Bundle bundle = new Bundle();
         bundle.putString(BundleKeys.IP_KEY, transiver.getIp());
         bundle.putBoolean(BundleKeys.IS_TRANSPORT_KEY, isTransport);
