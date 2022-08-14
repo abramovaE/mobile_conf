@@ -14,6 +14,7 @@
         <entry key="app/src/main/res/layout/login.xml" value="0.12158054711246201" />
         <entry key="app/src/main/res/layout/main_fragment.xml" value="0.1" />
         <entry key="app/src/main/res/layout/scanner_fragment_cl.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/scanner_rv_item.xml" value="0.1421875" />
         <entry key="app/src/main/res/layout/settings_fragment.xml" value="0.13451086956521738" />
         <entry key="app/src/main/res/layout/transiver_settings_fragment.xml" value="0.335" />
         <entry key="app/src/main/res/layout/transiver_settings_network_fragment.xml" value="0.1" />

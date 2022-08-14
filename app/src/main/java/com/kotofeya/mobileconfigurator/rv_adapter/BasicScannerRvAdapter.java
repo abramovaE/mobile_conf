@@ -4,16 +4,16 @@ import android.view.View;
 
 import androidx.annotation.NonNull;
 
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import java.util.List;
 
 public class BasicScannerRvAdapter extends RvAdapter {
-    public BasicScannerRvAdapter(List<Transiver> objects) {
+    public BasicScannerRvAdapter(List<Transceiver> objects) {
         super(objects);
     }
 
     @Override
-    public String getExpText(Transiver transiver) {
+    public String getExpText(Transceiver transiver) {
         return transiver.getExpBasicScanInfo();
     }
 

@@ -36,7 +36,7 @@
             app:layout_constraintTop_toBottomOf="@id/progressTv"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@id/versionLabel"
+            app:layout_constraintBottom_toTopOf="@id/version1"
             android:id="@+id/scanner_timer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -52,7 +52,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toTopOf="@id/label_version"
-            android:id="@+id/versionLabel"
+            android:id="@+id/version1"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
@@ -61,11 +61,11 @@
             android:textAlignment="center"
             android:textSize="@dimen/login_txt"/>
         <TextView
-            app:layout_constraintTop_toBottomOf="@id/versionLabel"
+            app:layout_constraintTop_toBottomOf="@id/version1"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toTopOf="@id/check_version_btn"
-            android:id="@+id/label_version"
+            android:id="@+id/version2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:visibility="gone"
@@ -110,6 +110,9 @@
             android:layout_marginEnd="20dp"
             android:layout_marginTop="10dp"
             android:gravity="left"/>
+
+
+
         <LinearLayout
             app:layout_constraintTop_toBottomOf="@id/downloadCoreUpdateFilesTv"
             app:layout_constraintStart_toStartOf="parent"
@@ -129,6 +132,7 @@
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp"
                 android:layout_weight="1"
+                android:layout_gravity="center"
                 android:textAlignment="center" />
             <TextView
                 android:layout_width="match_parent"
@@ -137,16 +141,21 @@
                 android:layout_weight="1"
                 android:textAlignment="center"
                 android:paddingStart="5dp"
+                android:gravity="center"
                 android:paddingEnd="5dp" />
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/server_incr"
                 android:layout_weight="1"
+                android:gravity="center"
                 android:textAlignment="center"
                 android:paddingStart="5dp"
                 android:paddingEnd="5dp" />
         </LinearLayout>
+
+
+
         <androidx.recyclerview.widget.RecyclerView
             app:layoutManager="LinearLayoutManager"
             android:layout_width="match_parent"

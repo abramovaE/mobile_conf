@@ -31,7 +31,6 @@ import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SendLogToServer;
 import com.kotofeya.mobileconfigurator.TaskCode;
-import com.kotofeya.mobileconfigurator.clientsHandler.ClientsHandler;
 import com.kotofeya.mobileconfigurator.databinding.ActivityMainClBinding;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 
@@ -53,10 +52,9 @@ public class MainActivity extends AppCompatActivity
     private static final int TETHER_REQUEST_CODE = 1;
     private static final String HOTSPOT_DIALOG_TAG = "HOTSPOT_DIALOG";
 
-    private CustomViewModel viewModel;
+    private MainActivityViewModel viewModel;
     private AlertDialog scanClientsDialog;
     private FragmentHandler fragmentHandler;
-    private ClientsHandler clientsHandler;
 
     private void init(Boolean isHotspotDialogShowing){
         if(!isHotspotDialogShowing){
@@ -67,7 +65,7 @@ public class MainActivity extends AppCompatActivity
 
     private void startScan(){
         Logger.d(TAG, "startScan()");
-        clientsHandler.updateConnectedClients();
+        viewModel.updateConnectedClients();
     }
 
     private void launchHotspotSettings() {
@@ -93,6 +91,7 @@ public class MainActivity extends AppCompatActivity
         }
         return fragmentHandler;
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -109,13 +108,15 @@ public class MainActivity extends AppCompatActivity
 
         Downloader cityDownloader = new Downloader(this);
         cityDownloader.execute(Downloader.CITY_URL);
-        viewModel = ViewModelProviders.of(this, new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
+
+        viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
 
         Runnable runnable = new CountDownRunner(viewModel);
         Thread timerThread = new Thread(runnable);
         timerThread.start();
 
         viewModel.mainBtnRescanVisibility().observe(this, this::updateBtnRescanVisibility);
+
         viewModel.setMainBtnRescanVisibility(View.GONE);
 
         if (App.get().isAskForTeneth()) {
@@ -130,23 +131,19 @@ public class MainActivity extends AppCompatActivity
         if (isInternetEnabled) {
             new Thread(new SendLogToServer(Logger.getServiceLogString(), this)).start();
         }
-        viewModel.getClients().observe(this, this::updateClientsCount);
+        viewModel.clients.observe(this, this::updateClientsCount);
         viewModel.mainTxtLabel().observe(this, this::updateMainTxtLabel);
         viewModel.isHotspotDialogShowing.observe(this, this::init);
-        viewModel.isClientsScanning().observe(this, this::updateScanClientsDialog);
+        viewModel.isScanning.observe(this, this::updateScanClientsDialog);
         viewModel.time().observe(this, this::updateTime);
-
         binding.mainBtnRescan.setOnClickListener(v -> rescan());
-        this.clientsHandler = ClientsHandler.getInstance(viewModel);
-
     }
 
     protected void rescan(){
         Logger.d(TAG, "rescan");
-        clientsHandler.clearClients();
-        viewModel.clearMap();
-        viewModel.clearTransivers();
-        clientsHandler.updateAndPollConnectedClients();
+        viewModel.clearClients();
+        viewModel.clearTransceivers();
+        viewModel.updateAndPollConnectedClients();
         viewModel.rescanPressed();
     }
 
@@ -282,7 +279,7 @@ public class MainActivity extends AppCompatActivity
             setToServer = new Thread(new SendLogToServer(Logger.getServiceLogString(), this));
             setToServer.start();
         }
-        clientsHandler.stopScanning();
+        viewModel.stopClientsScanning();
         super.onStop();
     }
 

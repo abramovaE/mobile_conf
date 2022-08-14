@@ -10,7 +10,7 @@ import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 
 public class ConfigStatFragment extends ConfigFragment {
     @Override
@@ -27,23 +27,24 @@ public class ConfigStatFragment extends ConfigFragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         basicScan();
+//        viewModel.getTransceivers().observe(getViewLifecycleOwner(), this::updateUI);
         viewModel.getStationaryInformers().observe(getViewLifecycleOwner(), this::updateUI);
-        viewModel.isClientsScanning().observe(getViewLifecycleOwner(), this::updateClientsScanning);
+        viewModel.isScanning.observe(getViewLifecycleOwner(), this::updateClientsScanning);
     }
 
     public void basicScan(){
-        clientsHandler.pollConnectedClients();
+        viewModel.pollConnectedClients();
     }
 
 
     private void updateClientsScanning(Boolean aBoolean) {
         if(!aBoolean){
-            clientsHandler.pollConnectedClients();
+            viewModel.pollConnectedClients();
         }
     }
 
     @Override
-    public void adapterItemOnClick(Transiver transiver) {
+    public void adapterItemOnClick(Transceiver transiver) {
         String ssid = transiver.getSsid();
         Bundle bundle = new Bundle();
         bundle.putString(BundleKeys.SSID_KEY, ssid);

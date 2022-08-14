@@ -7,7 +7,8 @@ public interface PostCommand {
     String TAKE_INFO_FULL = "takeInfoFull";
 //    stm_update_log - листинг лог файла обновления STM
     String STM_UPDATE_LOG = "stm_update_log";
-//    stm_update_log_clear - очистка лог файла обновления STM (приведет к повторной загрузке имеющегося на малине контента в STM)
+//    stm_update_log_clear - очистка лог файла обновления STM
+//    (приведет к повторной загрузке имеющегося на малине контента в STM)
     String STM_UPDATE_LOG_CLEAR = "stm_update_log_clear";
 //    erase_content - удаление контента (очистка директорий data, рекурсивно)
     String ERASE_CONTENT = "erase_content";
@@ -34,12 +35,14 @@ public interface PostCommand {
     default String floor(int floorNumber){
         return FLOOR + "_" + floorNumber;
     }
-//    sound - установить тип звучания маяка (1 - комнатный, 2 - уличный). Пример: sound_2 - установит тип звучания "уличный"
+//    sound - установить тип звучания маяка (1 - комнатный, 2 - уличный).
+//    \Пример: sound_2 - установит тип звучания "уличный"
 //    Иные значения не примутся системой
     default String sound(int soundNumber){
         return SOUND + "_" + soundNumber;
     }
-//    volume - установить громкость звукового маяка (0-100). Пример: volume_20 - установит громкость на 20 (зависимость не линейная)
+//    volume - установить громкость звукового маяка (0-100).
+//    Пример: volume_20 - установит громкость на 20 (зависимость не линейная)
 //    Иные значения не примутся системой
     default String volume(int volumeValue){
         return VOLUME + "_" + volumeValue;
@@ -60,7 +63,8 @@ public interface PostCommand {
 //    LIT - литера
 //    LIT - литера
 //    NAPR - направление (1 - прямо, 2 - обратно).
-    default String transpConfig(String type, String lit1, String num, String lit2, String lit3, String dir){
+    default String transpConfig(String type, String lit1,
+                                String num, String lit2, String lit3, String dir){
 //        if(lit1 != null && !lit1.isEmpty()){
             lit1 = lit1 + "_";
 //        }
@@ -73,7 +77,8 @@ public interface PostCommand {
         return TRANSP_CONTENT + "_" + type + "_" + lit1 + num + "_" + lit2 + lit3 + dir;
     }
 //    static - настройка статического IP ethernet интерфейса
-//    clear - привести конфигурацию к стандартному виду (настройки примутся при перезапуске, он инициируется отдельно)
+//    clear - привести конфигурацию к стандартному виду
+//    (настройки примутся при перезапуске, он инициируется отдельно)
 //    пример: static_clear - дефолтные настройки
 //    IP_GATE_MASK - задаем параметры статики ethernet интерфейса
 //    пример: static_10.43.44.15_10.43.44.1_255.255.255.254 - задаст:
@@ -89,7 +94,8 @@ public interface PostCommand {
         return staticCommand.toString();
     }
 //    wifi - настройка WIFI интерфейса
-//    clear - привести конфигурацию к стандартному виду (настройки примутся при перезапуске, он инициируется отдельно)
+//    clear - привести конфигурацию к стандартному виду
+//    (настройки примутся при перезапуске, он инициируется отдельно)
 //    Пример: wifi_clear - дефолтные настройки
 //    SSID_PASSW - задаем пареметры дополнительной WIFI сети
 //    пример: wifi_newSSiD_verYcooLpass - задаст:

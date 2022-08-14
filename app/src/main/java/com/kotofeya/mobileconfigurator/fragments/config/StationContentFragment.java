@@ -10,13 +10,12 @@ import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
-import com.kotofeya.mobileconfigurator.SshConnectionRunnable;
-import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
+import com.kotofeya.mobileconfigurator.SshTakeInfoConnectionRunnable;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 public class StationContentFragment extends ContentFragment {
     EditText floorTxt;
@@ -24,19 +23,16 @@ public class StationContentFragment extends ContentFragment {
     Spinner zumVolumeSpn;
     Spinner modemConfigSpn;
     String[] modemConfigs;
-    Transiver statTransiver;
+    Transceiver statTransiver;
     String zumTypeSend;
     String zumVolumeSend;
 
     @Override
     protected void setFields() {
-        statTransiver = viewModel.getTransiverBySsid(ssid);
-        viewModel.setMainTxtLabel(statTransiver.getSsid() + " ("
-//               + statTransiver.getStringType()
-                + ")");
+        statTransiver = viewModel.getTransceiverBySsid(ssid);
+        viewModel.setMainTxtLabel(statTransiver.getSsid());
 
         floorTxt = binding.contentTxt0;
-//        floorTxt.setText(String.valueOf(statTransiver.getFloor()));
         floorTxt.setVisibility(View.VISIBLE);
         floorTxt.addTextChangedListener(textWatcher);
         floorTxt.setOnKeyListener(onKeyListener);
@@ -82,16 +78,19 @@ public class StationContentFragment extends ContentFragment {
                 }
             }
         } else {
-            String ip = viewModel.getIp(statTransiver.getSsid());
-            String version = CustomViewModel.getVersion(statTransiver.getSsid());
+            Transceiver transceiver = viewModel.getTransceiverBySsid(statTransiver.getSsid());
+            String ip = transceiver.getIp();
+            String version = transceiver.getVersion();
             if(version != null && version.equals("ssh_conn")) {
-                new SshConnectionRunnable(((MainActivity) requireActivity()), ip, SshConnection.TAKE_CODE);
+                new SshTakeInfoConnectionRunnable(((MainActivity) requireActivity()), ip);
             }
         }
     }
     protected void updateBtnContentSendState(){
-        String ip = viewModel.getIp(statTransiver.getSsid());
-        String version = CustomViewModel.getVersion(statTransiver.getSsid());
+        Transceiver transceiver = viewModel.getTransceiverBySsid(statTransiver.getSsid());
+        String ip = transceiver.getIp();
+        String version = transceiver.getVersion();
+
         Logger.d(Logger.STATION_CONTEN_LOG, "update btn content send state: ip - " + ip + ", version: " + version);
         binding.contentBtnSend.setEnabled((!floorTxt.getText().toString().isEmpty()
                 || zumTypesSpn.getSelectedItemPosition() > 0
@@ -107,7 +106,9 @@ public class StationContentFragment extends ContentFragment {
 
     @Override
     public void onClick(View v) {
-        String version = CustomViewModel.getVersion(currentTransceiver.getSsid());
+        Transceiver transceiver = viewModel.getTransceiverBySsid(statTransiver.getSsid());
+        String ip = transceiver.getIp();
+        String version = transceiver.getVersion();
         String floorSend = floorTxt.getText().toString();
         zumTypeSend = zumTypesSpn.getSelectedItem().toString();
         zumVolumeSend = zumVolumeSpn.getSelectedItem().toString();
@@ -142,12 +143,7 @@ public class StationContentFragment extends ContentFragment {
                     command.append(SshConnection.MODEM_CONFIG_BEELINE_MEGAF_COMMAND);
                 }
             }
-            String ip = statTransiver.getIp();
-            if(ip == null){
-                ip = viewModel.getIp(statTransiver.getSsid());
-            }
             Logger.d(Logger.STATION_CONTEN_LOG, "send command: " + command.toString());
-
             SshConnection connection = new SshConnection(ip, ((StationContentFragment) fragmentHandler.getCurrentFragment()));
             connection.execute(SshConnection.SEND_STATION_CONTENT_CODE, command.toString());
         } else if(version != null){
@@ -157,7 +153,6 @@ public class StationContentFragment extends ContentFragment {
             } else if(zumTypeSend.equals(getResources().getStringArray(R.array.zummer_types)[2])){
                 zumType = 1;
             }
-            String ip = viewModel.getIp(statTransiver.getSsid());
             if(!floorSend.isEmpty()) {
                 Thread thread = new Thread(new PostInfo(this, ip, floor(Integer.parseInt(floorSend))));
                 thread.start();

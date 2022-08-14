@@ -19,8 +19,8 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.UpdateContentConfDialog;
 import com.kotofeya.mobileconfigurator.UploadContentConfDialog;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
 import com.kotofeya.mobileconfigurator.user.UserFactory;
 import com.kotofeya.mobileconfigurator.user.UserType;
 
@@ -46,11 +46,13 @@ public class UpdateContentFragment extends UpdateFragment {
 
     @Override
     public void setMainTextLabelText() {
+        Logger.d(TAG, "setMainTextLabelText()");
         viewModel.setMainTxtLabel(getString(R.string.update_content_main_txt_label));
     }
 
     @Override
     public RvAdapterType getAdapterType() {
+        Logger.d(TAG, "getAdapterType()");
         return RvAdapterType.UPDATE_CONTENT_TYPE;
     }
 
@@ -58,6 +60,7 @@ public class UpdateContentFragment extends UpdateFragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
+        Logger.d(TAG, "onCreateView()");
         View view = super.onCreateView(inflater, container, savedInstanceState);
         binding.downloadCoreUpdateFilesTv.setVisibility(View.VISIBLE);
         updateFilesTv();
@@ -65,6 +68,7 @@ public class UpdateContentFragment extends UpdateFragment {
     }
 
     private void updateFilesTv(){
+        Logger.d(TAG, "updateFilesTv()");
         StringBuilder sb = new StringBuilder();
         sb.append("Сохраненные файлы: \n");
         new LinkedList<>(App.get().getUpdateContentFilePaths())
@@ -76,7 +80,7 @@ public class UpdateContentFragment extends UpdateFragment {
     public void onStart() {
         Logger.d(TAG, "onStart()");
         super.onStart();
-        binding.versionLabel.setVisibility(View.GONE);
+        binding.version1.setVisibility(View.GONE);
         viewModel.setMainBtnRescanVisibility(View.VISIBLE);
         binding.updateContentLabel.setVisibility(View.VISIBLE);
 
@@ -160,7 +164,7 @@ public class UpdateContentFragment extends UpdateFragment {
     }
 
     @Override
-    public void adapterItemOnClick(Transiver transiver) {
+    public void adapterItemOnClick(Transceiver transiver) {
         boolean isTransport = transiver.isTransport();
         boolean isStationary = transiver.isStationary();
         Bundle bundle = new Bundle();

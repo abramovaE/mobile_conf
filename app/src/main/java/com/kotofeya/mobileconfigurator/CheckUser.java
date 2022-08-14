@@ -3,7 +3,6 @@ package com.kotofeya.mobileconfigurator;
 
 import android.content.Context;
 import android.os.AsyncTask;
-import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -26,6 +25,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CheckUser extends AsyncTask<Void, Void, Void> {
+    public static final String TAG = CheckUser.class.getSimpleName();
+
     private static String url_checkUser = "http://95.161.210.44/is_mobile_conf_user_valid.php";
     private String login;
     private String password;
@@ -101,24 +102,23 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
         Logger.d(Logger.CHECK_USER_LOG, "On post execute, is user valid: " + isUserValid);
 
 //         TODO: 08.04.2021 remove
-//        isUserValid = true;
-//        App.get().setLevel("full");
-//        callback.doIfUserValid();
+        isUserValid = true;
+        App.get().setLevel("full");
+        callback.doIfUserValid();
 
-        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
-        if(callback != null && isUserValid){
-            Logger.d(Logger.CHECK_USER_LOG, "On post execute, level: " + level);
-            App.get().setLevel(level);
-            callback.doIfUserValid();
-        }
+//        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+//        if(callback != null && isUserValid){
+//            Logger.d(Logger.CHECK_USER_LOG, "On post execute, level: " + level);
+//            App.get().setLevel(level);
+//            callback.doIfUserValid();
+//        }
     }
 
 
     private String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
         StringBuilder result = new StringBuilder();
         boolean first = true;
-        for (NameValuePair pair : params)
-        {
+        for (NameValuePair pair : params) {
             if (first)
                 first = false;
             else
@@ -127,6 +127,7 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
             result.append("=");
             result.append(URLEncoder.encode(pair.getValue(), "UTF-8"));
         }
+//        Logger.d(TAG, "getQuery: " + result.toString());
         return result.toString();
     }
 

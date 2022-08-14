@@ -25,12 +25,13 @@ import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransceiverS
 import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransceiverStmLogFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsNetworkFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsScUartFragment;
-import com.kotofeya.mobileconfigurator.fragments.update.SettingsUpdateCoreFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.UpdateCoreFragment2;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsUpdatePhpFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsWifiFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.StmLogFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateContentFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment2;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateStmFragment;
 
 public class FragmentHandler {
@@ -72,12 +73,12 @@ public class FragmentHandler {
     public final static String DIALOG_FRAGMENT_TAG = "DIALOG_FRAGMENT";
 
     public void showMessage(String message) {
+        Logger.d(TAG, "showMessage(): " + message);
         ((MainActivity) context).runOnUiThread(new Runnable() {
             public void run() {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 builder.setMessage(message);
-                builder.setPositiveButton(R.string.ok, (dialog, id) -> {
-                });
+                builder.setPositiveButton(R.string.ok, (dialog, id) -> {});
                 builder.setCancelable(true);
                 builder.show();
             }
@@ -102,7 +103,7 @@ public class FragmentHandler {
                 case BASIC_SCANNER_FRAGMENT:
                     return new BasicScannerFragment();
                 case UPDATE_OS_FRAGMENT:
-                    return new UpdateOsFragment();
+                    return new UpdateOsFragment2();
                 case UPDATE_STM_FRAGMENT:
                     return new UpdateStmFragment();
                 case UPDATE_CONTENT_FRAGMENT:
@@ -136,7 +137,7 @@ public class FragmentHandler {
                 case SETTINGS_UPDATE_PHP_FRAGMENT:
                     return new SettingsUpdatePhpFragment();
                 case SETTINGS_UPDATE_CORE_FRAGMENT:
-                    return new SettingsUpdateCoreFragment();
+                    return new UpdateCoreFragment2();
             }
         }
         return fragment;

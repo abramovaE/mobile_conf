@@ -7,10 +7,13 @@ import android.widget.TextView;
 
 import androidx.constraintlayout.widget.ConstraintLayout;
 
+import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 
 
 public class RvAdapterView extends ConstraintLayout {
+    public static final String TAG = RvAdapterView.class.getSimpleName();
+
     private final TextView ssid;
     private final TextView textItem0;
     private final TextView textItem1;
@@ -48,6 +51,7 @@ public class RvAdapterView extends ConstraintLayout {
         textItem2.setVisibility(visibility);
     }
     public void setTextItem0Text(String text){
+        Logger.d(TAG, "setTextItem0Text(), text: " + text);
         textItem0.setText(text);
     }
     public void setTextItem1Text(String text){

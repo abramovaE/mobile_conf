@@ -17,8 +17,7 @@
             android:id="@+id/scanner_lv_item_ssid"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="@dimen/update_content_lv_item"
-            app:layout_constraintHorizontal_weight="3" />
+            android:textSize="@dimen/update_content_lv_item" />
         <TextView
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toEndOf="@id/scanner_lv_item_ssid"
@@ -26,10 +25,11 @@
             app:layout_constraintBottom_toTopOf="@id/scanner_lv_item_txt_exp"
             android:id="@+id/scanner_lv_item0"
             android:layout_width="0dp"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
             android:layout_height="wrap_content"
             android:textSize="@dimen/update_content_lv_item"
-            app:layout_constraintHorizontal_weight="3"
-            android:paddingLeft="15dp"
+            android:gravity="center"
             android:visibility="gone"/>
         <TextView
             app:layout_constraintTop_toTopOf="parent"
@@ -40,8 +40,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/update_content_lv_item"
-            app:layout_constraintHorizontal_weight="2"
-            android:paddingLeft="15dp"
+            android:gravity="center"
             android:visibility="gone"/>
         <TextView
             app:layout_constraintTop_toTopOf="parent"
@@ -52,8 +51,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textSize="@dimen/update_content_lv_item"
-            app:layout_constraintHorizontal_weight="2"
-            android:paddingLeft="15dp"
+            android:gravity="center"
             android:visibility="gone"/>
         <Button
             app:layout_constraintTop_toTopOf="parent"

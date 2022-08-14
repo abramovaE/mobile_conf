@@ -29,14 +29,13 @@ import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
-import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
-import com.kotofeya.mobileconfigurator.clientsHandler.ClientsHandler;
+import com.kotofeya.mobileconfigurator.activities.MainActivityViewModel;
 import com.kotofeya.mobileconfigurator.databinding.ContentFragmentBinding;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -44,6 +43,8 @@ import java.util.List;
 
 public abstract class ContentFragment extends Fragment
         implements OnTaskCompleted, PostCommand, View.OnClickListener {
+
+    public static final String TAG = ContentFragment.class.getSimpleName();
 
     public static final String REBOOT_TYPE="rebootType";
     public static final String REBOOT_RASP="rasp";
@@ -55,26 +56,27 @@ public abstract class ContentFragment extends Fragment
 
     protected ContentFragmentBinding binding;
 
-    protected CustomViewModel viewModel;
+    protected MainActivityViewModel viewModel;
     protected String ssid;
     protected View.OnKeyListener onKeyListener;
     protected AdapterView.OnItemSelectedListener onItemSelectedListener;
     protected TextWatcher textWatcher;
 
-    protected Transiver currentTransceiver;
+    protected Transceiver currentTransceiver;
 
     ContentClickListener contentClickListener;
     protected FragmentHandler fragmentHandler;
-    protected ClientsHandler clientsHandler;
+//    protected ClientsHandler clientsHandler;
 
-    protected void updateUI() {
-        Logger.d(Logger.CONTENT_LOG, "update ui, ssid " + ssid + " " + currentTransceiver.getSsid());
-        if(CustomViewModel.getVersion(ssid) != null) {
+    private void updateUI() {
+        Logger.d(TAG, "update ui, ssid " + ssid + " " + currentTransceiver.getSsid());
+        currentTransceiver = viewModel.getTransceiverBySsid(currentTransceiver.getSsid());
+        if(currentTransceiver.getVersion() != Transceiver.VERSION_UNDEFINED) {
             binding.contentBtnRasp.setEnabled(true);
             binding.contentBtnStm.setEnabled(true);
             binding.contentBtnClear.setEnabled(true);
             binding.contentBtnSend.setEnabled(true);
-            if(!CustomViewModel.getVersion(ssid).equals("ssh_conn")){
+            if(!currentTransceiver.getVersion().equals("ssh_conn")){
                 binding.contentBtnAll.setVisibility(View.VISIBLE);
                 binding.contentBtnAll.setEnabled(true);
             }
@@ -141,16 +143,17 @@ public abstract class ContentFragment extends Fragment
 
         this.ssid = getArguments().getString("ssid");
 
-        viewModel = ViewModelProviders.of(requireActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
+        viewModel = ViewModelProviders.of(requireActivity()).get(MainActivityViewModel.class);
 
-        viewModel.isClientsScanning().observe(getViewLifecycleOwner(), this::updateClientsScanFinished);
-        this.clientsHandler = ClientsHandler.getInstance(viewModel);
+        viewModel.isScanning.observe(getViewLifecycleOwner(), this::updateClientsScanFinished);
+//        this.clientsHandler = ClientsHandler.getInstance();
         return binding.getRoot();
     }
 
     private void updateClientsScanFinished(Boolean aBoolean) {
         if(!aBoolean){
-            clientsHandler.pollConnectedClients();
+            viewModel.pollConnectedClients();
+//            clientsHandler.pollConnectedClients();
         }
     }
 
@@ -170,20 +173,14 @@ public abstract class ContentFragment extends Fragment
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        Logger.d(Logger.CONTENT_LOG, "on view created");
+        Logger.d(TAG, "on view created");
         super.onViewCreated(view, savedInstanceState);
-        viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUI);
-        viewModel.getIsGetTakeInfoFinished().observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
+//        viewModel.getTransceivers().observe(getViewLifecycleOwner(), this::updateUI);
+        viewModel.isGetTakeInfoFinished.observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
 
-        currentTransceiver = viewModel.getTransiverBySsid(ssid);
+        currentTransceiver = viewModel.getTransceiverBySsid(ssid);
 
-
-        String ip = currentTransceiver.getIp();
-        if(ip == null){
-            ip = viewModel.getIp(currentTransceiver.getSsid());
-        }
-
-        contentClickListener = new ContentClickListener(currentTransceiver, ip, fragmentHandler);
+        contentClickListener = new ContentClickListener(currentTransceiver, fragmentHandler);
         contentClickListener.setListener(this);
 
         binding.contentBtnRasp.setOnClickListener(contentClickListener);
@@ -199,32 +196,29 @@ public abstract class ContentFragment extends Fragment
                 binding.contentBtnClear.setVisibility(binding.contentBtnClear.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
             }
         });
-        viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateInformers);
+        viewModel.transceivers.observe(getViewLifecycleOwner(), this::updateInformers);
         setFields();
     }
 
 
     protected abstract void setFields();
 
-    private void updateInformers(List<Transiver> transceivers){
-        Logger.d(Logger.CONTENT_LOG, "update informers, current ssid: " + ssid);
-        Logger.d(Logger.CONTENT_LOG, "update informers, transceivers: " + transceivers);
-        Transiver transiver = transceivers.stream().filter(it->it.getSsid().equals(ssid)).findAny().orElse(null);
+    private void updateInformers(List<Transceiver> transceivers){
+        updateFields();
+        Logger.d(TAG, "update informers, current ssid: " + ssid);
+        Logger.d(TAG, "update informers, transceivers: " + transceivers);
+        Transceiver transiver = viewModel.getTransceiverBySsid(ssid);
         if(transiver != null){
-            Logger.d(Logger.CONTENT_LOG, "transceiver: " + transiver);
-            if(viewModel.getIp(ssid) != null){
-                currentTransceiver.setIp(transiver.getIp());
-                currentTransceiver.setVersion(transiver.getVersion());
-                Logger.d(Logger.CONTENT_LOG, "update ip: " + currentTransceiver.getIp());
+            Logger.d(TAG, "transceiver: " + transiver);
+            currentTransceiver = transiver;
+            if(currentTransceiver.getSsid() != null){
                 updateBtnContentSendState();
                 updateUI();
             }
         }
     }
 
-    private void updateUI(List<Transiver> transceivers){
-        updateFields();
-    }
+
     protected abstract void updateBtnContentSendState();
 
     @Override
@@ -232,32 +226,32 @@ public abstract class ContentFragment extends Fragment
 
         int resultCode = result.getInt(BundleKeys.RESULT_CODE_KEY);
         String resultStr = result.getString(BundleKeys.RESULT_KEY);
-        Logger.d(Logger.CONTENT_LOG, "on task completed, resultCode: " + resultCode);
+        Logger.d(TAG, "on task completed, resultCode: " + resultCode);
 
         if(resultCode == TaskCode.REBOOT_STM_CODE && resultStr.contains("Tested")){
-            Logger.d(Logger.CONTENT_LOG, "stm rebooted");
+            Logger.d(TAG, "stm rebooted");
             fragmentHandler.showMessage(getString(R.string.stm_rebooted));
         }
         else if(resultCode == TaskCode.REBOOT_CODE){
             (requireActivity()).onBackPressed();
         }
         else if(resultCode == TaskCode.CLEAR_RASP_CODE){
-            Logger.d(Logger.CONTENT_LOG, "rasp was cleared");
+            Logger.d(TAG, "rasp was cleared");
             fragmentHandler.showMessage(getString(R.string.rasp_was_cleared));
         }
         else if(resultCode == TaskCode.SSH_ERROR_CODE || resultCode == TaskCode.DOWNLOADER_ERROR_CODE){
             if(!resultStr.contains("Connection refused")) {
-                Logger.d(Logger.CONTENT_LOG, "Connection refused, error");
+                Logger.d(TAG, "Connection refused, error");
                 fragmentHandler.showMessage("Error");
             }
         }
         else if(resultCode == TaskCode.SEND_TRANSPORT_CONTENT_CODE && resultStr.contains("Tested")){
-            Logger.d(Logger.CONTENT_LOG, "transport content updated");
+            Logger.d(TAG, "transport content updated");
             fragmentHandler.showMessage(getString(R.string.content_updated));
             (requireActivity()).onBackPressed();
         }
         else if(resultCode == TaskCode.SEND_STATION_CONTENT_CODE && resultStr.contains("Tested")){
-            Logger.d(Logger.CONTENT_LOG, "station content updated");
+            Logger.d(TAG, "station content updated");
             fragmentHandler.showMessage(getString(R.string.content_updated));
             (requireActivity()).onBackPressed();
         }
@@ -265,28 +259,27 @@ public abstract class ContentFragment extends Fragment
     }
 
     private void basicScan(){
-        Logger.d(Logger.CONTENT_LOG, "wifi scan");
-        clientsHandler.pollConnectedClients();
+        Logger.d(TAG, "wifi scan");
+        viewModel.pollConnectedClients();
+//        clientsHandler.pollConnectedClients();
     }
-
-
 
     @Override
     public void onStart() {
         super.onStart();
-        Logger.d(Logger.CONTENT_LOG, "contentFragment onStart");
+        Logger.d(TAG, "contentFragment onStart");
         String ssid = getArguments().getString(BundleKeys.SSID_KEY);
-        currentTransceiver = viewModel.getTransiverBySsid(ssid);
+        currentTransceiver = viewModel.getTransceiverBySsid(ssid);
         if(!refreshButtons()){
             basicScan();
         }
         viewModel.setMainBtnRescanVisibility(View.GONE);
     }
 
-    public boolean refreshButtons(){
-        Logger.d(Logger.CONTENT_LOG, "refresh buttons, currentTransceiverIp: " +
-                currentTransceiver.getIp() +" " + viewModel.getIp(currentTransceiver.getSsid()));
-        if(currentTransceiver.getIp() != null || viewModel.getIp(currentTransceiver.getSsid()) != null){
+    private boolean refreshButtons(){
+        Transceiver transceiver = viewModel.getTransceiverBySsid(currentTransceiver.getSsid());
+        Logger.d(TAG, "refresh buttons, currentTransceiverIp: " + transceiver.getIp());
+        if(currentTransceiver.getIp() != null || transceiver.getIp() != null){
             myHandler.post(updateRunnable);
             return true;
         }
@@ -310,7 +303,7 @@ public abstract class ContentFragment extends Fragment
             String ip = getArguments().getString(BundleKeys.IP_KEY);
             String version = getArguments().getString(BundleKeys.VERSION_KEY);
 
-            Logger.d(Logger.CONTENT_LOG, "show reboot/clear confirmation dialog: type - " + rebootType + ", ip: " + ip);
+            Logger.d(TAG, "show reboot/clear confirmation dialog: type - " + rebootType + ", ip: " + ip);
             AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
             builder.setTitle(R.string.confirmation_is_required);
 
@@ -323,7 +316,7 @@ public abstract class ContentFragment extends Fragment
 
             builder.setPositiveButton("ok", (dialog, id) -> {
 
-                Logger.d(Logger.CONTENT_LOG, "on click, version: " + version + ", reboot type: " + rebootType);
+                Logger.d(TAG, "on click, version: " + version + ", reboot type: " + rebootType);
                 if(version != null) {
 
                     if (!version.equals("ssh_conn")) {
@@ -363,28 +356,30 @@ public abstract class ContentFragment extends Fragment
 
 
 class ContentClickListener implements View.OnClickListener{
-    private final Transiver transiver;
+//    private final Transceiver transiver;
     private final FragmentHandler fragmentHandler;
     private OnTaskCompleted listener;
     private String ip;
+    private String version;
+    public static final String TAG = ContentClickListener.class.getSimpleName();
+
 
     public void setListener(OnTaskCompleted listener) {
         this.listener = listener;
     }
 
-    public ContentClickListener(Transiver transiver,
-                                String ip,
+    public ContentClickListener(Transceiver transiver,
                                 FragmentHandler fragmentHandler){
-        this.transiver = transiver;
+//        this.transiver = transiver;
         this.fragmentHandler = fragmentHandler;
-        this.ip = ip;
+        this.ip = transiver.getIp();
+        this.version = transiver.getVersion();
     }
 
     @Override
     public void onClick(View v) {
 
-        String version = CustomViewModel.getVersion(transiver.getSsid());
-        Logger.d(Logger.CONTENT_LOG, "currentTransIp: " + ip + ", version: " + version);
+        Logger.d(TAG, "currentTransIp: " + ip + ", version: " + version);
         Bundle bundle = new Bundle();
         bundle.putString(BundleKeys.IP_KEY, ip);
         bundle.putString(BundleKeys.VERSION_KEY, version);
@@ -394,20 +389,20 @@ class ContentClickListener implements View.OnClickListener{
 
         switch (v.getId()) {
             case R.id.content_btn_rasp:
-                Logger.d(Logger.CONTENT_LOG, "reboot raspberry btn was pressed");
+                Logger.d(TAG, "reboot raspberry btn was pressed");
                 bundle.putString(ContentFragment.REBOOT_TYPE, ContentFragment.REBOOT_RASP);
                 break;
             case R.id.content_btn_stm:
-                Logger.d(Logger.CONTENT_LOG, "reboot stm btn was pressed");
+                Logger.d(TAG, "reboot stm btn was pressed");
                 bundle.putString(ContentFragment.REBOOT_TYPE, ContentFragment.REBOOT_STM);
                 break;
             case R.id.content_btn_clear:
-                Logger.d(Logger.CONTENT_LOG, "clear btn was pressed");
+                Logger.d(TAG, "clear btn was pressed");
                 bundle.putString(ContentFragment.REBOOT_TYPE, ContentFragment.REBOOT_CLEAR);
                 break;
 
             case R.id.content_btn_all:
-                Logger.d(Logger.CONTENT_LOG, "reboot all btn was pressed");
+                Logger.d(TAG, "reboot all btn was pressed");
                 bundle.putString(ContentFragment.REBOOT_TYPE, ContentFragment.REBOOT_ALL);
                 break;
         }
@@ -415,5 +410,4 @@ class ContentClickListener implements View.OnClickListener{
         dialog.setArguments(bundle);
         dialog.show(fragmentHandler.getFragmentManager(), FragmentHandler.CONFIRMATION_DIALOG_TAG);
     }
-
 }

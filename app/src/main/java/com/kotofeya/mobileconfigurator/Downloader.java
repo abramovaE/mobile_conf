@@ -3,6 +3,8 @@ package com.kotofeya.mobileconfigurator;
 import android.os.AsyncTask;
 import android.os.Bundle;
 
+import com.kotofeya.mobileconfigurator.network.DownloadFileUtils;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -29,30 +31,30 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     public static final String STATION_CONTENT_VERSION_URL = "http://95.161.210.44/update/content/station";
     public static final String OS_URL = "http://95.161.210.44/update/rootimg/root.img.bz2";
 
-    public static final String CORE_URLS = "core_urls";
-    private static final String CORE_URLS_DIR = "http://95.161.210.44/update/1.4-1.5/";
+//    public static final String CORE_URLS = "core_urls";
+//    private static final String CORE_URLS_DIR = "http://95.161.210.44/update/1.4-1.5/";
 
-    // TODO: 25.08.2021 rename last file
-    private static final String[] CORE_URLS_FILE_NAMES = {
-            "root_prepare_1.4-1.5.img.bz2",
-            "boot-old.img.bz2",
-            "boot-new.img.bz2",
-            "root-1.5.6-release.img.bz2"
-    };
+//    // TODO: 25.08.2021 rename last file
+//    private static final String[] CORE_URLS_FILE_NAMES = {
+//            "root_prepare_1.4-1.5.img.bz2",
+//            "boot-old.img.bz2",
+//            "boot-new.img.bz2",
+//            "root-1.5.6-release.img.bz2"
+//    };
 
-    private static final String[] COREURLS = {
-            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[0],
-            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[1],
-            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[2],
-            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[3],
-    };
+//    private static final String[] COREURLS = {
+//            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[0],
+//            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[1],
+//            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[2],
+//            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[3],
+//    };
 
-    private static List<Boolean> IS_CORE_FILES_EXIST = new ArrayList<>();
-    public static File tempUpdateOsFile;
+//    private static List<Boolean> IS_CORE_FILES_EXIST = new ArrayList<>();
+//    public static File tempUpdateOsFile;
     public static List<String> tempUpdateStmFiles;
     public static List<String> tempUpdateTransportContentFiles;
     public static Map<String, String> tempUpdateStationaryContentFiles;
-    public static File[] tempUpdateCoreFiles = new File[4];
+
     private static String osVersion;
     private String stmVersion;
     private OnTaskCompleted listener;
@@ -64,14 +66,6 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         this.listener = listener;
     }
 
-    public static void setUpdateCoreFiles(File[] files){
-        tempUpdateCoreFiles = files;
-        for(int i = 0; i < 4; i++){
-            if(files[0].exists()) {
-                IS_CORE_FILES_EXIST.add(i, true);
-            }
-        }
-    }
 
     @Override
     protected Bundle doInBackground(String... url) {
@@ -95,40 +89,18 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         }
     }
 
-    private void createUpdateOsFile() {
+//    private void createUpdateOsFile() {
+//
+//        File outputDir = App.get().getApplicationContext().getExternalFilesDir(null);
+//        Logger.d(TAG, "tempUpdateOsFile: " + tempUpdateOsFile);
+//        if(tempUpdateOsFile != null && tempUpdateOsFile.exists()){
+//            Logger.d(TAG, "delete exist file");
+//            tempUpdateOsFile.delete();
+//        }
+//        Logger.d(TAG, " creating new temp os file");
+//        tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
+//    }
 
-        File outputDir = App.get().getApplicationContext().getExternalFilesDir(null);
-        Logger.d(TAG, "tempUpdateOsFile: " + tempUpdateOsFile);
-        if(tempUpdateOsFile != null && tempUpdateOsFile.exists()){
-            Logger.d(TAG, "delete exist file");
-            tempUpdateOsFile.delete();
-        }
-        Logger.d(TAG, " creating new temp os file");
-        tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
-    }
-
-    private void createUpdateCoreFiles() {
-        File outputDir = App.get().getApplicationContext().getExternalFilesDir(null);
-        Logger.d(TAG, "tempUpdateCoreFiles: " + tempUpdateCoreFiles);
-        tempUpdateCoreFiles = new File[4];
-        Logger.d(TAG, " creating new temp core files");
-        tempUpdateCoreFiles[0] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[0]));
-        tempUpdateCoreFiles[1] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[1]));
-        tempUpdateCoreFiles[2] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[2]));
-        tempUpdateCoreFiles[3] = (new File(outputDir + "/" + CORE_URLS_FILE_NAMES[3]));
-        Logger.d(TAG, "new temp core files created: " + tempUpdateCoreFiles);
-    }
-
-    private File createTempUpdateFile(String fileName){
-        File outputDir = App.get().getCacheDir();
-        File file = new File(outputDir + "/" + fileName);
-        if(file.exists()){
-            file.delete();
-        }
-        file = new File(outputDir + "/" + fileName);
-        file.deleteOnExit();
-        return file;
-    }
 
     private HttpURLConnection getConnection(URL url) throws IOException {
         HttpURLConnection c = (HttpURLConnection) url.openConnection();
@@ -153,7 +125,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     private String downloadToFile(URL url, String tempFileName) throws IOException {
         HttpURLConnection c = getConnection(url);
         try (InputStream input = c.getInputStream()){
-            File file = createTempUpdateFile(tempFileName);
+            File file = DownloadFileUtils.createTempUpdateFile(tempFileName);
             writeToFile(input, file);
             return file.getAbsolutePath();
         } finally {
@@ -216,39 +188,27 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                 HttpURLConnection c;
                 InputStream input;
                 String s;
-                if(stringUrl.equals(CORE_URLS)){
-                    IS_CORE_FILES_EXIST.clear();
-                    createUpdateCoreFiles();
-                    for(int i = 0; i< COREURLS.length; i++){
-                        Logger.d(TAG, "core file: "  + tempUpdateCoreFiles[i] + " is downloading");
-                        publishProgress(0);
-                        c = getConnection(new URL(COREURLS[i]));
-                        input = c.getInputStream();
-                        writeToFile(input, tempUpdateCoreFiles[i]);
-                        Logger.d(TAG, "core file: "  + tempUpdateCoreFiles[i] + " is downloaded");
-                        IS_CORE_FILES_EXIST.add(i, true);
-                    }
-                    Logger.d(TAG, "core files downloaded");
-                    bundle.putInt(BundleKeys.RESULT_CODE_KEY, UPDATE_CORE_DOWNLOAD_CODE);
-                    bundle.putString(BundleKeys.IP_KEY, currentIp);
 
-                    App.get().setUpdateCoreFilesPath(tempUpdateCoreFiles);
-                    return bundle;
-                } else {
                     url = new URL(stringUrl);
                     c = getConnection(url);
                     input = c.getInputStream();
 
                     switch (stringUrl) {
                         case OS_VERSION_URL:
+                            Logger.d(TAG, "osVersion url: " + stringUrl);
+
                             try(BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
                                 while ((s = reader.readLine()) != null) {
                                     if (s.contains("ver.")) {
+                                        Logger.d(TAG, "osVersion: " + osVersion + ", ip: " + currentIp);
                                         osVersion = s;
                                     }
                                 }
                             }
-                            bundle.putString(BundleKeys.RESULT_KEY, App.get().getString(R.string.release_os) +  ": " + osVersion);
+                            bundle.putString(BundleKeys.RESULT_KEY,
+                                    App.get().getString(R.string.release_os) +  ": " + osVersion);
+
+                            Logger.d(TAG, "act ver: " + App.get().getString(R.string.release_os) +  ": " + osVersion);
                             bundle.putInt(BundleKeys.RESULT_CODE_KEY, UPDATE_OS_VERSION_CODE);
                             return bundle;
 
@@ -270,13 +230,13 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                             bundle.putInt(BundleKeys.RESULT_CODE_KEY, UPDATE_STM_VERSION_CODE);
                             bundle.putString(BundleKeys.RESULT_KEY, "Release: " + stmVersion);
                             return  bundle;
-                        case OS_URL:
-                            createUpdateOsFile();
-                            writeToFile(input, tempUpdateOsFile);
-                            bundle.putInt(BundleKeys.RESULT_CODE_KEY, UPDATE_OS_DOWNLOAD_CODE);
-                            App.get().setUpdateOsFileVersion(osVersion);
-                            App.get().setUpdateOsFilePath(tempUpdateOsFile.getAbsolutePath());
-                            return bundle;
+//                        case OS_URL:
+//                            createUpdateOsFile();
+//                            writeToFile(input, tempUpdateOsFile);
+//                            bundle.putInt(BundleKeys.RESULT_CODE_KEY, UPDATE_OS_DOWNLOAD_CODE);
+//                            App.get().setUpdateOsFileVersion(osVersion);
+//                            App.get().setUpdateOsFilePath(tempUpdateOsFile.getAbsolutePath());
+//                            return bundle;
                         case TRANSPORT_CONTENT_VERSION_URL:
                             tempUpdateTransportContentFiles = new ArrayList<>();
                             try(BufferedReader r1 = new BufferedReader(new InputStreamReader(input))) {
@@ -296,7 +256,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                             tempUpdateStationaryContentFiles = new HashMap<>();
                             try(BufferedReader r2 = new BufferedReader(new InputStreamReader(input))) {
                                 while ((s = r2.readLine()) != null) {
-//                                    Logger.d(Logger.DOWNLOAD_LOG, "stat_content_version s: " + s);
+                                    Logger.d(TAG, "stat_content_version s: " + s);
                                     if (s.contains("href")) {
                                         String serial_incr = s.substring(s.indexOf(".bz2>") + 5, s.indexOf("</a>"));
                                         tempUpdateStationaryContentFiles.put(serial_incr.split("_")[0], serial_incr.split("_")[1]);
@@ -324,7 +284,7 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                             bundle.putString(BundleKeys.RESULT_KEY, res);
                             return bundle;
                     }
-                }
+
         }
         } catch (IOException e) {
             Logger.d(TAG, "exception: " + e);
@@ -340,9 +300,9 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         super.onProgressUpdate(values);
     }
 
-    public static boolean isCoreUpdatesDownloadCompleted(){
-        Logger.d(TAG, "isCoreUpdatesDownloadCompleted: " +
-                (!IS_CORE_FILES_EXIST.isEmpty() &&  IS_CORE_FILES_EXIST.stream().allMatch(it->true)));
-        return !IS_CORE_FILES_EXIST.isEmpty() && IS_CORE_FILES_EXIST.stream().allMatch(it->true);
-    }
+//    public static boolean isCoreUpdatesDownloadCompleted(){
+//        Logger.d(TAG, "isCoreUpdatesDownloadCompleted: " +
+//                (!IS_CORE_FILES_EXIST.isEmpty() &&  IS_CORE_FILES_EXIST.stream().allMatch(it->true)));
+//        return !IS_CORE_FILES_EXIST.isEmpty() && IS_CORE_FILES_EXIST.stream().allMatch(it->true);
+//    }
 }

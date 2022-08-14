@@ -11,7 +11,7 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 
 public class SettingsUpdatePhpFragment extends UpdateFragment {
     public static final String SSH_CONN = "ssh_conn";
@@ -28,7 +28,7 @@ public class SettingsUpdatePhpFragment extends UpdateFragment {
     public void onStart() {
         Logger.d(Logger.STM_LOG_LOG, "onStart");
         super.onStart();
-        binding.versionLabel.setVisibility(View.GONE);
+        binding.version1.setVisibility(View.GONE);
         binding.checkVersionBtn.setVisibility(View.GONE);
     }
     @Override
@@ -52,7 +52,7 @@ public class SettingsUpdatePhpFragment extends UpdateFragment {
     }
 
     @Override
-    public void adapterItemOnClick(Transiver transiver) {
+    public void adapterItemOnClick(Transceiver transiver) {
         if (version != null && !version.startsWith(SSH_CONN)) {
             Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update php was pressed");
             Bundle bundle = new Bundle();

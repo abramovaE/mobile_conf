@@ -11,6 +11,8 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import com.jcraft.jsch.SftpProgressMonitor;
+//import com.kotofeya.mobileconfigurator.data.TempFilesRepositoryImpl;
+import com.kotofeya.mobileconfigurator.domain.tempfiles.TempFilesRepository;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -24,6 +26,9 @@ import java.io.InputStream;
 import java.util.Properties;
 
 public class SshConnection extends AsyncTask<Object, Object, String> implements TaskCode{
+
+//    TempFilesRepository tempFilesRepository = TempFilesRepositoryImpl.getInstance();
+
 
     private static final String TAG = SshConnection.class.getSimpleName();
     private static final String REBOOT_COMMAND = "sudo reboot";
@@ -93,12 +98,12 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             Logger.d(TAG, ip + " isConnected: " + session.isConnected());
             String cmd;
             switch (resultCode) {
-                case UPDATE_OS_UPLOAD_CODE:
-                    cmd = getExecCommand(resultCode);
-                    transferred = 0;
-                    uploadToOverlayUpdate(session, new File(App.get().getUpdateOsFilePath()));
-                    execCommand(session, cmd);
-                    break;
+//                case UPDATE_OS_UPLOAD_CODE:
+//                    cmd = getExecCommand(resultCode);
+//                    transferred = 0;
+//                    uploadToOverlayUpdate(session, new File(App.get().getUpdateOsFilePath()));
+//                    execCommand(session, cmd);
+//                    break;
                 case UPDATE_STM_UPLOAD_CODE:
                     execCommand(session, CLEAR_ARCHIVE_DIR_COMMAND);
                     file = new File((String) req[1]);
@@ -107,26 +112,26 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
                     cmd = getExecCommand(resultCode, binFile.getName());
                     execCommand(session, cmd);
                     break;
-                case UPDATE_CORE_UPLOAD_CODE:
-                    transferred = 0;
-                    if(iteration < Downloader.tempUpdateCoreFiles.length) {
-                        File f = Downloader.tempUpdateCoreFiles[iteration];
-                        String fileName = f.getName();
-                        res = getCoreResultString(iteration,  fileName);
-                        if( iteration == 2){
-                            Logger.d(TAG, "filename: " + fileName);
-                            uploadToOverlayUpdate(session, f);
-                            iteration += 1;
-                            f = Downloader.tempUpdateCoreFiles[iteration];
-                            fileName = f.getName();
-                        }
-                        Logger.d(TAG, "filename: " + fileName);
-                        uploadToOverlayUpdate(session, f);
-                        cmd = getCoreExecCommand(iteration, fileName);
-                        execCommand(session, cmd);
-                        iteration += 1;
-                    }
-                    break;
+//                case UPDATE_CORE_UPLOAD_CODE:
+//                    transferred = 0;
+//                    if(iteration < TempFilesRepositoryImpl.getInstance().getUpdateCoreFiles().length) {
+//                        File f = TempFilesRepositoryImpl.getInstance().getUpdateCoreFiles()[iteration];
+//                        String fileName = f.getName();
+//                        res = getCoreResultString(iteration,  fileName);
+//                        if( iteration == 2){
+//                            Logger.d(TAG, "filename: " + fileName);
+//                            uploadToOverlayUpdate(session, f);
+//                            iteration += 1;
+//                            f = TempFilesRepositoryImpl.getInstance().getUpdateCoreFiles()[iteration];
+//                            fileName = f.getName();
+//                        }
+//                        Logger.d(TAG, "filename: " + fileName);
+//                        uploadToOverlayUpdate(session, f);
+//                        cmd = getCoreExecCommand(iteration, fileName);
+//                        execCommand(session, cmd);
+//                        iteration += 1;
+//                    }
+//                    break;
                 case UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE:
                 case UPDATE_STATION_CONTENT_UPLOAD_CODE:
                     transferred = 0;
@@ -220,22 +225,22 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
         return cmd;
     }
 
-    private String getCoreResultString(int iteration, String fileName){
-        switch (iteration){
-            case 0:
-                return fileName + " загружен на устройство. Трансивер перезагружается. " +
-                        "Обновите список трансиверов примерно через 3 минуты.";
-            case 1:
-                return fileName + " загружен на устройство. Трансивер перезагружается. " +
-                        "Обновите список трансиверов примерно через 2 минуты.";
-            case 2:
-                return Downloader.tempUpdateCoreFiles[2].getName() + " " +
-                        Downloader.tempUpdateCoreFiles[3].getName() +
-                        " загружены на устройство. Трансивер перезагружается. " +
-                        "Обновите список трансиверов примерно через 5 минут";
-        }
-        return "";
-    }
+//    private String getCoreResultString(int iteration, String fileName){
+//        switch (iteration){
+//            case 0:
+//                return fileName + " загружен на устройство. Трансивер перезагружается. " +
+//                        "Обновите список трансиверов примерно через 3 минуты.";
+//            case 1:
+//                return fileName + " загружен на устройство. Трансивер перезагружается. " +
+//                        "Обновите список трансиверов примерно через 2 минуты.";
+//            case 2:
+//                return tempFilesRepository.getUpdateCoreFiles()[2].getName() + " " +
+//                        tempFilesRepository.getUpdateCoreFiles()[3].getName() +
+//                        " загружены на устройство. Трансивер перезагружается. " +
+//                        "Обновите список трансиверов примерно через 5 минут";
+//        }
+//        return "";
+//    }
 
     protected void onPostExecute(String result) {
         if (listener != null) {

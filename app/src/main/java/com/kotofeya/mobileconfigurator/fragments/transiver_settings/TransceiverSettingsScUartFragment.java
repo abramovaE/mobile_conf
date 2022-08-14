@@ -23,10 +23,10 @@ public class TransceiverSettingsScUartFragment extends TransceiverSettingsFragme
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
-//        ssid = requireArguments().getString("ssid");
         binding.rebootLl.setVisibility(View.GONE);
         viewModel.setMainTxtLabel("ScUart: " + ssid);
-        String ip = viewModel.getIp(ssid);
+
+        String ip = viewModel.getTransceiverBySsid(ssid).getIp();
         Thread thread = new Thread(new PostInfo(this, ip, PostCommand.SCUART));
         thread.start();
         return binding.getRoot();

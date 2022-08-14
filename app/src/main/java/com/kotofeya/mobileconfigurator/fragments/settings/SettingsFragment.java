@@ -14,11 +14,11 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
+import com.kotofeya.mobileconfigurator.activities.MainActivityViewModel;
 
 public class SettingsFragment extends Fragment implements CompoundButton.OnCheckedChangeListener {
 
-    private CustomViewModel viewModel;
+    private MainActivityViewModel viewModel;
 
     @Override
     public void onStart() {
@@ -30,7 +30,7 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.settings_fragment, container, false);
-        viewModel = ViewModelProviders.of(requireActivity(), new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
+        viewModel = ViewModelProviders.of(requireActivity()).get(MainActivityViewModel.class);
         CheckBox showAccessPointDialog = view.findViewById(R.id.settings_doNotAskCheckbox);
         showAccessPointDialog.setChecked(App.get().isAskForTeneth());
         showAccessPointDialog.setOnCheckedChangeListener(this);

@@ -14,13 +14,13 @@ import androidx.lifecycle.ViewModelProviders;
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
-import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
+import com.kotofeya.mobileconfigurator.activities.MainActivityViewModel;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.databinding.TransiverSettingsFragmentBinding;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 
 import java.util.List;
 
@@ -30,13 +30,14 @@ public abstract class TransceiverSettingsFragment extends Fragment
     private static final String TAG = TransceiverSettingsFragment.class.getSimpleName();
     protected FragmentHandler fragmentHandler;
     protected TransiverSettingsFragmentBinding binding;
-    protected CustomViewModel viewModel;
+    protected MainActivityViewModel viewModel;
     protected String ssid;
 
-    private void updateUIButtons(List<Transiver> transceivers) {
-        String version = CustomViewModel.getVersion(ssid);
+    private void updateUIButtons(List<Transceiver> transceivers) {
+        Transceiver transceiver = viewModel.getTransceiverBySsid(ssid);
+        String ip = transceiver.getIp();
+        String version = transceiver.getVersion();
         if(version != null && !version.equals("ssh_conn")){
-            String ip = viewModel.getIp(ssid);
             if(ip != null){
                 updateButtonsState();
             }
@@ -58,32 +59,33 @@ public abstract class TransceiverSettingsFragment extends Fragment
         this.ssid = getArguments() != null ? getArguments().getString("ssid") : null;
 
         binding = TransiverSettingsFragmentBinding.inflate(inflater, container, false);
-        viewModel = ViewModelProviders.of(requireActivity(),
-                new CustomViewModel.ModelFactory()).get(CustomViewModel.class);
+        viewModel = ViewModelProviders.of(requireActivity()).get(MainActivityViewModel.class);
         viewModel.setMainBtnRescanVisibility(View.GONE);
-        viewModel.getTransivers().observe(getViewLifecycleOwner(), this::updateUIButtons);
+        viewModel.transceivers.observe(getViewLifecycleOwner(), this::updateUIButtons);
         viewModel.transceiverSettingsText().observe(getViewLifecycleOwner(), this::updateUI);
 
         fragmentHandler = ((MainActivity) requireActivity()).getFragmentHandler();
-
+        Transceiver transceiver = viewModel.getTransceiverBySsid(ssid);
 
         binding.showSettingsBtn.setOnClickListener( v-> {
-            String ip = viewModel.getIp(ssid);
+            String ip = transceiver.getIp();
             Thread thread = new Thread(new PostInfo(this, ip, getShowSettingsCommand()));
             thread.start();
         });
         binding.setDefaultSettings.setOnClickListener(v -> {
-            String ip = viewModel.getIp(ssid);
+            String ip = transceiver.getIp();
             Thread thread = new Thread(new PostInfo(this, ip, getDefaultSettingsCommand()));
             thread.start();
 
         });
-        binding.addNewSettings.setOnClickListener( v-> {String ip = viewModel.getIp(ssid);
+        binding.addNewSettings.setOnClickListener( v-> {
+            String ip = transceiver.getIp();
             Bundle bundle = new Bundle();
             bundle.putString("ip", ip);
             DialogFragment dialog = getDialogSettings();
             dialog.setArguments(bundle);
-            dialog.show(fragmentHandler.getFragmentManager(), getAddSettingsCommand());});
+            dialog.show(fragmentHandler.getFragmentManager(), getAddSettingsCommand());
+        });
         return binding.getRoot();
     }
 

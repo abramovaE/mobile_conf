@@ -17,12 +17,21 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
+import com.kotofeya.mobileconfigurator.data.TempFilesRepositoryImpl;
+import com.kotofeya.mobileconfigurator.domain.tempfiles.GetOsUpdateFileUseCase;
+import com.kotofeya.mobileconfigurator.domain.tempfiles.GetOsUpdateVersionUseCase;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
+
+import java.io.File;
 
 public class UpdateOsFragment extends UpdateFragment {
 
     private static final String TAG = UpdateOsFragment.class.getSimpleName();
+    TempFilesRepositoryImpl tempFilesRepository = TempFilesRepositoryImpl.getInstance();
+
+    GetOsUpdateVersionUseCase getOsUpdateVersionUseCase = new GetOsUpdateVersionUseCase(tempFilesRepository);
+    GetOsUpdateFileUseCase getOsUpdateFileUseCase = new GetOsUpdateFileUseCase(tempFilesRepository);
 
     @Nullable
     @Override
@@ -30,9 +39,9 @@ public class UpdateOsFragment extends UpdateFragment {
                              @Nullable ViewGroup container,
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
-        binding.labelVersion.setVisibility(View.VISIBLE);
-        String version = getString(R.string.storage_os) + ": " + App.get().getUpdateOsFileVersion();
-        binding.labelVersion.setText(version);
+        binding.version2.setVisibility(View.VISIBLE);
+        String version = getString(R.string.storage_os) + ": " + getOsUpdateVersionUseCase.getOsUpdateVersion();
+        binding.version2.setText(version);
         return binding.getRoot();
     }
 
@@ -67,14 +76,16 @@ public class UpdateOsFragment extends UpdateFragment {
         super.onTaskCompleted(bundle);
         if (bundle.getInt(BundleKeys.RESULT_CODE_KEY) ==
                 TaskCode.UPDATE_OS_DOWNLOAD_CODE) {
-            String version = getString(R.string.storage_os) + ": " + App.get().getUpdateOsFileVersion();
-            binding.labelVersion.setText(version);
+            String version = getString(R.string.storage_os) + ": " + getOsUpdateVersionUseCase.getOsUpdateVersion();
+            binding.version2.setText(version);
         }
     }
 
     @Override
-    public void adapterItemOnClick(Transiver transiver) {
-        if (Downloader.tempUpdateOsFile.length() > 1000) {
+    public void adapterItemOnClick(Transceiver transiver) {
+        Logger.d(TAG, "adapterItemOnClick(): " + transiver.getSsid());
+        File file = getOsUpdateFileUseCase.getOsUpdateFile();
+        if (file.length() > 1000) {
             String ip = transiver.getIp();
             showUpdateOsConfirmDialog(ip);
         }

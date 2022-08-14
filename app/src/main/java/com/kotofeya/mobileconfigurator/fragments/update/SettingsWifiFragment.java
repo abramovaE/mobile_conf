@@ -7,7 +7,7 @@ import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 
 public class SettingsWifiFragment extends UpdateFragment {
 
@@ -27,12 +27,12 @@ public class SettingsWifiFragment extends UpdateFragment {
     public void onStart() {
         Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName());
         super.onStart();
-        binding.versionLabel.setVisibility(View.GONE);
+        binding.version1.setVisibility(View.GONE);
         binding.checkVersionBtn.setVisibility(View.GONE);
     }
 
     @Override
-    public void adapterItemOnClick(Transiver transiver) {
+    public void adapterItemOnClick(Transceiver transiver) {
         Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName());
         String ssid = transiver.getSsid();
         Bundle bundle = new Bundle();

@@ -6,8 +6,9 @@ import java.util.Locale;
 
 public class CountDownRunner implements Runnable {
 
-    private final CustomViewModel viewModel;
-    public CountDownRunner(CustomViewModel viewModel){
+    private final MainActivityViewModel viewModel;
+
+    public CountDownRunner(MainActivityViewModel viewModel){
       this.viewModel = viewModel;
     }
 

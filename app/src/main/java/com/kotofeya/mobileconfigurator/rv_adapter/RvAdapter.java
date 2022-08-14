@@ -12,28 +12,33 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
+import com.kotofeya.mobileconfigurator.network.response.TakeInfoStatContent;
+import com.kotofeya.mobileconfigurator.network.response.TakeInfoTranspContent;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
 public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
         implements ExpTextInt{
-    private List<Transiver> objects;
+    private List<Transceiver> objects;
     private RvAdapterType adapterType;
     protected AdapterListener adapterListener;
     public static final String SSH_CONN = "ssh_conn";
     private static final String TAG = RvAdapter.class.getSimpleName();
 
-    public RvAdapter(List<Transiver> objects) {
+    public RvAdapter(List<Transceiver> objects) {
+
         this.objects = objects;
+        this.objects.sort(Comparator.comparing(Transceiver::getSsid));
     }
 
-    public RvAdapter(List<Transiver> objects,
+    public RvAdapter(List<Transceiver> objects,
                      AdapterListener adapterListener,
                      RvAdapterType adapterType) {
         this.objects = objects;
+        this.objects.sort(Comparator.comparing(Transceiver::getSsid));
         this.adapterListener = adapterListener;
         this.adapterType = adapterType;
     }
@@ -52,20 +57,25 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
-        Transiver transiver = getTransceiver(position);
-        if(transiver != null) {
-            String ssid = transiver.getSsid();
-            boolean isTransport = transiver.isTransport();
-            boolean isStationary = transiver.isStationary();
-            String increment = transiver.getIncrementOfContent();
-            String version = CustomViewModel.getVersion(transiver.getSsid());
+        Logger.d(TAG, "onBindViewHolder(), type: " + adapterType);
+
+        Transceiver transceiver = getTransceiver(position);
+
+        if(transceiver != null) {
+            String ssid = transceiver.getSsid();
+            boolean isTransport = transceiver.isTransport();
+            boolean isStationary = transceiver.isStationary();
+            String increment = transceiver.getIncrementOfContent();
+
+            String version = transceiver.getVersion();
 
             holder.setSsid(ssid);
-            holder.setTextItem0Text(transiver.getOsVersion());
-            holder.setTextItem1Text(transiver.getStmFirmware());
-            holder.setTextItem2Text(transiver.getStmBootloader());
+            holder.setTextItem0Text("os: " + transceiver.getOsVersion()) ;
+            holder.setTextItem1Text("stm: " + transceiver.getStmFirmware());
+            holder.setTextItem2Text("bl: " + transceiver.getStmBootloader());
+
             holder.setExpButtonListener(v -> {
-                holder.setExpText(getExpText(transiver));
+                holder.setExpText(getExpText(transceiver));
                 holder.setExpVisibility();
                 holder.setExpButtonText();
             });
@@ -74,14 +84,14 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
 
                 switch (adapterType) {
                     case SETTINGS:
-                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
+                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
                         break;
 
                     case CONFIG_STATION:
                         if (isStationary) {
                             holder.setIncrement(increment);
                             holder.setTextItem0Visibility(View.VISIBLE);
-                            holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
+                            holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
                         }
                         break;
 
@@ -90,22 +100,36 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
                         Logger.d(TAG, "rvAdapter listener: " + adapterListener);
 
                         if (isTransport) {
-//                            TransportTransiver transportTransiver = (TransportTransiver) transiver;
-//                            holder.setTextItem0Text(transportTransiver.getTransportType() + " / " + transportTransiver.getFullNumber());
-//                            holder.setTextItem0Visibility(View.VISIBLE);
-//                            holder.setTextItem1Text(transportTransiver.getStringDirection());
-//                            holder.setTextItem1Visibility(View.VISIBLE);
-                            holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
+                            holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
                         }
                         break;
 
                     case UPDATE_CONTENT_TYPE:
                         holder.setTextItem0Visibility(View.VISIBLE);
-                        holder.setIncrement(increment);
+                        StringBuilder sb = new StringBuilder();
+                        sb.append(transceiver.getTType());
+                        sb.append("\n");
+                        Logger.d(TAG, "tr contents: " + transceiver.getSsid() + " " + transceiver.isTransport());
+
+                        if(transceiver.isTransport()) {
+                            Logger.d(TAG, "tr contents: " + transceiver.getTranspContents());
+                            if(transceiver.getTranspContents() != null) {
+                                for (TakeInfoTranspContent transpContent : transceiver.getTranspContents()) {
+                                    sb.append(transpContent.getLocalRouteList()).append(" - ").append(transpContent.getIncrRouteList());
+                                    sb.append("\n");
+                                }
+                            }
+                        } else if(transceiver.isStationary() && transceiver.getStatContents() != null){
+                            for (TakeInfoStatContent statContent : transceiver.getStatContents()) {
+                                sb.append(statContent.describeContents()).append(" - ").append(statContent.getShortInfo());
+                                sb.append("\n");
+                            }
+                        }
+
+                        sb.append("os: ").append(transceiver.getOsVersion());
+                        holder.setIncrement(sb.toString());
                         holder.setTextItem1Text("no updates");
                         if (isTransport) {
-//                            TransportTransiver t = (TransportTransiver) transiver;
-//                            holder.setTextItem0Text(t.getCityCode(t.getCity()) + " " + increment);
                             if (Downloader.tempUpdateTransportContentFiles != null) {
                                 holder.setTextItem1Text("          ");
                             }
@@ -117,38 +141,41 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
                             }
                         }
                         holder.setTextItem1Visibility(View.VISIBLE);
-                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
+                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
                         break;
 
                     case UPDATE_STM_TYPE:
                         holder.setTextItem1Visibility(View.VISIBLE);
-                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
+                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
                         break;
 
                     case UPDATE_OS_TYPE:
                         holder.setTextItem0Visibility(View.VISIBLE);
-                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
+                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
                         break;
 
                     case SETTINGS_UPDATE_CORE:
-                        holder.setTextItem0Text((version == null) ? "old" : "new");
-//                        holder.setTextItem0Text(transiver.getOsVersion());
+                        if(transceiver.getUpdatingTime() != null) {
+                            holder.setSsid(ssid + " " + transceiver.getUpdatingTime());
+                        }
+                        String versionString = version + " " + (version.equals(Transceiver.VERSION_UNDEFINED) ? "old" : "new");
+                        holder.setTextItem0Text(versionString);
                         holder.setTextItem0Visibility(View.VISIBLE);
-                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
+                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
                         break;
 
                     case SETTINGS_UPDATE_PHP:
                         holder.setTextItem0Text(version);
                         holder.setTextItem0Visibility(View.VISIBLE);
                         holder.setVersionColor(version);
-                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transiver));
+                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
                         break;
                 }
             }
         }
     }
 
-    public Transiver getTransceiver(int position) {
+    public Transceiver getTransceiver(int position) {
         if(objects.size() > position)
             return objects.get(position);
         return null;
@@ -180,6 +207,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
             customView.setTextItem2Visibility(visibility);
         }
         public void setTextItem0Text(String text){
+            Logger.d(TAG, "setTextItem0Text(), text: " + text);
             customView.setTextItem0Text(text);
         }
         public void setTextItem1Text(String text){
@@ -229,10 +257,7 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
         }
     }
 
-    public List<Transiver> getObjects() {
-        return objects;
-    }
-    public void setObjects(List<Transiver> objects) {
+    public void setObjects(List<Transceiver> objects) {
         this.objects = objects;
     }
 }

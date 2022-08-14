@@ -10,11 +10,10 @@ import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
-import com.kotofeya.mobileconfigurator.activities.CustomViewModel;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
@@ -28,13 +27,12 @@ public class TransportContentFragment extends ContentFragment {
     EditText liter1;
     EditText liter2;
     EditText liter3;
-    Transiver transportTransiver;
+    Transceiver transportTransiver;
 
     @Override
     protected void setFields() {
-        transportTransiver = viewModel.getTransiverBySsid(ssid);
+        transportTransiver = viewModel.getTransceiverBySsid(ssid);
         Logger.d(TAG, "getBySsid: " + transportTransiver);
-        Logger.d(TAG, "ip: " + viewModel.getIp(transportTransiver.getSsid()));
 
         viewModel.setMainTxtLabel(transportTransiver.getSsid()
 //                 + "\n (" + transportTransiver.getTransportType() +
@@ -93,18 +91,18 @@ public class TransportContentFragment extends ContentFragment {
     }
 
     protected void updateBtnContentSendState(){
-        String ip = transportTransiver.getIp();
-        String version = CustomViewModel.getVersion(transportTransiver.getSsid());
-        if(ip == null){
-            ip = viewModel.getIp(transportTransiver.getSsid());
-        }
-        binding.contentBtnSend.setEnabled(spnType.getSelectedItemPosition() > 0 && ip != null && version != null);
+        Transceiver tr = viewModel.getTransceiverBySsid(transportTransiver.getSsid());
+        String ip = tr.getIp();
+        String version = tr.getVersion();
+        binding.contentBtnSend
+                .setEnabled(spnType.getSelectedItemPosition() > 0 && ip != null && version != null);
     }
     @Override
     public void updateFields() {}
 
     @Override
     public void onClick(View v) {
+        Logger.d(TAG, "onClick()");
         int type = spnType.getSelectedItemPosition();
         String typeHex = type + "";
         int num = 61166;
@@ -117,13 +115,14 @@ public class TransportContentFragment extends ContentFragment {
         String lit3 = liter3.getText().toString().toLowerCase();
         int dir = spnDir.getSelectedItemPosition();
         String dirHex = dir + "";
-        String ip = viewModel.getIp(transportTransiver.getSsid());
+
+        String ip = viewModel.getTransceiverBySsid(transportTransiver.getSsid()).getIp();
         updateTransportContent(ip, typeHex, numHex, dirHex, lit1, lit2, lit3);
     }
 
 
     private void updateTransportContent(String ip, String typeHex, String numHex, String dirHex, String lit1, String lit2, String lit3) {
-        String version = CustomViewModel.getVersion(transportTransiver.getSsid());
+        String version = transportTransiver.getVersion();
         Logger.d(TAG, "updateTransportContent(), version: " + version);
 
         if(version != null){

@@ -26,7 +26,7 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
     public void onStart() {
         super.onStart();
         viewModel.setMainBtnRescanVisibility(View.VISIBLE);
-        viewModel.clearTransivers();
+        viewModel.clearTransceivers();
         scan();
     }
 
@@ -39,7 +39,7 @@ public class BasicScannerFragment extends ScannerFragment implements OnTaskCompl
         if(resultCode == TaskCode.SSH_ERROR_CODE){
             if(res.contains("Connection refused") || res.contains("Auth fail")){
                 Logger.d(TAG, "error: " + res);
-                clientsHandler.removeClient(result.getString("ip"));
+                viewModel.removeClient(result.getString("ip"));
             } else {
                 fragmentHandler.showMessage("Error: " + result);
             }

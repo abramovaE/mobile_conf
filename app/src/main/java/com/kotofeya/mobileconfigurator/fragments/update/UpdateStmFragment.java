@@ -16,7 +16,7 @@ import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,7 +53,7 @@ public class UpdateStmFragment extends UpdateFragment {
     }
 
     @Override
-    public void adapterItemOnClick(Transiver transiver) {
+    public void adapterItemOnClick(Transceiver transiver) {
         Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update stm was pressed");
         if (Downloader.tempUpdateStmFiles != null && !Downloader.tempUpdateStmFiles.isEmpty()) {
             Bundle bundle = new Bundle();

@@ -11,7 +11,7 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
-import com.kotofeya.mobileconfigurator.transivers.Transiver;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 
 
 public class ConfigTransportFragment extends ConfigFragment {
@@ -35,8 +35,8 @@ public class ConfigTransportFragment extends ConfigFragment {
     }
 
     @Override
-    public void adapterItemOnClick(Transiver transiver) {
-        Logger.d(TAG, "adapterItemOnClick()");
+    public void adapterItemOnClick(Transceiver transiver) {
+        Logger.d(TAG, "adapterItemOnClick(), transceiver: " + transiver.getIp() + " " + transiver.getSsid());
         String ssid = transiver.getSsid();
         Bundle bundle = new Bundle();
         bundle.putString(BundleKeys.SSID_KEY, ssid);

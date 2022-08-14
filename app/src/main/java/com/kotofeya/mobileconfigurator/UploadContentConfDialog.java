@@ -49,10 +49,10 @@ public class UploadContentConfDialog extends DialogFragment {
 
                 Downloader downloader = new Downloader((UpdateContentFragment) fragmentHandler.getCurrentFragment());
                 if(ip != null) {
-                    Logger.d(Logger.CONTENT_LOG, "downloader execute 1");
+                    Logger.d(TAG, "downloader execute 1");
                     downloader.execute(value, ip, downloadCode);
                 } else {
-                    Logger.d(Logger.CONTENT_LOG, "downloader execute 2");
+                    Logger.d(TAG, "downloader execute 2");
                     downloader.execute(value, "", TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE + "");
                 }
             }
