@@ -9,10 +9,10 @@ import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kotofeya.mobileconfigurator.App;
-import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
+import com.kotofeya.mobileconfigurator.fragments.update.content.UpdateContentFragment2;
 import com.kotofeya.mobileconfigurator.network.response.TakeInfoStatContent;
 import com.kotofeya.mobileconfigurator.network.response.TakeInfoTranspContent;
 
@@ -130,11 +130,11 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
                         holder.setIncrement(sb.toString());
                         holder.setTextItem1Text("no updates");
                         if (isTransport) {
-                            if (Downloader.tempUpdateTransportContentFiles != null) {
+                            if (UpdateContentFragment2.tempUpdateTransportContentFiles != null) {
                                 holder.setTextItem1Text("          ");
                             }
                         } else if (isStationary) {
-                            Map<String, String> contentFiles = Downloader.tempUpdateStationaryContentFiles;
+                            Map<String, String> contentFiles = UpdateContentFragment2.tempUpdateStationaryContentFiles;
                             if (contentFiles != null
                                     && contentFiles.containsKey(ssid)) {
                                 holder.setTextItem1Text(contentFiles.get(ssid));

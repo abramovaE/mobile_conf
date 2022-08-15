@@ -2,6 +2,7 @@ package com.kotofeya.mobileconfigurator;
 
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.util.Log;
 
 import com.kotofeya.mobileconfigurator.network.DownloadFileUtils;
 
@@ -17,6 +18,7 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -25,37 +27,9 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
     private static final String TAG = Downloader.class.getSimpleName();
 
     public static final String CITY_URL = "http://95.161.210.44/update/city.json";
-    public static final String OS_VERSION_URL = "http://95.161.210.44/update/rootimg";
     public static final String STM_VERSION_URL = "http://95.161.210.44/update/data/stm";
-    public static final String TRANSPORT_CONTENT_VERSION_URL = "http://95.161.210.44/update/content/transp";
-    public static final String STATION_CONTENT_VERSION_URL = "http://95.161.210.44/update/content/station";
-    public static final String OS_URL = "http://95.161.210.44/update/rootimg/root.img.bz2";
-
-//    public static final String CORE_URLS = "core_urls";
-//    private static final String CORE_URLS_DIR = "http://95.161.210.44/update/1.4-1.5/";
-
-//    // TODO: 25.08.2021 rename last file
-//    private static final String[] CORE_URLS_FILE_NAMES = {
-//            "root_prepare_1.4-1.5.img.bz2",
-//            "boot-old.img.bz2",
-//            "boot-new.img.bz2",
-//            "root-1.5.6-release.img.bz2"
-//    };
-
-//    private static final String[] COREURLS = {
-//            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[0],
-//            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[1],
-//            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[2],
-//            CORE_URLS_DIR + CORE_URLS_FILE_NAMES[3],
-//    };
-
-//    private static List<Boolean> IS_CORE_FILES_EXIST = new ArrayList<>();
-//    public static File tempUpdateOsFile;
     public static List<String> tempUpdateStmFiles;
-    public static List<String> tempUpdateTransportContentFiles;
-    public static Map<String, String> tempUpdateStationaryContentFiles;
 
-    private static String osVersion;
     private String stmVersion;
     private OnTaskCompleted listener;
     private String currentIp;
@@ -69,7 +43,10 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 
     @Override
     protected Bundle doInBackground(String... url) {
-        Logger.d(TAG, "doInBackground(), ulr.length: " + url.length);
+
+
+        Logger.d(TAG, "doInBackground(), ulr.length: " + url.length + " " + Arrays.toString(url));
+
         if(url.length > 1) {
             currentIp = url[1];
         }
@@ -88,19 +65,6 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
             return bundle;
         }
     }
-
-//    private void createUpdateOsFile() {
-//
-//        File outputDir = App.get().getApplicationContext().getExternalFilesDir(null);
-//        Logger.d(TAG, "tempUpdateOsFile: " + tempUpdateOsFile);
-//        if(tempUpdateOsFile != null && tempUpdateOsFile.exists()){
-//            Logger.d(TAG, "delete exist file");
-//            tempUpdateOsFile.delete();
-//        }
-//        Logger.d(TAG, " creating new temp os file");
-//        tempUpdateOsFile = new File(outputDir + "/root.img.bz2");
-//    }
-
 
     private HttpURLConnection getConnection(URL url) throws IOException {
         HttpURLConnection c = (HttpURLConnection) url.openConnection();
@@ -137,29 +101,23 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
 
 
     private URL getURL(int currentAction, String stringUrl) throws MalformedURLException {
+        Logger.d(TAG, "getUrl: " + currentAction + " " + stringUrl);
+
         switch (currentAction){
-            case UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE:
-            case UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE:
-                return new URL(TRANSPORT_CONTENT_VERSION_URL + "/" + stringUrl);
-            case UPDATE_STATION_CONTENT_DOWNLOAD_CODE:
-                return new URL(STATION_CONTENT_VERSION_URL + "/" + stringUrl);
             case  UPDATE_STM_DOWNLOAD_CODE:
                 return new URL(STM_VERSION_URL + "/" + stringUrl);
         }
+        Logger.d(TAG, "getUrl result: " + stringUrl);
         return new URL(stringUrl);
     }
 
     private String getTempFileName(int currentAction, String stringUrl) throws MalformedURLException {
         Logger.d(TAG, "getTempFileName: " + stringUrl + ", currentAction: " + currentAction);
         switch (currentAction){
-            case UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE:
-            case UPDATE_STATION_CONTENT_DOWNLOAD_CODE:
-                return stringUrl.substring(4);
             case  UPDATE_STM_DOWNLOAD_CODE:
                 return stringUrl;
-            case UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE:
-                return stringUrl.replace("/", "_");
         }
+        Logger.d(TAG, "tempFileName result: " + stringUrl);
         return stringUrl;
     }
 
@@ -175,12 +133,13 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         bundle.putString(BundleKeys.IP_KEY, currentIp);
         Logger.d(TAG, "getContent: " + stringUrl + ", action: " + currentAction);
         try {
-            if(currentAction == UPDATE_STM_DOWNLOAD_CODE ||
-                    currentAction == UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE ||
-                    currentAction == UPDATE_STATION_CONTENT_DOWNLOAD_CODE ||
-                    currentAction == UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE){
+            if(currentAction == UPDATE_STM_DOWNLOAD_CODE){
+
                 url = getURL(currentAction, stringUrl);
+                Logger.d(TAG, "url: " + url);
+                String tempFileName = getTempFileName(currentAction, stringUrl);
                 String tempFilePath = downloadToFile(url, getTempFileName(currentAction, stringUrl));
+//                Logger.d(TAG, "tempFilePath: " + tempFilePath);
                 bundle.putInt(BundleKeys.RESULT_CODE_KEY, currentAction);
                 bundle.putString("filePath", tempFilePath);
                 return bundle;
@@ -190,28 +149,11 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                 String s;
 
                     url = new URL(stringUrl);
+
                     c = getConnection(url);
                     input = c.getInputStream();
 
                     switch (stringUrl) {
-                        case OS_VERSION_URL:
-                            Logger.d(TAG, "osVersion url: " + stringUrl);
-
-                            try(BufferedReader reader = new BufferedReader(new InputStreamReader(input))) {
-                                while ((s = reader.readLine()) != null) {
-                                    if (s.contains("ver.")) {
-                                        Logger.d(TAG, "osVersion: " + osVersion + ", ip: " + currentIp);
-                                        osVersion = s;
-                                    }
-                                }
-                            }
-                            bundle.putString(BundleKeys.RESULT_KEY,
-                                    App.get().getString(R.string.release_os) +  ": " + osVersion);
-
-                            Logger.d(TAG, "act ver: " + App.get().getString(R.string.release_os) +  ": " + osVersion);
-                            bundle.putInt(BundleKeys.RESULT_CODE_KEY, UPDATE_OS_VERSION_CODE);
-                            return bundle;
-
                         case STM_VERSION_URL:
                             tempUpdateStmFiles = new ArrayList<>();
                             try(BufferedReader r = new BufferedReader(new InputStreamReader(input))) {
@@ -230,42 +172,6 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                             bundle.putInt(BundleKeys.RESULT_CODE_KEY, UPDATE_STM_VERSION_CODE);
                             bundle.putString(BundleKeys.RESULT_KEY, "Release: " + stmVersion);
                             return  bundle;
-//                        case OS_URL:
-//                            createUpdateOsFile();
-//                            writeToFile(input, tempUpdateOsFile);
-//                            bundle.putInt(BundleKeys.RESULT_CODE_KEY, UPDATE_OS_DOWNLOAD_CODE);
-//                            App.get().setUpdateOsFileVersion(osVersion);
-//                            App.get().setUpdateOsFilePath(tempUpdateOsFile.getAbsolutePath());
-//                            return bundle;
-                        case TRANSPORT_CONTENT_VERSION_URL:
-                            tempUpdateTransportContentFiles = new ArrayList<>();
-                            try(BufferedReader r1 = new BufferedReader(new InputStreamReader(input))) {
-                                while ((s = r1.readLine()) != null) {
-                                    if (s.contains("href")) {
-                                        String subS = s.substring(s.indexOf("./") + 2, s.indexOf("\">"));
-                                        Logger.d(TAG, "s transp: " + s);
-                                        Logger.d(TAG, "subS transp: " + subS);
-                                        tempUpdateTransportContentFiles.add(subS);
-                                    }
-                                }
-                            }
-                            bundle.putInt(BundleKeys.RESULT_CODE_KEY, TRANSPORT_CONTENT_VERSION_CODE);
-                            bundle.putString(BundleKeys.RESULT_KEY, "transport content");
-                            return bundle;
-                        case STATION_CONTENT_VERSION_URL:
-                            tempUpdateStationaryContentFiles = new HashMap<>();
-                            try(BufferedReader r2 = new BufferedReader(new InputStreamReader(input))) {
-                                while ((s = r2.readLine()) != null) {
-                                    Logger.d(TAG, "stat_content_version s: " + s);
-                                    if (s.contains("href")) {
-                                        String serial_incr = s.substring(s.indexOf(".bz2>") + 5, s.indexOf("</a>"));
-                                        tempUpdateStationaryContentFiles.put(serial_incr.split("_")[0], serial_incr.split("_")[1]);
-                                    }
-                                }
-                            }
-                            bundle.putInt(BundleKeys.RESULT_CODE_KEY, STATION_CONTENT_VERSION_CODE);
-                            bundle.putString(BundleKeys.RESULT_KEY, "stationary content");
-                            return bundle;
                         case CITY_URL:
                             url = new URL(CITY_URL);
                             Logger.d(TAG, "url: " + url);
@@ -299,10 +205,4 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         listener.onProgressUpdate(values[0]);
         super.onProgressUpdate(values);
     }
-
-//    public static boolean isCoreUpdatesDownloadCompleted(){
-//        Logger.d(TAG, "isCoreUpdatesDownloadCompleted: " +
-//                (!IS_CORE_FILES_EXIST.isEmpty() &&  IS_CORE_FILES_EXIST.stream().allMatch(it->true)));
-//        return !IS_CORE_FILES_EXIST.isEmpty() && IS_CORE_FILES_EXIST.stream().allMatch(it->true);
-//    }
 }

@@ -8,6 +8,7 @@ import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import com.kotofeya.mobileconfigurator.domain.transceiver.TransceiverRepository;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.stream.Collectors;
@@ -35,8 +36,6 @@ public class TransceiverRepositoryImpl implements TransceiverRepository {
         updateTransceiverListLiveData();
     }
 
-
-
     @Override
     public void editTransceiver(Transceiver transceiver) {
         Transceiver oldTransceiver = getTransceiverByIp(transceiver.getIp());
@@ -59,6 +58,13 @@ public class TransceiverRepositoryImpl implements TransceiverRepository {
     @Override
     public void clearTransceivers() {
         Logger.d(TAG, "clearTransceivers()");
+        transceiverList.forEach(it->{
+            Thread updatingTimer = it.getUpdatingTimer();
+            if(updatingTimer != null){
+                updatingTimer.interrupt();
+            }
+            it.setUpdatingTime(null);
+        });
         transceiverList.clear();
         updateTransceiverListLiveData();
     }
@@ -108,6 +114,7 @@ public class TransceiverRepositoryImpl implements TransceiverRepository {
 
     private void updateTransceiverListLiveData(){
         Logger.d(TAG, "updateTransceiverListLiveData()");
+        transceiverList.sort(Comparator.comparing(Transceiver::getSsid));
         transceiverListLiveData.postValue(transceiverList);
     }
 }

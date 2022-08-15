@@ -22,7 +22,7 @@ public class App extends Application {
 
     private static App instance;
     private static final String PREF_NAME = "mobile_conf_pref";
-    private static final String UPDATE_CONTENT_FILES = "update_content_files";
+//    private static final String UPDATE_CONTENT_FILES = "update_content_files";
 //    private static final String UPDATE_CORE_FILES = "update_core_files_path";
     private static final String LOGIN = "login";
     private static final String PASSWORD = "password";
@@ -42,7 +42,7 @@ public class App extends Application {
 
     private boolean showAccessPointDialog;
 //    private File[] updateCoreFilesPath;
-    private Set<String> updateContentFilePaths;
+//    private Set<String> updateContentFilePaths;
 
     private String password;
     private boolean isRemembered;
@@ -79,20 +79,21 @@ public class App extends Application {
 //    }
 
 
-    public Set<String> getUpdateContentFilePaths() {
-        Logger.d(Logger.APP_LOG, "getUpdateContentFilePaths(): " + updateContentFilePaths);
-        return updateContentFilePaths;
-    }
-    public void setUpdateContentFilePaths(Set<String> paths) {
-        preferences.edit().remove(UPDATE_CONTENT_FILES).commit();
-        preferences.edit().putStringSet(UPDATE_CONTENT_FILES, paths).commit();
-        this.updateContentFilePaths = paths;
-    }
+//    public Set<String> getUpdateContentFilePaths() {
+//        Logger.d(Logger.APP_LOG, "getUpdateContentFilePaths(): " + updateContentFilePaths);
+//        return updateContentFilePaths;
+//    }
 
-    public void saveUpdateContentFilePaths(String filePath){
-        updateContentFilePaths.add(filePath);
-        setUpdateContentFilePaths(updateContentFilePaths);
-    }
+//    public void setUpdateContentFilePaths(Set<String> paths) {
+//        preferences.edit().remove(UPDATE_CONTENT_FILES).commit();
+//        preferences.edit().putStringSet(UPDATE_CONTENT_FILES, paths).commit();
+//        this.updateContentFilePaths = paths;
+//    }
+//
+//    public void saveUpdateContentFilePaths(String filePath){
+//        updateContentFilePaths.add(filePath);
+//        setUpdateContentFilePaths(updateContentFilePaths);
+//    }
 
 //    public File[] getUpdateCoreFilesPath() {
 //        return updateCoreFilesPath;
@@ -143,7 +144,7 @@ public class App extends Application {
         login = preferences.getString(LOGIN, "");
         password = preferences.getString(PASSWORD, "");
         isRemembered = preferences.getBoolean(IS_REMEMBERED, false);
-        updateContentFilePaths = preferences.getStringSet(UPDATE_CONTENT_FILES, new HashSet<>());
+//        updateContentFilePaths = preferences.getStringSet(UPDATE_CONTENT_FILES, new HashSet<>());
 //        coreUpdateSsidIteration = getCoreUpdateIterationsFromPref();
     }
 

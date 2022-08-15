@@ -26,6 +26,7 @@ import com.kotofeya.mobileconfigurator.data.TempFilesRepositoryImpl;
 import com.kotofeya.mobileconfigurator.databinding.ScannerFragmentClBinding;
 import com.kotofeya.mobileconfigurator.domain.tempfiles.GetOsUpdateFileUseCase;
 import com.kotofeya.mobileconfigurator.domain.tempfiles.GetOsUpdateVersionUseCase;
+import com.kotofeya.mobileconfigurator.domain.tempfiles.SaveOsUpdateFileUseCase;
 import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.fragments.scanner.ScannerFragmentVM;
@@ -44,6 +45,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 public class UpdateOsFragment2 extends Fragment implements
@@ -54,24 +56,33 @@ public class UpdateOsFragment2 extends Fragment implements
 
     private static final String TAG = UpdateOsFragment2.class.getSimpleName();
 
-    public static final String DOWNLOADING_FILE = "Загрузка: %s";
     public static final String OS_VERSION_URL = "http://95.161.210.44/update/rootimg";
-
     public static final String OS_URL = "http://95.161.210.44/update/rootimg/root.img.bz2";
+
+    private static final String DOWNLOADING = "Загрузка %s на трансивер %s";
+    public static final String DOWNLOADING_FILE = "Загрузка: %s";
     public static final String DOWNLOADING_FILE_FAILED =
             "Возникла ошибка при скачивании файла: %s с сервера";
-    private static final String UPLOADED_MESSAGE = "Загрузка: %s на устройство %s произошла успешно. ";
+
+    private static final String UPLOADED_MESSAGE = "Загрузка: %s на устройство %s произошла успешно. " +
+            "Трансивер перезагружается.";
     public String serverOsVersion = "";
-    private static final String DOWNLOADING = "Загрузка %s на трансивер %s";
     private static final String UPLOAD_ERROR_MESSAGE = "Ошибка загрузки файла %s на трансивер %s.";
+    private static final String CONFIRM_OS_UPDATE = "Подтвердите обновление ос: %s";
+    public static final String MESSAGE_TAKE_INFO = "Опрос подключенных трансиверов";
+
 
     private File tempUpdateOsFile;
     boolean isUploading = false;
 
     TempFilesRepositoryImpl tempFilesRepository = TempFilesRepositoryImpl.getInstance();
+
+    GetOsUpdateFileUseCase getOsUpdateFileUseCase =
+            new GetOsUpdateFileUseCase(tempFilesRepository);
     GetOsUpdateVersionUseCase getOsUpdateVersionUseCase =
             new GetOsUpdateVersionUseCase(tempFilesRepository);
-    GetOsUpdateFileUseCase getOsUpdateFileUseCase = new GetOsUpdateFileUseCase(tempFilesRepository);
+    SaveOsUpdateFileUseCase saveOsUpdateFileUseCase =
+            new SaveOsUpdateFileUseCase(tempFilesRepository);
 
     protected static final int MOBILE_SETTINGS_RESULT = 0;
     protected ScannerFragmentClBinding binding;
@@ -80,7 +91,6 @@ public class UpdateOsFragment2 extends Fragment implements
     protected RvAdapter rvAdapter;
     protected ScannerFragmentVM scannerFragmentVM;
     protected UpdateOsFragmentVM updateOsFragmentVM;
-    public static final String MESSAGE_TAKE_INFO = "Опрос подключенных трансиверов";
 
     @Nullable
     @Override
@@ -113,27 +123,19 @@ public class UpdateOsFragment2 extends Fragment implements
 
         updateOsFragmentVM = ViewModelProviders.of(requireActivity()).get(UpdateOsFragmentVM.class);
         updateOsFragmentVM.getServerOsVersion().observe(getViewLifecycleOwner(), this::updateServerOsVersion);
-        updateOsFragmentVM.getLocalOsVersion().observe(getViewLifecycleOwner(), this::updateLocalOsVersion);
-
-
+        updateOsFragmentVM._localOsVersion.observe(getViewLifecycleOwner(), this::updateLocalOsVersion);
 
         tempUpdateOsFile = getOsUpdateFileUseCase.getOsUpdateFile();
 
-        loadVersion();
+        hideProgressBar();
+        loadServerVersion();
         scan();
 
-        updateOsFragmentVM.setLocalOsVersion(getOsUpdateVersionUseCase.getOsUpdateVersion());
-
-        String osVersion = getString(R.string.storage_os) + ": " + getOsUpdateVersionUseCase.getOsUpdateVersion();
-        String serverVersion = getString(R.string.release_os) + ": " + serverOsVersion;
-
-        setMainTextLabelText();
+        viewModel.setMainTxtLabel(getString(R.string.update_os_main_txt_label));
         viewModel.setMainBtnRescanVisibility(View.VISIBLE);
         binding.version1.setVisibility(View.VISIBLE);
         binding.version2.setVisibility(View.VISIBLE);
         binding.checkVersionBtn.setVisibility(View.VISIBLE);
-        binding.version1.setText(serverVersion);
-        binding.version2.setText(osVersion);
 
         rvAdapter = RvAdapterFactory.getRvAdapter(getAdapterType(),
                 new ArrayList<>(), getAdapterListener());
@@ -145,8 +147,7 @@ public class UpdateOsFragment2 extends Fragment implements
             if(isInternetEnabled){
                 createUpdateOsTempFile();
                 downloadFile();
-            }
-            else {
+            } else {
                 UpdateFragment.EnableMobileConfDialog dialog = new UpdateFragment.EnableMobileConfDialog();
                 dialog.show(fragmentHandler.getFragmentManager(),
                         FragmentHandler.ENABLE_MOBILE_DIALOG_TAG);
@@ -154,7 +155,6 @@ public class UpdateOsFragment2 extends Fragment implements
         });
         return binding.getRoot();
     }
-
 
     private void updateProgressBarVisibility(Integer integer) {
         binding.scannerProgressBar.setVisibility(integer);
@@ -175,24 +175,38 @@ public class UpdateOsFragment2 extends Fragment implements
         binding.downloadCoreUpdateFilesTv.setVisibility(integer);
     }
 
-
     private void updateServerOsVersion(String version) {
-        binding.version1.setText(getString(R.string.release_os) + ": " + version);
+        String versionText= getString(R.string.release_os) + ": " + version;
+        binding.version1.setText(versionText);
     }
 
     private void updateLocalOsVersion(String version) {
-        binding.version2.setText(getString(R.string.storage_os) + ": " + version);
+        Logger.d(TAG, "updateLocalOsVersion(): " + version);
+        String versionText = getString(R.string.storage_os) + ": " + version;
+        binding.version2.setText(versionText);
     }
 
-
-    public void loadVersion() {
+    public void loadServerVersion() {
         Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName());
         boolean isInternetEnabled = InternetConn.hasInternetConnection();
         if(isInternetEnabled){
             new PostOsVersionUseCase(this, OS_VERSION_URL).newRequest();
         }
     }
+    @Override
+    public void postOsVersionSuccessful(String command, String version) {
+        Logger.d(TAG, "postVersionSuccessful(), version: " + version);
+        if(version.contains("ver")){
+            version = version.substring(version.indexOf("ver"), version.indexOf("<a href"));
+            serverOsVersion = version;
+            updateOsFragmentVM.setServerOsVersion(version);
+        }
+    }
 
+    @Override
+    public void postOsVersionFailed(String command, String error) {
+        Logger.d(TAG, "postVersionFailed(): " + error);
+    }
 
     private void downloadFile(){
         File downloadingFile = tempUpdateOsFile;
@@ -211,13 +225,16 @@ public class UpdateOsFragment2 extends Fragment implements
     }
     @Override
     public void downloadFileSuccessful(File file, int index) {
-        Logger.d(TAG, "downloadFileSuccessful()");
+        Logger.d(TAG, "downloadFileSuccessful(): " + file.getName());
+        updateOsFragmentVM.setLocalOsVersion(updateOsFragmentVM.getServerOsVersion().getValue());
+        saveOsUpdateFileUseCase.saveOsUpdateFile(file);
         hideProgressBar();
     }
     @Override
     public void downloadFileFailed(URL url, int index) {
         Logger.d(TAG, "downloadFileFailed(), url: " + url);
         fragmentHandler.showMessage(String.format(DOWNLOADING_FILE_FAILED, url));
+        hideProgressBar();
     }
 
     private void hideProgressBar(){
@@ -235,9 +252,6 @@ public class UpdateOsFragment2 extends Fragment implements
         scannerFragmentVM.setProgressTvVisibility(View.VISIBLE);
     }
 
-    public void setMainTextLabelText() {
-        viewModel.setMainTxtLabel(getString(R.string.update_os_main_txt_label));
-    }
 
     public RvAdapterType getAdapterType() {
         return RvAdapterType.UPDATE_OS_TYPE;
@@ -261,19 +275,31 @@ public class UpdateOsFragment2 extends Fragment implements
     }
 
     @Override
-    public void adapterItemOnClick(Transceiver transiver) {
-        Logger.d(TAG, "adapterItemOnClick(): " + transiver.getSsid());
-        File updateOsFile = getOsUpdateFileUseCase.getOsUpdateFile();
-        if (updateOsFile.length() > 1000) {
-            String ip = transiver.getIp();
-            showUpdateOsConfirmDialog(ip, transiver.getSsid());
+    public void adapterItemOnClick(Transceiver transceiver) {
+        Logger.d(TAG, "adapterItemOnClick(): " + transceiver.getSsid() + " " + transceiver.getOsVersion());
+        String osVersion = transceiver.getOsVersion();
+        String downloadedVersion = getOsUpdateVersionUseCase.getOsUpdateVersion().getValue();
+
+        int index = osVersion.indexOf("v");
+        osVersion = osVersion.substring((index + 1), osVersion.indexOf("-"));
+
+        if(osVersion.startsWith("1.4")){
+            fragmentHandler.showMessage("Пожалуйста, сначала обновите ядро");
+        } else if(downloadedVersion.contains(osVersion)){
+            fragmentHandler.showMessage("ОС не нуждается в обновлении");
+        } else {
+            File updateOsFile = getOsUpdateFileUseCase.getOsUpdateFile();
+            if (updateOsFile.length() > 1000) {
+                String ip = transceiver.getIp();
+                showUpdateOsConfirmDialog(ip, transceiver.getSsid());
+            }
         }
     }
 
     private void showUpdateOsConfirmDialog(String ip, String serial){
         AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
         builder.setTitle(R.string.confirmation_is_required);
-        builder.setMessage(R.string.confirm_upload_update_os);
+        builder.setMessage(String.format(CONFIRM_OS_UPDATE, serial));
         builder.setPositiveButton(getString(R.string.upload_btn), (dialog, id) -> uploadFile(ip, serial));
         builder.setNegativeButton(getString(R.string.cancel_btn), (dialog, id) -> {});
         builder.setCancelable(true);
@@ -300,11 +326,7 @@ public class UpdateOsFragment2 extends Fragment implements
         Logger.d(TAG, "uploadFileSuccessful(), file: " + destinationFile);
         hideProgressBar();
         String resultString = getCoreResultString(serial);
-//        viewModel.startUpdatingTimer(ip);
         fragmentHandler.showMessage(resultString);
-
-//        viewModel.setUpdatingAttr(ip);
-//        rvAdapter.notifyDataSetChanged();
     }
     @Override
     public void uploadFileFailed(File file, String serial, String ip) {
@@ -328,20 +350,6 @@ public class UpdateOsFragment2 extends Fragment implements
 
     public AdapterListener getAdapterListener(){ return this; }
 
-    @Override
-    public void postOsVersionSuccessful(String command, String version) {
-        Logger.d(TAG, "postVersionSuccessful(), version: " + version);
-        if(version.contains("ver")){
-            version = version.substring(version.indexOf("ver"), version.indexOf("<a href"));
-            Logger.d(TAG, "postVersionSuccessful(), vers: " + version);
-            serverOsVersion = version;
-            updateOsFragmentVM.setServerOsVersion(version);
-        }
-    }
-    @Override
-    public void postOsVersionFailed(String command, String error) {
-        Logger.d(TAG, "postVersionFailed(): " + error);
-    }
 
     @Override
     public void setProgress(int downloaded) {
@@ -370,14 +378,14 @@ public class UpdateOsFragment2 extends Fragment implements
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (requestCode == MOBILE_SETTINGS_RESULT) {
-            loadVersion();
+            loadServerVersion();
         }
     }
-
 
     @SuppressLint("NotifyDataSetChanged")
     protected void updateUI(List<Transceiver> transceivers){
         Logger.d(TAG, "updateUI()");
+        transceivers.sort(Comparator.comparing(Transceiver::getSsid));
         rvAdapter.setObjects(transceivers);
         rvAdapter.notifyDataSetChanged();
     }

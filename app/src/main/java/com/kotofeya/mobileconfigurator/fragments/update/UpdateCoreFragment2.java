@@ -42,12 +42,11 @@ import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 
@@ -92,12 +91,12 @@ public class UpdateCoreFragment2 extends Fragment
     private boolean isDialogShowing = false;
 
     TempFilesRepositoryImpl tempFilesRepository = TempFilesRepositoryImpl.getInstance();
-    private GetCoreUpdateIterationMapUseCase getCoreUpdateIterationMap =
+    private final GetCoreUpdateIterationMapUseCase getCoreUpdateIterationMap =
         new GetCoreUpdateIterationMapUseCase(tempFilesRepository);
-    private SetIterationUseCase setIteration = new SetIterationUseCase(tempFilesRepository);
-    private SaveCoreUpdateFilesUseCase saveUpdateCoreFiles =
+    private final SetIterationUseCase setIteration = new SetIterationUseCase(tempFilesRepository);
+    private final SaveCoreUpdateFilesUseCase saveUpdateCoreFiles =
             new SaveCoreUpdateFilesUseCase(tempFilesRepository);
-    private GetCoreUpdateFilesUseCase getCoreUpdateFilesUseCase =
+    private final GetCoreUpdateFilesUseCase getCoreUpdateFilesUseCase =
             new GetCoreUpdateFilesUseCase(tempFilesRepository);
 
     private static final String CORE_URLS_DIR = "http://95.161.210.44/update/1.4-1.5/";
@@ -208,16 +207,6 @@ public class UpdateCoreFragment2 extends Fragment
         scannerFragmentVM.setDownloadedFilesTvVisibility(View.VISIBLE);
     }
 
-
-    private boolean isTimePassed(String updatingTime, int minutes){
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("HH:mm:ss");
-        LocalTime time = LocalTime.parse(updatingTime, dtf);
-        LocalTime localTime = LocalTime.of(0, minutes);
-        Logger.d(TAG, "isTimePassed(): " + updatingTime + " " + time + " " + time.isAfter(localTime));
-
-        return (time.isAfter(localTime));
-    }
-
     private int getTimerMinutes(int iteration){
         switch (iteration){
             case 0: return 3;
@@ -229,63 +218,11 @@ public class UpdateCoreFragment2 extends Fragment
         return 0;
     }
 
-    private boolean isIterationValid(int iteration){
-        return iteration > 0 && iteration < tempUpdateCoreFiles.length;
-    }
-
     protected void updateUI(List<Transceiver> transceivers){
         Logger.d(TAG, "updateUI(): " + transceivers.stream().count());
         transceivers.sort(Comparator.comparing(Transceiver::getSsid));
-
         rvAdapter.setObjects(transceivers);
         rvAdapter.notifyDataSetChanged();
-
-        Map<String, Integer> coreUpdateSsidIteration = getCoreUpdateIterationMap.getCoreUpdateIterationMap();
-        Logger.d(TAG, "coreUpdateSsidIteration: " + coreUpdateSsidIteration);
-
-        for(Transceiver t: transceivers){
-            String ip = t.getIp();
-            Logger.d(TAG, "t: " + t.getSsid() + " " + ip);
-
-            if(ip != null) {
-                Integer coreUpdateIteration = coreUpdateSsidIteration.get(t.getSsid());
-                if(coreUpdateIteration != null) {
-                    Logger.d(TAG, "cycle: " + t.getSsid() + " " + t.getIp() + " " + coreUpdateIteration);
-                }
-                if(coreUpdateIteration != null && isIterationValid(coreUpdateIteration)){
-                      if(t.getUpdatingTime() != null){
-                          Logger.d(TAG, t.getSsid() + " updatingTime is not null");
-                          boolean isTimePassed = isTimePassed(t.getUpdatingTime(),
-                                    getTimerMinutes(coreUpdateIteration));
-                          if (isTimePassed) {
-//                                t.setUpdatingTime(null);
-                                if(coreUpdateIteration == 1){
-                                    if(t.getOsVersion().contains(Transceiver.VERSION_PRE)){
-                                        viewModel.stopUpdatingTimer(t);
-                                        showConfirmDialog(ip, t.getSsid(), this, coreUpdateIteration);
-//                                        uploadFile(ip, t.getSsid(), coreUpdateIteration);
-                                        return;
-                                    } else{
-                                        viewModel.stopUpdatingTimer(t);
-                                        Logger.d(TAG, "iteration 1 was failed, start updating again");
-                                        setIteration.setIteration(t.getSsid(), 0);
-                                    }
-                                } else {
-                                    viewModel.stopUpdatingTimer(t);
-                                    showConfirmDialog(ip, t.getSsid(), this, coreUpdateIteration);
-//                                    uploadFile(ip, t.getSsid(), coreUpdateIteration);
-                                    return;
-                                }
-                          }
-                      } else {
-                          Logger.d(TAG, t.getSsid() + " updatingTime is null");
-                          showConfirmDialog(ip, t.getSsid(), this, coreUpdateIteration);
-//                          uploadFile(ip, t.getSsid(), coreUpdateIteration);
-                          return;
-                      }
-                }
-            }
-        }
     }
 
     @Override
@@ -298,7 +235,18 @@ public class UpdateCoreFragment2 extends Fragment
                 fragmentHandler.showMessage(NO_NEED_TO_UPDATE);
             } else {
                 if (isTempFilesExists()) {
-                    showConfirmDialog(ip, transceiver.getSsid(), this, 0);
+                    viewModel.stopUpdatingTimer(transceiver);
+                    Map<String, Integer> coreUpdateSsidIteration = getCoreUpdateIterationMap.getCoreUpdateIterationMap();
+                    Integer coreUpdateIteration = coreUpdateSsidIteration.get(transceiver.getSsid());
+                    if(coreUpdateIteration == null){
+                        coreUpdateIteration = 0;
+                    }
+                    if (coreUpdateIteration == 1
+                            && !transceiver.getOsVersion().contains(Transceiver.VERSION_PRE)) {
+                            Logger.d(TAG, "iteration 1 was failed, start updating again");
+                            coreUpdateIteration = 0;
+                    }
+                    showConfirmDialog(ip, this, coreUpdateIteration, transceiver);
                 } else {
                     fragmentHandler.showMessage(DOWNLOAD_FILES);
                 }
@@ -307,17 +255,21 @@ public class UpdateCoreFragment2 extends Fragment
     }
 
     public boolean isTempFilesExists(){
-        return Arrays.asList(tempUpdateCoreFiles).stream().allMatch(it->it.exists());
+        return Arrays.stream(tempUpdateCoreFiles).allMatch(File::exists);
     }
 
-    private void showConfirmDialog(String ip, String ssid, DialogListener listener, int iteration){
+    private void showConfirmDialog(String ip, DialogListener listener, int iteration, Transceiver t){
+        Logger.d(TAG, "showConfirmDialog(), isDialogShowing: "
+                + isDialogShowing + ", isUploading: " + isUploading) ;
+        String ssid = t.getSsid();
         if(!isDialogShowing && !isUploading) {
             isDialogShowing = true;
             AlertDialog.Builder builder = new AlertDialog.Builder(requireActivity());
             builder.setTitle(R.string.confirmation_is_required);
-            builder.setMessage(String.format(CONFIRM_CORE_UPDATE, ssid, (iteration + 1)));
+            builder.setMessage(String.format(Locale.getDefault(), CONFIRM_CORE_UPDATE, ssid, (iteration + 1)));
             builder.setPositiveButton(UPDATE, (dialog, id) -> {
                 isDialogShowing = false;
+                uploadFile(ip, t.getSsid(), iteration);
                 setIteration.setIteration(ssid, iteration);
                 listener.uploadFile(ip, ssid, iteration);
             });
@@ -402,6 +354,7 @@ public class UpdateCoreFragment2 extends Fragment
         setIteration.setIteration(serial, nextIndex);
         viewModel.startUpdatingTimer(ip);
         fragmentHandler.showMessage(resultString);
+
     }
     @Override
     public void uploadFileFailed(File file, int index, String serial, String ip) {
@@ -420,7 +373,7 @@ public class UpdateCoreFragment2 extends Fragment
             fileName = fileName + ", " +
                     tempUpdateCoreFiles[3].getName();
         }
-        return String.format(WAIT_MESSAGE, fileName, serial, minutesCount);
+        return String.format(Locale.getDefault(), WAIT_MESSAGE, fileName, serial, minutesCount);
     }
 
 

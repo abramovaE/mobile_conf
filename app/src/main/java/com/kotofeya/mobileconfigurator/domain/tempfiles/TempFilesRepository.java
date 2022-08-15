@@ -1,5 +1,7 @@
 package com.kotofeya.mobileconfigurator.domain.tempfiles;
 
+import androidx.lifecycle.LiveData;
+
 import java.io.File;
 import java.util.Map;
 
@@ -14,7 +16,7 @@ public interface TempFilesRepository {
 
     File getUpdateOsFile();
     void saveUpdateOsFile(File file);
-    String getUpdateOsVersion();
+    LiveData<String> getUpdateOsVersion();
     void setUpdateOsVersion(String version);
 
 }

@@ -3,6 +3,7 @@ package com.kotofeya.mobileconfigurator;
 
 import android.content.Context;
 import android.os.AsyncTask;
+import android.widget.Toast;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -101,7 +102,7 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
     protected void onPostExecute(Void s) {
         Logger.d(Logger.CHECK_USER_LOG, "On post execute, is user valid: " + isUserValid);
 
-//         TODO: 08.04.2021 remove
+////         TODO: 08.04.2021 remove
         isUserValid = true;
         App.get().setLevel("full");
         callback.doIfUserValid();

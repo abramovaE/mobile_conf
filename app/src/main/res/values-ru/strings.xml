@@ -104,4 +104,7 @@
 
     <string name="remember_me">Запомнить меня</string>
 
+
+    <string name="upload_btn">Загрузить</string>
+    <string name="cancel_btn">Отменить</string>
 </resources>

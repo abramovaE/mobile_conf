@@ -8,7 +8,6 @@ import androidx.lifecycle.MutableLiveData;
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
-import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.SshTakeInfoConnectionRunnable;
 import com.kotofeya.mobileconfigurator.data.TransceiverRepositoryImpl;
 import com.kotofeya.mobileconfigurator.domain.client.AddClientsUseCase;
@@ -213,11 +212,13 @@ public class ClientsHandlerOkHttp implements DeviceScanListener,
     }
 
     private void decrLatch(){
-        Logger.d(TAG, "decrLatch(), latcher: " + latch.getCount());
-        latch.countDown();
-        if(latch != null && latch.getCount() == 0){
-            isTakeInfoFinished.postValue(true);
-            latch = null;
+        if(latch != null) {
+            Logger.d(TAG, "decrLatch(), latcher: " + latch.getCount());
+            latch.countDown();
+            if (latch.getCount() == 0) {
+                isTakeInfoFinished.postValue(true);
+                latch = null;
+            }
         }
     }
 }

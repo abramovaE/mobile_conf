@@ -25,12 +25,11 @@ import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransceiverS
 import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransceiverStmLogFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsNetworkFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsScUartFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.content.UpdateContentFragment2;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateCoreFragment2;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsUpdatePhpFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsWifiFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.StmLogFragment;
-import com.kotofeya.mobileconfigurator.fragments.update.UpdateContentFragment;
-import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment2;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateStmFragment;
 
@@ -107,7 +106,7 @@ public class FragmentHandler {
                 case UPDATE_STM_FRAGMENT:
                     return new UpdateStmFragment();
                 case UPDATE_CONTENT_FRAGMENT:
-                    return new UpdateContentFragment();
+                    return new UpdateContentFragment2();
                 case CONFIG_TRANSPORT_FRAGMENT:
                     return new ConfigTransportFragment();
                 case CONFIG_STATION_FRAGMENT:

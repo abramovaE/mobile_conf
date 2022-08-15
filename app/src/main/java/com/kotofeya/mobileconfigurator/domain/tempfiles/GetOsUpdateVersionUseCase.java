@@ -1,6 +1,8 @@
 package com.kotofeya.mobileconfigurator.domain.tempfiles;
 
 
+import androidx.lifecycle.LiveData;
+
 public class GetOsUpdateVersionUseCase {
     private TempFilesRepository tempFilesRepository;
 
@@ -8,7 +10,7 @@ public class GetOsUpdateVersionUseCase {
         this.tempFilesRepository = tempFilesRepository;
     }
 
-    public String getOsUpdateVersion(){
+    public LiveData<String> getOsUpdateVersion(){
         return tempFilesRepository.getUpdateOsVersion();
     }
 }

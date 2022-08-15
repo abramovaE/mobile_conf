@@ -23,6 +23,7 @@ import com.kotofeya.mobileconfigurator.ProgressBarInt;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.SshConnection;
 import com.kotofeya.mobileconfigurator.TaskCode;
+import com.kotofeya.mobileconfigurator.data.TempFilesRepositoryImpl;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.fragments.scanner.ScannerFragment;
 import com.kotofeya.mobileconfigurator.rv_adapter.AdapterListener;
@@ -38,6 +39,8 @@ public abstract class UpdateFragment extends ScannerFragment
     protected String version = "version";
 
     protected static final int MOBILE_SETTINGS_RESULT = 0;
+
+    TempFilesRepositoryImpl tempFilesRepository = TempFilesRepositoryImpl.getInstance();
 
     @Override
     public void onStart() {
@@ -101,35 +104,29 @@ public abstract class UpdateFragment extends ScannerFragment
             case 1002:
                 fragmentHandler.showMessage("Error: " + result);
                  break;
-            case TaskCode.UPDATE_OS_UPLOAD_CODE:
             case TaskCode.UPDATE_STM_UPLOAD_CODE:
-            case TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE:
+//            case TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE:
                 uploaded(ipStr);
                 break;
-            case TaskCode.UPDATE_OS_VERSION_CODE:
             case TaskCode.UPDATE_STM_VERSION_CODE:
                 setVersion(resultStr);
                 break;
-            case TaskCode.TRANSPORT_CONTENT_VERSION_CODE:
-                Logger.d(TAG, "transportContent: " + result);
-                break;
-            case TaskCode.STATION_CONTENT_VERSION_CODE:
-                Logger.d(TAG, "stationContent: " + result);
-                break;
-            case TaskCode.UPDATE_OS_DOWNLOAD_CODE:
-                Logger.d(TAG, "downloaded: " + result);
-                scannerFragmentVM.setProgressBarVisibility(View.GONE);
-                fragmentHandler.showMessage(getString(R.string.downloaded));
-                break;
+//            case TaskCode.TRANSPORT_CONTENT_VERSION_CODE:
+//                Logger.d(TAG, "transportContent: " + result);
+//                break;
+//            case TaskCode.STATION_CONTENT_VERSION_CODE:
+//                Logger.d(TAG, "stationContent: " + result);
+//                break;
+
             case TaskCode.UPDATE_STM_DOWNLOAD_CODE:
                 downloadBySsh(ipStr, SshConnection.UPDATE_STM_UPLOAD_CODE, result, View.GONE);
                 break;
-            case TaskCode.UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE:
-                downloadBySsh(ipStr, SshConnection.UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE, result, View.VISIBLE);
-                break;
-            case TaskCode.UPDATE_STATION_CONTENT_DOWNLOAD_CODE:
-                downloadBySsh(ipStr, SshConnection.UPDATE_STATION_CONTENT_UPLOAD_CODE, result, View.VISIBLE);
-                break;
+//            case TaskCode.UPDATE_TRANSPORT_CONTENT_DOWNLOAD_CODE:
+//                downloadBySsh(ipStr, SshConnection.UPDATE_TRANSPORT_CONTENT_UPLOAD_CODE, result, View.VISIBLE);
+//                break;
+//            case TaskCode.UPDATE_STATION_CONTENT_DOWNLOAD_CODE:
+//                downloadBySsh(ipStr, SshConnection.UPDATE_STATION_CONTENT_UPLOAD_CODE, result, View.VISIBLE);
+//                break;
             case TaskCode.SSH_ERROR_CODE:
                 scannerFragmentVM.setProgressBarVisibility(View.GONE);
                 if(resultStr.contains("Connection refused") || resultStr.contains("Auth fail")){
@@ -145,19 +142,19 @@ public abstract class UpdateFragment extends ScannerFragment
                 fragmentHandler.showMessage("Error: " + result);
                 scannerFragmentVM.setProgressBarVisibility(View.GONE);
                 break;
-            case TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE:
-                    String tempFilePath = result.getString(BundleKeys.FILE_PATH_KEY);
-                    Logger.d(TAG, "downloading completed, tfp: " + tempFilePath);
-                    App.get().saveUpdateContentFilePaths(tempFilePath);
-                    binding.downloadCoreUpdateFilesTv.setVisibility(View.VISIBLE);
-                    updateFilesTv();
+//            case TaskCode.UPDATE_TRANSPORT_CONTENT_UPLOAD_TO_STORAGE_CODE:
+//                    String tempFilePath = result.getString(BundleKeys.FILE_PATH_KEY);
+//                    Logger.d(TAG, "downloading completed, tfp: " + tempFilePath);
+//                    tempFilesRepository.saveUpdateContentFilePaths(tempFilePath);
+//                    binding.downloadCoreUpdateFilesTv.setVisibility(View.VISIBLE);
+//                    updateFilesTv();
         }
     }
 
     private void updateFilesTv(){
         StringBuilder sb = new StringBuilder();
         sb.append("Сохраненные файлы: \n");
-        new LinkedList<>(App.get().getUpdateContentFilePaths())
+        new LinkedList<>(tempFilesRepository.getUpdateContentFilePaths())
                 .forEach(it -> sb.append(it.substring(it.lastIndexOf("/") + 1, it.indexOf("_"))).append("\n"));
         binding.downloadCoreUpdateFilesTv.setText(sb.toString());
     }

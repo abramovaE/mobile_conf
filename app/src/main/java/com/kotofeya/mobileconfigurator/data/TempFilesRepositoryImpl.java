@@ -3,8 +3,10 @@ package com.kotofeya.mobileconfigurator.data;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import androidx.lifecycle.LiveData;
+import androidx.lifecycle.MutableLiveData;
+
 import com.kotofeya.mobileconfigurator.App;
-import com.kotofeya.mobileconfigurator.Downloader;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.domain.tempfiles.TempFilesRepository;
 
@@ -24,14 +26,30 @@ public class TempFilesRepositoryImpl implements TempFilesRepository {
     private static final String UPDATE_OS_FILE_PATH = "update_os_file_path";
     private static final String UPDATE_OS_FILE_VERSION = "update_os_file_version";
 
+    private static final String UPDATE_CONTENT_FILES = "update_content_files";
+
+
     private SharedPreferences preferences = App.get().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
 
     private File[] updateCoreFilesPath = new File[4];
 
     private File updateOsFile;
-    private String updateOsFileVersion;
+//    private String updateOsFileVersion;
 
     private Map<String, Integer> coreUpdateIterationMap = new HashMap<>();
+
+    private final MutableLiveData updateOsFileVersionLiveData = new MutableLiveData("");
+
+    private Set<String> updateContentFilePaths;
+
+//
+//    private List<String> transportContentFiles = new ArrayList<>();
+//    private Map<String, String> stationContentFiles = new HashMap<>();
+//
+//    private LiveData<List<String>> transportContentFilesLiveData =
+//            new MutableLiveData<>(new ArrayList<>());
+//    private LiveData<Map<String, String>> stationContentLiveData =
+//            new MutableLiveData<>(new HashMap<>());
 
 
     private static TempFilesRepositoryImpl instance;
@@ -39,6 +57,7 @@ public class TempFilesRepositoryImpl implements TempFilesRepository {
         initUpdateCoreFilesPath();
         initCoreUpdateIterationMap();
         initUpdateOsFile();
+        initUpdateContentFiles();
     }
     public static TempFilesRepositoryImpl getInstance(){
         if(instance == null){
@@ -49,11 +68,16 @@ public class TempFilesRepositoryImpl implements TempFilesRepository {
 
     private void initUpdateOsFile(){
         String updateOsFilePath = preferences.getString(UPDATE_OS_FILE_PATH, "");
-        updateOsFileVersion = preferences.getString(UPDATE_OS_FILE_VERSION, "");
+        String updateOsFileVersion = preferences.getString(UPDATE_OS_FILE_VERSION, "");
+        updateOsFileVersionLiveData.postValue(updateOsFileVersion);
         if(!new File(updateOsFilePath).exists()){
             setUpdateOsVersion("");
         }
         updateOsFile = new File(updateOsFilePath);
+    }
+
+    private void initUpdateContentFiles(){
+        updateContentFilePaths = preferences.getStringSet(UPDATE_CONTENT_FILES, new HashSet<>());
     }
 
     @Override
@@ -62,15 +86,31 @@ public class TempFilesRepositoryImpl implements TempFilesRepository {
     }
     public void saveUpdateOsFile(File file) {
         preferences.edit().putString(UPDATE_OS_FILE_PATH, file.getAbsolutePath()).commit();
-        this.updateOsFile = updateOsFile;
+        this.updateOsFile = file;
     }
 
-    public String getUpdateOsVersion() {
-        return updateOsFileVersion;
+    public Set<String> getUpdateContentFilePaths() {
+        return updateContentFilePaths;
+    }
+    public void setUpdateContentFilePaths(Set<String> paths) {
+        preferences.edit().remove(UPDATE_CONTENT_FILES).commit();
+        preferences.edit().putStringSet(UPDATE_CONTENT_FILES, paths).commit();
+        this.updateContentFilePaths = paths;
+    }
+
+    public void saveUpdateContentFilePaths(String filePath){
+        updateContentFilePaths.add(filePath);
+        setUpdateContentFilePaths(updateContentFilePaths);
+    }
+
+
+    public LiveData<String> getUpdateOsVersion() {
+        return updateOsFileVersionLiveData;
     }
     public void setUpdateOsVersion(String updateOsFileVersion) {
         preferences.edit().putString(UPDATE_OS_FILE_VERSION, updateOsFileVersion).commit();
-        this.updateOsFileVersion = updateOsFileVersion;
+        updateOsFileVersionLiveData.postValue(updateOsFileVersion);
+//        this.updateOsFileVersion = updateOsFileVersion;
     }
 
     private void initUpdateCoreFilesPath() {
@@ -123,6 +163,8 @@ public class TempFilesRepositoryImpl implements TempFilesRepository {
         coreUpdateIterationMap.put(serial, iteration);
         saveCoreUpdateIterationsMap(coreUpdateIterationMap);
     }
+
+
 
 
 }
