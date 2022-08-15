@@ -1,7 +1,7 @@
 package com.kotofeya.mobileconfigurator.domain.tempfiles;
 
 public class SetIterationUseCase {
-    TempFilesRepository tempFilesRepository;
+    private final TempFilesRepository tempFilesRepository;
 
     public SetIterationUseCase(TempFilesRepository tempFilesRepository) {
         this.tempFilesRepository = tempFilesRepository;

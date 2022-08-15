@@ -35,9 +35,9 @@ public class ConfigTransportFragment extends ConfigFragment {
     }
 
     @Override
-    public void adapterItemOnClick(Transceiver transiver) {
-        Logger.d(TAG, "adapterItemOnClick(), transceiver: " + transiver.getIp() + " " + transiver.getSsid());
-        String ssid = transiver.getSsid();
+    public void adapterItemOnClick(Transceiver transceiver) {
+        Logger.d(TAG, "adapterItemOnClick(), transceiver: " + transceiver.getIp() + " " + transceiver.getSsid());
+        String ssid = transceiver.getSsid();
         Bundle bundle = new Bundle();
         bundle.putString(BundleKeys.SSID_KEY, ssid);
         fragmentHandler.changeFragmentBundle(FragmentHandler.TRANSPORT_CONTENT_FRAGMENT, bundle);

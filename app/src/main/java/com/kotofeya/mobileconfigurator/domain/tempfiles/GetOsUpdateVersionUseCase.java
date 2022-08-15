@@ -4,7 +4,7 @@ package com.kotofeya.mobileconfigurator.domain.tempfiles;
 import androidx.lifecycle.LiveData;
 
 public class GetOsUpdateVersionUseCase {
-    private TempFilesRepository tempFilesRepository;
+    private final TempFilesRepository tempFilesRepository;
 
     public GetOsUpdateVersionUseCase(TempFilesRepository tempFilesRepository) {
         this.tempFilesRepository = tempFilesRepository;

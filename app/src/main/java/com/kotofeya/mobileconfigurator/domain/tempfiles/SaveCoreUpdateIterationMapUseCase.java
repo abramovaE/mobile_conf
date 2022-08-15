@@ -4,7 +4,7 @@ package com.kotofeya.mobileconfigurator.domain.tempfiles;
 import java.util.Map;
 
 public class SaveCoreUpdateIterationMapUseCase {
-    TempFilesRepository tempFilesRepository;
+    private final TempFilesRepository tempFilesRepository;
 
     public SaveCoreUpdateIterationMapUseCase(TempFilesRepository tempFilesRepository){
         this.tempFilesRepository = tempFilesRepository;

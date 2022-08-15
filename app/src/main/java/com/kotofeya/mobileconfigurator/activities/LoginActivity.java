@@ -19,7 +19,8 @@ import com.kotofeya.mobileconfigurator.CheckUser;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 
-public class LoginActivity extends AppCompatActivity implements View.OnClickListener, CheckUser.MyCustomCallBack, View.OnKeyListener {
+public class LoginActivity extends AppCompatActivity implements View.OnClickListener,
+        CheckUser.MyCustomCallBack, View.OnKeyListener {
 
     private EditText loginTxt;
     private EditText passwordTxt;
@@ -51,8 +52,6 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             isRemembered = isChecked;
         });
     }
-
-
 
     @Override
     public void onAttachFragment(@NonNull Fragment fragment) {

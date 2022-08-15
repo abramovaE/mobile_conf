@@ -1,5 +1,7 @@
 package com.kotofeya.mobileconfigurator.network.request;
 
+import androidx.annotation.NonNull;
+
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.network.NetworkUtils;
 
@@ -15,8 +17,8 @@ import okhttp3.Response;
 public class PostOsVersionUseCase {
 
         private static final String TAG = PostOsVersionUseCase.class.getSimpleName();
-        private PostOsVersionListener listener;
-        private String urlCommand;
+        private final PostOsVersionListener listener;
+        private final String urlCommand;
 
         public PostOsVersionUseCase(PostOsVersionListener listener, String urlCommand) {
             Logger.d(TAG, "urlCommand: " + urlCommand);
@@ -36,7 +38,7 @@ public class PostOsVersionUseCase {
 
                 client.newCall(get).enqueue(new Callback() {
                     @Override
-                    public void onResponse(Call call, Response response) {
+                    public void onResponse(@NonNull Call call, @NonNull Response response) {
                         String content = NetworkUtils.responseToString(response);
                         Logger.d(TAG, "response: " + response.body());
                         Logger.d(TAG, "code: " + response.code());
@@ -49,7 +51,7 @@ public class PostOsVersionUseCase {
                         response.close();
                     }
                     @Override
-                    public void onFailure(Call call, IOException e) {
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
                         listener.postOsVersionFailed(urlCommand, e.getLocalizedMessage());
                     }
                 });

@@ -52,11 +52,11 @@ public class SettingsUpdatePhpFragment extends UpdateFragment {
     }
 
     @Override
-    public void adapterItemOnClick(Transceiver transiver) {
+    public void adapterItemOnClick(Transceiver transceiver) {
         if (version != null && !version.startsWith(SSH_CONN)) {
             Logger.d(Logger.SCANNER_ADAPTER_LOG, "Update php was pressed");
             Bundle bundle = new Bundle();
-            bundle.putString(BundleKeys.IP_KEY, transiver.getIp());
+            bundle.putString(BundleKeys.IP_KEY, transceiver.getIp());
             UpdatePhpConfDialog dialog = new UpdatePhpConfDialog();
             dialog.setArguments(bundle);
             dialog.show(fragmentHandler.getFragmentManager(),

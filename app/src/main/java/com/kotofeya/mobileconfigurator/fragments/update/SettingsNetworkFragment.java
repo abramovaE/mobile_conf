@@ -30,10 +30,10 @@ public class SettingsNetworkFragment extends UpdateFragment {
     }
 
     @Override
-    public void adapterItemOnClick(Transceiver transiver) {
-        String ssid = transiver.getSsid();
+    public void adapterItemOnClick(Transceiver transceiver) {
+        String ssid = transceiver.getSsid();
         Bundle bundle = new Bundle();
         bundle.putString(BundleKeys.SSID_KEY, ssid);
-        fragmentHandler.changeFragmentBundle(FragmentHandler.TRANSIVER_SETTINGS_NETWORK_FRAGMENT, bundle);
+        fragmentHandler.changeFragmentBundle(FragmentHandler.TRANSCEIVER_SETTINGS_NETWORK_FRAGMENT, bundle);
     }
 }

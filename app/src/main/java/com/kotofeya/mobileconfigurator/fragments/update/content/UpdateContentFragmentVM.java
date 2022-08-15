@@ -4,10 +4,6 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.kotofeya.mobileconfigurator.data.TempFilesRepositoryImpl;
-import com.kotofeya.mobileconfigurator.domain.tempfiles.GetOsUpdateVersionUseCase;
-import com.kotofeya.mobileconfigurator.domain.tempfiles.SaveOsUpdateVersionUseCase;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,10 +11,9 @@ import java.util.Map;
 
 public class UpdateContentFragmentVM extends ViewModel {
 
-
-    private MutableLiveData<List<String>> _transportContentVersionsLiveData =
+    private final MutableLiveData<List<String>> _transportContentVersionsLiveData =
             new MutableLiveData<>(new ArrayList<>());
-    private MutableLiveData<Map<String, String>> _stationContentVersionsLiveData =
+    private final MutableLiveData<Map<String, String>> _stationContentVersionsLiveData =
             new MutableLiveData<>(new HashMap<>());
 
     public LiveData<List<String>> transportContentVersionsLiveData =

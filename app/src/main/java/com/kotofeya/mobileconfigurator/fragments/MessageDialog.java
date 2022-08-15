@@ -6,7 +6,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
-import androidx.fragment.app.FragmentManager;
 
 class MessageDialog extends DialogFragment {
 
@@ -20,12 +19,4 @@ class MessageDialog extends DialogFragment {
         builder.setCancelable(true);
         return builder.create();
     }
-//
-//    public static void showMessage(FragmentManager fragmentManager, String message){
-//        Bundle bundle = new Bundle();
-//        bundle.putString("message", message);
-//        MessageDialog dialog = new MessageDialog();
-//        dialog.setArguments(bundle);
-//        dialog.show(fragmentManager, FragmentHandler.CONFIRMATION_DIALOG_TAG);
-//    }
 }

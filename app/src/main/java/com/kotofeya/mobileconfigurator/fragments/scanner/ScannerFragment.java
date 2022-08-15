@@ -45,11 +45,8 @@ public abstract class ScannerFragment extends Fragment {
         fragmentHandler = ((MainActivity) requireActivity()).getFragmentHandler();
         scannerFragmentVM = ViewModelProviders.of(requireActivity()).get(ScannerFragmentVM.class);
 
-//        clientsHandler = ClientsHandler.getInstance();
-
         viewModel.transceivers.observe(getViewLifecycleOwner(), this::updateUI);
         viewModel.isGetTakeInfoFinished.observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
-        viewModel.isScanning.observe(getViewLifecycleOwner(), this::updateClientsScanning);
 
         scannerFragmentVM.getProgressBarVisibility().observe(getViewLifecycleOwner(), this::updateProgressBarVisibility);
         scannerFragmentVM.setProgressTvVisibility(View.GONE);
@@ -67,10 +64,8 @@ public abstract class ScannerFragment extends Fragment {
         binding.scannerProgressBar.setVisibility(visibility);
     }
 
-
     public abstract RvAdapterType getAdapterType();
     public abstract AdapterListener getAdapterListener();
-
     public abstract void setMainTextLabelText();
 
     @SuppressLint("NotifyDataSetChanged")
@@ -93,13 +88,5 @@ public abstract class ScannerFragment extends Fragment {
     public void scan(){
         Logger.d(TAG, "scan()");
         viewModel.pollConnectedClients();
-//        clientsHandler.pollConnectedClients();
-    }
-
-    private void updateClientsScanning(Boolean aBoolean) {
-        Logger.d(TAG, "updateClientsScanning(): " + aBoolean);
-//        if(!aBoolean){
-//            scan();
-//        }
     }
 }

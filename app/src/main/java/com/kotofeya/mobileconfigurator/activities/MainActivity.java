@@ -24,7 +24,7 @@ import com.google.gson.Gson;
 import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.City;
-import com.kotofeya.mobileconfigurator.Downloader;
+import com.kotofeya.mobileconfigurator.CityDownloader;
 import com.kotofeya.mobileconfigurator.InternetConn;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
@@ -78,10 +78,8 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case TETHER_REQUEST_CODE:
-                startScan();
-                break;
+        if (requestCode == TETHER_REQUEST_CODE) {
+            startScan();
         }
     }
 
@@ -106,8 +104,8 @@ public class MainActivity extends AppCompatActivity
         binding.mainTxtLabel.setText(R.string.main_menu_main_label);
         binding.mainTxtLogin.setText(App.get().getLogin());
 
-        Downloader cityDownloader = new Downloader(this);
-        cityDownloader.execute(Downloader.CITY_URL);
+        CityDownloader cityDownloader = new CityDownloader(this);
+        cityDownloader.execute();
 
         viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
 

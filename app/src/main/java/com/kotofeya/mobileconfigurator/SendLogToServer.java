@@ -15,18 +15,17 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class SendLogToServer implements Runnable {
 
-    private static String url_post_log = "http://95.161.210.44/mobile_conf_post_log.php";
-    private String logReport;
-    private OnTaskCompleted listener;
+    private static final String url_post_log = "http://95.161.210.44/mobile_conf_post_log.php";
+    private final String logReport;
+    private final OnTaskCompleted listener;
 
     public SendLogToServer(String logReport, OnTaskCompleted listener) {
         Logger.d(Logger.MAIN_LOG, "sending log to server");
@@ -71,13 +70,7 @@ public class SendLogToServer implements Runnable {
             listener.onTaskCompleted(result);
             reader.close();
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
     }
@@ -91,7 +84,7 @@ public class SendLogToServer implements Runnable {
         params.add(new BasicNameValuePair("log", logReport));
 
         OutputStream os = c.getOutputStream();
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, StandardCharsets.UTF_8));
         writer.write(getQuery(params));
         writer.flush();
         writer.close();

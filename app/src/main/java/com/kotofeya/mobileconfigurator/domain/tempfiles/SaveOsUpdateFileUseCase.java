@@ -3,7 +3,7 @@ package com.kotofeya.mobileconfigurator.domain.tempfiles;
 import java.io.File;
 
 public class SaveOsUpdateFileUseCase {
-    TempFilesRepository tempFilesRepository;
+    private final TempFilesRepository tempFilesRepository;
 
     public SaveOsUpdateFileUseCase(TempFilesRepository tempFilesRepository){
         this.tempFilesRepository = tempFilesRepository;

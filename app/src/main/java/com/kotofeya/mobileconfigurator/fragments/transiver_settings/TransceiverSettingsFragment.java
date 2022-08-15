@@ -89,12 +89,6 @@ public abstract class TransceiverSettingsFragment extends Fragment
         return binding.getRoot();
     }
 
-//    @Override
-//    public void onStart() {
-//        Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName());
-//        super.onStart();
-//        this.ssid = getArguments() != null ? getArguments().getString("ssid") : null;
-//    }
 
     private void updateUI(String text) {
         binding.settingsTv.setText(text);

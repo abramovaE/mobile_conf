@@ -66,12 +66,11 @@ public abstract class ContentFragment extends Fragment
 
     ContentClickListener contentClickListener;
     protected FragmentHandler fragmentHandler;
-//    protected ClientsHandler clientsHandler;
 
     private void updateUI() {
         Logger.d(TAG, "update ui, ssid " + ssid + " " + currentTransceiver.getSsid());
         currentTransceiver = viewModel.getTransceiverBySsid(currentTransceiver.getSsid());
-        if(currentTransceiver.getVersion() != Transceiver.VERSION_UNDEFINED) {
+        if(!currentTransceiver.getVersion().equals(Transceiver.VERSION_UNDEFINED)) {
             binding.contentBtnRasp.setEnabled(true);
             binding.contentBtnStm.setEnabled(true);
             binding.contentBtnClear.setEnabled(true);
@@ -84,7 +83,7 @@ public abstract class ContentFragment extends Fragment
         updateFields();
     }
 
-    final Runnable updateRunnable = () -> updateUI();
+    final Runnable updateRunnable = this::updateUI;
 
     protected void showMessageAndChangeFragment(@NotNull String response, String message,
                                       String errorMessage, String fragmentTag){
@@ -140,42 +139,26 @@ public abstract class ContentFragment extends Fragment
 
         binding = ContentFragmentBinding.inflate(inflater, container, false);
         fragmentHandler = ((MainActivity) requireActivity()).getFragmentHandler();
-
-        this.ssid = getArguments().getString("ssid");
-
+        this.ssid = getArguments().getString(BundleKeys.SSID_KEY);
         viewModel = ViewModelProviders.of(requireActivity()).get(MainActivityViewModel.class);
-
         viewModel.isScanning.observe(getViewLifecycleOwner(), this::updateClientsScanFinished);
-//        this.clientsHandler = ClientsHandler.getInstance();
         return binding.getRoot();
     }
 
     private void updateClientsScanFinished(Boolean aBoolean) {
         if(!aBoolean){
             viewModel.pollConnectedClients();
-//            clientsHandler.pollConnectedClients();
         }
     }
 
     private void updateScannerProgressBarTv(Boolean aBoolean) {
-
-//        if(!aBoolean){
-//            if(scannerProgressBarTv != null) {
-//                scannerProgressBarTv.setText(Utils.MESSAGE_TAKE_INFO);
-//                scannerProgressBarTv.setVisibility(View.VISIBLE);
-//            }
-//        } else {
-//            if(scannerProgressBarTv != null) {
-//                scannerProgressBarTv.setVisibility(View.GONE);
-//            }
-//        }
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         Logger.d(TAG, "on view created");
         super.onViewCreated(view, savedInstanceState);
-//        viewModel.getTransceivers().observe(getViewLifecycleOwner(), this::updateUI);
+
         viewModel.isGetTakeInfoFinished.observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
 
         currentTransceiver = viewModel.getTransceiverBySsid(ssid);
@@ -207,10 +190,10 @@ public abstract class ContentFragment extends Fragment
         updateFields();
         Logger.d(TAG, "update informers, current ssid: " + ssid);
         Logger.d(TAG, "update informers, transceivers: " + transceivers);
-        Transceiver transiver = viewModel.getTransceiverBySsid(ssid);
-        if(transiver != null){
-            Logger.d(TAG, "transceiver: " + transiver);
-            currentTransceiver = transiver;
+        Transceiver transceiver = viewModel.getTransceiverBySsid(ssid);
+        if(transceiver != null){
+            Logger.d(TAG, "transceiver: " + transceiver);
+            currentTransceiver = transceiver;
             if(currentTransceiver.getSsid() != null){
                 updateBtnContentSendState();
                 updateUI();
@@ -356,11 +339,11 @@ public abstract class ContentFragment extends Fragment
 
 
 class ContentClickListener implements View.OnClickListener{
-//    private final Transceiver transiver;
+
     private final FragmentHandler fragmentHandler;
     private OnTaskCompleted listener;
-    private String ip;
-    private String version;
+    private final String ip;
+    private final String version;
     public static final String TAG = ContentClickListener.class.getSimpleName();
 
 
@@ -368,12 +351,11 @@ class ContentClickListener implements View.OnClickListener{
         this.listener = listener;
     }
 
-    public ContentClickListener(Transceiver transiver,
+    public ContentClickListener(Transceiver transceiver,
                                 FragmentHandler fragmentHandler){
-//        this.transiver = transiver;
         this.fragmentHandler = fragmentHandler;
-        this.ip = transiver.getIp();
-        this.version = transiver.getVersion();
+        this.ip = transceiver.getIp();
+        this.version = transceiver.getVersion();
     }
 
     @Override

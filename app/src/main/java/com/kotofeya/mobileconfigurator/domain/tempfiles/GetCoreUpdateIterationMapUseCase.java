@@ -4,7 +4,7 @@ import java.util.Map;
 
 public class GetCoreUpdateIterationMapUseCase {
 
-    private TempFilesRepository tempFilesRepository;
+    private final TempFilesRepository tempFilesRepository;
 
     public GetCoreUpdateIterationMapUseCase(TempFilesRepository tempFilesRepository) {
         this.tempFilesRepository = tempFilesRepository;

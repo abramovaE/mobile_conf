@@ -4,8 +4,6 @@ import android.os.Bundle;
 
 
 import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.Session;
 import com.kotofeya.mobileconfigurator.network.SshCommand;
 import com.kotofeya.mobileconfigurator.network.SshUtils;
@@ -15,13 +13,12 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import java.util.Arrays;
 
 public class SshTakeInfoConnectionRunnable implements Runnable, TaskCode {
 
     private static final String TAG = SshTakeInfoConnectionRunnable.class.getSimpleName();
-    private OnTaskCompleted listener;
-    private String ip;
+    private final OnTaskCompleted listener;
+    private final String ip;
 
 
     public SshTakeInfoConnectionRunnable(OnTaskCompleted listener, String ip){
@@ -34,8 +31,6 @@ public class SshTakeInfoConnectionRunnable implements Runnable, TaskCode {
     public void run() {
             String res = "";
             Session session = null;
-            ChannelSftp channelSftp = null;
-            ChannelExec channelExec = null;
             Channel channel = null;
             String command = "";
             try {
@@ -70,12 +65,6 @@ public class SshTakeInfoConnectionRunnable implements Runnable, TaskCode {
             } finally {
                 if(channel != null){
                     channel.disconnect();
-                }
-                if(channelExec != null){
-                    channelExec.disconnect();
-                }
-                if(channelSftp != null){
-                    channelSftp.disconnect();
                 }
                 if(session != null) {
                     session.disconnect();

@@ -1,5 +1,7 @@
 package com.kotofeya.mobileconfigurator.network.request;
 
+import androidx.annotation.NonNull;
+
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.network.NetworkUtils;
 
@@ -15,10 +17,10 @@ import okhttp3.Response;
 public class PostTakeInfoUseCase {
         private static final String TAG = PostTakeInfoUseCase.class.getSimpleName();
 
-        private  String ip;
-        private PostTakeInfoListener listener;
-        private String urlCommand;
-        private String version;
+        private final String ip;
+        private final PostTakeInfoListener listener;
+        private final String urlCommand;
+        private final String version;
 
         public PostTakeInfoUseCase(PostTakeInfoListener listener, String ip, String urlCommand, String version) {
             Logger.d(TAG, "PostInfo: " + urlCommand + ", ip: " + ip + ", version: " + version);
@@ -41,7 +43,7 @@ public class PostTakeInfoUseCase {
 
                 client.newCall(get).enqueue(new Callback() {
                     @Override
-                    public void onResponse(Call call, Response response) {
+                    public void onResponse(@NonNull Call call, @NonNull Response response) {
                         if(response.code() == 200){
                             String content = NetworkUtils.responseToString(response);
                             Logger.d(TAG, "content: " + content);
@@ -53,13 +55,12 @@ public class PostTakeInfoUseCase {
                         response.close();
                     }
                     @Override
-                    public void onFailure(Call call, IOException e) {
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
                         listener.postTakeInfoFailed(urlCommand, ip, e.getLocalizedMessage());
                     }
                 });
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         }
 }

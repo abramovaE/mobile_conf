@@ -1,5 +1,7 @@
 package com.kotofeya.mobileconfigurator.network.download;
 
+import androidx.annotation.NonNull;
+
 import com.kotofeya.mobileconfigurator.Logger;
 
 import java.io.File;
@@ -8,6 +10,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Objects;
 
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -19,10 +22,10 @@ import okhttp3.ResponseBody;
 public class DownloadFileUseCase {
 
     private static final String TAG = DownloadFileUseCase.class.getSimpleName();
-    private URL url;
-    private DownloadFileListener downloadFileListener;
-    private File file;
-    private int index;
+    private final URL url;
+    private final DownloadFileListener downloadFileListener;
+    private final File file;
+    private final int index;
 
     public DownloadFileUseCase(URL url,
                                DownloadFileListener downloadFileListener,
@@ -41,13 +44,13 @@ public class DownloadFileUseCase {
                     .build();
         client.newCall(get).enqueue(new Callback() {
             @Override
-            public void onResponse(Call call, Response response) throws IOException {
-                writeToFile(response.body(), file);
+            public void onResponse(@NonNull Call call, @NonNull Response response) throws IOException {
+                writeToFile(Objects.requireNonNull(response.body()), file);
                 downloadFileListener.downloadFileSuccessful(file, index);
                 response.close();
             }
             @Override
-            public void onFailure(Call call, IOException e) {
+            public void onFailure(@NonNull Call call, @NonNull IOException e) {
                 downloadFileListener.downloadFileFailed(url, index);
             }
         });
@@ -59,7 +62,7 @@ public class DownloadFileUseCase {
         long fullFileLength = body.contentLength();
         try(InputStream input = body.byteStream();
                 OutputStream output = new FileOutputStream(file)) {
-            byte data[] = new byte[4096];
+            byte[] data = new byte[4096];
             int count;
             int download = 0;
             while ((count = input.read(data)) != -1) {

@@ -32,11 +32,11 @@ public class SettingsWifiFragment extends UpdateFragment {
     }
 
     @Override
-    public void adapterItemOnClick(Transceiver transiver) {
+    public void adapterItemOnClick(Transceiver transvceiver) {
         Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName());
-        String ssid = transiver.getSsid();
+        String ssid = transvceiver.getSsid();
         Bundle bundle = new Bundle();
         bundle.putString(BundleKeys.SSID_KEY, ssid);
-        fragmentHandler.changeFragmentBundle(FragmentHandler.TRANSIVER_SETTINGS_WIFI_FRAGMENT, bundle);
+        fragmentHandler.changeFragmentBundle(FragmentHandler.TRANSCEIVER_SETTINGS_WIFI_FRAGMENT, bundle);
     }
 }

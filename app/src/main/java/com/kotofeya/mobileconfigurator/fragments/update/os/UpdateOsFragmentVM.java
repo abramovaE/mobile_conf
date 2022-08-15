@@ -8,16 +8,16 @@ import com.kotofeya.mobileconfigurator.data.TempFilesRepositoryImpl;
 import com.kotofeya.mobileconfigurator.domain.tempfiles.GetOsUpdateVersionUseCase;
 import com.kotofeya.mobileconfigurator.domain.tempfiles.SaveOsUpdateVersionUseCase;
 
-import java.util.List;
-
 public class UpdateOsFragmentVM extends ViewModel {
 
+    private final TempFilesRepositoryImpl tempFilesRepository =
+            TempFilesRepositoryImpl.getInstance();
+    private final GetOsUpdateVersionUseCase getOsUpdateVersionUseCase =
+            new GetOsUpdateVersionUseCase(tempFilesRepository);
+    private final SaveOsUpdateVersionUseCase saveOsUpdateVersionUseCase =
+            new SaveOsUpdateVersionUseCase(tempFilesRepository);
 
-    private TempFilesRepositoryImpl tempFilesRepository = TempFilesRepositoryImpl.getInstance();
-    private GetOsUpdateVersionUseCase getOsUpdateVersionUseCase = new GetOsUpdateVersionUseCase(tempFilesRepository);
-    private SaveOsUpdateVersionUseCase saveOsUpdateVersionUseCase = new SaveOsUpdateVersionUseCase(tempFilesRepository);
-
-    private MutableLiveData<String> _serverOsVersion = new MutableLiveData<>("");
+    private final MutableLiveData<String> _serverOsVersion = new MutableLiveData<>("");
     public LiveData<String> getServerOsVersion(){return _serverOsVersion;}
     public void setServerOsVersion(String version){this._serverOsVersion.postValue(version);}
 

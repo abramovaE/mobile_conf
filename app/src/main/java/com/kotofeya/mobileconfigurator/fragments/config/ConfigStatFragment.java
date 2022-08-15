@@ -44,8 +44,8 @@ public class ConfigStatFragment extends ConfigFragment {
     }
 
     @Override
-    public void adapterItemOnClick(Transceiver transiver) {
-        String ssid = transiver.getSsid();
+    public void adapterItemOnClick(Transceiver transceiver) {
+        String ssid = transceiver.getSsid();
         Bundle bundle = new Bundle();
         bundle.putString(BundleKeys.SSID_KEY, ssid);
         fragmentHandler.changeFragmentBundle(FragmentHandler.STATION_CONTENT_FRAGMENT, bundle);

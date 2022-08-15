@@ -1,11 +1,12 @@
 package com.kotofeya.mobileconfigurator.network.request;
 
+import androidx.annotation.NonNull;
+
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.network.NetworkUtils;
 
 import java.io.IOException;
 import java.net.URL;
-import java.util.List;
 import java.util.Map;
 
 import okhttp3.Call;
@@ -17,8 +18,8 @@ import okhttp3.Response;
 public class PostStatContentVersionUseCase {
 
         private static final String TAG = PostStatContentVersionUseCase.class.getSimpleName();
-        private PostStatContentVersionListener listener;
-        private String urlCommand;
+        private final PostStatContentVersionListener listener;
+        private final String urlCommand;
 
         public PostStatContentVersionUseCase(PostStatContentVersionListener listener, String urlCommand) {
             Logger.d(TAG, "urlCommand: " + urlCommand);
@@ -38,7 +39,7 @@ public class PostStatContentVersionUseCase {
 
                 client.newCall(get).enqueue(new Callback() {
                     @Override
-                    public void onResponse(Call call, Response response) {
+                    public void onResponse(@NonNull Call call, @NonNull Response response) {
                         int code = response.code();
                         if(code == 200) {
                             Map<String, String> files = NetworkUtils.getStationContent(response);
@@ -49,7 +50,7 @@ public class PostStatContentVersionUseCase {
                         response.close();
                     }
                     @Override
-                    public void onFailure(Call call, IOException e) {
+                    public void onFailure(@NonNull Call call, @NonNull IOException e) {
                         listener.postStatContentVersionFailed(urlCommand, e.getLocalizedMessage());
                     }
                 });

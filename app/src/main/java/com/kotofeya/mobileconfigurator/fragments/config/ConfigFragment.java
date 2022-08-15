@@ -5,7 +5,6 @@ import android.view.View;
 import com.kotofeya.mobileconfigurator.fragments.scanner.ScannerFragment;
 import com.kotofeya.mobileconfigurator.rv_adapter.AdapterListener;
 
-
 public abstract class ConfigFragment extends ScannerFragment implements AdapterListener {
 
     public AdapterListener getAdapterListener(){
