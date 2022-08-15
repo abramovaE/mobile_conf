@@ -134,7 +134,6 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
         Logger.d(TAG, "getContent: " + stringUrl + ", action: " + currentAction);
         try {
             if(currentAction == UPDATE_STM_DOWNLOAD_CODE){
-
                 url = getURL(currentAction, stringUrl);
                 Logger.d(TAG, "url: " + url);
                 String tempFileName = getTempFileName(currentAction, stringUrl);
@@ -147,51 +146,47 @@ public class Downloader extends AsyncTask<String, Integer, Bundle> implements Ta
                 HttpURLConnection c;
                 InputStream input;
                 String s;
-
-                    url = new URL(stringUrl);
-
-                    c = getConnection(url);
-                    input = c.getInputStream();
-
-                    switch (stringUrl) {
-                        case STM_VERSION_URL:
-                            tempUpdateStmFiles = new ArrayList<>();
-                            try(BufferedReader r = new BufferedReader(new InputStreamReader(input))) {
-                                while ((s = r.readLine()) != null) {
-                                    if (s.contains("ver.")) {
-                                        stmVersion = s.substring(0, s.indexOf("<"));
-                                    } else if (s.contains("M")) {
-                                        String sub = s.substring(s.lastIndexOf("M"));
-                                        tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
-                                    } else if (s.contains("S")) {
-                                        String sub = s.substring(s.lastIndexOf("S"));
-                                        tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
-                                    }
+                url = new URL(stringUrl);
+                c = getConnection(url);
+                input = c.getInputStream();
+                switch (stringUrl) {
+                    case STM_VERSION_URL:
+                        tempUpdateStmFiles = new ArrayList<>();
+                        try(BufferedReader r = new BufferedReader(new InputStreamReader(input))) {
+                            while ((s = r.readLine()) != null) {
+                                if (s.contains("ver.")) {
+                                    stmVersion = s.substring(0, s.indexOf("<"));
+                                } else if (s.contains("M")) {
+                                    String sub = s.substring(s.lastIndexOf("M"));
+                                    tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
+                                } else if (s.contains("S")) {
+                                    String sub = s.substring(s.lastIndexOf("S"));
+                                    tempUpdateStmFiles.add(sub.substring(0, sub.indexOf("<")));
                                 }
                             }
-                            bundle.putInt(BundleKeys.RESULT_CODE_KEY, UPDATE_STM_VERSION_CODE);
-                            bundle.putString(BundleKeys.RESULT_KEY, "Release: " + stmVersion);
-                            return  bundle;
-                        case CITY_URL:
-                            url = new URL(CITY_URL);
-                            Logger.d(TAG, "url: " + url);
-                            c = getConnection(url);
-                            input = c.getInputStream();
-                            byte cityData[] = new byte[4096];
-                            int cityCount;
-                            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                            while ((cityCount = input.read(cityData)) != -1) {
-                                byteArrayOutputStream.write(cityData, 0, cityCount);
-                            }
-                            input.close();
-                            String res = (new String(byteArrayOutputStream.toByteArray(), "cp1251"));
-                            byteArrayOutputStream.close();
-                            bundle.putInt(BundleKeys.RESULT_CODE_KEY, DOWNLOAD_CITIES_CODE);
-                            bundle.putString(BundleKeys.RESULT_KEY, res);
-                            return bundle;
-                    }
-
-        }
+                        }
+                        bundle.putInt(BundleKeys.RESULT_CODE_KEY, UPDATE_STM_VERSION_CODE);
+                        bundle.putString(BundleKeys.RESULT_KEY, "Release: " + stmVersion);
+                        return  bundle;
+                    case CITY_URL:
+                        url = new URL(CITY_URL);
+                        Logger.d(TAG, "url: " + url);
+                        c = getConnection(url);
+                        input = c.getInputStream();
+                        byte cityData[] = new byte[4096];
+                        int cityCount;
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        while ((cityCount = input.read(cityData)) != -1) {
+                            byteArrayOutputStream.write(cityData, 0, cityCount);
+                        }
+                        input.close();
+                        String res = (new String(byteArrayOutputStream.toByteArray(), "cp1251"));
+                        byteArrayOutputStream.close();
+                        bundle.putInt(BundleKeys.RESULT_CODE_KEY, DOWNLOAD_CITIES_CODE);
+                        bundle.putString(BundleKeys.RESULT_KEY, res);
+                        return bundle;
+                }
+            }
         } catch (IOException e) {
             Logger.d(TAG, "exception: " + e);
             bundle.putInt(BundleKeys.RESULT_CODE_KEY, TaskCode.DOWNLOADER_ERROR_CODE);

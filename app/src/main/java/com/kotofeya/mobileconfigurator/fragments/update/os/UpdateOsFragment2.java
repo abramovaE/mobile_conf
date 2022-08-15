@@ -1,4 +1,4 @@
-package com.kotofeya.mobileconfigurator.fragments.update;
+package com.kotofeya.mobileconfigurator.fragments.update.os;
 
 import android.annotation.SuppressLint;
 import android.app.Dialog;
@@ -30,6 +30,7 @@ import com.kotofeya.mobileconfigurator.domain.tempfiles.SaveOsUpdateFileUseCase;
 import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.fragments.scanner.ScannerFragmentVM;
+import com.kotofeya.mobileconfigurator.fragments.update.UpdateFragment;
 import com.kotofeya.mobileconfigurator.network.download.DownloadFileListener;
 import com.kotofeya.mobileconfigurator.network.download.DownloadFileUseCase;
 import com.kotofeya.mobileconfigurator.network.request.PostOsVersionListener;

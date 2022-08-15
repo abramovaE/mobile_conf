@@ -129,17 +129,17 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
                         sb.append("os: ").append(transceiver.getOsVersion());
                         holder.setIncrement(sb.toString());
                         holder.setTextItem1Text("no updates");
-                        if (isTransport) {
-                            if (UpdateContentFragment2.tempUpdateTransportContentFiles != null) {
-                                holder.setTextItem1Text("          ");
-                            }
-                        } else if (isStationary) {
-                            Map<String, String> contentFiles = UpdateContentFragment2.tempUpdateStationaryContentFiles;
-                            if (contentFiles != null
-                                    && contentFiles.containsKey(ssid)) {
-                                holder.setTextItem1Text(contentFiles.get(ssid));
-                            }
-                        }
+//                        if (isTransport) {
+//                            if (UpdateContentFragment2.tempUpdateTransportContentFiles != null) {
+//                                holder.setTextItem1Text("          ");
+//                            }
+//                        } else if (isStationary) {
+//                            Map<String, String> contentFiles = UpdateContentFragment2.tempUpdateStationaryContentFiles;
+//                            if (contentFiles != null
+//                                    && contentFiles.containsKey(ssid)) {
+//                                holder.setTextItem1Text(contentFiles.get(ssid));
+//                            }
+//                        }
                         holder.setTextItem1Visibility(View.VISIBLE);
                         holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
                         break;

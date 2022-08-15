@@ -2,11 +2,14 @@ package com.kotofeya.mobileconfigurator.network;
 
 
 
+import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.kotofeya.mobileconfigurator.Logger;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.Properties;
 
 public class SshUtils {
@@ -28,4 +31,38 @@ public class SshUtils {
         session.connect();
         return session;
     }
+
+    public static String execCommand(Session session, String command) throws IOException {
+        Logger.d(TAG, "exec command: " + command);
+        String res = "";
+        ChannelExec channelExec = null;
+        InputStream commandOutput = null;
+        try {
+            channelExec = (ChannelExec) session.openChannel("exec");
+            channelExec.setCommand(command);
+            StringBuilder sb = new StringBuilder();
+            channelExec.connect();
+            commandOutput = channelExec.getInputStream();
+            Thread.sleep(2000);
+            int readByte;
+            while ((readByte = commandOutput.read()) != -1) {
+                sb.append((char) readByte);
+            }
+            res = sb.toString();
+        } catch (JSchException | IOException | InterruptedException e) {
+            e.printStackTrace();
+            res = "error";
+        } finally {
+            if(commandOutput != null){
+                commandOutput.close();
+            }
+            if(channelExec != null){
+                channelExec.disconnect();
+            }
+        }
+        Logger.d(TAG, "exec command: " + command + " result: " + res);
+        return res;
+    }
+
+
 }

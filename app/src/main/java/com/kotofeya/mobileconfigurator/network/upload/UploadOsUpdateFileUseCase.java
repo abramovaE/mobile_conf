@@ -2,22 +2,17 @@ package com.kotofeya.mobileconfigurator.network.upload;
 
 import android.os.AsyncTask;
 
-import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import com.jcraft.jsch.SftpProgressMonitor;
-import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.TaskCode;
-import com.kotofeya.mobileconfigurator.data.TempFilesRepositoryImpl;
-import com.kotofeya.mobileconfigurator.domain.tempfiles.GetCoreUpdateFilesUseCase;
 import com.kotofeya.mobileconfigurator.network.SshUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class UploadOsUpdateFileUseCase extends AsyncTask<Object, Object, String> implements TaskCode {
 
@@ -50,7 +45,7 @@ public class UploadOsUpdateFileUseCase extends AsyncTask<Object, Object, String>
             transferred = 0;
             cmd = "sudo reboot";
             uploadToOverlayUpdate(session, file);
-            execCommand(session, cmd);
+            String r = SshUtils.execCommand(session, cmd);
             return "success";
         } catch (JSchException | IOException e) {
             Logger.d(TAG, "exception: " + e.getMessage() + " " + e.getCause());
@@ -73,37 +68,6 @@ public class UploadOsUpdateFileUseCase extends AsyncTask<Object, Object, String>
         }
     }
 
-
-    private String execCommand(Session session, String command) throws IOException {
-        Logger.d(TAG, "exec command: " + command);
-        String res = "";
-        ChannelExec channelExec = null;
-        InputStream commandOutput = null;
-        try {
-            channelExec = (ChannelExec) session.openChannel("exec");
-            channelExec.setCommand(command);
-            StringBuilder sb = new StringBuilder();
-            channelExec.connect();
-            commandOutput = channelExec.getInputStream();
-            Thread.sleep(2000);
-            int readByte;
-            while ((readByte = commandOutput.read()) != -1) {
-                sb.append((char) readByte);
-            }
-            res = sb.toString();
-        } catch (JSchException | IOException | InterruptedException e) {
-            e.printStackTrace();
-
-        } finally {
-            if(commandOutput != null){
-                commandOutput.close();
-            }
-            if(channelExec != null){
-                channelExec.disconnect();
-            }
-        }
-        return res;
-    }
 
     private void uploadToOverlayUpdate(Session session, File file){
         Logger.d(TAG, "uploading file: " + file.getName() +" length: " + file.length());

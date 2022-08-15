@@ -30,7 +30,7 @@ import com.kotofeya.mobileconfigurator.fragments.update.UpdateCoreFragment2;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsUpdatePhpFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsWifiFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.StmLogFragment;
-import com.kotofeya.mobileconfigurator.fragments.update.UpdateOsFragment2;
+import com.kotofeya.mobileconfigurator.fragments.update.os.UpdateOsFragment2;
 import com.kotofeya.mobileconfigurator.fragments.update.UpdateStmFragment;
 
 public class FragmentHandler {

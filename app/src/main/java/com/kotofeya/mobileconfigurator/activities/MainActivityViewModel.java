@@ -40,7 +40,7 @@ public class MainActivityViewModel extends ViewModel {
     private final UpdateTransceiversWithClientsUseCase updateTransceiversWithClientsUseCase =
             new UpdateTransceiversWithClientsUseCase(transceiverRepositoryImpl);
 
-    private ClientsHandlerOkHttp clientsHandler = ClientsHandlerOkHttp.getInstance();
+    private final ClientsHandlerOkHttp clientsHandler = ClientsHandlerOkHttp.getInstance();
 
     public LiveData<List<Transceiver>> transceivers =
             getTransceiverListUseCase.getTransceiverList();

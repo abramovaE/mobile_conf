@@ -1,4 +1,4 @@
-package com.kotofeya.mobileconfigurator.fragments.update;
+package com.kotofeya.mobileconfigurator.fragments.update.os;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;

@@ -1,23 +1,19 @@
 package com.kotofeya.mobileconfigurator.network;
 
-import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import okhttp3.Response;
 import okhttp3.ResponseBody;
@@ -51,25 +47,6 @@ public class NetworkUtils {
     }
 
     public static String responseToString(Response response){
-        StringBuilder content = new StringBuilder();
-        try {
-            ResponseBody responseBody = response.body();
-            BufferedReader br;
-            InputStreamReader reader = new InputStreamReader(responseBody.byteStream());
-            br = new BufferedReader(reader);
-            String line;
-            while (null != (line = br.readLine())) {
-                content.append(line);
-            }
-            reader.close();
-            br.close();
-        } catch (IOException e){
-            content.append("response io error");
-        }
-        return content.toString();
-    }
-
-    public static String getContentVersion(Response response){
         StringBuilder content = new StringBuilder();
         try {
             ResponseBody responseBody = response.body();
@@ -142,27 +119,6 @@ public class NetworkUtils {
             content.append("response io error");
         }
         return tempUpdateStatContentFiles;
-    }
-
-    public static String getContentType(Response response){
-        StringBuilder content = new StringBuilder();
-        try {
-            ResponseBody responseBody = response.body();
-            BufferedReader br;
-            InputStreamReader reader = new InputStreamReader(responseBody.byteStream());
-            br = new BufferedReader(reader);
-            String line;
-            while (null != (line = br.readLine())) {
-                if(line.contains("title")) {
-                    content.append(line);
-                }
-            }
-            reader.close();
-            br.close();
-        } catch (IOException e){
-            content.append("response io error");
-        }
-        return content.toString();
     }
 
 }

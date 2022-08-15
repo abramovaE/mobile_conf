@@ -4,13 +4,12 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.view.View;
 
-import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import com.jcraft.jsch.SftpProgressMonitor;
+import com.kotofeya.mobileconfigurator.network.SshUtils;
 
 import org.apache.commons.compress.archivers.ArchiveEntry;
 import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
@@ -19,27 +18,34 @@ import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Properties;
 
 public class SshConnection extends AsyncTask<Object, Object, String> implements TaskCode{
 
     private static final String TAG = SshConnection.class.getSimpleName();
     private static final String REBOOT_COMMAND = "sudo reboot";
-    private static final String REBOOT_STM_COMMAND =  "/usr/local/bin/call --cmd REST 0";
-    private static final String CLEAR_RASP_COMMAND = "/sudo rm - f /var/www/html/data/*/* /var/www/html/data/*";
-    private static final String SEND_TRANSPORT_CONTENT_COMMAND = "/usr/local/bin/call --cmd TSCFG";
+    private static final String REBOOT_STM_COMMAND =
+            "/usr/local/bin/call --cmd REST 0";
+    private static final String CLEAR_RASP_COMMAND =
+            "/sudo rm - f /var/www/html/data/*/* /var/www/html/data/*";
+    private static final String SEND_TRANSPORT_CONTENT_COMMAND =
+            "/usr/local/bin/call --cmd TSCFG";
 
-    public static final String FLOOR_COMMAND = "/usr/local/bin/call --cmd FLOOR";
-    public static final String ZUMMER_TYPE_COMMAND = "/usr/local/bin/call --cmd SNDTYPE";
+    public static final String FLOOR_COMMAND =
+            "/usr/local/bin/call --cmd FLOOR";
+    public static final String ZUMMER_TYPE_COMMAND =
+            "/usr/local/bin/call --cmd SNDTYPE";
 
-    public static final String MODEM_CONFIG_MEGAF_BEELINE_COMMAND = "sudo sed -I ’s/megafon-m2m/beeline-m2m/g’ /etc/init.d/S99stp-tools";
-    public static final String MODEM_CONFIG_BEELINE_MEGAF_COMMAND = "sudo sed -I ’s/beeline-m2m/megafon-m2m/g’ /etc/init.d/S99stp-tools";
+    public static final String MODEM_CONFIG_MEGAF_BEELINE_COMMAND =
+            "sudo sed -I ’s/megafon-m2m/beeline-m2m/g’ /etc/init.d/S99stp-tools";
+    public static final String MODEM_CONFIG_BEELINE_MEGAF_COMMAND =
+            "sudo sed -I ’s/beeline-m2m/megafon-m2m/g’ /etc/init.d/S99stp-tools";
 
-    private static final String CLEAR_ARCHIVE_DIR_COMMAND = "sudo rm -rf /var/www/html/data/archive/*";
-    private static final String DELETE_UPDATE_STM_LOG_COMMAND = "sudo rm /var/www/html/data/stm_update_log";
-    private static final String CREATE_UPDATE_STM_LOG_COMMAND = "sudo touch /var/www/html/data/stm_update_log";
+    private static final String CLEAR_ARCHIVE_DIR_COMMAND =
+            "sudo rm -rf /var/www/html/data/archive/*";
+    private static final String DELETE_UPDATE_STM_LOG_COMMAND =
+            "sudo rm /var/www/html/data/stm_update_log";
+    private static final String CREATE_UPDATE_STM_LOG_COMMAND =
+            "sudo touch /var/www/html/data/stm_update_log";
 
     private final OnTaskCompleted listener;
     private ProgressBarInt progressBarIntListener;
@@ -59,48 +65,38 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
         this.progressBarIntListener = progressBarIntListener;
     }
 
-
         //req[0] - command
     protected String doInBackground(Object...req) {
         String res = "";
         Session session = null;
         File file;
         try {
-            JSch jsch = new JSch();
+            session = SshUtils.getSession(ip);
             this.resultCode = (Integer) req[0];
-            Logger.d(TAG, "try ssh connection, ip: " + ip);
-            session = jsch.getSession("staff", ip, 22);
-            session.setPassword("staff");
-            // Avoid asking for key confirmation
-            Properties prop = new Properties();
-            prop.put("StrictHostKeyChecking", "no");
-            session.setConfig(prop);
-            Logger.d(TAG, ip + " config is set, connecting");
-            session.connect();
             Logger.d(TAG, ip + " isConnected: " + session.isConnected());
             String cmd;
             switch (resultCode) {
                 case UPDATE_STM_UPLOAD_CODE:
-                    execCommand(session, CLEAR_ARCHIVE_DIR_COMMAND);
+                    res = SshUtils.execCommand(session, CLEAR_ARCHIVE_DIR_COMMAND);
                     file = new File((String) req[1]);
                     File binFile = getBinFromArchive(file);
                     uploadToOverlayUpdate(session, binFile);
                     cmd = getExecCommand(resultCode, binFile.getName());
-                    execCommand(session, cmd);
+                    res = SshUtils.execCommand(session, cmd);
                     break;
                 case REBOOT_CODE:
                 case REBOOT_STM_CODE:
                 case CLEAR_RASP_CODE:
                     cmd = getExecCommand(resultCode);
-                    execCommand(session, cmd);
+                    res = SshUtils.execCommand(session, cmd);
                     break;
                 case SEND_TRANSPORT_CONTENT_CODE:
                     cmd = SEND_TRANSPORT_CONTENT_COMMAND + " " + req[1] + " " + req[2] + " " + req[3] + " " + req[4];
-                    res = execCommand(session, cmd);
+                    res = SshUtils.execCommand(session, cmd);
                     break;
                 case SEND_STATION_CONTENT_CODE:
                     cmd = (String) req[1];
-                    res = execCommand(session, cmd);
+                    res = SshUtils.execCommand(session, cmd);
                     break;
             }
         } catch (Exception e){
@@ -133,18 +129,13 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
     }
 
     private String getExecCommand(int taskCode, String fileName){
-        String moveCommand;
-        String cmd = "";
-        switch (taskCode){
-            case UPDATE_STM_UPLOAD_CODE:
-                moveCommand = "sudo mv " + "/overlay/update/" + fileName + " /var/www/html/data/archive/" + fileName;
-                cmd = moveCommand + ";" + DELETE_UPDATE_STM_LOG_COMMAND + ";" + CREATE_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND;
-                break;
-        }
+        String moveCommand = "sudo mv " + "/overlay/update/" +
+                fileName + " /var/www/html/data/archive/" + fileName;
+        String cmd = moveCommand + ";" + DELETE_UPDATE_STM_LOG_COMMAND +
+                ";" + CREATE_UPDATE_STM_LOG_COMMAND + ";" + REBOOT_COMMAND;
         Logger.d(TAG, "getExecCommand(), taskCode: " + taskCode + ", cmd: " + cmd);
         return cmd;
     }
-
 
     protected void onPostExecute(String result) {
         if (listener != null) {
@@ -155,37 +146,8 @@ public class SshConnection extends AsyncTask<Object, Object, String> implements 
             listener.onTaskCompleted(bundle);
         }
     }
-    private String execCommand(Session session, String command) throws IOException {
-        Logger.d(TAG, "exec command: " + command);
-        String res = "";
-        ChannelExec channelExec = null;
-        InputStream commandOutput = null;
-        try {
-            channelExec = (ChannelExec) session.openChannel("exec");
-            channelExec.setCommand(command);
-            StringBuilder sb = new StringBuilder();
-            channelExec.connect();
-            commandOutput = channelExec.getInputStream();
-            Thread.sleep(2000);
-            int readByte;
-            while ((readByte = commandOutput.read()) != -1) {
-                sb.append((char) readByte);
-            }
-            res = sb.toString();
-        } catch (JSchException | IOException | InterruptedException e) {
-            e.printStackTrace();
-            this.resultCode = SSH_ERROR_CODE;
-        } finally {
-            if(commandOutput != null){
-                commandOutput.close();
-            }
-            if(channelExec != null){
-                channelExec.disconnect();
-            }
-        }
-        Logger.d(TAG, "exec command: " + command + " result: " + res);
-        return res;
-    }
+
+
     private void uploadToOverlayUpdate(Session session, File file){
         Logger.d(TAG, "uploading file: " + file.getName() +" length: " + file.length());
         ChannelSftp channelSftp = null;

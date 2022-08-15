@@ -49,7 +49,7 @@ public class UploadContentUpdateFileUseCase extends AsyncTask<Object, Object, St
             uploadToOverlayUpdate(session, file);
 
             String cmd = getExecCommand(file.getName());
-            execCommand(session, cmd);
+            SshUtils.execCommand(session, cmd);
 
             return "success";
         } catch (JSchException | IOException e) {

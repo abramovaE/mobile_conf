@@ -62,14 +62,9 @@ public class UpdateContentFragment2 extends Fragment
         AdapterListener {
 
     public static final String TAG = UpdateContentFragment2.class.getSimpleName();
+
     public static final String CHOOSE_THE_CITY_FOR_LOAD = "Выберите город для загрузки";
-
-    protected static final int MOBILE_SETTINGS_RESULT = 0;
-    public static final int DOWNLOAD_TO_STORAGE = 0;
-    public static final int DOWNLOAD_FOR_UPLOAD = 1;
-
     public static final String MESSAGE_TAKE_INFO = "Опрос подключенных трансиверов";
-
     public static final String TRANSPORT_CONTENT_VERSION_URL = "http://95.161.210.44/update/content/transp";
     public static final String STATION_CONTENT_VERSION_URL = "http://95.161.210.44/update/content/station";
     private static final String CONFIRM_CONTENT_DOWNLOAD = "Подтвердите загрузку: %s";
@@ -78,6 +73,14 @@ public class UpdateContentFragment2 extends Fragment
             "Возникла ошибка при скачивании файла: %s с сервера";
     public static final String CHOOSE_THE_CITY_FOR_UPLOAD = "Choose the city for upload";
 
+    protected static final int MOBILE_SETTINGS_RESULT = 0;
+    public static final int DOWNLOAD_TO_STORAGE = 0;
+    public static final int DOWNLOAD_FOR_UPLOAD = 1;
+    public static final String DOWNLOAD_CONTENT_UPDATE_FILES_TO_STORAGE = "Загрузить файлы для обновления в память телефона";
+    public static final String SAVED_FILES = "Сохраненные файлы: \n";
+    public static final String TEST_REGION = "zzz";
+    public static final String TRANSP_KEY_PREFIX = "transp ";
+
     protected ScannerFragmentClBinding binding;
     protected FragmentHandler fragmentHandler;
     protected MainActivityViewModel viewModel;
@@ -85,10 +88,7 @@ public class UpdateContentFragment2 extends Fragment
     protected RvAdapter rvAdapter;
     protected ScannerFragmentVM scannerFragmentVM;
 
-    public static List<String> tempUpdateTransportContentFiles;
-    public static Map<String, String> tempUpdateStationaryContentFiles;
-
-    private TempFilesRepositoryImpl tempFilesRepository = TempFilesRepositoryImpl.getInstance();
+    private final TempFilesRepositoryImpl tempFilesRepository = TempFilesRepositoryImpl.getInstance();
 
     public void loadVersion() {
         boolean isInternetEnabled = InternetConn.hasInternetConnection();
@@ -98,6 +98,7 @@ public class UpdateContentFragment2 extends Fragment
             new PostStatContentVersionUseCase(this, STATION_CONTENT_VERSION_URL).newRequest();
         }
     }
+
     @Override
     public void postStatContentVersionSuccessful(String command, Map<String, String> versions) {
         Logger.d(TAG, "postStatContentVersionSuccessful(), version: " + versions);
@@ -163,7 +164,7 @@ public class UpdateContentFragment2 extends Fragment
         binding.version1.setVisibility(View.GONE);
         binding.updateContentLabel.setVisibility(View.VISIBLE);
 
-        binding.checkVersionBtn.setText("Загрузить файлы для обновления в память телефона");
+        binding.checkVersionBtn.setText(DOWNLOAD_CONTENT_UPDATE_FILES_TO_STORAGE);
         binding.checkVersionBtn.setOnClickListener(v -> {
             boolean isInternetEnabled = InternetConn.hasInternetConnection();
             if(isInternetEnabled){
@@ -223,7 +224,7 @@ public class UpdateContentFragment2 extends Fragment
     private void updateFilesTv(){
         Logger.d(TAG, "updateFilesTv()");
         StringBuilder sb = new StringBuilder();
-        sb.append("Сохраненные файлы: \n");
+        sb.append(SAVED_FILES);
         new LinkedList<>(tempFilesRepository.getUpdateContentFilePaths())
                 .forEach(it -> sb.append(it.substring(it.lastIndexOf("/") + 1, it.indexOf("_"))).append("\n"));
         scannerFragmentVM.setDownloadedFilesTvText(sb.toString());
@@ -248,7 +249,7 @@ public class UpdateContentFragment2 extends Fragment
         } else if(userType.equals(UserType.USER_TRANSPORT)){
             String login = App.get().getLogin();
             String region = login.substring(login.lastIndexOf("_") + 1);
-            if(value.contains(region) || value.contains("zzz")) {
+            if(value.contains(region) || value.contains(TEST_REGION)) {
                 transportContent.put(key, value);
             }
         }
@@ -269,26 +270,23 @@ public class UpdateContentFragment2 extends Fragment
         return transportContent;
     }
 
-
-
-
     @Override
-    public void adapterItemOnClick(Transceiver transiver) {
-        Logger.d(TAG, "adapterItemOnClick(): " + transiver.getSsid());
-        boolean isTransport = transiver.isTransport();
-        boolean isStationary = transiver.isStationary();
+    public void adapterItemOnClick(Transceiver transceiver) {
+        Logger.d(TAG, "adapterItemOnClick(): " + transceiver.getSsid());
+        boolean isTransport = transceiver.isTransport();
+        boolean isStationary = transceiver.isStationary();
 
         if (isTransport) {
-            showUpdateContentConfDialog(transiver.getIp(), getTransportContent());
+            showUpdateContentConfDialog(transceiver.getIp(), getTransportContent());
         } else if (isStationary) {
-            String key = transiver.getSsid();
+            String key = transceiver.getSsid();
             Map<String, String> tempUpdateStationaryContentFiles =
                     updateContentFragmentVM.stationaryContentVersionsLiveData.getValue();
             if (tempUpdateStationaryContentFiles != null &&
                     tempUpdateStationaryContentFiles.containsKey(key)) {
                 showUploadContentConfDialog(key,
                         key + "/data.tar.bz2",
-                        transiver.getIp(),
+                        transceiver.getIp(),
                         STATION_CONTENT_VERSION_URL);
             }
         }
@@ -302,10 +300,8 @@ public class UpdateContentFragment2 extends Fragment
         builder.setTitle(CHOOSE_THE_CITY_FOR_LOAD);
         String[] content = contentMap.keySet().toArray(new String[contentMap.size()]);
         builder.setItems(content,
-                (dialog, which) -> {
-                    showDownloadContentConfirmationDialog("transp " + content[which],
-                            contentMap.get(content[which]));
-                });
+                (dialog, which) -> showDownloadContentConfirmationDialog(TRANSP_KEY_PREFIX + content[which],
+                        contentMap.get(content[which])));
         builder.setCancelable(true);
         builder.create().show();
     }
@@ -314,12 +310,10 @@ public class UpdateContentFragment2 extends Fragment
         builder.setTitle(CHOOSE_THE_CITY_FOR_UPLOAD);
         String[] content = contentMap.keySet().toArray(new String[contentMap.size()]);
         builder.setItems(content,
-                (dialog, which) -> {
-                    showUploadContentConfDialog("transp " + content[which],
-                            contentMap.get(content[which]),
-                            ip,
-                            TRANSPORT_CONTENT_VERSION_URL);
-                });
+                (dialog, which) -> showUploadContentConfDialog(TRANSP_KEY_PREFIX + content[which],
+                        contentMap.get(content[which]),
+                        ip,
+                        TRANSPORT_CONTENT_VERSION_URL));
         builder.setCancelable(true);
         builder.create().show();
     }
@@ -361,6 +355,7 @@ public class UpdateContentFragment2 extends Fragment
                         @Override
                         public void downloadFileSuccessful(File destinationFile, int index) {
 //                            hideProgressBar();
+                            Logger.d(TAG, "downloadFileSuccessful(): " + destinationFile);
                             showProgressBar(String.format(DOWNLOADING_FILE, destinationFile.getName()));
                             new UploadContentUpdateFileUseCase(destinationFile,
                                     ip,
@@ -386,8 +381,7 @@ public class UpdateContentFragment2 extends Fragment
                 }
             }
         });
-        builder.setNegativeButton(R.string.cancel_btn, (dialog, id) -> {
-        });
+        builder.setNegativeButton(R.string.cancel_btn, (dialog, id) -> {});
         builder.setCancelable(true);
         builder.show();
     }
@@ -403,7 +397,6 @@ public class UpdateContentFragment2 extends Fragment
     @Override
     public void downloadFileSuccessful(File destinationFile, int index) {
         Logger.d(TAG, "downloadFileSuccessful(): " + destinationFile);
-
         if(index == DOWNLOAD_TO_STORAGE){
             tempFilesRepository.saveUpdateContentFilePaths(destinationFile.getPath());
             binding.downloadCoreUpdateFilesTv.setVisibility(View.VISIBLE);
@@ -422,13 +415,12 @@ public class UpdateContentFragment2 extends Fragment
     @Override
     public void uploadContentFileSuccessful(File destinationFile, String serial, String ip) {
         Logger.d(TAG, "uploadContentFileSuccessful: " + destinationFile);
-
         hideProgressBar();
         uploaded(ip);
     }
     @Override
     public void uploadContentFileFailed(File file, String serial, String ip) {
-        Logger.d(TAG, "uploadContentFileFailed: " + file);
+        Logger.d(TAG, "uploadContentFileFailed(): " + file);
         hideProgressBar();
     }
 
@@ -436,8 +428,6 @@ public class UpdateContentFragment2 extends Fragment
     public void setProgress(int downloaded) {
         scannerFragmentVM.setProgressBarProgress(downloaded);
     }
-
-
 
     private void downloadFile(String value){
         String tempFileName = value.replace("/", "_");
@@ -479,7 +469,6 @@ public class UpdateContentFragment2 extends Fragment
             loadVersion();
         }
     }
-
 
     @SuppressLint("NotifyDataSetChanged")
     protected void updateUI(List<Transceiver> transceivers){

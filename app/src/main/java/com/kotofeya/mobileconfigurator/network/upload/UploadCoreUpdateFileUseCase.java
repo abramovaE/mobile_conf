@@ -2,7 +2,6 @@ package com.kotofeya.mobileconfigurator.network.upload;
 
 import android.os.AsyncTask;
 
-import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
@@ -16,7 +15,6 @@ import com.kotofeya.mobileconfigurator.network.SshUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
 
 public class UploadCoreUpdateFileUseCase extends AsyncTask<Object, Object, String> implements TaskCode {
 
@@ -69,7 +67,7 @@ public class UploadCoreUpdateFileUseCase extends AsyncTask<Object, Object, Strin
                 Logger.d(TAG, "fileName: " + fileName);
                 uploadToOverlayUpdate(session, file);
                 cmd = getCoreExecCommand(iteration, fileName);
-                execCommand(session, cmd);
+                String res = SshUtils.execCommand(session, cmd);
 //                iteration += 1;
             }
             return "success";
@@ -116,37 +114,6 @@ public class UploadCoreUpdateFileUseCase extends AsyncTask<Object, Object, Strin
         }
         Logger.d(TAG, "getCoreExecCommand(), iteration: " + iteration + ", cmd: " + cmd);
         return cmd;
-    }
-
-    private String execCommand(Session session, String command) throws IOException {
-        Logger.d(TAG, "exec command: " + command);
-        String res = "";
-        ChannelExec channelExec = null;
-        InputStream commandOutput = null;
-        try {
-            channelExec = (ChannelExec) session.openChannel("exec");
-            channelExec.setCommand(command);
-            StringBuilder sb = new StringBuilder();
-            channelExec.connect();
-            commandOutput = channelExec.getInputStream();
-            Thread.sleep(2000);
-            int readByte;
-            while ((readByte = commandOutput.read()) != -1) {
-                sb.append((char) readByte);
-            }
-            res = sb.toString();
-        } catch (JSchException | IOException | InterruptedException e) {
-            e.printStackTrace();
-
-        } finally {
-            if(commandOutput != null){
-                commandOutput.close();
-            }
-            if(channelExec != null){
-                channelExec.disconnect();
-            }
-        }
-        return res;
     }
 
     private void uploadToOverlayUpdate(Session session, File file){
