@@ -106,5 +106,6 @@
 
 
     <string name="upload_btn">Загрузить</string>
+    <string name="update_btn">Обновит</string>
     <string name="cancel_btn">Отменить</string>
 </resources>

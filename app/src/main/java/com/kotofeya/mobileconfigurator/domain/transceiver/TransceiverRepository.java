@@ -13,6 +13,4 @@ public interface TransceiverRepository {
     Transceiver getTransceiverByIp(String ip);
     LiveData<List<Transceiver>> getTransceiverList();
     void updateTransceiversWithClients(List<String> clients);
-    void startTimer(Transceiver transceiver);
-    void stopTimer(Transceiver transceiver);
 }

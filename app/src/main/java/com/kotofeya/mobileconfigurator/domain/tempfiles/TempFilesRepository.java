@@ -3,6 +3,7 @@ package com.kotofeya.mobileconfigurator.domain.tempfiles;
 import androidx.lifecycle.LiveData;
 
 import java.io.File;
+import java.util.List;
 import java.util.Map;
 
 public interface TempFilesRepository {
@@ -18,5 +19,9 @@ public interface TempFilesRepository {
     void saveUpdateOsFile(File file);
     LiveData<String> getUpdateOsVersion();
     void setUpdateOsVersion(String version);
+
+    Map<String, String> getTransportContent();
+
+    void saveTransportContentVersions(List<String> transportContentVersion);
 
 }

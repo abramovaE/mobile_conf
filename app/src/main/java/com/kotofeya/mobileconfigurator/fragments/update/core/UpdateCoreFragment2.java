@@ -1,4 +1,4 @@
-package com.kotofeya.mobileconfigurator.fragments.update;
+package com.kotofeya.mobileconfigurator.fragments.update.core;
 
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -271,6 +271,7 @@ public class UpdateCoreFragment2 extends Fragment
                 isDialogShowing = false;
                 uploadFile(ip, t.getSsid(), iteration);
                 setIteration.setIteration(ssid, iteration);
+
                 listener.uploadFile(ip, ssid, iteration);
             });
             builder.setNegativeButton(CANCEL, (dialog, id) -> isDialogShowing = false);

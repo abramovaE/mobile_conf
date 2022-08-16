@@ -16,7 +16,6 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.InternetConn;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
@@ -24,6 +23,7 @@ import com.kotofeya.mobileconfigurator.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.activities.MainActivityViewModel;
 import com.kotofeya.mobileconfigurator.data.TempFilesRepositoryImpl;
 import com.kotofeya.mobileconfigurator.databinding.ScannerFragmentClBinding;
+import com.kotofeya.mobileconfigurator.domain.tempfiles.GetTransportContentUseCase;
 import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.fragments.scanner.ScannerFragmentVM;
@@ -40,16 +40,12 @@ import com.kotofeya.mobileconfigurator.rv_adapter.AdapterListener;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapter;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterFactory;
 import com.kotofeya.mobileconfigurator.rv_adapter.RvAdapterType;
-import com.kotofeya.mobileconfigurator.user.UserFactory;
-import com.kotofeya.mobileconfigurator.user.UserType;
 
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +74,6 @@ public class UpdateContentFragment2 extends Fragment
     public static final int DOWNLOAD_FOR_UPLOAD = 1;
     public static final String DOWNLOAD_CONTENT_UPDATE_FILES_TO_STORAGE = "Загрузить файлы для обновления в память телефона";
     public static final String SAVED_FILES = "Сохраненные файлы: \n";
-    public static final String TEST_REGION = "zzz";
     public static final String TRANSP_KEY_PREFIX = "transp ";
 
     protected ScannerFragmentClBinding binding;
@@ -231,43 +226,23 @@ public class UpdateContentFragment2 extends Fragment
         scannerFragmentVM.setDownloadedFilesTvVisibility(View.VISIBLE);
     }
 
-    private String getTransportFileKey(String s, boolean isInternetEnabled){
-        if(isInternetEnabled){
-            return s.substring(0, s.indexOf("/"));
-        } else {
-            return s.substring(s.lastIndexOf("/") + 1).split("_")[0];
-        }
-    }
-
-    private Map<String, String> addToTransportContent(
-            Map<String, String> transportContent,
-            String key,
-            String value){
-        UserType userType = UserFactory.getUser().getUserType();
-        if(userType.equals(UserType.USER_FULL) || userType.equals(UserType.USER_UPDATE_CORE)) {
-            transportContent.put(key, value);
-        } else if(userType.equals(UserType.USER_TRANSPORT)){
-            String login = App.get().getLogin();
-            String region = login.substring(login.lastIndexOf("_") + 1);
-            if(value.contains(region) || value.contains(TEST_REGION)) {
-                transportContent.put(key, value);
-            }
-        }
-        return transportContent;
-    }
 
 
     public Map<String, String> getTransportContent(){
-        Map<String, String> transportContent = new HashMap<>();
-        boolean isInternetEnabled = InternetConn.hasInternetConnection();
-        Collection<String> collection = (isInternetEnabled) ?
-                updateContentFragmentVM.transportContentVersionsLiveData.getValue() :
-                tempFilesRepository.getUpdateContentFilePaths();
-        for (String s : collection) {
-            String key = getTransportFileKey(s, isInternetEnabled);
-            transportContent = addToTransportContent(transportContent, key, s);
-        }
-        return transportContent;
+        GetTransportContentUseCase getTransportContentUseCase =
+                new GetTransportContentUseCase(tempFilesRepository);
+        return getTransportContentUseCase.getTransportContent();
+
+//        Map<String, String> transportContent = new HashMap<>();
+//        boolean isInternetEnabled = InternetConn.hasInternetConnection();
+//        Collection<String> collection = (isInternetEnabled) ?
+//                updateContentFragmentVM.transportContentVersionsLiveData.getValue() :
+//                tempFilesRepository.getUpdateContentFilePaths();
+//        for (String s : collection) {
+//            String key = getTransportFileKey(s, isInternetEnabled);
+//            transportContent = addToTransportContent(transportContent, key, s);
+//        }
+//        return transportContent;
     }
 
     @Override

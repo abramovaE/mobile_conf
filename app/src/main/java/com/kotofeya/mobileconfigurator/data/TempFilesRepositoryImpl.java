@@ -7,12 +7,18 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.kotofeya.mobileconfigurator.App;
+import com.kotofeya.mobileconfigurator.InternetConn;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.domain.tempfiles.TempFilesRepository;
+import com.kotofeya.mobileconfigurator.user.UserFactory;
+import com.kotofeya.mobileconfigurator.user.UserType;
 
 import java.io.File;
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,6 +34,7 @@ public class TempFilesRepositoryImpl implements TempFilesRepository {
 
     private static final String UPDATE_CONTENT_FILES = "update_content_files";
 
+    public static final String TEST_REGION = "zzz";
 
     private SharedPreferences preferences = App.get().getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
 
@@ -41,6 +48,10 @@ public class TempFilesRepositoryImpl implements TempFilesRepository {
     private final MutableLiveData updateOsFileVersionLiveData = new MutableLiveData("");
 
     private Set<String> updateContentFilePaths;
+
+    private List<String> transportContentVersions = new ArrayList<>();
+    private MutableLiveData<List<String>> transportContentVersionsLiveData =
+            new MutableLiveData<>(new ArrayList<>());
 
 //
 //    private List<String> transportContentFiles = new ArrayList<>();
@@ -85,7 +96,7 @@ public class TempFilesRepositoryImpl implements TempFilesRepository {
         return updateOsFile;
     }
     public void saveUpdateOsFile(File file) {
-        preferences.edit().putString(UPDATE_OS_FILE_PATH, file.getAbsolutePath()).commit();
+        preferences.edit().putString(UPDATE_OS_FILE_PATH, file.getAbsolutePath()).apply();
         this.updateOsFile = file;
     }
 
@@ -93,8 +104,8 @@ public class TempFilesRepositoryImpl implements TempFilesRepository {
         return updateContentFilePaths;
     }
     public void setUpdateContentFilePaths(Set<String> paths) {
-        preferences.edit().remove(UPDATE_CONTENT_FILES).commit();
-        preferences.edit().putStringSet(UPDATE_CONTENT_FILES, paths).commit();
+        preferences.edit().remove(UPDATE_CONTENT_FILES).apply();
+        preferences.edit().putStringSet(UPDATE_CONTENT_FILES, paths).apply();
         this.updateContentFilePaths = paths;
     }
 
@@ -108,9 +119,56 @@ public class TempFilesRepositoryImpl implements TempFilesRepository {
         return updateOsFileVersionLiveData;
     }
     public void setUpdateOsVersion(String updateOsFileVersion) {
-        preferences.edit().putString(UPDATE_OS_FILE_VERSION, updateOsFileVersion).commit();
+        preferences.edit().putString(UPDATE_OS_FILE_VERSION, updateOsFileVersion).apply();
         updateOsFileVersionLiveData.postValue(updateOsFileVersion);
 //        this.updateOsFileVersion = updateOsFileVersion;
+    }
+
+    @Override
+    public Map<String, String> getTransportContent() {
+        Map<String, String> transportContent = new HashMap<>();
+        boolean isInternetEnabled = InternetConn.hasInternetConnection();
+        Collection<String> collection = (isInternetEnabled) ?
+                transportContentVersions :
+                getUpdateContentFilePaths();
+        for (String s : collection) {
+            String key = getTransportFileKey(s, isInternetEnabled);
+            transportContent = addToTransportContent(transportContent, key, s);
+        }
+        return transportContent;
+    }
+
+
+    private String getTransportFileKey(String s, boolean isInternetEnabled){
+        if(isInternetEnabled){
+            return s.substring(0, s.indexOf("/"));
+        } else {
+            return s.substring(s.lastIndexOf("/") + 1).split("_")[0];
+        }
+    }
+    private Map<String, String> addToTransportContent(
+            Map<String, String> transportContent,
+            String key,
+            String value){
+        UserType userType = UserFactory.getUser().getUserType();
+        if(userType.equals(UserType.USER_FULL) ||
+                userType.equals(UserType.USER_UPDATE_CORE)) {
+            transportContent.put(key, value);
+        } else if(userType.equals(UserType.USER_TRANSPORT)){
+            String login = App.get().getLogin();
+            String region = login.substring(login.lastIndexOf("_") + 1);
+            if(value.contains(region) || value.contains(TEST_REGION)) {
+                transportContent.put(key, value);
+            }
+        }
+        return transportContent;
+    }
+
+
+    @Override
+    public void saveTransportContentVersions(List<String> transportContentVersion) {
+        this.transportContentVersions.clear();
+        this.transportContentVersions.addAll(transportContentVersion);
     }
 
     private void initUpdateCoreFilesPath() {
@@ -125,7 +183,7 @@ public class TempFilesRepositoryImpl implements TempFilesRepository {
     @Override
     public void saveUpdateCoreFiles(File[] files) {
         for(int i = 0; i < files.length; i++){
-            preferences.edit().putString(UPDATE_CORE_FILES + i, files[i].getAbsolutePath()).commit();
+            preferences.edit().putString(UPDATE_CORE_FILES + i, files[i].getAbsolutePath()).apply();
         }
         this.updateCoreFilesPath = files;
     }
@@ -153,7 +211,7 @@ public class TempFilesRepositoryImpl implements TempFilesRepository {
                 set.add(value);
             }
         }
-        preferences.edit().putStringSet(SSID_ITERATION, set).commit();
+        preferences.edit().putStringSet(SSID_ITERATION, set).apply();
         this.coreUpdateIterationMap = map;
     }
 
@@ -163,8 +221,5 @@ public class TempFilesRepositoryImpl implements TempFilesRepository {
         coreUpdateIterationMap.put(serial, iteration);
         saveCoreUpdateIterationsMap(coreUpdateIterationMap);
     }
-
-
-
 
 }

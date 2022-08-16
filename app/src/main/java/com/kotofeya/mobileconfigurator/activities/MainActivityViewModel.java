@@ -44,6 +44,7 @@ public class MainActivityViewModel extends ViewModel {
 
     public LiveData<List<Transceiver>> transceivers =
             getTransceiverListUseCase.getTransceiverList();
+
     public LiveData<List<String>> clients = clientsHandler.getClients();
 
     public LiveData<Boolean> isScanning = clientsHandler.isScanningLiveData;
@@ -101,7 +102,7 @@ public class MainActivityViewModel extends ViewModel {
         _mainTxtLabel.postValue(mainTxtLabel);
     }
 
-    private MutableLiveData<Integer> _mainBtnRescanVisibility = new MutableLiveData<Integer>();
+    private MutableLiveData<Integer> _mainBtnRescanVisibility = new MutableLiveData<>();
     public LiveData<Integer> mainBtnRescanVisibility(){return  _mainBtnRescanVisibility;}
     public void setMainBtnRescanVisibility(int visibility){
         _mainBtnRescanVisibility.postValue(visibility);

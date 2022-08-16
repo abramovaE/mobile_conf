@@ -107,6 +107,7 @@
     <string name="remember_me">Remember me</string>
     <string name="confirm_upload_update_os">Confirm the upload of the updates</string>
     <string name="upload_btn">Upload</string>
+    <string name="update_btn">Update</string>
     <string name="cancel_btn">Cancel</string>
 
 </resources>

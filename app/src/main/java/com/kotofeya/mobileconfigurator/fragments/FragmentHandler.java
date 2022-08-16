@@ -25,10 +25,10 @@ import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransceiverS
 import com.kotofeya.mobileconfigurator.fragments.transiver_settings.TransceiverStmLogFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsNetworkFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsScUartFragment;
-import com.kotofeya.mobileconfigurator.fragments.update.SettingsUpdatePhpFragment;
+import com.kotofeya.mobileconfigurator.fragments.update.php.SettingsUpdatePhpFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.SettingsWifiFragment;
 import com.kotofeya.mobileconfigurator.fragments.update.StmLogFragment;
-import com.kotofeya.mobileconfigurator.fragments.update.UpdateCoreFragment2;
+import com.kotofeya.mobileconfigurator.fragments.update.core.UpdateCoreFragment2;
 import com.kotofeya.mobileconfigurator.fragments.update.content.UpdateContentFragment2;
 import com.kotofeya.mobileconfigurator.fragments.update.os.UpdateOsFragment2;
 

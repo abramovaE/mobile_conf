@@ -30,7 +30,6 @@ import com.kotofeya.mobileconfigurator.domain.tempfiles.SaveOsUpdateFileUseCase;
 import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.fragments.scanner.ScannerFragmentVM;
-import com.kotofeya.mobileconfigurator.fragments.update.UpdateFragment;
 import com.kotofeya.mobileconfigurator.network.download.DownloadFileListener;
 import com.kotofeya.mobileconfigurator.network.download.DownloadFileUseCase;
 import com.kotofeya.mobileconfigurator.network.request.PostOsVersionListener;
@@ -72,8 +71,8 @@ public class UpdateOsFragment2 extends Fragment implements
     private static final String CONFIRM_OS_UPDATE = "Подтвердите обновление ос: %s";
     public static final String MESSAGE_TAKE_INFO = "Опрос подключенных трансиверов";
 
-
     private File tempUpdateOsFile;
+
     boolean isUploading = false;
 
     TempFilesRepositoryImpl tempFilesRepository = TempFilesRepositoryImpl.getInstance();
@@ -149,7 +148,7 @@ public class UpdateOsFragment2 extends Fragment implements
                 createUpdateOsTempFile();
                 downloadFile();
             } else {
-                UpdateFragment.EnableMobileConfDialog dialog = new UpdateFragment.EnableMobileConfDialog();
+                EnableMobileConfDialog dialog = new EnableMobileConfDialog();
                 dialog.show(fragmentHandler.getFragmentManager(),
                         FragmentHandler.ENABLE_MOBILE_DIALOG_TAG);
             }
@@ -312,7 +311,8 @@ public class UpdateOsFragment2 extends Fragment implements
             File uploadingFile = tempUpdateOsFile;
             Logger.d(TAG, "uploadFile(), serial: " + serial);
             showProgressBar(getProgressTvText(serial));
-            UploadOsUpdateFileUseCase updateOsUpdateFileUseCase = new UploadOsUpdateFileUseCase(
+            UploadOsUpdateFileUseCase updateOsUpdateFileUseCase =
+                    new UploadOsUpdateFileUseCase(
                     uploadingFile,
                     ip,
                     serial,

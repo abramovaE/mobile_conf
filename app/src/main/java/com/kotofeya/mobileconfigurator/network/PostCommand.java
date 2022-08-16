@@ -1,5 +1,7 @@
 package com.kotofeya.mobileconfigurator.network;
 
+import java.util.Arrays;
+
 public interface PostCommand {
 //    ver - версия php скрипта
     String VERSION = "ver";
@@ -25,7 +27,6 @@ public interface PostCommand {
 
     String SCUART = "scUart";
     String UPDATE_PHP = "update_php";
-    String UPDATE_CORE = "update_core";
 
     String FLOOR = "floor";
     String SOUND = "sound";
@@ -65,15 +66,9 @@ public interface PostCommand {
 //    NAPR - направление (1 - прямо, 2 - обратно).
     default String transpConfig(String type, String lit1,
                                 String num, String lit2, String lit3, String dir){
-//        if(lit1 != null && !lit1.isEmpty()){
             lit1 = lit1 + "_";
-//        }
-//        if(lit2 != null && !lit2.isEmpty()){
             lit2 = lit2 + "_";
-//        }
-//        if(lit3 != null && !lit3.isEmpty()){
             lit3 = lit3 + "_";
-//        }
         return TRANSP_CONTENT + "_" + type + "_" + lit1 + num + "_" + lit2 + lit3 + dir;
     }
 //    static - настройка статического IP ethernet интерфейса
@@ -89,7 +84,7 @@ public interface PostCommand {
     default String staticEthernet(String... args){
         StringBuilder staticCommand = new StringBuilder(STATIC);
         for(String s:args){
-            staticCommand.append("_" + s);
+            staticCommand.append("_").append(s);
         }
         return staticCommand.toString();
     }
@@ -105,8 +100,9 @@ public interface PostCommand {
 //    Имеются ограничения для пароля - от 8 до 63 символов, система сообщит если правило нарушено
     default String wifi(String... args){
         StringBuilder wifiCommand = new StringBuilder(WIFI);
+//        Arrays.stream(args).forEach(it -> wifiCommand.append("_" + it));
         for(String s:args){
-            wifiCommand.append("_" + s);
+            wifiCommand.append("_").append(s);
         }
         return wifiCommand.toString();
     }

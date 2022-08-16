@@ -26,6 +26,7 @@ public class TransceiverRepositoryImpl implements TransceiverRepository {
     }
 
     private final List<Transceiver> transceiverList = new CopyOnWriteArrayList<>();
+
     private final MutableLiveData transceiverListLiveData =
             new MutableLiveData(new ArrayList<Transceiver>());
 
@@ -98,18 +99,6 @@ public class TransceiverRepositoryImpl implements TransceiverRepository {
         transceiverList.clear();
         transceiverList.addAll(newTransceivers);
         updateTransceiverListLiveData();
-    }
-
-    private Thread updatingTimer;
-
-    @Override
-    public void startTimer(Transceiver transceiver) {
-
-    }
-
-    @Override
-    public void stopTimer(Transceiver transceiver) {
-
     }
 
     private void updateTransceiverListLiveData(){
