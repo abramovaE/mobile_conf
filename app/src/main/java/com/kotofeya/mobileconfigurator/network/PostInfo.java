@@ -5,8 +5,7 @@ import android.os.Bundle;
 import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.OnTaskCompleted;
-import com.kotofeya.mobileconfigurator.fragments.config.ContentFragment;
-import com.kotofeya.mobileconfigurator.network.request.SettingsUpdatePhpListener;
+import com.kotofeya.mobileconfigurator.presentation.fragments.config.ContentFragment;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -22,7 +21,6 @@ public class PostInfo implements Runnable {
 
     private  String ip;
     private OnTaskCompleted listener;
-    private SettingsUpdatePhpListener settingsUpdatePhpListener;
     private String urlCommand;
 
     public PostInfo(OnTaskCompleted listener, String ip, String urlCommand) {
@@ -31,13 +29,6 @@ public class PostInfo implements Runnable {
         this.urlCommand = urlCommand;
         this.ip = ip;
     }
-
-//    public PostInfo(SettingsUpdatePhpListener settingsUpdatePhpListener, String ip, String urlCommand) {
-//        Logger.d(TAG, "PostInfo(): " + urlCommand + ", ip: " + ip);
-//        this.settingsUpdatePhpListener = settingsUpdatePhpListener;
-//        this.urlCommand = urlCommand;
-//        this.ip = ip;
-//    }
 
     private String formatCommand(){
         if (urlCommand.startsWith(PostCommand.TRANSP_CONTENT)) {
@@ -103,7 +94,6 @@ public class PostInfo implements Runnable {
                     case PostCommand.READ_NETWORK:
                     case PostCommand.NETWORK_CLEAR:
                     case PostCommand.SCUART:
-                    case PostCommand.UPDATE_PHP:
                     case PostCommand.FLOOR:
                     case PostCommand.SOUND:
                     case PostCommand.VOLUME:

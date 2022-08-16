@@ -8,11 +8,11 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 
-import com.kotofeya.mobileconfigurator.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.presentation.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.databinding.MainFragmentBinding;
-import com.kotofeya.mobileconfigurator.fragments.FragmentHandler;
-import com.kotofeya.mobileconfigurator.user.UserFactory;
-import com.kotofeya.mobileconfigurator.user.UserInterface;
+import com.kotofeya.mobileconfigurator.presentation.fragments.FragmentHandler;
+import com.kotofeya.mobileconfigurator.domain.user.UserFactory;
+import com.kotofeya.mobileconfigurator.domain.user.UserInterface;
 
 import java.util.List;
 
@@ -27,7 +27,7 @@ public class MainMenuFragment extends Fragment {
                              Bundle savedInstanceState) {
         MainFragmentBinding binding = MainFragmentBinding.inflate(inflater, container, false);
         List<UserInterface> interfaces = UserFactory.getUser().getInterfaces();
-        Logger.d(TAG, "mainMenuIntf(): " + interfaces);
+        Logger.d(TAG, "mainMenuInterfaces(): " + interfaces);
         fragmentHandler = ((MainActivity)requireActivity()).getFragmentHandler();
 
         if(interfaces.contains(UserInterface.WIFI_SCANNER)){

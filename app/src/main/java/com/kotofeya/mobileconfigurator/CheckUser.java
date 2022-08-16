@@ -1,7 +1,5 @@
 package com.kotofeya.mobileconfigurator;
 
-
-import android.content.Context;
 import android.os.AsyncTask;
 import android.widget.Toast;
 
@@ -18,30 +16,27 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
 public class CheckUser extends AsyncTask<Void, Void, Void> {
     public static final String TAG = CheckUser.class.getSimpleName();
 
-    private static String url_checkUser = "http://95.161.210.44/is_mobile_conf_user_valid.php";
-    private String login;
-    private String password;
+    private static final String url_checkUser = "http://95.161.210.44/is_mobile_conf_user_valid.php";
+    private final String login;
+    private final String password;
     private String level;
-    private MyCustomCallBack callback;
-    private Context context;
+    private final MyCustomCallBack callback;
     private String message = null;
     private boolean isUserValid;
 
-    public CheckUser(Context context, String login, String password, MyCustomCallBack callback) {
+    public CheckUser(String login, String password, MyCustomCallBack callback) {
         this.login = login;
         this.password = password;
         this.callback = callback;
-        this.context = context;
     }
 
     public interface MyCustomCallBack {
@@ -73,26 +68,20 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
                 String level = jsonObject.getString("level");
                 if(code == 1){
                     isUserValid = true;
-                    message = context.getString(R.string.successful);
+                    message = App.get().getResources().getString(R.string.successful);
                     this.level = level;
                 }
                 else if (code == 0){
                     isUserValid = false;
-                    message = context.getString(R.string.incorrect_autorization);
+                    message = App.get().getResources().getString(R.string.incorrect_autorization);
                 }
             }
             else {
-                message = context.getString(R.string.server_not_response);
+                message = App.get().getResources().getString(R.string.server_not_response);
             }
             reader.close();
 
-        } catch (MalformedURLException e) {
-            e.printStackTrace();
-        } catch (ProtocolException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (JSONException e) {
+        } catch (IOException | JSONException e) {
             e.printStackTrace();
         }
         return null;
@@ -107,7 +96,7 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
         App.get().setLevel("full");
         callback.doIfUserValid();
 
-//        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+//        Toast.makeText(App.get().getApplicationContext(), message, Toast.LENGTH_SHORT).show();
 //        if(callback != null && isUserValid){
 //            Logger.d(Logger.CHECK_USER_LOG, "On post execute, level: " + level);
 //            App.get().setLevel(level);
@@ -141,7 +130,8 @@ public class CheckUser extends AsyncTask<Void, Void, Void> {
         params.add(new BasicNameValuePair("login", login));
         params.add(new BasicNameValuePair("password", password));
         OutputStream os = c.getOutputStream();
-        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os, "UTF-8"));
+        BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(os,
+                StandardCharsets.UTF_8));
         writer.write(getQuery(params));
         
         writer.flush();

@@ -6,7 +6,6 @@ import android.util.SparseArray;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -20,7 +19,7 @@ public class Logger {
     public static final int MAIN_LOG = 0;
     public static final int BASIC_SCANNER_LOG = 1;
     public static final int SCANNER_ADAPTER_LOG = 6;
-    public static final int STATION_CONTEN_LOG = 10;
+    public static final int STATION_CONTENT_LOG = 10;
     public static final int APP_LOG = 15;
     public static final int UPDATE_STM_LOG = 16;
     public static final int INTERNET_CONN_LOG = 19;
@@ -33,7 +32,7 @@ public class Logger {
         mType.put(MAIN_LOG,"Main_task");
         mType.put(BASIC_SCANNER_LOG, "Basic_scanner_task");
         mType.put(SCANNER_ADAPTER_LOG, "Scanner_adapter_task");
-        mType.put(STATION_CONTEN_LOG, "Station_content_task");
+        mType.put(STATION_CONTENT_LOG, "Station_content_task");
         mType.put(APP_LOG, "App_task");
         mType.put(UPDATE_STM_LOG, "Update_stm_task");
         mType.put(INTERNET_CONN_LOG, "Internet_connection_task");
@@ -76,8 +75,6 @@ public class Logger {
                 sb.append("\n");
             }
             reader.close();
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -98,7 +95,7 @@ public class Logger {
         if (file.exists()) file.delete();
         try {
             file.createNewFile();
-            appendLog("Created at " + new Date().toString());
+            appendLog("Created at " + new Date());
         } catch (IOException e) {
             e.printStackTrace();
         }

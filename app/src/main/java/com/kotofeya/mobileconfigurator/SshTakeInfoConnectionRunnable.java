@@ -20,7 +20,6 @@ public class SshTakeInfoConnectionRunnable implements Runnable, TaskCode {
     private final OnTaskCompleted listener;
     private final String ip;
 
-
     public SshTakeInfoConnectionRunnable(OnTaskCompleted listener, String ip){
         Logger.d(TAG, "new SshTakeInfoConnectionRunnable(), ip: " + ip);
         this.listener = listener;
@@ -35,6 +34,7 @@ public class SshTakeInfoConnectionRunnable implements Runnable, TaskCode {
             String command = "";
             try {
                 session = SshUtils.getSession(ip);
+
                 Logger.d(TAG, ip + " isConnected: " + session.isConnected());
 
                 ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -42,8 +42,8 @@ public class SshTakeInfoConnectionRunnable implements Runnable, TaskCode {
                 command = SshCommand.SSH_TAKE_COMMAND;
                 channel = session.openChannel("shell");
 
-                OutputStream inputstream_for_the_channel = channel.getOutputStream();
-                PrintStream commander = new PrintStream(inputstream_for_the_channel, true);
+                OutputStream inputStream_for_the_channel = channel.getOutputStream();
+                PrintStream commander = new PrintStream(inputStream_for_the_channel, true);
                 channel.setOutputStream(baos, true);
                 channel.connect();
                 BufferedReader reader = new BufferedReader(new InputStreamReader(App.get()

@@ -124,11 +124,11 @@ public class ClientsHandlerOkHttp implements DeviceScanListener,
 
         switch (command) {
             case SshCommand.SSH_TAKE_COMMAND:
-                decrLatch();
+                decrementLatch();
                 addTransceiver(response);
                 break;
             case SshCommand.SSH_COMMAND_ERROR:
-                decrLatch();
+                decrementLatch();
                 removeClient(ip);
                 break;
         }
@@ -176,21 +176,21 @@ public class ClientsHandlerOkHttp implements DeviceScanListener,
     public void postVersionSuccessful(String command, String ip, String response) {
         Logger.d(TAG, "postVersionSuccessful(), ip: " + ip + ", response: " + response);
         String version = ResponseParser.parseVersion(response);
-        decrLatch();
+        decrementLatch();
         new PostTakeInfoUseCase(this, ip, PostCommand.TAKE_INFO_FULL, version).newRequest();
     }
 
     @Override
     public void postVersionFailed(String command, String ip, String error) {
         Logger.d(TAG, "postVersionFailed(), ip: " + ip + ", error: " + error);
-        decrLatch();
+        decrementLatch();
         runSShTakeInfo(ip);
     }
 
     @Override
     public void postTakeInfoSuccessful(String command, String ip, String content, String version) {
         Logger.d(TAG, "postTakeInfoSuccessful(), ip: " + ip + " " + version);
-        decrLatch();
+        decrementLatch();
         double gsonVersion = getVersion(version);
         TakeInfoFull takeInfoFull = ResponseParser.parseTakeInfoFull(content, gsonVersion);
         addTransceiver(ip, version, takeInfoFull);
@@ -200,7 +200,7 @@ public class ClientsHandlerOkHttp implements DeviceScanListener,
     public void postTakeInfoFailed(String command, String ip, String error) {
         Logger.d(TAG, "postTakeInfoFailed(), ip: " + ip + ", error: " + error);
 //        removeClient(ip);
-        decrLatch();
+        decrementLatch();
     }
 
     private double getVersion(String version){
@@ -211,9 +211,9 @@ public class ClientsHandlerOkHttp implements DeviceScanListener,
         return 0.0;
     }
 
-    private void decrLatch(){
+    private void decrementLatch(){
         if(latch != null) {
-            Logger.d(TAG, "decrLatch(), latcher: " + latch.getCount());
+            Logger.d(TAG, "decrementLatch(), latch: " + latch.getCount());
             latch.countDown();
             if (latch.getCount() == 0) {
                 isTakeInfoFinished.postValue(true);

@@ -52,7 +52,7 @@
 
     <string name="do_not_ask_again">Не спрашивать снова</string>
     <string name="cancel">Отмена</string>
-    <string name="ok">Ок</string>
+    <string name="ok">ОK</string>
 
     <string name="mobile_internet_title">Требуется интернет</string>
     <string name="mobile_internet_message">Пожалуйста, проверьте подключение к интернету</string>
@@ -104,8 +104,8 @@
 
     <string name="remember_me">Запомнить меня</string>
 
-
+    <string name="confirm_upload_update_os">Подтвердите загрузку обновлений</string>
     <string name="upload_btn">Загрузить</string>
-    <string name="update_btn">Обновит</string>
+    <string name="update_btn">Обновить</string>
     <string name="cancel_btn">Отменить</string>
 </resources>

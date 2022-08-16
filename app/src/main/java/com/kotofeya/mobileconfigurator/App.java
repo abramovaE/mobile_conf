@@ -20,7 +20,7 @@ public class App extends Application {
     private static final String LOGIN = "login";
     private static final String PASSWORD = "password";
     private static final String IS_REMEMBERED = "is_remembered";
-    private static final String IS_ASK_FOR_TENETH = "is_ask_for_teneth";
+    private static final String IS_ASK_FOR_TENET = "is_ask_for_tenet";
 
     private String login;
     private String level;
@@ -44,12 +44,13 @@ public class App extends Application {
         super.onCreate();
         instance = this;
         try {
-            Logger.d(Logger.MAIN_LOG, "class for name: " + Class.forName("com.jcraft.jsch.jce.Random"));
+            Logger.d(Logger.MAIN_LOG, "class for name: " +
+                    Class.forName("com.jcraft.jsch.jce.Random"));
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
         preferences = getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-        showAccessPointDialog = preferences.getBoolean(IS_ASK_FOR_TENETH, true);
+        showAccessPointDialog = preferences.getBoolean(IS_ASK_FOR_TENET, true);
         login = preferences.getString(LOGIN, "");
         password = preferences.getString(PASSWORD, "");
         isRemembered = preferences.getBoolean(IS_REMEMBERED, false);
@@ -80,8 +81,8 @@ public class App extends Application {
         preferences.edit().putBoolean(IS_REMEMBERED, false).apply();
     }
 
-    public boolean isAskForTeneth(){
-        return preferences.getBoolean(IS_ASK_FOR_TENETH, true);
+    public boolean isAskForTenet(){
+        return preferences.getBoolean(IS_ASK_FOR_TENET, true);
     }
 
     public String getLogin() {
@@ -91,8 +92,8 @@ public class App extends Application {
         this.login = login;
     }
 
-    public void setAskForTeneth(boolean value) {
-        preferences.edit().putBoolean(IS_ASK_FOR_TENETH, value).apply();
+    public void setAskForTenet(boolean value) {
+        preferences.edit().putBoolean(IS_ASK_FOR_TENET, value).apply();
         this.showAccessPointDialog = value;
     }
 

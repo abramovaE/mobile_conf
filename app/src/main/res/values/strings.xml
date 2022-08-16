@@ -56,7 +56,7 @@
 
     <string name="do_not_ask_again">Do not ask again</string>
     <string name="cancel">Cancel</string>
-    <string name="ok">Ok</string>
+    <string name="ok">OK</string>
     <string name="mobile_internet_title">Internet required</string>
     <string name="mobile_internet_message">Please check the internet connection</string>
     <string name="main_settings_btn">App settings</string>

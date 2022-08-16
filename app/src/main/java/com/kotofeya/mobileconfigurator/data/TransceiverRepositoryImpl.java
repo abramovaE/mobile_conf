@@ -43,9 +43,7 @@ public class TransceiverRepositoryImpl implements TransceiverRepository {
         if(oldTransceiver == null){
             oldTransceiver = getTransceiverBySerial(transceiver.getSsid());
         }
-        if(transceiver != null) {
-            transceiverList.remove(oldTransceiver);
-        }
+        transceiverList.remove(oldTransceiver);
         addTransceiver(transceiver);
     }
 

@@ -23,7 +23,8 @@ public class ClientRepositoryImpl implements ClientRepository {
     private ClientRepositoryImpl(){}
 
     private final List<String> clientList = new ArrayList<>();
-    private final MutableLiveData<List<String>> clientsListLiveData = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<List<String>> clientsListLiveData =
+            new MutableLiveData<>(new ArrayList<>());
 
     @Override
     public void deleteClient(String client) {

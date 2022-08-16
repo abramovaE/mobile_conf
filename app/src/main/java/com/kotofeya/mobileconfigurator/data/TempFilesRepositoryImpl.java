@@ -10,8 +10,8 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.InternetConn;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.domain.tempfiles.TempFilesRepository;
-import com.kotofeya.mobileconfigurator.user.UserFactory;
-import com.kotofeya.mobileconfigurator.user.UserType;
+import com.kotofeya.mobileconfigurator.domain.user.UserFactory;
+import com.kotofeya.mobileconfigurator.domain.user.UserType;
 
 import java.io.File;
 import java.util.ArrayList;

@@ -1,5 +1,7 @@
 package com.kotofeya.mobileconfigurator;
 
+import androidx.annotation.NonNull;
+
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
@@ -15,7 +17,7 @@ public class City implements Serializable {
     private String index;
     @SerializedName("fullname")
     @Expose
-    private String fullname;
+    private String fullName;
 
     public City() {
     }
@@ -34,19 +36,20 @@ public class City implements Serializable {
         this.index = index;
     }
 
-    public String getFullname() {
-        return fullname;
+    public String getFullName() {
+        return fullName;
     }
-    public void setFullname(String fullname) {
-        this.fullname = fullname;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
+    @NonNull
     @Override
     public String toString() {
         return "City{" +
                 "id=" + id +
                 ", index='" + index + '\'' +
-                ", fullname='" + fullname + '\'' +
+                ", fullName='" + fullName + '\'' +
                 '}';
     }
 }

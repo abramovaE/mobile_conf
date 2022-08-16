@@ -34,7 +34,7 @@ public class SshUtils {
 
     public static String execCommand(Session session, String command) throws IOException {
         Logger.d(TAG, "exec command: " + command);
-        String res = "";
+        String res;
         ChannelExec channelExec = null;
         InputStream commandOutput = null;
         try {
@@ -63,6 +63,4 @@ public class SshUtils {
         Logger.d(TAG, "exec command: " + command + " result: " + res);
         return res;
     }
-
-
 }
