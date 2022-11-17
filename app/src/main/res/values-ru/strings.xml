@@ -108,4 +108,5 @@
     <string name="upload_btn">Загрузить</string>
     <string name="update_btn">Обновить</string>
     <string name="cancel_btn">Отменить</string>
+    <string name="hotspot_settings_btn">Настройки точки доступа</string>
 </resources>

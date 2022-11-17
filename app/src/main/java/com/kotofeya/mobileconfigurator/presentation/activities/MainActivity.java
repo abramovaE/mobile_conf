@@ -22,15 +22,14 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.google.gson.Gson;
 import com.kotofeya.mobileconfigurator.App;
-import com.kotofeya.mobileconfigurator.BundleKeys;
-import com.kotofeya.mobileconfigurator.City;
-import com.kotofeya.mobileconfigurator.CityDownloader;
-import com.kotofeya.mobileconfigurator.InternetConn;
+import com.kotofeya.mobileconfigurator.domain.city.City;
+import com.kotofeya.mobileconfigurator.network.download.DownloadCityListener;
+import com.kotofeya.mobileconfigurator.network.download.DownloadCityUseCase;
+import com.kotofeya.mobileconfigurator.network.InternetConn;
 import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.OnTaskCompleted;
+import com.kotofeya.mobileconfigurator.network.request.SendLogToServerListener;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.SendLogToServer;
-import com.kotofeya.mobileconfigurator.TaskCode;
+import com.kotofeya.mobileconfigurator.network.request.SendLogToServerUseCase;
 import com.kotofeya.mobileconfigurator.databinding.ActivityMainClBinding;
 import com.kotofeya.mobileconfigurator.presentation.fragments.FragmentHandler;
 
@@ -41,7 +40,7 @@ import java.util.List;
 
 
 public class MainActivity extends AppCompatActivity
-        implements OnTaskCompleted {
+        implements DownloadCityListener {
 
     public final static String TAG = MainActivity.class.getSimpleName();
     public static City[] cities;
@@ -50,7 +49,7 @@ public class MainActivity extends AppCompatActivity
 
     private ActivityMainClBinding binding;
     private static final int TETHER_REQUEST_CODE = 1;
-    private static final String HOTSPOT_DIALOG_TAG = "HOTSPOT_DIALOG";
+    public static final String HOTSPOT_DIALOG_TAG = "HOTSPOT_DIALOG";
 
     private MainActivityViewModel viewModel;
     private AlertDialog scanClientsDialog;
@@ -68,7 +67,7 @@ public class MainActivity extends AppCompatActivity
         viewModel.updateConnectedClients();
     }
 
-    private void launchHotspotSettings() {
+    public void launchHotspotSettings() {
         Intent tetherSettings = new Intent();
         tetherSettings.setClassName("com.android.settings",
                 "com.android.settings.TetherSettings");
@@ -104,8 +103,7 @@ public class MainActivity extends AppCompatActivity
         binding.mainTxtLabel.setText(R.string.main_menu_main_label);
         binding.mainTxtLogin.setText(App.get().getLogin());
 
-        CityDownloader cityDownloader = new CityDownloader(this);
-        cityDownloader.execute();
+        new DownloadCityUseCase(this).newRequest();
 
         viewModel = ViewModelProviders.of(this).get(MainActivityViewModel.class);
 
@@ -114,7 +112,6 @@ public class MainActivity extends AppCompatActivity
         timerThread.start();
 
         viewModel.mainBtnRescanVisibility().observe(this, this::updateBtnRescanVisibility);
-
         viewModel.setMainBtnRescanVisibility(View.GONE);
 
         if (App.get().isAskForTenet()) {
@@ -124,10 +121,19 @@ public class MainActivity extends AppCompatActivity
         } else {
             viewModel.setIsHotspotDialogShowing(false);
         }
-
         boolean isInternetEnabled = InternetConn.hasInternetConnection();
         if (isInternetEnabled) {
-            new Thread(new SendLogToServer(Logger.getServiceLogString(), this)).start();
+            new SendLogToServerUseCase(Logger.getServiceLogString(),
+                    new SendLogToServerListener() {
+                @Override
+                public void sendLogSuccessful() {
+                    Logger.clearLogReport();
+                }
+                @Override
+                public void sendLogFailed(String error) {
+                    Logger.d(TAG, "sendLogFailed(), error: " + error);
+                }
+            }).run();
         }
         viewModel.clients.observe(this, this::updateClientsCount);
         viewModel.mainTxtLabel().observe(this, this::updateMainTxtLabel);
@@ -136,6 +142,24 @@ public class MainActivity extends AppCompatActivity
         viewModel.time().observe(this, this::updateTime);
         binding.mainBtnRescan.setOnClickListener(v -> rescan());
     }
+
+
+
+
+
+    @Override
+    public void downloadSuccessful(String result) {
+        Logger.d(TAG, "downloadSuccessful(): " + result);
+        getCities(result);
+    }
+
+    @Override
+    public void downloadFailed(String error) {
+        Logger.d(TAG, "downloadFailed(): " + error);
+
+    }
+
+
 
     protected void rescan(){
         Logger.d(TAG, "rescan");
@@ -173,7 +197,6 @@ public class MainActivity extends AppCompatActivity
             Manifest.permission.MANAGE_EXTERNAL_STORAGE
     };
 
-
     public static void verifyStoragePermissions(Activity activity) {
         int permission = ActivityCompat.checkSelfPermission(activity,
                 Manifest.permission.WRITE_EXTERNAL_STORAGE);
@@ -195,6 +218,8 @@ public class MainActivity extends AppCompatActivity
     public void hotspotDialogOnDismiss() {
         viewModel.setIsHotspotDialogShowing(false);
     }
+
+
 
     public static class HotSpotSettingsDialog extends DialogFragment
             implements CompoundButton.OnCheckedChangeListener {
@@ -232,29 +257,20 @@ public class MainActivity extends AppCompatActivity
     public void onBackPressed() {
         binding.mainTxtLabel.setText(R.string.main_menu_main_label);
         binding.mainBtnRescan.setVisibility(View.GONE);
-        if(fragmentHandler.getCurrentFragment().getTag().equals(FragmentHandler.CONFIG_TRANSPORT_FRAGMENT)){
+        if(fragmentHandler.getCurrentFragment() != null
+                && fragmentHandler.getCurrentFragment().getTag() != null
+                &&
+                (fragmentHandler.getCurrentFragment().getTag()
+                .equals(FragmentHandler.CONFIG_TRANSPORT_FRAGMENT)
+                || fragmentHandler.getCurrentFragment().getTag()
+                .equals(FragmentHandler.CONFIG_STATION_FRAGMENT))){
             fragmentHandler.changeFragment(FragmentHandler.MAIN_FRAGMENT_TAG);
         } else {
             super.onBackPressed();
         }
     }
 
-    @Override
-    public void onTaskCompleted(Bundle result) {
-        String command = result.getString(BundleKeys.COMMAND_KEY);
-        Logger.d(TAG, "onTaskCompleted(Bundle result): " + command);
-        int resultCode = result.getInt(BundleKeys.RESULT_CODE_KEY);
-        String res = result.getString(BundleKeys.RESULT);
-            if (resultCode == TaskCode.DOWNLOAD_CITIES_CODE) {
-            getCities(res);
-        } else if (resultCode == TaskCode.SEND_LOG_TO_SERVER_CODE) {
-            int code = result.getInt("code");
-            Logger.d(Logger.MAIN_LOG, "send log to server code: " + resultCode);
-            if (code == 1) {
-                Logger.clearLogReport();
-            }
-        }
-    }
+
 
     private void getCities(String res) {
         try {
@@ -265,17 +281,25 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public void onProgressUpdate(Integer downloaded) {}
 
     @Override
     protected void onStop() {
-        Logger.d(Logger.MAIN_LOG, "main activity on stop");
+        Logger.d(Logger.MAIN_LOG, "onStop()");
         boolean isInternetEnabled = InternetConn.hasInternetConnection();
-        Thread setToServer;
+
         if (isInternetEnabled) {
-            setToServer = new Thread(new SendLogToServer(Logger.getServiceLogString(), this));
-            setToServer.start();
+            new SendLogToServerUseCase(Logger.getServiceLogString(),
+                    new SendLogToServerListener() {
+                @Override
+                public void sendLogSuccessful() {
+                    Logger.d(TAG, "sendLogSuccessful()");
+                    Logger.clearLogReport();
+                }
+                @Override
+                public void sendLogFailed(String error) {
+                    Logger.d(TAG, "sendLogFailed()");
+                }
+            }).run();
         }
         viewModel.stopClientsScanning();
         super.onStop();

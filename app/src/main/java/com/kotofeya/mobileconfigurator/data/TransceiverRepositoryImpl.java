@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 public class TransceiverRepositoryImpl implements TransceiverRepository {
 
     private static final String TAG = TransceiverRepositoryImpl.class.getSimpleName();
+
     private static TransceiverRepositoryImpl instance;
     private TransceiverRepositoryImpl(){}
     public static TransceiverRepositoryImpl getInstance(){

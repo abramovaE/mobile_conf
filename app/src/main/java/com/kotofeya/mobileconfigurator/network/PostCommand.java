@@ -1,9 +1,21 @@
 package com.kotofeya.mobileconfigurator.network;
 
-import java.util.Arrays;
 
 public interface PostCommand {
-//    ver - версия php скрипта
+
+    String REBOOT_STM_COMMAND = "/usr/local/bin/call --cmd REST 0";
+    String REBOOT_COMMAND = "sudo reboot";
+    String CLEAR_RASP_COMMAND =
+            "/sudo rm - f /var/www/html/data/*/* /var/www/html/data/*";
+
+
+    String REBOOT_RASP="rasp";
+    String REBOOT_STM="stm";
+    String REBOOT_ALL="all";
+
+
+
+    //    ver - версия php скрипта
     String VERSION = "ver";
 //    takeInfoFull - запрос JSON массива информации
     String TAKE_INFO_FULL = "takeInfoFull";
@@ -15,6 +27,9 @@ public interface PostCommand {
 //    erase_content - удаление контента (очистка директорий data, рекурсивно)
     String ERASE_CONTENT = "erase_content";
 
+    String UPDATE_PHP = "update_php";
+
+
     String TRANSP_CONTENT = "transp";
     String REBOOT = "reboot";
     String READ_WPA = "read_wpa";
@@ -23,11 +38,8 @@ public interface PostCommand {
     String WIFI_CLEAR = "wifi_clear";
     String NETWORK_CLEAR = "static_clear";
     String STATIC = "static";
-    String POST_COMMAND_ERROR = "postCommandError";
 
     String SCUART = "scUart";
-    String UPDATE_PHP = "update_php";
-
     String FLOOR = "floor";
     String SOUND = "sound";
     String VOLUME = "volume";

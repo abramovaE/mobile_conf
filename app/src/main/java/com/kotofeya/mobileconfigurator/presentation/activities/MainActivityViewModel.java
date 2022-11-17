@@ -50,15 +50,16 @@ public class MainActivityViewModel extends ViewModel {
     public LiveData<Boolean> isScanning = clientsHandler.isScanningLiveData;
     public LiveData<Boolean> isGetTakeInfoFinished = clientsHandler.isTakeInfoFinished;
 
+
     public LiveData<List<Transceiver>> getStationaryInformers() {
         return new MutableLiveData<>(
-                transceivers.getValue().stream()
+                getTransceiverListUseCase.getTransceiverList().getValue().stream()
                         .filter(Transceiver::isStationary)
                         .collect(Collectors.toList()));
     }
     public LiveData<List<Transceiver>> getTranspInformers() {
         return new MutableLiveData<>(
-                transceivers.getValue().stream()
+                getTransceiverListUseCase.getTransceiverList().getValue().stream()
                         .filter(Transceiver::isTransport)
                         .collect(Collectors.toList()));
     }

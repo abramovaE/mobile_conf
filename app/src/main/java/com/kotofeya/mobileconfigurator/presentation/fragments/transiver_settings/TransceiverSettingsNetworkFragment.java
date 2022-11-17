@@ -13,17 +13,30 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.OnTaskCompleted;
 import com.kotofeya.mobileconfigurator.R;
-import com.kotofeya.mobileconfigurator.presentation.fragments.FragmentHandler;
+import com.kotofeya.mobileconfigurator.databinding.TransiverSettingsFragmentBinding;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
+import com.kotofeya.mobileconfigurator.network.PostInfoListener;
+import com.kotofeya.mobileconfigurator.presentation.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.presentation.activities.MainActivityViewModel;
+import com.kotofeya.mobileconfigurator.presentation.fragments.FragmentHandler;
 
-public class TransceiverSettingsNetworkFragment extends TransceiverSettingsFragment {
+import java.util.List;
 
+public class TransceiverSettingsNetworkFragment extends Fragment
+        implements PostCommand, PostInfoListener {
 
+    public static final String TAG = TransceiverSettingsNetworkFragment.class.getSimpleName();
+    protected FragmentHandler fragmentHandler;
+    protected TransiverSettingsFragmentBinding binding;
+    protected MainActivityViewModel viewModel;
+    protected String ssid;
 
     @Nullable
     @Override
@@ -32,51 +45,92 @@ public class TransceiverSettingsNetworkFragment extends TransceiverSettingsFragm
                              @Nullable Bundle savedInstanceState) {
         super.onCreateView(inflater, container, savedInstanceState);
 
+        this.ssid = getArguments() != null ? getArguments().getString("ssid") : null;
+
+        binding = TransiverSettingsFragmentBinding.inflate(inflater, container, false);
+        viewModel = ViewModelProviders.of(requireActivity()).get(MainActivityViewModel.class);
+        viewModel.setMainBtnRescanVisibility(View.GONE);
+        viewModel.transceivers.observe(getViewLifecycleOwner(), this::updateUIButtons);
+        viewModel.transceiverSettingsText().observe(getViewLifecycleOwner(), this::updateUI);
+
+        fragmentHandler = ((MainActivity) requireActivity()).getFragmentHandler();
+        Transceiver transceiver = viewModel.getTransceiverBySsid(ssid);
+        binding.addNewSettings.setOnClickListener( v-> {
+            String ip = transceiver.getIp();
+            Bundle bundle = new Bundle();
+            bundle.putString("ip", ip);
+            DialogFragment dialog = getDialogSettings();
+            dialog.setArguments(bundle);
+            dialog.show(fragmentHandler.getFragmentManager(), getAddSettingsCommand());
+        });
+
+
+        ///
         viewModel.setMainTxtLabel("Network settings: " + ssid);
 
         binding.showSettingsBtn.setText(getString(R.string.show_settings_network));
         binding.setDefaultSettings.setText(getString(R.string.set_default_network_settings));
         binding.addNewSettings.setText(getString(R.string.add_new_network_settings));
 
+        binding.setDefaultSettings.setOnClickListener(v -> {
+            String ip = transceiver.getIp();
+            Thread thread = new Thread(new PostInfo(ip, PostCommand.NETWORK_CLEAR, new PostInfoListener() {
+                @Override
+                public void postInfoSuccessful(String ip, String response) {
+                    fragmentHandler.showMessage((response.startsWith("Ok")) ?
+                            "Настройки сброшены и примутся при перезапуске." : "Error");
+                }
+
+                @Override
+                public void postInfoFailed(String error) {
+                    Logger.d(TAG, "postInfoFailed(), error: " + error);
+                }
+            }));
+            thread.start();
+
+        });
+        binding.showSettingsBtn.setOnClickListener( v-> {
+            String ip = transceiver.getIp();
+            Thread thread = new Thread(new PostInfo(ip, PostCommand.READ_NETWORK, new PostInfoListener() {
+                @Override
+                public void postInfoSuccessful(String ip, String response) {
+                    response = response.isEmpty() ? "Empty response" : response;
+                    viewModel.setTransceiverSettingsText(response);
+                }
+
+                @Override
+                public void postInfoFailed(String error) {
+                    Logger.d(TAG, "postInfoFailed(), error: " + error);
+
+                }
+            }));
+            thread.start();
+        });
         return binding.getRoot();
     }
 
-    @Override
     public void updateButtonsState() {
         binding.showSettingsBtn.setEnabled(true);
         binding.setDefaultSettings.setEnabled(true);
         binding.addNewSettings.setEnabled(true);
     }
-
-    @Override
-    protected String getShowSettingsCommand() {
-        return PostCommand.READ_NETWORK;
-    }
-
-    @Override
-    protected String getDefaultSettingsCommand() {
-        return PostCommand.NETWORK_CLEAR;
-    }
-
-    @Override
     protected DialogFragment getDialogSettings() {
-        AddNewEthernetSettingsDialog dialog = new AddNewEthernetSettingsDialog();
-        dialog.setListener(this);
-        return dialog;
+        return new AddNewEthernetSettingsDialog();
     }
-
-    @Override
     protected String getAddSettingsCommand() {
         return FragmentHandler.ADD_NEW_ETHERNET_SETTINGS_DIALOG;
     }
 
-    public static class AddNewEthernetSettingsDialog extends DialogFragment implements PostCommand{
-        private String transIp;
-        private OnTaskCompleted listener;
+    @Override
+    public void postInfoSuccessful(String ip, String response) {}
 
-        public void setListener(OnTaskCompleted listener) {
-            this.listener = listener;
-        }
+    @Override
+    public void postInfoFailed(String error) {}
+
+    public static class AddNewEthernetSettingsDialog
+            extends DialogFragment
+            implements PostCommand{
+        private String transIp;
 
         @NonNull
         @Override
@@ -102,8 +156,20 @@ public class TransceiverSettingsNetworkFragment extends TransceiverSettingsFragm
                 String ipStr = ip.getText().toString();
                 String gateStr = gate.getText().toString();
                 String maskStr = mask.getText().toString();
-                Thread thread = new Thread(new PostInfo(listener,
-                        transIp, staticEthernet(ipStr, gateStr, maskStr)));
+                Thread thread = new Thread(new PostInfo(
+                        transIp, staticEthernet(ipStr, gateStr, maskStr), new PostInfoListener() {
+                    @Override
+                    public void postInfoSuccessful(String ip, String response) {
+                        ((MainActivity) requireActivity()).getFragmentHandler()
+                                .showMessage((response.startsWith("Ok")) ?
+                                "Новые параметры заданы и примутся при перезапуске." : "Error");
+                    }
+                    @Override
+                    public void postInfoFailed(String error) {
+                        ((MainActivity) requireActivity()).getFragmentHandler()
+                                .showMessage("Error");
+                    }
+                }));
                 thread.start();
                 dismiss();
             });
@@ -144,5 +210,20 @@ public class TransceiverSettingsNetworkFragment extends TransceiverSettingsFragm
             return null;
         };
         return ipGateMaskFilters;
+    }
+
+
+    private void updateUIButtons(List<Transceiver> transceivers) {
+        Transceiver transceiver = viewModel.getTransceiverBySsid(ssid);
+        String ip = transceiver.getIp();
+        String version = transceiver.getVersion();
+        if(version != null && !version.equals("ssh_conn")){
+            if(ip != null){
+                updateButtonsState();
+            }
+        }
+    }
+    private void updateUI(String text) {
+        binding.settingsTv.setText(text);
     }
 }

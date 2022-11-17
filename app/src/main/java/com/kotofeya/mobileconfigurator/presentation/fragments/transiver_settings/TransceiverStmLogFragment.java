@@ -7,15 +7,30 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.fragment.app.DialogFragment;
+import androidx.fragment.app.Fragment;
+import androidx.lifecycle.ViewModelProviders;
 
-import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.databinding.TransiverSettingsFragmentBinding;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
+import com.kotofeya.mobileconfigurator.network.PostInfo;
+import com.kotofeya.mobileconfigurator.network.PostInfoListener;
+import com.kotofeya.mobileconfigurator.presentation.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.presentation.activities.MainActivityViewModel;
+import com.kotofeya.mobileconfigurator.presentation.fragments.FragmentHandler;
 
-public class TransceiverStmLogFragment extends TransceiverSettingsFragment {
+import java.util.List;
+
+public class TransceiverStmLogFragment extends Fragment
+        implements PostCommand {
 
     private static final String LOG_IS_EMPTY = "Stm log is empty";
+
+    protected FragmentHandler fragmentHandler;
+    protected TransiverSettingsFragmentBinding binding;
+    protected MainActivityViewModel viewModel;
+    protected String ssid;
 
     @Nullable
     @Override
@@ -24,6 +39,51 @@ public class TransceiverStmLogFragment extends TransceiverSettingsFragment {
                              @Nullable Bundle savedInstanceState) {
 
         super.onCreateView(inflater, container, savedInstanceState);
+
+        this.ssid = getArguments() != null ? getArguments().getString("ssid") : null;
+
+        binding = TransiverSettingsFragmentBinding.inflate(inflater, container, false);
+        viewModel = ViewModelProviders.of(requireActivity()).get(MainActivityViewModel.class);
+        viewModel.setMainBtnRescanVisibility(View.GONE);
+        viewModel.transceivers.observe(getViewLifecycleOwner(), this::updateUIButtons);
+        viewModel.transceiverSettingsText().observe(getViewLifecycleOwner(), this::updateUI);
+
+        fragmentHandler = ((MainActivity) requireActivity()).getFragmentHandler();
+        Transceiver transceiver = viewModel.getTransceiverBySsid(ssid);
+
+        binding.showSettingsBtn.setOnClickListener( v-> {
+            String ip = transceiver.getIp();
+            Thread thread = new Thread(new PostInfo(ip, PostCommand.STM_UPDATE_LOG, new PostInfoListener() {
+                @Override
+                public void postInfoSuccessful(String ip, String response) {
+                    response = response.isEmpty() ? LOG_IS_EMPTY : response;
+                    viewModel.setTransceiverSettingsText(response);
+                }
+
+                @Override
+                public void postInfoFailed(String error) {
+
+                }
+            }));
+            thread.start();
+        });
+
+        binding.setDefaultSettings.setOnClickListener(v -> {
+            String ip = transceiver.getIp();
+            Thread thread = new Thread(new PostInfo(ip, PostCommand.STM_UPDATE_LOG_CLEAR, new PostInfoListener() {
+                @Override
+                public void postInfoSuccessful(String ip, String response) {
+                    fragmentHandler.showMessage("Stm log file was cleared");
+                    viewModel.setTransceiverSettingsText(LOG_IS_EMPTY);
+                }
+
+                @Override
+                public void postInfoFailed(String error) {
+
+                }
+            }));
+            thread.start();
+        });
 
         viewModel.setMainTxtLabel("Stm log: " + ssid);
 
@@ -36,47 +96,25 @@ public class TransceiverStmLogFragment extends TransceiverSettingsFragment {
         return binding.getRoot();
     }
 
-    @Override
     public void updateButtonsState() {
         binding.showSettingsBtn.setEnabled(true);
         binding.setDefaultSettings.setEnabled(true);
     }
 
-    @Override
-    protected String getShowSettingsCommand() {
-        return PostCommand.STM_UPDATE_LOG;
-    }
-
-    @Override
-    protected String getDefaultSettingsCommand() {
-        return PostCommand.STM_UPDATE_LOG_CLEAR;
-    }
-
-    @Override
-    protected DialogFragment getDialogSettings() {
-        return null;
-    }
-
-    @Override
-    protected String getAddSettingsCommand() {
-        return null;
-    }
-
-    @Override
-    public void onTaskCompleted(Bundle result) {
-        String command = result.getString(BundleKeys.COMMAND_KEY);
-        String response = result.getString(BundleKeys.RESPONSE_KEY);
-        if(command != null) {
-            switch (command) {
-                case PostCommand.STM_UPDATE_LOG:
-                    response = response.isEmpty() ? LOG_IS_EMPTY : response;
-                    viewModel.setTransceiverSettingsText(response);
-                    break;
-                case PostCommand.STM_UPDATE_LOG_CLEAR:
-                    fragmentHandler.showMessage("Stm log file was cleared");
-                    viewModel.setTransceiverSettingsText(LOG_IS_EMPTY);
-                    break;
+    private void updateUIButtons(List<Transceiver> transceivers) {
+        Transceiver transceiver = viewModel.getTransceiverBySsid(ssid);
+        String ip = transceiver.getIp();
+        String version = transceiver.getVersion();
+        if(version != null && !version.equals("ssh_conn")){
+            if(ip != null){
+                updateButtonsState();
             }
         }
     }
+
+
+    private void updateUI(String text) {
+        binding.settingsTv.setText(text);
+    }
+
 }

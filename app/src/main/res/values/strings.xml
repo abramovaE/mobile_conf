@@ -109,5 +109,6 @@
     <string name="upload_btn">Upload</string>
     <string name="update_btn">Update</string>
     <string name="cancel_btn">Cancel</string>
+    <string name="hotspot_settings_btn">Hotspot settings</string>
 
 </resources>

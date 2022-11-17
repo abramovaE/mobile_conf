@@ -14,25 +14,27 @@ import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
+import com.kotofeya.mobileconfigurator.network.NetworkUtils;
+import com.kotofeya.mobileconfigurator.network.PostCommand;
+import com.kotofeya.mobileconfigurator.network.request.PostCommandListener;
+import com.kotofeya.mobileconfigurator.network.request.PostCommandUseCase;
 import com.kotofeya.mobileconfigurator.presentation.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.presentation.activities.MainActivityViewModel;
 import com.kotofeya.mobileconfigurator.databinding.ScannerFragmentClBinding;
 import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import com.kotofeya.mobileconfigurator.presentation.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.presentation.fragments.scanner.ScannerFragmentVM;
-import com.kotofeya.mobileconfigurator.network.request.SettingsUpdatePhpListener;
-import com.kotofeya.mobileconfigurator.network.request.SettingsUpdatePhpUseCase;
 import com.kotofeya.mobileconfigurator.presentation.rv_adapter.AdapterListener;
 import com.kotofeya.mobileconfigurator.presentation.rv_adapter.RvAdapter;
 import com.kotofeya.mobileconfigurator.presentation.rv_adapter.RvAdapterFactory;
 import com.kotofeya.mobileconfigurator.presentation.rv_adapter.RvAdapterType;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
 public class SettingsUpdatePhpFragment extends Fragment implements
-        SettingsUpdatePhpListener,
         AdapterListener {
 
     private static final String TAG = SettingsUpdatePhpFragment.class.getSimpleName();
@@ -65,30 +67,36 @@ public class SettingsUpdatePhpFragment extends Fragment implements
         builder.setTitle(R.string.confirmation_is_required);
         builder.setMessage(CONFIRM_THE_UPDATE_OF_PHP_VERSION);
 
-        builder.setPositiveButton(R.string.update_btn, (dialog, id) -> {
-            Thread thread = new Thread(
-                    new SettingsUpdatePhpUseCase(this, ip));
-            thread.start();
-        });
-        builder.setNegativeButton(R.string.cancel_btn, (dialog, id) -> {});
-        builder.setCancelable(true);
-        builder.show();
-    }
+        try {
+            String command = NetworkUtils.getUrl(ip, PostCommand.UPDATE_PHP);
+            builder.setPositiveButton(R.string.update_btn, (dialog, id) ->
+                    new PostCommandUseCase(new PostCommandListener() {
+                        @Override
+                        public void postCommandSuccessful(String response) {
+                            Logger.d(TAG, "updateSuccessful()");
+                            if(response.startsWith("Ok")){
+                                fragmentHandler.showMessage(PHP_VERSION_UPDATED_SUCCESSFULLY);
+                            } else {
+                                fragmentHandler.showMessage(UPDATING_PHP_VERSION_FAILED + " " + response);
+                            }
+                        }
 
-    @Override
-    public void updateSuccessful(String ip, String response) {
-        Logger.d(TAG, "updateSuccessful()");
-        if(response.startsWith("Ok")){
-            fragmentHandler.showMessage(PHP_VERSION_UPDATED_SUCCESSFULLY);
-        } else {
-            fragmentHandler.showMessage(UPDATING_PHP_VERSION_FAILED + " " + response);
+                        @Override
+                        public void postCommandFailed(String error) {
+                            Logger.d(TAG, "updateFailed()");
+                            fragmentHandler.showMessage(UPDATING_PHP_VERSION_FAILED  + " " + error);
+                        }
+                }, command).newRequest());
+            builder.setNegativeButton(R.string.cancel_btn, (dialog, id) -> {});
+            builder.setCancelable(true);
+            builder.show();
+
+
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
-    @Override
-    public void updateFailed(String ip, String errorMessage) {
-        Logger.d(TAG, "updateFailed()");
-        fragmentHandler.showMessage(UPDATING_PHP_VERSION_FAILED  + " " + errorMessage);
-    }
+
 
     @Nullable
     @Override

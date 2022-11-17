@@ -6,6 +6,7 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.network.NetworkUtils;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.List;
 
@@ -14,6 +15,7 @@ import okhttp3.Callback;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import retrofit2.http.HTTP;
 
 public class PostTranspContentVersionUseCase {
 
@@ -41,7 +43,7 @@ public class PostTranspContentVersionUseCase {
                     @Override
                     public void onResponse(@NonNull Call call, @NonNull Response response) {
                         int code = response.code();
-                        if(code == 200) {
+                        if(code == HttpURLConnection.HTTP_OK) {
                             List<String> files = NetworkUtils.getTransportContent(response);
                             listener.postTranspContentVersionSuccessful(urlCommand, files);
                         } else {
@@ -56,6 +58,7 @@ public class PostTranspContentVersionUseCase {
                 });
             } catch (IOException e) {
                 e.printStackTrace();
+                listener.postTranspContentVersionFailed(urlCommand, e.getLocalizedMessage());
             }
         }
 }

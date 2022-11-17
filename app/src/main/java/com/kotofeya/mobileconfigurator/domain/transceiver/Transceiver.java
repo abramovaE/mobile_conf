@@ -130,14 +130,6 @@ public class Transceiver {
         return new ArrayList<>();
     }
 
-    public String getContent(){
-        if(takeInfoFull != null){
-//            return takeInfoFull.getContent();
-        }
-        return "no content";
-    }
-
-
     public String getVersion() {
         return version;
     }
@@ -162,6 +154,30 @@ public class Transceiver {
         Logger.d(TAG, "isTransport(): " + isTransport);
         return isTransport;
     }
+
+    public String getContent(){
+        List<TakeInfoTranspContent> transpContents = getTranspContents();
+        List<TakeInfoStatContent> statContents = getStatContents();
+
+        StringBuilder sb = new StringBuilder();
+
+        if(isTransport() && transpContents != null) {
+            transpContents.forEach(it -> {
+                sb.append(it.getLocalRouteList())
+                        .append(" - ")
+                        .append(it.getIncrRouteList())
+                        .append("\n");
+            });
+        } else if(isStationary() && statContents != null){
+            statContents.forEach(it-> {
+                    sb.append(it.describeContents())
+                            .append(" - ")
+                            .append(it.getShortInfo())
+                            .append("\n");});
+        }
+        return sb.toString();
+    }
+
 
     public String getExpBasicScanInfo(){
         Logger.d(Logger.MAIN_LOG, "getExpBasicScanInfo(), " +

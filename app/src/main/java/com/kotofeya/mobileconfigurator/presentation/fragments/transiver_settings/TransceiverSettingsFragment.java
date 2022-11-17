@@ -11,21 +11,20 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.OnTaskCompleted;
-import com.kotofeya.mobileconfigurator.presentation.activities.MainActivityViewModel;
-import com.kotofeya.mobileconfigurator.presentation.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.databinding.TransiverSettingsFragmentBinding;
-import com.kotofeya.mobileconfigurator.presentation.fragments.FragmentHandler;
+import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.PostInfo;
-import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
+import com.kotofeya.mobileconfigurator.network.PostInfoListener;
+import com.kotofeya.mobileconfigurator.presentation.activities.MainActivity;
+import com.kotofeya.mobileconfigurator.presentation.activities.MainActivityViewModel;
+import com.kotofeya.mobileconfigurator.presentation.fragments.FragmentHandler;
 
 import java.util.List;
 
 public abstract class TransceiverSettingsFragment extends Fragment
-        implements PostCommand, OnTaskCompleted {
+        implements PostCommand, PostInfoListener {
 
     private static final String TAG = TransceiverSettingsFragment.class.getSimpleName();
     protected FragmentHandler fragmentHandler;
@@ -69,15 +68,16 @@ public abstract class TransceiverSettingsFragment extends Fragment
 
         binding.showSettingsBtn.setOnClickListener( v-> {
             String ip = transceiver.getIp();
-            Thread thread = new Thread(new PostInfo(this, ip, getShowSettingsCommand()));
+            Thread thread = new Thread(new PostInfo(ip, getShowSettingsCommand(), this));
             thread.start();
         });
+
         binding.setDefaultSettings.setOnClickListener(v -> {
             String ip = transceiver.getIp();
-            Thread thread = new Thread(new PostInfo(this, ip, getDefaultSettingsCommand()));
+            Thread thread = new Thread(new PostInfo(ip, getDefaultSettingsCommand(), this));
             thread.start();
-
         });
+
         binding.addNewSettings.setOnClickListener( v-> {
             String ip = transceiver.getIp();
             Bundle bundle = new Bundle();
@@ -89,39 +89,7 @@ public abstract class TransceiverSettingsFragment extends Fragment
         return binding.getRoot();
     }
 
-
     private void updateUI(String text) {
         binding.settingsTv.setText(text);
-    }
-
-    public void onTaskCompleted(Bundle result) {
-        String command = result.getString(BundleKeys.COMMAND_KEY);
-        String response = result.getString(BundleKeys.RESPONSE_KEY);
-        if(command != null) {
-            switch (command) {
-                case PostCommand.SCUART:
-                case PostCommand.READ_NETWORK:
-                case PostCommand.READ_WPA:
-                    response = response.isEmpty() ? "Empty response" : response;
-                    viewModel.setTransceiverSettingsText(response);
-                    break;
-
-                case PostCommand.NETWORK_CLEAR:
-                case PostCommand.WIFI_CLEAR:
-                    fragmentHandler.showMessage((response.startsWith("Ok")) ?
-                            "Настройки сброшены и примутся при перезапуске." : "Error");
-                    break;
-
-                case PostCommand.STATIC:
-                case PostCommand.WIFI:
-                    fragmentHandler.showMessage((response.startsWith("Ok")) ?
-                            "Новые параметры заданы и примутся при перезапуске." : "Error");
-                    break;
-
-                case POST_COMMAND_ERROR:
-                    fragmentHandler.showMessage(response);
-                    break;
-            }
-        }
     }
 }

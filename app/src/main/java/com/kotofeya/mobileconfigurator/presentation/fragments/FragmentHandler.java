@@ -10,7 +10,6 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
 import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.MainMenuFragment;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.presentation.activities.MainActivity;
 import com.kotofeya.mobileconfigurator.presentation.fragments.config.ConfigStatFragment;
@@ -135,26 +134,26 @@ public class FragmentHandler {
     }
 
     public void changeFragmentBundle(String fragmentTag, Bundle bundle){
-        Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName() + ": " + fragmentTag + ", " + bundle);
+        Logger.d(TAG, "changeFragmentBundle()" + ": " + fragmentTag + ", " + bundle);
         Fragment fragment = getFragment(fragmentTag);
         fragment.setArguments(bundle);
         setFragment(fragment, fragmentTag, true);
     }
 
     public void changeFragment(String fragmentTag){
-        Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName() + ": " + fragmentTag);
+        Logger.d(TAG, "changeFragment()" + ": " + fragmentTag);
         Fragment fragment = getFragment(fragmentTag);
         setFragment(fragment, fragmentTag, true);
     }
 
     public void changeFragment(String fragmentTag, boolean stacked){
-        Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName() + ": " + fragmentTag + ", " + stacked);
+        Logger.d(TAG, "changeFragment()" + ": " + fragmentTag + ", " + stacked);
         Fragment fragment = getFragment(fragmentTag);
         setFragment(fragment, fragmentTag, stacked);
     }
 
     private void setFragment(Fragment fragment, String tag, boolean stacked){
-        Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName() + ": " + tag + ", " + stacked);
+        Logger.d(TAG, "setFragment()" + ": " + tag + ", " + stacked);
 
         FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
         fragmentTransaction.replace(R.id.fragment_container, fragment, tag);

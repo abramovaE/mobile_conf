@@ -31,7 +31,7 @@ public class NetworkUtils {
         return "http://" + ip + "/interface/index.php?" + getQuery(params);
     }
 
-    private static String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
+    public static String getQuery(List<NameValuePair> params) throws UnsupportedEncodingException {
         StringBuilder result = new StringBuilder();
         boolean first = true;
         for (NameValuePair pair : params) {
@@ -45,6 +45,7 @@ public class NetworkUtils {
         }
         return result.toString();
     }
+
 
     public static String responseToString(Response response){
         StringBuilder content = new StringBuilder();
@@ -92,8 +93,9 @@ public class NetworkUtils {
 
 
 
+
     public static Map<String, String> getStationContent(Response response){
-        Map<String, String> tempUpdateStatContentFiles = new HashMap<String, String>();
+        Map<String, String> tempUpdateStatContentFiles = new HashMap<>();
         StringBuilder content = new StringBuilder();
         try {
             ResponseBody responseBody = response.body();

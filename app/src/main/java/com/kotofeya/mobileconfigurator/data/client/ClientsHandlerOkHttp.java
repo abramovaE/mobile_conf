@@ -1,14 +1,11 @@
 package com.kotofeya.mobileconfigurator.data.client;
 
-import android.os.Bundle;
-
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
-import com.kotofeya.mobileconfigurator.BundleKeys;
 import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.OnTaskCompleted;
-import com.kotofeya.mobileconfigurator.SshTakeInfoConnectionRunnable;
+import com.kotofeya.mobileconfigurator.network.request.SshTakeInfoListener;
+import com.kotofeya.mobileconfigurator.network.request.SshTakeInfoUseCase;
 import com.kotofeya.mobileconfigurator.data.TransceiverRepositoryImpl;
 import com.kotofeya.mobileconfigurator.domain.client.AddClientsUseCase;
 import com.kotofeya.mobileconfigurator.domain.client.ClearClientsUseCase;
@@ -19,19 +16,20 @@ import com.kotofeya.mobileconfigurator.domain.hotspot.WiFiLocalHotspot;
 import com.kotofeya.mobileconfigurator.domain.transceiver.EditTransceiverUseCase;
 import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
 import com.kotofeya.mobileconfigurator.network.PostCommand;
+import com.kotofeya.mobileconfigurator.network.ResponseParser;
 import com.kotofeya.mobileconfigurator.network.request.PostTakeInfoListener;
 import com.kotofeya.mobileconfigurator.network.request.PostTakeInfoUseCase;
 import com.kotofeya.mobileconfigurator.network.request.PostVersionListener;
 import com.kotofeya.mobileconfigurator.network.request.PostVersionUseCase;
-import com.kotofeya.mobileconfigurator.network.ResponseParser;
-import com.kotofeya.mobileconfigurator.network.SshCommand;
 import com.kotofeya.mobileconfigurator.network.response.TakeInfoFull;
 
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 
 public class ClientsHandlerOkHttp implements DeviceScanListener,
-        OnTaskCompleted, PostVersionListener, PostTakeInfoListener {
+        PostVersionListener,
+        PostTakeInfoListener,
+        SshTakeInfoListener {
 
     CountDownLatch latch;
 
@@ -99,10 +97,11 @@ public class ClientsHandlerOkHttp implements DeviceScanListener,
         if(!isScanningLiveData.getValue()) {
             Logger.d(TAG, "get take info");
             Logger.d(TAG, "clients: " + clients);
+
             if (clients.size() > 0) {
                 for (int i = 0; i < clients.size(); i++) {
                     String ip = clients.get(i);
-                    new PostVersionUseCase(this, ip, PostCommand.VERSION).newRequest();
+                    new PostVersionUseCase(this, ip).newRequest();
                 }
             } else {
                 isTakeInfoFinished.postValue(true);
@@ -113,25 +112,7 @@ public class ClientsHandlerOkHttp implements DeviceScanListener,
 
     private void runSShTakeInfo(String ip){
         Logger.d(TAG, "runSShTakeInfo(), ip: " + ip);
-        new Thread(new SshTakeInfoConnectionRunnable(this, ip)).start();
-    }
-
-    @Override
-    public void onTaskCompleted(Bundle result) {
-        String command = result.getString(BundleKeys.COMMAND_KEY);
-        String response = result.getString(BundleKeys.RESPONSE_KEY);
-        String ip = result.getString(BundleKeys.IP_KEY);
-
-        switch (command) {
-            case SshCommand.SSH_TAKE_COMMAND:
-                decrementLatch();
-                addTransceiver(response);
-                break;
-            case SshCommand.SSH_COMMAND_ERROR:
-                decrementLatch();
-                removeClient(ip);
-                break;
-        }
+        new Thread(new SshTakeInfoUseCase(this, ip)).start();
     }
 
     public void removeClient(String ip){
@@ -220,5 +201,19 @@ public class ClientsHandlerOkHttp implements DeviceScanListener,
                 latch = null;
             }
         }
+    }
+
+    @Override
+    public void sshTakeInfoSuccessful(String response) {
+        Logger.d(TAG, "sshTakeInfoSuccessful(): " + response);
+        decrementLatch();
+        addTransceiver(response);
+    }
+
+    @Override
+    public void sshTakeInfoFailed(String ip, String error) {
+        Logger.d(TAG, "sshTakeInfoFailed(): " + ip + " " + error);
+        decrementLatch();
+        removeClient(ip);
     }
 }

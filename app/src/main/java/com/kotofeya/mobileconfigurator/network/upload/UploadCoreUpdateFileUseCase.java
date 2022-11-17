@@ -8,29 +8,29 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import com.jcraft.jsch.SftpProgressMonitor;
 import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.data.TempFilesRepositoryImpl;
 import com.kotofeya.mobileconfigurator.domain.tempfiles.GetCoreUpdateFilesUseCase;
+import com.kotofeya.mobileconfigurator.network.PostCommand;
 import com.kotofeya.mobileconfigurator.network.SshUtils;
 
 import java.io.File;
 import java.io.IOException;
 
-public class UploadCoreUpdateFileUseCase extends AsyncTask<Object, Object, String> implements TaskCode {
+public class UploadCoreUpdateFileUseCase extends AsyncTask<Object, Object, String> {
 
     private static final String TAG = UploadCoreUpdateFileUseCase.class.getSimpleName();
-    private static final String REBOOT_COMMAND = "sudo reboot";
+//    private static final String REBOOT_COMMAND = "sudo reboot";
 
-    private UploadCoreUpdateFileListener uploadCoreUpdateFileListener;
+    private final UploadCoreUpdateFileListener uploadCoreUpdateFileListener;
 
     private final String ip;
-    private String serial;
+    private final String serial;
     private int iteration;
     private int transferred;
     private File file;
 
-    private TempFilesRepositoryImpl tempFilesRepository = TempFilesRepositoryImpl.getInstance();
-    private GetCoreUpdateFilesUseCase getCoreUpdateFilesUseCase =
+    private final TempFilesRepositoryImpl tempFilesRepository = TempFilesRepositoryImpl.getInstance();
+    private final GetCoreUpdateFilesUseCase getCoreUpdateFilesUseCase =
             new GetCoreUpdateFilesUseCase(tempFilesRepository);
 
     public UploadCoreUpdateFileUseCase(File file,
@@ -73,7 +73,7 @@ public class UploadCoreUpdateFileUseCase extends AsyncTask<Object, Object, Strin
             return "success";
 //            uploadCoreUpdateFileListener.uploadFileSuccessful(file, iteration,serial, ip);
 
-        } catch (JSchException | IOException e) {
+        } catch (JSchException | IOException | InterruptedException e) {
             Logger.d(TAG, "exception: " + e.getMessage() + " " + e.getCause());
 
 //            uploadCoreUpdateFileListener.uploadFileFailed(file, iteration);
@@ -102,14 +102,14 @@ public class UploadCoreUpdateFileUseCase extends AsyncTask<Object, Object, Strin
         switch (iteration){
             case 0:
                 renameCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/" + "root.img.bz2";
-                cmd = renameCommand + ";" + REBOOT_COMMAND;
+                cmd = renameCommand + ";" + PostCommand.REBOOT_COMMAND;
                 break;
             case 1:
-                cmd = REBOOT_COMMAND;
+                cmd = PostCommand.REBOOT_COMMAND;
                 break;
             case 3:
                 renameCommand = "sudo mv " + "/overlay/update/" + fileName + " /overlay/update/" + "root-new.img.bz2";
-                cmd = renameCommand + ";" + REBOOT_COMMAND;
+                cmd = renameCommand + ";" + PostCommand.REBOOT_COMMAND;
                 break;
         }
         Logger.d(TAG, "getCoreExecCommand(), iteration: " + iteration + ", cmd: " + cmd);
@@ -148,5 +148,4 @@ public class UploadCoreUpdateFileUseCase extends AsyncTask<Object, Object, Strin
             }
         }
     }
-
 }

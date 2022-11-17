@@ -1,8 +1,11 @@
 package com.kotofeya.mobileconfigurator.presentation.rv_adapter;
 
 import android.content.Context;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
@@ -12,25 +15,34 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.domain.transceiver.Transceiver;
-import com.kotofeya.mobileconfigurator.network.response.TakeInfoStatContent;
-import com.kotofeya.mobileconfigurator.network.response.TakeInfoTranspContent;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 
-public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
-        implements ExpTextInt{
-    private List<Transceiver> objects;
-    private RvAdapterType adapterType;
-    protected AdapterListener adapterListener;
+public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder> {
+
+    public static final int GENERAL_TYPE = -1;
+    public static final int BASIC_SCANNER_TYPE = 0;
+    public static final int UPDATE_OS_TYPE = 1;
+    public static final int UPDATE_STM_TYPE = 2;
+    public static final int UPDATE_CONTENT_TYPE = 3;
+    public static final int CONFIG_TRANSPORT = 4;
+    public static final int CONFIG_STATION = 5;
+    public static final int SETTINGS = 6;
+    public static final int SETTINGS_UPDATE_PHP = 7;
+    public static final int SETTINGS_UPDATE_CORE = 8;
+    public static final String NO_UPDATES = "no updates";
+    public static final String NO_INCR = "no incr";
     public static final String SSH_CONN = "ssh_conn";
+
+    private List<Transceiver> objects;
+    private final RvAdapterType adapterType;
+    protected AdapterListener adapterListener;
     private static final String TAG = RvAdapter.class.getSimpleName();
 
-    public RvAdapter(List<Transceiver> objects) {
-
-        this.objects = objects;
-        this.objects.sort(Comparator.comparing(Transceiver::getSsid));
-    }
+    private Map<String, String> statVersions;
+    private List<String> transpVersions;
 
     public RvAdapter(List<Transceiver> objects,
                      AdapterListener adapterListener,
@@ -44,7 +56,20 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        RvAdapterView itemView = new RvAdapterView(parent.getContext());
+        int layoutId;
+        switch (viewType){
+            case BASIC_SCANNER_TYPE:
+                layoutId = R.layout.item_basic_scanner_type;
+                break;
+            case UPDATE_CONTENT_TYPE:
+                layoutId = R.layout.item_update_content_type;
+                break;
+            default:
+                layoutId = R.layout.item_general_type;
+                break;
+        }
+        View itemView = LayoutInflater.from(parent.getContext())
+                .inflate(layoutId, parent, false);
         itemView.setLayoutParams(new ViewGroup.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.WRAP_CONTENT
@@ -52,125 +77,106 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
         return new ViewHolder(itemView);
     }
 
-
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         Logger.d(TAG, "onBindViewHolder(), type: " + adapterType);
-
         Transceiver transceiver = getTransceiver(position);
 
         if(transceiver != null) {
             String ssid = transceiver.getSsid();
             boolean isTransport = transceiver.isTransport();
             boolean isStationary = transceiver.isStationary();
-            String increment = transceiver.getIncrementOfContent();
 
-            String version = transceiver.getVersion();
+            if(transceiver.getUpdatingTime() != null) {
+                String updatingSsid = ssid + " " + transceiver.getUpdatingTime();
+                holder.ssid.setText(updatingSsid);
+            } else {
+                holder.ssid.setText(ssid);
+            }
 
-            holder.setSsid(ssid);
-            holder.setTextItem0Text("os: " + transceiver.getOsVersion()) ;
-            holder.setTextItem1Text("stm: " + transceiver.getStmFirmware());
-            holder.setTextItem2Text("bl: " + transceiver.getStmBootloader());
-
-            holder.setExpButtonListener(v -> {
-                holder.setExpText(getExpText(transceiver));
-                holder.setExpVisibility();
-                holder.setExpButtonText();
-            });
+            holder.itemView.setOnClickListener(v ->
+                    adapterListener.adapterItemOnClick(transceiver));
 
             if(adapterType != null) {
-
+                String text0;
                 switch (adapterType) {
-                    case SETTINGS:
-                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
+                    case BASIC_SCANNER_TYPE:
+                        text0 = "os: " + transceiver.getOsVersion() +
+                                "\n stm: " + transceiver.getStmFirmware() +
+                                "\n bootloader: " + transceiver.getStmBootloader();
+
+                        holder.expButton.setOnClickListener(v -> {
+                            holder.expText.setText(transceiver.getExpBasicScanInfo());
+                            holder.expText
+                                    .setVisibility(holder.expText.getVisibility() == View.GONE
+                                    ? View.VISIBLE : View.GONE);
+                            holder.expButton
+                                    .setText(holder.expText.getVisibility() == View.GONE ? "+" : "-");
+                        });
+                        holder.text0.setText(text0);
                         break;
 
                     case CONFIG_STATION:
-                        if (isStationary) {
-                            holder.setIncrement(increment);
-                            holder.setTextItem0Visibility(View.VISIBLE);
-                            holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
-                        }
-                        break;
-
                     case CONFIG_TRANSPORT:
-                        Logger.d(TAG, "rvAdapter: " + adapterType);
-                        Logger.d(TAG, "rvAdapter listener: " + adapterListener);
-
-                        if (isTransport) {
-                            holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
-                        }
+                        text0 = "os: \n" + transceiver.getOsVersion();
+                        holder.text0.setText(text0);
                         break;
 
                     case UPDATE_CONTENT_TYPE:
-                        holder.setTextItem0Visibility(View.VISIBLE);
                         StringBuilder sb = new StringBuilder();
-                        sb.append(transceiver.getTType());
-                        sb.append("\n");
-                        Logger.d(TAG, "tr contents: " + transceiver.getSsid() + " " + transceiver.isTransport());
+                        sb.append(transceiver.getTType())
+                                .append("\n")
+                                .append(transceiver.getContent())
+                                .append("os: ")
+                                .append(transceiver.getOsVersion());
+                        text0 = sb.toString().isEmpty() ? NO_INCR : sb.toString();
+                        holder.text1.setText(NO_UPDATES);
 
-                        if(transceiver.isTransport()) {
-                            Logger.d(TAG, "tr contents: " + transceiver.getTranspContents());
-                            if(transceiver.getTranspContents() != null) {
-                                for (TakeInfoTranspContent transpContent : transceiver.getTranspContents()) {
-                                    sb.append(transpContent.getLocalRouteList()).append(" - ").append(transpContent.getIncrRouteList());
-                                    sb.append("\n");
-                                }
+                        if (isTransport) {
+                            if (transpVersions != null) {
+                                holder.text1.setText("");
                             }
-                        } else if(transceiver.isStationary() && transceiver.getStatContents() != null){
-                            for (TakeInfoStatContent statContent : transceiver.getStatContents()) {
-                                sb.append(statContent.describeContents()).append(" - ").append(statContent.getShortInfo());
-                                sb.append("\n");
+                        } else if (isStationary) {
+                            if (statVersions != null
+                                    && statVersions.containsKey(ssid)) {
+                                holder.text1.setText(statVersions.get(ssid));
                             }
                         }
-
-                        sb.append("os: ").append(transceiver.getOsVersion());
-                        holder.setIncrement(sb.toString());
-                        holder.setTextItem1Text("no updates");
-//                        if (isTransport) {
-//                            if (UpdateContentFragment2.tempUpdateTransportContentFiles != null) {
-//                                holder.setTextItem1Text("          ");
-//                            }
-//                        } else if (isStationary) {
-//                            Map<String, String> contentFiles = UpdateContentFragment2.tempUpdateStationaryContentFiles;
-//                            if (contentFiles != null
-//                                    && contentFiles.containsKey(ssid)) {
-//                                holder.setTextItem1Text(contentFiles.get(ssid));
-//                            }
-//                        }
-                        holder.setTextItem1Visibility(View.VISIBLE);
-                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
+                        holder.text0.setText(text0);
                         break;
 
                     case UPDATE_STM_TYPE:
-                        holder.setTextItem1Visibility(View.VISIBLE);
-                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
+                        text0 = "stm: " + transceiver.getStmFirmware();
+                        holder.text0.setText(text0);
                         break;
 
                     case UPDATE_OS_TYPE:
-                        holder.setTextItem0Visibility(View.VISIBLE);
-                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
+                        text0 = transceiver.getOsVersion();
+                        holder.text0.setText(text0);
                         break;
 
                     case SETTINGS_UPDATE_CORE:
-                        if(transceiver.getUpdatingTime() != null) {
-                            holder.setSsid(ssid + " " + transceiver.getUpdatingTime());
-                        }
-                        String versionString = version + " " + (version.equals(Transceiver.VERSION_UNDEFINED) ? "old" : "new");
-                        holder.setTextItem0Text(versionString);
-                        holder.setTextItem0Visibility(View.VISIBLE);
-                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
+                        text0 = transceiver.getVersionString();
+                        holder.text0.setText(text0);
                         break;
 
                     case SETTINGS_UPDATE_PHP:
-                        holder.setTextItem0Text(version);
-                        holder.setTextItem0Visibility(View.VISIBLE);
-                        holder.setVersionColor(version);
-                        holder.setCustomViewOnClickListener(v -> adapterListener.adapterItemOnClick(transceiver));
+                        String version = transceiver.getVersion();
+                        text0 = version;
+                        Context context = App.get().getApplicationContext();
+                        int color;
+                        if(version != null && !version.startsWith(SSH_CONN)) {
+                            color = ContextCompat.getColor(context, R.color.black);
+                        } else {
+                            color = ContextCompat.getColor(context, R.color.lightGrey);
+                        }
+                        holder.text0.setText(text0);
+                        holder.text0.setTextColor(color);
+                        holder.ssid.setTextColor(color);
                         break;
+                    }
                 }
             }
-        }
     }
 
     public Transceiver getTransceiver(int position) {
@@ -180,82 +186,56 @@ public class RvAdapter extends RecyclerView.Adapter<RvAdapter.ViewHolder>
     }
 
     @Override
+    public int getItemViewType(int position) {
+        switch (adapterType){
+            case BASIC_SCANNER_TYPE:
+                return BASIC_SCANNER_TYPE;
+            case UPDATE_OS_TYPE:
+                return UPDATE_OS_TYPE;
+            case UPDATE_STM_TYPE:
+                return UPDATE_STM_TYPE;
+            case UPDATE_CONTENT_TYPE:
+                return UPDATE_CONTENT_TYPE;
+            case CONFIG_TRANSPORT:
+                return CONFIG_TRANSPORT;
+            case CONFIG_STATION:
+                return CONFIG_STATION;
+            case SETTINGS:
+                return SETTINGS;
+            case SETTINGS_UPDATE_PHP:
+                return SETTINGS_UPDATE_PHP;
+            case SETTINGS_UPDATE_CORE:
+                return SETTINGS_UPDATE_CORE;
+            default:
+                return GENERAL_TYPE;
+        }
+    }
+
+    @Override
     public int getItemCount() {
         return objects.size();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder{
-        private final RvAdapterView customView;
         public ViewHolder(View itemView) {
             super(itemView);
-            customView = (RvAdapterView) itemView;
         }
-
-        public void setSsid(String ssid){
-            customView.setSsid(ssid);
-        }
-
-        public void setTextItem0Visibility(int visibility){
-            customView.setTextItem0Visibility(visibility);
-        }
-        public void setTextItem1Visibility(int visibility){
-            customView.setTextItem1Visibility(visibility);
-        }
-        public void setTextItem2Visibility(int visibility){
-            customView.setTextItem2Visibility(visibility);
-        }
-        public void setTextItem0Text(String text){
-            Logger.d(TAG, "setTextItem0Text(), text: " + text);
-            customView.setTextItem0Text(text);
-        }
-        public void setTextItem1Text(String text){
-            customView.setTextItem1Text(text);
-        }
-        public void setTextItem2Text(String text){
-            customView.setTextItem2Text(text);
-        }
-
-        public void setExpBtnVisibility(int visibility){
-            customView.setExpBtnVisibility(visibility);
-        }
-        public void setCustomViewOnClickListener(View.OnClickListener listener){
-//            customView.setClickable(true);
-            customView.setOnClickListener(listener);
-        }
-        public void setExpText(String text){
-            customView.setExpText(text);
-        }
-        public void setExpVisibility(){
-            customView.setExpVisibility();
-        }
-        public void setExpButtonText(){
-            customView.setExpButtonText();
-        }
-        public void setExpButtonListener(View.OnClickListener listener) {
-            customView.setExpButtonListener(listener);
-        }
-
-        private void setIncrement(String increment){
-            if (increment != null && increment.isEmpty()) {
-                customView.setTextItem0Text("no incr");
-            } else {
-                customView.setTextItem0Text(increment);
-            }
-        }
-
-        private void setVersionColor(String version){
-            Context context = App.get().getApplicationContext();
-            if(version != null && !version.startsWith(SSH_CONN)) {
-                customView.setTextItem0Color(ContextCompat.getColor(context, R.color.black));
-                customView.setSsidColor(ContextCompat.getColor(context, R.color.black));
-            } else {
-                customView.setTextItem0Color(ContextCompat.getColor(context, R.color.lightGrey));
-                customView.setSsidColor(ContextCompat.getColor(context, R.color.lightGrey));
-            }
-        }
+        TextView ssid = itemView.findViewById(R.id.ssid);
+        TextView text0 = itemView.findViewById(R.id.text0);
+        TextView text1 = itemView.findViewById(R.id.text1);
+        Button expButton = itemView.findViewById(R.id.exp_btn);
+        TextView expText = itemView.findViewById(R.id.exp_text);
     }
 
     public void setObjects(List<Transceiver> objects) {
         this.objects = objects;
     }
+
+    public void setStatVersions(Map<String, String> map){
+        this.statVersions = map;
+    }
+    public void setTranspVersions(List<String> versions){
+        this.transpVersions = versions;
+    }
+
 }

@@ -16,7 +16,8 @@ import com.kotofeya.mobileconfigurator.App;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.presentation.activities.MainActivityViewModel;
 
-public class SettingsFragment extends Fragment implements CompoundButton.OnCheckedChangeListener {
+public class SettingsFragment extends Fragment
+        implements CompoundButton.OnCheckedChangeListener {
 
     private MainActivityViewModel viewModel;
 
@@ -28,7 +29,9 @@ public class SettingsFragment extends Fragment implements CompoundButton.OnCheck
 
     @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+    public View onCreateView(@NonNull LayoutInflater inflater,
+                             @Nullable ViewGroup container,
+                             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.settings_fragment, container, false);
         viewModel = ViewModelProviders.of(requireActivity()).get(MainActivityViewModel.class);
         CheckBox showAccessPointDialog = view.findViewById(R.id.settings_doNotAskCheckbox);

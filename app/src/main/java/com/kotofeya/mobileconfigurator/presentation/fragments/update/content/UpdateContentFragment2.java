@@ -16,7 +16,7 @@ import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.kotofeya.mobileconfigurator.InternetConn;
+import com.kotofeya.mobileconfigurator.network.InternetConn;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.presentation.activities.MainActivity;
@@ -131,6 +131,7 @@ public class UpdateContentFragment2 extends Fragment
         viewModel.transceivers.observe(getViewLifecycleOwner(), this::updateUI);
         viewModel.isGetTakeInfoFinished.observe(getViewLifecycleOwner(), this::updateScannerProgressBarTv);
 
+
         scannerFragmentVM = ViewModelProviders.of(requireActivity()).get(ScannerFragmentVM.class);
         scannerFragmentVM.getProgressBarVisibility().observe(getViewLifecycleOwner(),
                 this::updateProgressBarVisibility);
@@ -146,6 +147,10 @@ public class UpdateContentFragment2 extends Fragment
                 this::updateDownloadedFilesTvVisibility);
 
         updateContentFragmentVM = ViewModelProviders.of(requireActivity()).get(UpdateContentFragmentVM.class);
+        updateContentFragmentVM.stationaryContentVersionsLiveData.observe(getViewLifecycleOwner(),
+                this::updateStatVersions);
+        updateContentFragmentVM.transportContentVersionsLiveData.observe(getViewLifecycleOwner(),
+                this::updateTranspVersions);
 
         hideProgressBar();
         loadVersion();
@@ -176,6 +181,18 @@ public class UpdateContentFragment2 extends Fragment
                 new ArrayList<>(), getAdapterListener());
         binding.rvScanner.setAdapter(rvAdapter);
         return binding.getRoot();
+    }
+
+    private void updateStatVersions(Map<String, String> stringStringMap) {
+        Logger.d(TAG, "updateUI()");
+        rvAdapter.setStatVersions(stringStringMap);
+        rvAdapter.notifyDataSetChanged();
+    }
+
+    private void updateTranspVersions(List<String> versions) {
+        Logger.d(TAG, "updateUI()");
+        rvAdapter.setTranspVersions(versions);
+        rvAdapter.notifyDataSetChanged();
     }
 
     private void updateProgressBarVisibility(Integer integer) {
@@ -257,6 +274,7 @@ public class UpdateContentFragment2 extends Fragment
             String key = transceiver.getSsid();
             Map<String, String> tempUpdateStationaryContentFiles =
                     updateContentFragmentVM.stationaryContentVersionsLiveData.getValue();
+
             if (tempUpdateStationaryContentFiles != null &&
                     tempUpdateStationaryContentFiles.containsKey(key)) {
                 showUploadContentConfDialog(key,
@@ -314,8 +332,8 @@ public class UpdateContentFragment2 extends Fragment
             if(value.length() > 20 && value.contains("_")){
                 File file = new File(value);
                 showProgressBar(String.format(DOWNLOADING_FILE, file.getName()));
-                new UploadContentUpdateFileUseCase(file, ip, "",
-                        this).execute();
+                new Thread(new UploadContentUpdateFileUseCase(file, ip, "",
+                        this)).start();
             } else {
                 try {
                     URL url = new URL(urlString + "/" + value);
@@ -332,11 +350,10 @@ public class UpdateContentFragment2 extends Fragment
 //                            hideProgressBar();
                             Logger.d(TAG, "downloadFileSuccessful(): " + destinationFile);
                             showProgressBar(String.format(DOWNLOADING_FILE, destinationFile.getName()));
-                            new UploadContentUpdateFileUseCase(destinationFile,
+                            new Thread(new UploadContentUpdateFileUseCase(destinationFile,
                                     ip,
                                     "",
-                                    UpdateContentFragment2.this)
-                                    .execute();
+                                    UpdateContentFragment2.this)).start();
                         }
 
                         @Override
@@ -388,8 +405,11 @@ public class UpdateContentFragment2 extends Fragment
     }
 
     @Override
-    public void uploadContentFileSuccessful(File destinationFile, String serial, String ip) {
+    public void uploadContentFileSuccessful(File destinationFile,
+                                            String serial,
+                                            String ip) {
         Logger.d(TAG, "uploadContentFileSuccessful: " + destinationFile);
+        viewModel.startUpdatingTimer(ip);
         hideProgressBar();
         uploaded(ip);
     }

@@ -9,19 +9,22 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
 import com.kotofeya.mobileconfigurator.App;
-import com.kotofeya.mobileconfigurator.CheckUser;
+import com.kotofeya.mobileconfigurator.network.request.CheckUserListener;
+import com.kotofeya.mobileconfigurator.network.request.CheckUserUseCase;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 
 public class LoginActivity extends AppCompatActivity implements View.OnClickListener,
-        CheckUser.MyCustomCallBack, View.OnKeyListener {
+        CheckUserListener, View.OnKeyListener {
 
+    private static final String TAG = LoginActivity.class.getSimpleName();
     private EditText loginTxt;
     private EditText passwordTxt;
     private boolean isRemembered;
@@ -62,11 +65,19 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
     public void onClick(View v) {
         String login = loginTxt.getText().toString();
         String password = passwordTxt.getText().toString();
-        new CheckUser(login, password, this).execute();
+        new CheckUserUseCase(login, password, this).run();
     }
 
     @Override
-    public void doIfUserValid() {
+    public void checkUserSuccessful(String level) {
+        Logger.d(TAG, "checkUserSuccessful(), level: " + level);
+
+        String message = App.get().getResources().getString(R.string.successful);
+
+        runOnUiThread(() -> Toast.makeText(this, message, Toast.LENGTH_SHORT).show());
+
+        App.get().setLevel(level);
+
         Intent intent = new Intent(this, MainActivity.class);
         String login = loginTxt.getText().toString();
         String password = passwordTxt.getText().toString();
@@ -79,6 +90,13 @@ public class LoginActivity extends AppCompatActivity implements View.OnClickList
             App.get().resetLoginInformation();
         }
     }
+
+    @Override
+    public void checkUserFailed(String error) {
+        Logger.d(TAG, "checkUserFailed(), error: " + error);
+        runOnUiThread(() -> Toast.makeText(App.get().getApplicationContext(), error, Toast.LENGTH_SHORT).show());
+    }
+
 
     @Override
     public boolean onKey(View v, int keyCode, KeyEvent event) {

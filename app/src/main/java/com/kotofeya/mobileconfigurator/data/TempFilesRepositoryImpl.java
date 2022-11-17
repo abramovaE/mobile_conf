@@ -7,7 +7,7 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.kotofeya.mobileconfigurator.App;
-import com.kotofeya.mobileconfigurator.InternetConn;
+import com.kotofeya.mobileconfigurator.network.InternetConn;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.domain.tempfiles.TempFilesRepository;
 import com.kotofeya.mobileconfigurator.domain.user.UserFactory;

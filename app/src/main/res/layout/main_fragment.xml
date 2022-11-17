@@ -168,6 +168,14 @@
             android:text="@string/main_settings_btn"
             style="@style/MainMenuBtnStyle"
             android:visibility="gone"/>
+
+        <Button
+            android:id="@+id/hotspot_settings_btn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/hotspot_settings_btn"
+            style="@style/MainMenuBtnStyle"
+            android:visibility="visible"/>
     </LinearLayout>
 
     </LinearLayout>

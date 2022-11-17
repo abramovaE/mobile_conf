@@ -11,6 +11,13 @@
         <entry key="app/src/main/res/layout/activity_main_cl.xml" value="0.14402173913043478" />
         <entry key="app/src/main/res/layout/add_new_ethernet_settings_dialog.xml" value="0.24947916666666667" />
         <entry key="app/src/main/res/layout/content_fragment.xml" value="0.12760416666666666" />
+        <entry key="app/src/main/res/layout/item_basic_scanner_type.xml" value="0.1" />
+        <entry key="app/src/main/res/layout/item_config.xml" value="0.19067028985507245" />
+        <entry key="app/src/main/res/layout/item_config_type.xml" value="0.19067028985507245" />
+        <entry key="app/src/main/res/layout/item_general_type.xml" value="0.16770833333333332" />
+        <entry key="app/src/main/res/layout/item_update_content_type.xml" value="0.19067028985507245" />
+        <entry key="app/src/main/res/layout/item_update_php_black_type.xml" value="0.16770833333333332" />
+        <entry key="app/src/main/res/layout/item_update_php_gray_type.xml" value="0.16770833333333332" />
         <entry key="app/src/main/res/layout/login.xml" value="0.12158054711246201" />
         <entry key="app/src/main/res/layout/main_fragment.xml" value="0.1" />
         <entry key="app/src/main/res/layout/scanner_fragment_cl.xml" value="0.1" />

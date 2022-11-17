@@ -6,6 +6,7 @@ import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.network.NetworkUtils;
 
 import java.io.IOException;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Map;
 
@@ -41,7 +42,7 @@ public class PostStatContentVersionUseCase {
                     @Override
                     public void onResponse(@NonNull Call call, @NonNull Response response) {
                         int code = response.code();
-                        if(code == 200) {
+                        if(code == HttpURLConnection.HTTP_OK) {
                             Map<String, String> files = NetworkUtils.getStationContent(response);
                             listener.postStatContentVersionSuccessful(urlCommand, files);
                         } else {

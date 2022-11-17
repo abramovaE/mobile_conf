@@ -18,4 +18,5 @@ public class GetTransceiverListUseCase {
         Logger.d(TAG, "getTransceiverList()");
         return transceiverRepository.getTransceiverList();
     }
+
 }

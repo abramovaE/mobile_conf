@@ -17,7 +17,7 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 
 import com.kotofeya.mobileconfigurator.App;
-import com.kotofeya.mobileconfigurator.InternetConn;
+import com.kotofeya.mobileconfigurator.network.InternetConn;
 import com.kotofeya.mobileconfigurator.Logger;
 import com.kotofeya.mobileconfigurator.R;
 import com.kotofeya.mobileconfigurator.presentation.activities.MainActivity;
@@ -32,8 +32,8 @@ import com.kotofeya.mobileconfigurator.presentation.fragments.FragmentHandler;
 import com.kotofeya.mobileconfigurator.presentation.fragments.scanner.ScannerFragmentVM;
 import com.kotofeya.mobileconfigurator.network.download.DownloadFileListener;
 import com.kotofeya.mobileconfigurator.network.download.DownloadFileUseCase;
-import com.kotofeya.mobileconfigurator.network.request.PostOsVersionListener;
-import com.kotofeya.mobileconfigurator.network.request.PostOsVersionUseCase;
+import com.kotofeya.mobileconfigurator.network.request.PostCommandListener;
+import com.kotofeya.mobileconfigurator.network.request.PostCommandUseCase;
 import com.kotofeya.mobileconfigurator.network.upload.UploadOsUpdateFileListener;
 import com.kotofeya.mobileconfigurator.network.upload.UploadOsUpdateFileUseCase;
 import com.kotofeya.mobileconfigurator.presentation.rv_adapter.AdapterListener;
@@ -51,8 +51,7 @@ import java.util.List;
 public class UpdateOsFragment2 extends Fragment implements
         AdapterListener,
         DownloadFileListener,
-        UploadOsUpdateFileListener,
-        PostOsVersionListener {
+        UploadOsUpdateFileListener {
 
     private static final String TAG = UpdateOsFragment2.class.getSimpleName();
 
@@ -190,23 +189,24 @@ public class UpdateOsFragment2 extends Fragment implements
         Logger.d(TAG, new Throwable().getStackTrace()[0].getMethodName());
         boolean isInternetEnabled = InternetConn.hasInternetConnection();
         if(isInternetEnabled){
-            new PostOsVersionUseCase(this, OS_VERSION_URL).newRequest();
-        }
-    }
-    @Override
-    public void postOsVersionSuccessful(String command, String version) {
-        Logger.d(TAG, "postVersionSuccessful(), version: " + version);
-        if(version.contains("ver")){
-            version = version.substring(version.indexOf("ver"), version.indexOf("<a href"));
-            serverOsVersion = version;
-            updateOsFragmentVM.setServerOsVersion(version);
+            new PostCommandUseCase(new PostCommandListener() {
+                @Override
+                public void postCommandSuccessful(String version) {
+                    Logger.d(TAG, "postVersionSuccessful(), version: " + version);
+                    if(version.contains("ver")){
+                        version = version.substring(version.indexOf("ver"), version.indexOf("<a href"));
+                        serverOsVersion = version;
+                        updateOsFragmentVM.setServerOsVersion(version);
+                    }
+                }
+                @Override
+                public void postCommandFailed(String error) {
+                    Logger.d(TAG, "postVersionFailed(): " + error);
+                }
+            }, OS_VERSION_URL).newRequest();
         }
     }
 
-    @Override
-    public void postOsVersionFailed(String command, String error) {
-        Logger.d(TAG, "postVersionFailed(): " + error);
-    }
 
     private void downloadFile(){
         File downloadingFile = tempUpdateOsFile;
@@ -327,6 +327,7 @@ public class UpdateOsFragment2 extends Fragment implements
         Logger.d(TAG, "uploadFileSuccessful(), file: " + destinationFile);
         hideProgressBar();
         String resultString = getCoreResultString(serial);
+        viewModel.startUpdatingTimer(ip);
         fragmentHandler.showMessage(resultString);
     }
     @Override

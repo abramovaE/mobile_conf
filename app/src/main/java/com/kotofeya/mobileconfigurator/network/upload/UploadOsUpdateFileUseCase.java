@@ -8,13 +8,12 @@ import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 import com.jcraft.jsch.SftpProgressMonitor;
 import com.kotofeya.mobileconfigurator.Logger;
-import com.kotofeya.mobileconfigurator.TaskCode;
 import com.kotofeya.mobileconfigurator.network.SshUtils;
 
 import java.io.File;
 import java.io.IOException;
 
-public class UploadOsUpdateFileUseCase extends AsyncTask<Object, Object, String> implements TaskCode {
+public class UploadOsUpdateFileUseCase extends AsyncTask<Object, Object, String> {
 
     private static final String TAG = UploadOsUpdateFileUseCase.class.getSimpleName();
     private static final String REBOOT_COMMAND = "sudo reboot";
@@ -47,7 +46,7 @@ public class UploadOsUpdateFileUseCase extends AsyncTask<Object, Object, String>
             uploadToOverlayUpdate(session, file);
             String r = SshUtils.execCommand(session, cmd);
             return "success";
-        } catch (JSchException | IOException e) {
+        } catch (JSchException | IOException | InterruptedException e) {
             Logger.d(TAG, "exception: " + e.getMessage() + " " + e.getCause());
         } finally {
             if (session != null) {
